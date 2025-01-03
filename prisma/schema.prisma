@@ -1,0 +1,119 @@
+// =================================================================
+// Prisma Schema Configuration
+// =================================================================
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PG_DATABASE_URL")
+  // For Supabase configuration (uncomment if needed):
+  // url       = env("SUPABASE_DATABASE_URL")
+  // directUrl = env("SUPABASE_DIRECT_URL")
+}
+
+// =================================================================
+// Authentication Models
+// =================================================================
+// Generated using @better-auth/cli with custom modifications
+// Integration with NextAuth.js: https://authjs.dev/getting-started/adapters/prisma
+
+model User {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String    @unique
+  name          String
+  emailVerified Boolean
+  image         String?
+  username      String?   @unique
+  role          String?   // Custom field for role-based access
+  createdAt     DateTime
+  updatedAt     DateTime
+  
+  // Relations
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  accountId             String
+  providerId            String
+  userId                String    @db.Uuid
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  password              String?
+  accessToken           String?
+  refreshToken          String?
+  idToken              String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  createdAt            DateTime
+  updatedAt            DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+// =================================================================
+// Prisma CLI Commands Reference
+// =================================================================
+/*
+Initial Setup:
+-------------
+- prisma init                 : Initialize a new Prisma project
+- npx prisma generate         : Generate Prisma Client
+- npx @better-auth/cli init   : Initialize Better Auth (requires: pnpm add @better-auth/cli)
+
+Database Operations:
+------------------
+- npx prisma db push         : Push schema changes directly to database
+- npx prisma migrate dev     : Create a new migration and apply it
+- npx prisma migrate reset   : Reset database to initial state
+- npx prisma db seed        : Run database seeding
+- npx @better-auth/cli migrate: Run Better Auth migrations
+
+Development Tools:
+----------------
+- npx prisma studio         : Open Prisma Studio (database GUI)
+
+Common Workflows:
+---------------
+1. Making schema changes:
+   - Update schema.prisma
+   - Run 'npx prisma generate'
+   - Run 'npx prisma db push' (development) or 'npx prisma migrate dev' (production)
+
+2. Resetting database:
+   - Run 'npx prisma migrate reset'
+   - Run 'npx prisma db seed' (if needed)
+
+3. Viewing data:
+   - Run 'npx prisma studio'
+*/
