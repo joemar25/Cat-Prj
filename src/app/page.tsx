@@ -1,32 +1,22 @@
 // src/app/page.tsx
-import { auth } from "@/lib/auth"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+"use client"
 
-export default async function Home() {
-  const session = await auth()
+import { useKioskStore } from "@/state/use-kiosk-store"
+import { SuccessStep } from "@/components/kiosk/success-step"
+import { SelectServiceStep } from "@/components/kiosk/select-service"
+import { TrueCopyRequest } from "@/components/kiosk/true-copy-request"
+import { VerifyRegistration } from "@/components/kiosk/verify-registration"
+
+export default function HomePage() {
+  const { currentStep, service } = useKioskStore()
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold mb-6">Hello World!</h1>
-        {session ? (
-          <Link href="/dashboard">
-            <Button variant={"outline"}>Go to Dashboard</Button>
-          </Link>
-        ) : (
-          <>
-            <Link href="/auth/sign-in">
-              <Button variant={"outline"}>Sign In</Button>
-            </Link>
-            <Link href="/auth/sign-up">
-              <Button variant={"outline"}>Sign Up</Button>
-            </Link>
-            <Link href="/register">
-              <Button variant={"outline"}>Register</Button>
-            </Link>
-          </>
-        )}
+    <div className="h-screen flex items-center justify-center p-8">
+      <div className="max-w-4xl w-full">
+        {currentStep === 1 && <SelectServiceStep />}
+        {currentStep === 2 && service === "trueCopy" && <TrueCopyRequest />}
+        {currentStep === 2 && service === "verify" && <VerifyRegistration />}
+        {currentStep === 3 && <SuccessStep />}
       </div>
     </div>
   )
