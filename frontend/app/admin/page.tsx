@@ -1,28 +1,28 @@
-import {redirect} from "next/navigation";
-import getRequestClient from "../lib/getRequestClient";
-import {admin, APIError, ErrCode} from "../lib/client";
+import { redirect } from "next/navigation"
+import getRequestClient from "../lib/getRequestClient"
+import { admin, APIError, ErrCode } from "../lib/client"
 
 export default async function Admin() {
-  const client = getRequestClient();
-  let response: admin.DashboardData | undefined;
-  let error: APIError | undefined;
+  const client = getRequestClient()
+  let response: admin.DashboardData | undefined
+  let error: APIError | undefined
 
   try {
-    response = await client.admin.getDashboardData();
+    response = await client.admin.getDashboardData()
   } catch (err) {
-    error = err as APIError;
+    error = err as APIError
   }
 
   if (error) {
-    if (error.code === ErrCode.Unauthenticated) redirect("/auth/unauthenticated?from=%2Fadmin");
-    else throw error;
+    if (error.code === ErrCode.Unauthenticated) redirect("/auth/unauthenticated?from=%2Fadmin")
+    else throw error
   }
 
   return (
     <section>
       <h1 className="text-3xl">Admin Dashboard</h1>
-      <br/>
+      <br />
       <p>{response?.value}</p>
     </section>
-  );
+  )
 }

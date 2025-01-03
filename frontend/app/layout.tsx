@@ -1,26 +1,29 @@
-import "./globals.css";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import Link from "next/link";
-import { cookies } from "next/headers";
+import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"] });
+import Link from "next/link"
+
+import { Inter } from "next/font/google"
+import { cookies } from "next/headers"
+
+import type { Metadata } from "next"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Encore + Next.js",
-};
+}
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/admin", label: "Admin Dashboard" },
-];
+]
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const isLoggedIn = cookies().has("auth-token");
+  const isLoggedIn = cookies().has("auth-token")
 
   return (
     <html lang="en">
@@ -52,5 +55,5 @@ export default function RootLayout({
         <main className="flex w-full p-10">{children}</main>
       </body>
     </html>
-  );
+  )
 }

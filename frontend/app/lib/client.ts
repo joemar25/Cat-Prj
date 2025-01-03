@@ -112,19 +112,19 @@ export namespace auth {
         }
 
         public async login(params: LoginParams): Promise<{
-    token: string
-}> {
+            token: string
+        }> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
-                email:    params.email,
+                email: params.email,
                 password: params.password,
             })
 
             // Now make the actual call to the API
-            const resp = await this.baseClient.callAPI("GET", `/login`, undefined, {query})
+            const resp = await this.baseClient.callAPI("GET", `/login`, undefined, { query })
             return await resp.json() as {
-    token: string
-}
+                token: string
+            }
         }
     }
 }
@@ -134,7 +134,7 @@ export namespace auth {
 function encodeQuery(parts: Record<string, string | string[]>): string {
     const pairs: string[] = []
     for (const key in parts) {
-        const val = (Array.isArray(parts[key]) ?  parts[key] : [parts[key]]) as string[]
+        const val = (Array.isArray(parts[key]) ? parts[key] : [parts[key]]) as string[]
         for (const v of val) {
             pairs.push(`${key}=${encodeURIComponent(v)}`)
         }
@@ -157,19 +157,19 @@ function makeRecord<K extends string | number | symbol, V>(record: Record<K, V |
 function encodeWebSocketHeaders(headers: Record<string, string>) {
     // url safe, no pad
     const base64encoded = btoa(JSON.stringify(headers))
-      .replaceAll("=", "")
-      .replaceAll("+", "-")
-      .replaceAll("/", "_");
-    return "encore.dev.headers." + base64encoded;
+        .replaceAll("=", "")
+        .replaceAll("+", "-")
+        .replaceAll("/", "_")
+    return "encore.dev.headers." + base64encoded
 }
 
 class WebSocketConnection {
-    public ws: WebSocket;
+    public ws: WebSocket
 
-    private hasUpdateHandlers: (() => void)[] = [];
+    private hasUpdateHandlers: (() => void)[] = []
 
     constructor(url: string, headers?: Record<string, string>) {
-        let protocols = ["encore-ws"];
+        let protocols = ["encore-ws"]
         if (headers) {
             protocols.push(encodeWebSocketHeaders(headers))
         }
@@ -177,17 +177,17 @@ class WebSocketConnection {
         this.ws = new WebSocket(url, protocols)
 
         this.on("error", () => {
-            this.resolveHasUpdateHandlers();
-        });
+            this.resolveHasUpdateHandlers()
+        })
 
         this.on("close", () => {
-            this.resolveHasUpdateHandlers();
-        });
+            this.resolveHasUpdateHandlers()
+        })
     }
 
     resolveHasUpdateHandlers() {
-        const handlers = this.hasUpdateHandlers;
-        this.hasUpdateHandlers = [];
+        const handlers = this.hasUpdateHandlers
+        this.hasUpdateHandlers = []
 
         for (const handler of handlers) {
             handler()
@@ -198,130 +198,130 @@ class WebSocketConnection {
         // await until a new message have been received, or the socket is closed
         await new Promise((resolve) => {
             this.hasUpdateHandlers.push(() => resolve(null))
-        });
+        })
     }
 
     on(type: "error" | "close" | "message" | "open", handler: (event: any) => void) {
-        this.ws.addEventListener(type, handler);
+        this.ws.addEventListener(type, handler)
     }
 
     off(type: "error" | "close" | "message" | "open", handler: (event: any) => void) {
-        this.ws.removeEventListener(type, handler);
+        this.ws.removeEventListener(type, handler)
     }
 
     close() {
-        this.ws.close();
+        this.ws.close()
     }
 }
 
 export class StreamInOut<Request, Response> {
-    public socket: WebSocketConnection;
-    private buffer: Response[] = [];
+    public socket: WebSocketConnection
+    private buffer: Response[] = []
 
     constructor(url: string, headers?: Record<string, string>) {
-        this.socket = new WebSocketConnection(url, headers);
+        this.socket = new WebSocketConnection(url, headers)
         this.socket.on("message", (event: any) => {
-            this.buffer.push(JSON.parse(event.data));
-            this.socket.resolveHasUpdateHandlers();
-        });
+            this.buffer.push(JSON.parse(event.data))
+            this.socket.resolveHasUpdateHandlers()
+        })
     }
 
     close() {
-        this.socket.close();
+        this.socket.close()
     }
 
     async send(msg: Request) {
         if (this.socket.ws.readyState === WebSocket.CONNECTING) {
             // await that the socket is opened
             await new Promise((resolve) => {
-                this.socket.ws.addEventListener("open", resolve, { once: true });
-            });
+                this.socket.ws.addEventListener("open", resolve, { once: true })
+            })
         }
 
-        return this.socket.ws.send(JSON.stringify(msg));
+        return this.socket.ws.send(JSON.stringify(msg))
     }
 
     async next(): Promise<Response | undefined> {
-        for await (const next of this) return next;
-        return undefined;
+        for await (const next of this) return next
+        return undefined
     }
 
     async *[Symbol.asyncIterator](): AsyncGenerator<Response, undefined, void> {
         while (true) {
             if (this.buffer.length > 0) {
-                yield this.buffer.shift() as Response;
+                yield this.buffer.shift() as Response
             } else {
-                if (this.socket.ws.readyState === WebSocket.CLOSED) return;
-                await this.socket.hasUpdate();
+                if (this.socket.ws.readyState === WebSocket.CLOSED) return
+                await this.socket.hasUpdate()
             }
         }
     }
 }
 
 export class StreamIn<Response> {
-    public socket: WebSocketConnection;
-    private buffer: Response[] = [];
+    public socket: WebSocketConnection
+    private buffer: Response[] = []
 
     constructor(url: string, headers?: Record<string, string>) {
-        this.socket = new WebSocketConnection(url, headers);
+        this.socket = new WebSocketConnection(url, headers)
         this.socket.on("message", (event: any) => {
-            this.buffer.push(JSON.parse(event.data));
-            this.socket.resolveHasUpdateHandlers();
-        });
+            this.buffer.push(JSON.parse(event.data))
+            this.socket.resolveHasUpdateHandlers()
+        })
     }
 
     close() {
-        this.socket.close();
+        this.socket.close()
     }
 
     async next(): Promise<Response | undefined> {
-        for await (const next of this) return next;
-        return undefined;
+        for await (const next of this) return next
+        return undefined
     }
 
     async *[Symbol.asyncIterator](): AsyncGenerator<Response, undefined, void> {
         while (true) {
             if (this.buffer.length > 0) {
-                yield this.buffer.shift() as Response;
+                yield this.buffer.shift() as Response
             } else {
-                if (this.socket.ws.readyState === WebSocket.CLOSED) return;
-                await this.socket.hasUpdate();
+                if (this.socket.ws.readyState === WebSocket.CLOSED) return
+                await this.socket.hasUpdate()
             }
         }
     }
 }
 
 export class StreamOut<Request, Response> {
-    public socket: WebSocketConnection;
-    private responseValue: Promise<Response>;
+    public socket: WebSocketConnection
+    private responseValue: Promise<Response>
 
     constructor(url: string, headers?: Record<string, string>) {
-        let responseResolver: (_: any) => void;
-        this.responseValue = new Promise((resolve) => responseResolver = resolve);
+        let responseResolver: (_: any) => void
+        this.responseValue = new Promise((resolve) => responseResolver = resolve)
 
-        this.socket = new WebSocketConnection(url, headers);
+        this.socket = new WebSocketConnection(url, headers)
         this.socket.on("message", (event: any) => {
             responseResolver(JSON.parse(event.data))
-        });
+        })
     }
 
     async response(): Promise<Response> {
-        return this.responseValue;
+        return this.responseValue
     }
 
     close() {
-        this.socket.close();
+        this.socket.close()
     }
 
     async send(msg: Request) {
         if (this.socket.ws.readyState === WebSocket.CONNECTING) {
             // await that the socket is opened
             await new Promise((resolve) => {
-                this.socket.ws.addEventListener("open", resolve, { once: true });
-            });
+                this.socket.ws.addEventListener("open", resolve, { once: true })
+            })
         }
 
-        return this.socket.ws.send(JSON.stringify(msg));
+        return this.socket.ws.send(JSON.stringify(msg))
     }
 }
 // CallParameters is the type of the parameters to a method call, but require headers to be a Record type
@@ -335,14 +335,14 @@ type CallParameters = Omit<RequestInit, "method" | "body" | "headers"> & {
 
 // AuthDataGenerator is a function that returns a new instance of the authentication data required by this API
 export type AuthDataGenerator = () =>
-  | auth.AuthParams
-  | Promise<auth.AuthParams | undefined>
-  | undefined;
+    | auth.AuthParams
+    | Promise<auth.AuthParams | undefined>
+    | undefined
 
 // A fetcher is the prototype for the inbuilt Fetch function
-export type Fetcher = typeof fetch;
+export type Fetcher = typeof fetch
 
-const boundFetch = fetch.bind(this);
+const boundFetch = fetch.bind(this)
 
 class BaseClient {
     readonly baseURL: string
@@ -360,10 +360,10 @@ class BaseClient {
         // Add User-Agent header if the script is running in the server
         // because browsers do not allow setting User-Agent headers to requests
         if (typeof window === "undefined") {
-            this.headers["User-Agent"] = "civil-registrar-is-pcp2-Generated-TS-Client (Encore/v1.45.2)";
+            this.headers["User-Agent"] = "civil-registrar-is-pcp2-Generated-TS-Client (Encore/v1.45.2)"
         }
 
-        this.requestInit = options.requestInit ?? {};
+        this.requestInit = options.requestInit ?? {}
 
         // Setup what fetch function we'll be using in the base client
         if (options.fetcher !== undefined) {
@@ -384,92 +384,92 @@ class BaseClient {
     }
 
     async getAuthData(): Promise<CallParameters | undefined> {
-        let authData: auth.AuthParams | undefined;
+        let authData: auth.AuthParams | undefined
 
         // If authorization data generator is present, call it and add the returned data to the request
         if (this.authGenerator) {
-            const mayBePromise = this.authGenerator();
+            const mayBePromise = this.authGenerator()
             if (mayBePromise instanceof Promise) {
-                authData = await mayBePromise;
+                authData = await mayBePromise
             } else {
-                authData = mayBePromise;
+                authData = mayBePromise
             }
         }
 
         if (authData) {
-            const data: CallParameters = {};
+            const data: CallParameters = {}
 
             data.headers = makeRecord<string, string>({
                 authorization: authData.authorization,
-            });
+            })
 
-            return data;
+            return data
         }
 
-        return undefined;
+        return undefined
     }
 
     // createStreamInOut sets up a stream to a streaming API endpoint.
     async createStreamInOut<Request, Response>(path: string, params?: CallParameters): Promise<StreamInOut<Request, Response>> {
-        let { query, headers } = params ?? {};
+        let { query, headers } = params ?? {}
 
         // Fetch auth data if there is any
-        const authData = await this.getAuthData();
+        const authData = await this.getAuthData()
 
         // If we now have authentication data, add it to the request
         if (authData) {
             if (authData.query) {
-                query = {...query, ...authData.query};
+                query = { ...query, ...authData.query }
             }
             if (authData.headers) {
-                headers = {...headers, ...authData.headers};
+                headers = { ...headers, ...authData.headers }
             }
         }
 
         const queryString = query ? '?' + encodeQuery(query) : ''
-        return new StreamInOut(this.baseURL + path + queryString, headers);
+        return new StreamInOut(this.baseURL + path + queryString, headers)
     }
 
     // createStreamIn sets up a stream to a streaming API endpoint.
     async createStreamIn<Response>(path: string, params?: CallParameters): Promise<StreamIn<Response>> {
-        let { query, headers } = params ?? {};
+        let { query, headers } = params ?? {}
 
         // Fetch auth data if there is any
-        const authData = await this.getAuthData();
+        const authData = await this.getAuthData()
 
         // If we now have authentication data, add it to the request
         if (authData) {
             if (authData.query) {
-                query = {...query, ...authData.query};
+                query = { ...query, ...authData.query }
             }
             if (authData.headers) {
-                headers = {...headers, ...authData.headers};
+                headers = { ...headers, ...authData.headers }
             }
         }
 
         const queryString = query ? '?' + encodeQuery(query) : ''
-        return new StreamIn(this.baseURL + path + queryString, headers);
+        return new StreamIn(this.baseURL + path + queryString, headers)
     }
 
     // createStreamOut sets up a stream to a streaming API endpoint.
     async createStreamOut<Request, Response>(path: string, params?: CallParameters): Promise<StreamOut<Request, Response>> {
-        let { query, headers } = params ?? {};
+        let { query, headers } = params ?? {}
 
         // Fetch auth data if there is any
-        const authData = await this.getAuthData();
+        const authData = await this.getAuthData()
 
         // If we now have authentication data, add it to the request
         if (authData) {
             if (authData.query) {
-                query = {...query, ...authData.query};
+                query = { ...query, ...authData.query }
             }
             if (authData.headers) {
-                headers = {...headers, ...authData.headers};
+                headers = { ...headers, ...authData.headers }
             }
         }
 
         const queryString = query ? '?' + encodeQuery(query) : ''
-        return new StreamOut(this.baseURL + path + queryString, headers);
+        return new StreamOut(this.baseURL + path + queryString, headers)
     }
 
     // callAPI is used by each generated API method to actually make the request
@@ -483,25 +483,25 @@ class BaseClient {
         }
 
         // Merge our headers with any predefined headers
-        init.headers = {...this.headers, ...init.headers, ...headers}
+        init.headers = { ...this.headers, ...init.headers, ...headers }
 
 
         // Fetch auth data if there is any
-        const authData = await this.getAuthData();
+        const authData = await this.getAuthData()
 
         // If we now have authentication data, add it to the request
         if (authData) {
             if (authData.query) {
-                query = {...query, ...authData.query};
+                query = { ...query, ...authData.query }
             }
             if (authData.headers) {
-                init.headers = {...init.headers, ...authData.headers};
+                init.headers = { ...init.headers, ...authData.headers }
             }
         }
 
         // Make the actual request
         const queryString = query ? '?' + encodeQuery(query) : ''
-        const response = await this.fetcher(this.baseURL+path+queryString, init)
+        const response = await this.fetcher(this.baseURL + path + queryString, init)
 
         // handle any error responses
         if (!response.ok) {
@@ -547,8 +547,8 @@ function isAPIErrorResponse(err: any): err is APIErrorResponse {
     return (
         err !== undefined && err !== null &&
         isErrCode(err.code) &&
-        typeof(err.message) === "string" &&
-        (err.details === undefined || err.details === null || typeof(err.details) === "object")
+        typeof (err.message) === "string" &&
+        (err.details === undefined || err.details === null || typeof (err.details) === "object")
     )
 }
 
@@ -577,13 +577,13 @@ export class APIError extends Error {
 
     constructor(status: number, response: APIErrorResponse) {
         // extending errors causes issues after you construct them, unless you apply the following fixes
-        super(response.message);
+        super(response.message)
 
         // set error name as constructor name, make it not enumerable to keep native Error behavior
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new.target#new.target_in_constructors
         Object.defineProperty(this, 'name', {
-            value:        'APIError',
-            enumerable:   false,
+            value: 'APIError',
+            enumerable: false,
             configurable: true,
         })
 
@@ -591,12 +591,12 @@ export class APIError extends Error {
         if ((Object as any).setPrototypeOf == undefined) {
             (this as any).__proto__ = APIError.prototype
         } else {
-            Object.setPrototypeOf(this, APIError.prototype);
+            Object.setPrototypeOf(this, APIError.prototype)
         }
 
         // capture a stack trace
         if ((Error as any).captureStackTrace !== undefined) {
-            (Error as any).captureStackTrace(this, this.constructor);
+            (Error as any).captureStackTrace(this, this.constructor)
         }
 
         this.status = status
@@ -609,7 +609,7 @@ export class APIError extends Error {
  * Typeguard allowing use of an APIError's fields'
  */
 export function isAPIError(err: any): err is APIError {
-    return err instanceof APIError;
+    return err instanceof APIError
 }
 
 export enum ErrCode {

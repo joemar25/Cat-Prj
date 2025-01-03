@@ -1,5 +1,5 @@
-import { cookies } from "next/headers";
-import Client, { Environment } from "./client";
+import { cookies } from "next/headers"
+import Client, { Environment } from "./client"
 
 /**
  * Returns the Encore request client for either the local or staging environment.
@@ -7,15 +7,15 @@ import Client, { Environment } from "./client";
  * and make requests to that, otherwise we use the staging client.
  */
 const getRequestClient = () => {
-  const token = cookies().get("auth-token")?.value || "";
+  const token = cookies().get("auth-token")?.value || ""
   const env =
     process.env.NODE_ENV === "development"
       ? "http://127.0.0.1:4000"
-      : Environment("staging");
+      : Environment("staging")
 
   return new Client(env, {
     auth: { authorization: token },
-  });
-};
+  })
+}
 
-export default getRequestClient;
+export default getRequestClient

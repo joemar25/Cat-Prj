@@ -6,7 +6,7 @@
   --nav-height: 50px;
 
   --black: #111111;
-  --white: #EEEEE1;
+  --white: #eeeee1;
 }
 
 html,
@@ -28,4 +28,12 @@ button {
 
 input {
   @apply text-black px-2 py-1 rounded-sm;
+}
+
+img {
+  @apply pointer-events-none;
+}
+
+a {
+  @apply hover:cursor-pointer;
 }
