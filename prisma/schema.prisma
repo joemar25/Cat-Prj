@@ -8,10 +8,44 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("PG_DATABASE_URL")
-  // For Supabase configuration (uncomment if needed):
-  // url       = env("SUPABASE_DATABASE_URL")
-  // directUrl = env("SUPABASE_DIRECT_URL")
 }
+
+// =================================================================
+// Queue Management Documentation
+// =================================================================
+/*
+Queue System Setup and Maintenance
+--------------------------------
+
+1. Initial Setup:
+   - Run `npx prisma generate` to update Prisma Client with Queue model
+   - Run `npx prisma migrate dev --name add_queue_system` for initial queue table
+   
+2. Making Schema Changes:
+   - Update schema in this file
+   - Run `npx prisma generate` to update client
+   - Run `npx prisma migrate dev --name describe_your_change`
+
+3. Development Tools:
+   - Use `npx prisma studio` to view and manage queue data
+   - Use `npx prisma migrate reset` to reset queue during development
+
+4. Queue Status Types:
+   - "waiting"    : Request is in queue
+   - "processing" : Currently being handled
+   - "completed"  : Request fulfilled
+   - "cancelled"  : Request cancelled
+
+5. Service Types:
+   - "trueCopy"   : Request for document copies
+   - "verify"     : Account verification request
+
+6. Important Notes:
+   - Queue numbers auto-increment
+   - Timestamps auto-generate
+   - User relation is optional
+   - Documents field stores array of document types
+*/
 
 // =================================================================
 // Authentication Models
@@ -33,6 +67,7 @@ model User {
   // Relations
   sessions      Session[]
   accounts      Account[]
+  queues        Queue[]
 
   @@map("user")
 }

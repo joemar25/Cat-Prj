@@ -1,3 +1,4 @@
+// src\utils\date.ts
 export function formatDateTime(isoString: string): string {
     const date = new Date(isoString)
 
