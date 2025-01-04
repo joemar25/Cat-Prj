@@ -1,4 +1,4 @@
-// src/app/page.tsx
+// src\app\queue\page.tsx
 "use client"
 
 import QueueDisplay from "@/components/kiosk/queue-display"
