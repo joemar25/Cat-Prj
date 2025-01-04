@@ -5,6 +5,10 @@ import localFont from 'next/font/local'
 import { Metadata } from 'next'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/provider/theme-provider'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { AppSidebar } from '@/components/sidebar/app-sidebar'
+import { SessionProvider } from 'next-auth/react'
+import { CountProvider } from '@/lib/context/count-context'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -39,11 +43,20 @@ export default function RootLayout({
           disableTransitionOnChange
         >
 
-          <div className='min-h-screen flex flex-col'>
-            <main className='flex-1 flex flex-col'>
-              {children}
-            </main>
-          </div>
+          <SessionProvider>
+            <CountProvider> {/* Wrap your layout with CountProvider */}
+              <div className='min-h-screen flex flex-col'>
+                <main className='flex-1 flex flex-col'>
+                  <SidebarProvider>
+                    <AppSidebar />
+                    <SidebarInset>
+                      {children}
+                    </SidebarInset>
+                  </SidebarProvider>
+                </main>
+              </div>
+            </CountProvider>
+          </SessionProvider>
 
           <Toaster
             position='top-right'

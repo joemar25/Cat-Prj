@@ -1,6 +1,7 @@
 // =================================================================
 // Prisma Schema Configuration
 // =================================================================
+
 generator client {
    provider = "prisma-client-js"
 }
@@ -10,48 +11,61 @@ datasource db {
    url      = env("PG_DATABASE_URL")
 }
 
+/**
+ * ### Configuration Details:
+ * - The `prisma-client-js` generator creates the Prisma Client for database access.
+ * - The `db` datasource connects to a PostgreSQL database, with the connection URL sourced from the environment variable `PG_DATABASE_URL`.
+ */
+
 // =================================================================
 // Queue Management Documentation
 // =================================================================
+
 /**
  * Queue System Setup and Maintenance
- * --------------------------------
- * 1. Initial Setup:
- * - Run `npx prisma generate` to update Prisma Client with Queue model
- * - Run `npx prisma migrate dev --name add_queue_system` for initial queue table
- * 2. Making Schema Changes:
- * - Update schema in this file
- * - Run `npx prisma generate` to update client
- * - Run `npx prisma migrate dev --name describe_your_change`
- * 3. Development Tools:
- * - Use `npx prisma studio` to view and manage queue data
- * - Use `npx prisma migrate reset` to reset queue during development
- * 4. Queue Status Types:
- * - "waiting"    : Request is in queue
- * - "processing" : Currently being handled
- * - "completed"  : Request fulfilled
- * - "cancelled"  : Request cancelled
- * 5. Service Types:
- * - "trueCopy"   : Request for document copies
- * - "verify"     : Account verification request
- * 6. Important Notes:
- * - Queue numbers auto-increment
- * - Timestamps auto-generate
- * - User relation is optional
- * - Documents field stores array of document types
+ * -----------------------------------
+ * ### Initial Setup:
+ * 1. Run `npx prisma generate` to update Prisma Client with the Queue model.
+ * 2. Run `npx prisma migrate dev --name add_queue_system` to create the initial queue table.
+ * ### Making Schema Changes:
+ * 1. Update the schema in this file.
+ * 2. Run `npx prisma generate` to update the client.
+ * 3. Run `npx prisma migrate dev --name describe_your_change` to apply changes.
+ * ### Development Tools:
+ * - Use `npx prisma studio` to view and manage queue data.
+ * - Use `npx prisma migrate reset` to reset the database during development.
+ * ### Queue Status Types:
+ * - "waiting": Request is in the queue.
+ * - "processing": Request is currently being handled.
+ * - "completed": Request has been fulfilled.
+ * - "cancelled": Request has been cancelled.
+ * ### Service Types:
+ * - "trueCopy": Request for document copies.
+ * - "verify": Account verification request.
+ * ### Important Notes:
+ * - Queue numbers auto-increment.
+ * - Timestamps are automatically generated.
+ * - User relation is optional.
+ * - The `documents` field stores an array of document types.
  */
 
 // =================================================================
 // Authentication Models
 // =================================================================
-// Generated using @better-auth/cli with custom modifications
-// Integration with NextAuth.js: https://authjs.dev/getting-started/adapters/prisma
 
 enum UserRole {
    ADMIN
    STAFF
    USER
 }
+
+/**
+ * ### UserRole Enum:
+ * Defines the roles available for users in the system:
+ * - `ADMIN`: Has full permissions.
+ * - `STAFF`: Has limited administrative permissions.
+ * - `USER`: Standard user role.
+ */
 
 enum QueueStatus {
    WAITING
@@ -60,10 +74,26 @@ enum QueueStatus {
    CANCELLED
 }
 
+/**
+ * ### QueueStatus Enum:
+ * Represents the current status of a queue request:
+ * - `WAITING`: The request is in the queue and not yet processed.
+ * - `PROCESSING`: The request is currently being handled.
+ * - `COMPLETED`: The request has been fulfilled.
+ * - `CANCELLED`: The request was cancelled by the user or staff.
+ */
+
 enum ServiceType {
    TRUE_COPY
    VERIFY
 }
+
+/**
+ * ### ServiceType Enum:
+ * Defines the types of services available in the queue system:
+ * - `TRUE_COPY`: Request for document copies.
+ * - `VERIFY`: Account verification request.
+ */
 
 enum Permission {
    QUEUE_VIEW
@@ -73,6 +103,17 @@ enum Permission {
    QUEUE_ADD_NOTES
    USERS_MANAGE
 }
+
+/**
+ * ### Permission Enum:
+ * Lists the specific permissions for users in the system:
+ * - `QUEUE_VIEW`: Allows viewing of queue items.
+ * - `QUEUE_PROCESS`: Allows processing queue requests.
+ * - `QUEUE_DELETE`: Allows deletion of queue items.
+ * - `QUEUE_UPDATE`: Allows updating of queue details.
+ * - `QUEUE_ADD_NOTES`: Allows adding notes to queue items.
+ * - `USERS_MANAGE`: Allows managing user accounts and roles.
+ */
 
 model User {
    id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -96,6 +137,13 @@ model User {
    @@map("user")
 }
 
+/**
+ * ### User Model:
+ * Represents system users and their attributes:
+ * - Has fields for `id`, `email`, `name`, `role`, and permissions.
+ * - Supports relations to sessions, accounts, and queues.
+ */
+
 model Session {
    id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
    expiresAt DateTime
@@ -110,6 +158,12 @@ model Session {
    @@map("session")
 }
 
+/**
+ * ### Session Model:
+ * Stores user sessions, including `token`, expiration, and device details:
+ * - Links to a user via the `userId` field.
+ * - Automatically deletes sessions if the linked user is removed.
+ */
 
 model Account {
    id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -130,6 +184,13 @@ model Account {
    @@map("account")
 }
 
+/**
+ * ### Account Model:
+ * Represents external accounts linked to users:
+ * - Includes fields for tokens, provider details, and expiration times.
+ * - Supports cascading deletions when linked users are removed.
+ */
+
 model Verification {
    id         String    @id
    identifier String
@@ -140,6 +201,13 @@ model Verification {
 
    @@map("verification")
 }
+
+/**
+ * ### Verification Model:
+ * Handles verification tokens for user-related operations:
+ * - Includes `identifier`, `value`, and expiration time.
+ * - Primarily used for email or password verification processes.
+ */
 
 // =================================================================
 // CRIS Custom Tables
@@ -217,34 +285,39 @@ model Attachment {
   @@map("attachment")
 }
 
+/**
+ * ### Queue Model:
+ * Represents the queue system:
+ * - Stores queue-specific attributes such as `ticketNumber`, `status`, and `serviceType`.
+ * - Includes optional relations to a user for tracking requests.
+ * - Automatically tracks timestamps (`createdAt`, `updatedAt`).
+ */
+
 // =================================================================
 // Prisma CLI Commands Reference
 // =================================================================
+
 /**
- * Initial Setup:
- * -------------
- * - prisma init                 : Initialize a new Prisma project
- * - npx prisma generate         : Generate Prisma Client
- * - npx @better-auth/cli init   : Initialize Better Auth (requires: pnpm add @better-auth/cli)
- * Database Operations:
- * ------------------
- * - npx prisma db push         : Push schema changes directly to database
- * - npx prisma migrate dev     : Create a new migration and apply it
- * - npx prisma migrate reset   : Reset database to initial state
- * - npx prisma db seed        : Run database seeding
- * - npx @better-auth/cli migrate: Run Better Auth migrations
- * Development Tools:
- * ----------------
- * - npx prisma studio         : Open Prisma Studio (database GUI)
- * Common Workflows:
- * ---------------
- * 1. Making schema changes:
- * - Update schema.prisma
- * - Run 'npx prisma generate'
- * - Run 'npx prisma db push' (development) or 'npx prisma migrate dev' (production)
- * 2. Resetting database:
- * - Run 'npx prisma migrate reset'
- * - Run 'npx prisma db seed' (if needed)
- * 3. Viewing data:
- * - Run 'npx prisma studio'
+ * ### Initial Setup:
+ * - `prisma init`: Initialize a new Prisma project.
+ * - `npx prisma generate`: Generate Prisma Client.
+ * - `npx @better-auth/cli init`: Initialize Better Auth (requires `pnpm add @better-auth/cli`).
+ * ### Database Operations:
+ * - `npx prisma db push`: Push schema changes directly to the database.
+ * - `npx prisma migrate dev`: Create a new migration and apply it.
+ * - `npx prisma migrate reset`: Reset the database to the initial state.
+ * - `npx prisma db seed`: Run database seeding.
+ * - `npx @better-auth/cli migrate`: Run Better Auth migrations.
+ * ### Development Tools:
+ * - `npx prisma studio`: Open Prisma Studio (database GUI).
+ * ### Common Workflows:
+ * 1. **Making schema changes**:
+ * - Update `schema.prisma`.
+ * - Run `npx prisma generate`.
+ * - Run `npx prisma db push` (development) or `npx prisma migrate dev` (production).
+ * 2. **Resetting the database**:
+ * - Run `npx prisma migrate reset`.
+ * - Run `npx prisma db seed` (if needed).
+ * 3. **Viewing data**:
+ * - Run `npx prisma studio`.
  */
