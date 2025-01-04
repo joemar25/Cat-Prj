@@ -15,12 +15,25 @@ export async function handleCredentialsSignin({ email, password }: {
     password: string
 }) {
     try {
+        const user = await prisma.user.findUnique({
+            where: { email }
+        });
+
+        // restricting user role for login
+        if (!user || user.role === 'USER') {
+            return { success: false, message: 'Access denied. User role not allowed.' }
+        }
+
         await signIn("credentials", { email, password, redirectTo: "/dashboard" })
+        return { success: true }
     } catch (error) {
         if (error instanceof AuthError) {
-            return error.type === 'CredentialsSignin'
-                ? { message: 'Invalid credentials' }
-                : { message: 'Something went wrong' }
+            return {
+                success: false,
+                message: error.type === 'CredentialsSignin'
+                    ? 'Invalid credentials'
+                    : 'Something went wrong'
+            }
         }
         throw error
     }
@@ -30,19 +43,21 @@ export async function handleSignOut() {
     await signOut()
 }
 
+type SignUpInput = {
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    role?: 'ADMIN' | 'STAFF';
+}
+
 export async function handleSignUp({
     name,
     email,
     password,
     confirmPassword,
-    role
-}: {
-    name: string,
-    email: string,
-    password: string,
-    confirmPassword: string,
-    role?: UserRole
-}) {
+    role = 'STAFF'
+}: SignUpInput) {
     try {
         const parsedCredentials = signUpSchema.safeParse({
             name,
@@ -68,15 +83,9 @@ export async function handleSignUp({
         const now = new Date();
 
         // Determine the role based on environment and input
-        let userRole: UserRole;
-
-        if (process.env.NODE_ENV === 'development') {
-            // In development, allow role selection with STAFF as fallback
-            userRole = role || UserRole.STAFF;
-        } else {
-            // In production, always use STAFF role
-            userRole = UserRole.STAFF;
-        }
+        const userRole: UserRole = process.env.NODE_ENV === 'development'
+            ? (role as UserRole)
+            : 'STAFF';
 
         await prisma.$transaction(async (tx) => {
             const user = await tx.user.create({
