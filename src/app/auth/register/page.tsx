@@ -1,6 +1,11 @@
 'use client';
 
-import { PasswordInput } from '@/components/custom/general/password-input';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+
+// Components
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -18,75 +23,75 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  handleCredentialsSignin,
-  handleRegistration,
-} from '@/hooks/auth-actions';
-import { RegistrationForm, registrationSchema } from '@/lib/zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+
+// Validation schema
+import { handleRegistration } from '@/hooks/auth-actions';
+import * as z from 'zod';
+
+const formSchema = z
+  .object({
+    name: z.string().min(2, 'Name must be at least 2 characters'),
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string(),
+    dateOfBirth: z.string(),
+    phoneNumber: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    country: z.string().optional(),
+    postalCode: z.string().optional(),
+    occupation: z.string().optional(),
+    gender: z.enum(['male', 'female', 'other']).optional(),
+    nationality: z.string().optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
+
+type FormSchema = z.infer<typeof formSchema>;
 
 const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<RegistrationForm>({
-    resolver: zodResolver(registrationSchema),
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      dateOfBirth: '',
-      phoneNumber: '',
-      address: '',
-      city: '',
-      state: '',
-      country: '',
-      postalCode: '',
+      name: 'Scott Andrew Bedis',
+      email: 'bedisscottandrew@gmail.com',
+      password: '11111111',
+      confirmPassword: '11111111',
+      dateOfBirth: '2024-01-04',
+      phoneNumber: '09082091538',
+      address: 'Multiverse 1-0',
+      city: 'Legazpi',
+      state: '222222',
+      country: '22222222',
+      postalCode: '4509',
       occupation: '',
-      gender: undefined,
+      gender: 'male',
       nationality: '',
     },
   });
 
-  const onSubmit = async (data: RegistrationForm) => {
+  const onSubmit = async (data: FormSchema) => {
     setIsLoading(true);
-    console.log('Form submitted with data:', data); // Debug log
-
-    if (data.password !== data.confirmPassword) {
-      toast.error('Passwords do not match');
-      setIsLoading(false);
-      return;
-    }
+    console.log('Form submitted with data:', data);
 
     try {
-      console.log('Attempting registration...'); // Debug log
-      const registrationResult = await handleRegistration(data);
-      console.log('Registration result:', registrationResult); // Debug log
+      const result = await handleRegistration(data);
 
-      if (registrationResult.success) {
-        toast.success('Registration successful');
-
-        console.log('Attempting sign in...'); // Debug log
-        const signInResult = await handleCredentialsSignin({
-          email: data.email,
-          password: data.password,
-        });
-        console.log('Sign in result:', signInResult); // Debug log
-
-        if (signInResult && 'message' in signInResult) {
-          toast.error(`Sign in failed: ${signInResult.message}`);
-        }
-
+      if (result.success) {
+        toast.success(result.message);
         form.reset();
+        window.location.href = '/auth/sign-in';
       } else {
-        toast.error(registrationResult.message || 'Registration failed');
+        toast.error(result.message);
       }
     } catch (error) {
-      console.error('Detailed registration error:', error); // More detailed error log
-      toast.error('Registration failed');
+      console.error('Registration error:', error);
+      toast.error('Failed to create account');
     } finally {
       setIsLoading(false);
     }
@@ -94,25 +99,33 @@ const RegisterPage = () => {
 
   return (
     <div className='min-h-screen flex items-center justify-center py-12'>
-      <div className='p-6 rounded-lg shadow-lg w-full max-w-2xl'>
-        <h1 className='text-2xl font-semibold mb-6'>Create an Account</h1>
+      <div className='p-6 rounded-lg shadow-lg w-full max-w-2xl bg-black/95'>
+        <h1 className='text-2xl font-semibold mb-6 text-white'>
+          Create an Account
+        </h1>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
             {/* Basic Information */}
             <div className='space-y-4'>
-              <h2 className='text-lg font-medium'>Basic Information</h2>
+              <h2 className='text-lg font-medium text-white'>
+                Basic Information
+              </h2>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <FormField
                   control={form.control}
                   name='name'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel className='text-white'>Name</FormLabel>
                       <FormControl>
-                        <Input placeholder='Enter your name' {...field} />
+                        <Input
+                          {...field}
+                          className='bg-gray-900 text-white border-gray-700'
+                          placeholder='Enter your name'
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className='text-red-400' />
                     </FormItem>
                   )}
                 />
@@ -121,15 +134,16 @@ const RegisterPage = () => {
                   name='email'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel className='text-white'>Email</FormLabel>
                       <FormControl>
                         <Input
                           type='email'
-                          placeholder='Enter your email'
                           {...field}
+                          className='bg-gray-900 text-white border-gray-700'
+                          placeholder='Enter your email'
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className='text-red-400' />
                     </FormItem>
                   )}
                 />
@@ -138,14 +152,16 @@ const RegisterPage = () => {
                   name='password'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel className='text-white'>Password</FormLabel>
                       <FormControl>
-                        <PasswordInput
-                          placeholder='Enter your password'
+                        <Input
+                          type='password'
                           {...field}
+                          className='bg-gray-900 text-white border-gray-700'
+                          placeholder='Enter your password'
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className='text-red-400' />
                     </FormItem>
                   )}
                 />
@@ -154,14 +170,18 @@ const RegisterPage = () => {
                   name='confirmPassword'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
+                      <FormLabel className='text-white'>
+                        Confirm Password
+                      </FormLabel>
                       <FormControl>
-                        <PasswordInput
-                          placeholder='Confirm your password'
+                        <Input
+                          type='password'
                           {...field}
+                          className='bg-gray-900 text-white border-gray-700'
+                          placeholder='Confirm your password'
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className='text-red-400' />
                     </FormItem>
                   )}
                 />
@@ -170,18 +190,26 @@ const RegisterPage = () => {
 
             {/* Personal Details */}
             <div className='space-y-4'>
-              <h2 className='text-lg font-medium'>Personal Details</h2>
+              <h2 className='text-lg font-medium text-white'>
+                Personal Details
+              </h2>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <FormField
                   control={form.control}
                   name='dateOfBirth'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date of Birth</FormLabel>
+                      <FormLabel className='text-white'>
+                        Date of Birth
+                      </FormLabel>
                       <FormControl>
-                        <Input type='date' {...field} />
+                        <Input
+                          type='date'
+                          {...field}
+                          className='bg-gray-900 text-white border-gray-700'
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className='text-red-400' />
                     </FormItem>
                   )}
                 />
@@ -190,14 +218,15 @@ const RegisterPage = () => {
                   name='phoneNumber'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
+                      <FormLabel className='text-white'>Phone Number</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder='Enter your phone number'
                           {...field}
+                          className='bg-gray-900 text-white border-gray-700'
+                          placeholder='Enter your phone number'
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className='text-red-400' />
                     </FormItem>
                   )}
                 />
@@ -206,14 +235,14 @@ const RegisterPage = () => {
                   name='gender'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Gender</FormLabel>
+                      <FormLabel className='text-white'>Gender</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder='Select your gender' />
+                          <SelectTrigger className='bg-gray-900 text-white border-gray-700'>
+                            <SelectValue placeholder='Select gender' />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -222,7 +251,7 @@ const RegisterPage = () => {
                           <SelectItem value='other'>Other</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className='text-red-400' />
                     </FormItem>
                   )}
                 />
@@ -231,18 +260,24 @@ const RegisterPage = () => {
 
             {/* Address Information */}
             <div className='space-y-4'>
-              <h2 className='text-lg font-medium'>Address Information</h2>
+              <h2 className='text-lg font-medium text-white'>
+                Address Information
+              </h2>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <FormField
                   control={form.control}
                   name='address'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Address</FormLabel>
+                      <FormLabel className='text-white'>Address</FormLabel>
                       <FormControl>
-                        <Input placeholder='Enter your address' {...field} />
+                        <Input
+                          {...field}
+                          className='bg-gray-900 text-white border-gray-700'
+                          placeholder='Enter your address'
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className='text-red-400' />
                     </FormItem>
                   )}
                 />
@@ -251,11 +286,15 @@ const RegisterPage = () => {
                   name='city'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>City</FormLabel>
+                      <FormLabel className='text-white'>City</FormLabel>
                       <FormControl>
-                        <Input placeholder='Enter your city' {...field} />
+                        <Input
+                          {...field}
+                          className='bg-gray-900 text-white border-gray-700'
+                          placeholder='Enter your city'
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className='text-red-400' />
                     </FormItem>
                   )}
                 />
@@ -264,11 +303,15 @@ const RegisterPage = () => {
                   name='state'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>State</FormLabel>
+                      <FormLabel className='text-white'>State</FormLabel>
                       <FormControl>
-                        <Input placeholder='Enter your state' {...field} />
+                        <Input
+                          {...field}
+                          className='bg-gray-900 text-white border-gray-700'
+                          placeholder='Enter your state'
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className='text-red-400' />
                     </FormItem>
                   )}
                 />
@@ -277,11 +320,15 @@ const RegisterPage = () => {
                   name='country'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Country</FormLabel>
+                      <FormLabel className='text-white'>Country</FormLabel>
                       <FormControl>
-                        <Input placeholder='Enter your country' {...field} />
+                        <Input
+                          {...field}
+                          className='bg-gray-900 text-white border-gray-700'
+                          placeholder='Enter your country'
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className='text-red-400' />
                     </FormItem>
                   )}
                 />
@@ -290,57 +337,26 @@ const RegisterPage = () => {
                   name='postalCode'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Postal Code</FormLabel>
+                      <FormLabel className='text-white'>Postal Code</FormLabel>
                       <FormControl>
                         <Input
+                          {...field}
+                          className='bg-gray-900 text-white border-gray-700'
                           placeholder='Enter your postal code'
-                          {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className='text-red-400' />
                     </FormItem>
                   )}
                 />
               </div>
             </div>
 
-            {/* Additional Information */}
-            <div className='space-y-4'>
-              <h2 className='text-lg font-medium'>Additional Information</h2>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='occupation'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Occupation</FormLabel>
-                      <FormControl>
-                        <Input placeholder='Enter your occupation' {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='nationality'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nationality</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder='Enter your nationality'
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <Button type='submit' className='w-full' disabled={isLoading}>
+            <Button
+              type='submit'
+              className='w-full bg-white text-black hover:bg-gray-200'
+              disabled={isLoading}
+            >
               {isLoading ? 'Creating Account...' : 'Create Account'}
             </Button>
           </form>

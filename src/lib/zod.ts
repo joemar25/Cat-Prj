@@ -36,45 +36,27 @@ export const signInSchema = object({
 });
 
 // Registration schema with profile and attachment
-export const registrationSchema = object({
-  // Basic info
-  email: getEmailSchema(),
-  name: getNameSchema(),
-  password: getPasswordSchema('password'),
-  confirmPassword: getPasswordSchema('confirmPassword'),
-
-  // Profile
-  dateOfBirth: string({ required_error: 'Date of birth is required' }),
-  phoneNumber: string({ required_error: 'Phone number is required' }).min(
-    10,
-    'Phone number must be at least 10 digits'
-  ),
-  gender: z.enum(['male', 'female', 'other'], {
-    required_error: 'Please select a gender',
-  }),
-
-  // Address
-  address: string({ required_error: 'Address is required' }),
-  city: string({ required_error: 'City is required' }),
-  state: string({ required_error: 'State is required' }),
-  country: string({ required_error: 'Country is required' }),
-  postalCode: string({ required_error: 'Postal code is required' }),
-
-  // Additional info
-  occupation: string({ required_error: 'Occupation is required' }),
-  nationality: string({ required_error: 'Nationality is required' }),
-
-  // Attachment
-  attachmentType: z.enum(
-    ['BIRTH_CERTIFICATE', 'DEATH_CERTIFICATE', 'MARRIAGE_CERTIFICATE'],
-    {
-      required_error: 'Please select a document type',
-    }
-  ),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
+export const registrationSchema = z
+  .object({
+    name: z.string().min(2, 'Name must be at least 2 characters'),
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string(),
+    dateOfBirth: z.string().optional(),
+    phoneNumber: z.string().optional().nullable(),
+    address: z.string().optional().nullable(),
+    city: z.string().optional().nullable(),
+    state: z.string().optional().nullable(),
+    country: z.string().optional().nullable(),
+    postalCode: z.string().optional().nullable(),
+    occupation: z.string().optional().nullable(),
+    gender: z.enum(['male', 'female', 'other']).optional().nullable(),
+    nationality: z.string().optional().nullable(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 // Type inference for forms
 export type SignUpForm = z.infer<typeof signUpSchema>;
