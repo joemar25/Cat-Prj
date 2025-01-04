@@ -7,6 +7,8 @@ import { signUpSchema } from "@/lib/zod"
 import { signIn, signOut } from "@/lib/auth"
 
 import bcryptjs from "bcryptjs"
+import { UserRole } from "@prisma/client"
+import { ROLE_PERMISSIONS } from "@/types/auth"
 
 export async function handleCredentialsSignin({ email, password }: {
     email: string,
@@ -51,12 +53,17 @@ export async function handleSignUp({ name, email, password, confirmPassword }: {
         const hashedPassword = await bcryptjs.hash(password, 10);
         const now = new Date();
 
+        // Default to ADMIN role because this is signup
+        const userRole = UserRole.ADMIN;
+
         await prisma.$transaction(async (tx) => {
             const user = await tx.user.create({
                 data: {
                     email,
                     name,
                     emailVerified: false,
+                    role: userRole,
+                    permissions: ROLE_PERMISSIONS[userRole],
                     createdAt: now,
                     updatedAt: now,
                 }

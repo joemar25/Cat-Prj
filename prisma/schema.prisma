@@ -65,14 +65,24 @@ enum ServiceType {
    VERIFY
 }
 
+enum Permission {
+   QUEUE_VIEW
+   QUEUE_PROCESS
+   QUEUE_DELETE
+   QUEUE_UPDATE
+   QUEUE_ADD_NOTES
+   USERS_MANAGE
+}
+
 model User {
-   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-   email         String   @unique
+   id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+   email         String       @unique
    name          String
    emailVerified Boolean
    image         String?
-   username      String?  @unique
-   role          UserRole @default(USER)
+   username      String?      @unique
+   role          UserRole     @default(ADMIN)
+   permissions   Permission[]
    createdAt     DateTime
    updatedAt     DateTime
 

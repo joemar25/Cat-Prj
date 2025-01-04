@@ -2,8 +2,8 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
-export type KioskService = "trueCopy" | "verify" | null
-export type DocumentType = "birth" | "marriage" | "death"
+export type KioskService = 'TRUE_COPY' | 'VERIFY' | null
+export type DocumentType = 'birth' | 'marriage' | 'death'
 
 interface KioskState {
     currentStep: number
@@ -72,17 +72,15 @@ export const useKioskStore = create(
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            serviceType: state.service,
-                            userId: state.userId || null,
-                            email: state.email || null,
+                            serviceType: 'VERIFY', // Use the exact enum value
+                            userId: state.userId || undefined,
+                            email: state.email || undefined,
                             documents: [],
-                            status: 'waiting'
                         }),
                     })
                     set({ currentStep: 3 })
                 } catch (error) {
                     console.error('Failed to create queue entry:', error)
-                    // Still advance the step even if queue creation fails
                     set({ currentStep: 3 })
                 }
             },
@@ -96,10 +94,9 @@ export const useKioskStore = create(
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            serviceType: state.service,
-                            email: state.email || null,
+                            serviceType: 'TRUE_COPY', // Use the exact enum value
+                            email: state.email || undefined,
                             documents: state.selectedDocuments,
-                            status: 'waiting'
                         }),
                     })
                     set({
@@ -108,7 +105,6 @@ export const useKioskStore = create(
                     })
                 } catch (error) {
                     console.error('Failed to create queue entry:', error)
-                    // Still advance the step even if queue creation fails
                     set({
                         kioskNumber: Math.floor(Math.random() * 9000 + 1000),
                         currentStep: 3

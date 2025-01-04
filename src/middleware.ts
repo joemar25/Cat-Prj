@@ -1,7 +1,7 @@
 // src/middleware.ts
 import { auth } from "@/lib/auth"
-import { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
     const session = await auth()
@@ -15,9 +15,13 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next()
     }
 
-    // Protected routes
-    if (pathname.startsWith("/dashboard")) {
+    // Protected routes (including API routes)
+    if (pathname.startsWith("/dashboard") || pathname.startsWith("/api/dashboard")) {
         if (!session) {
+            // For API routes, return 401 instead of redirecting
+            if (pathname.startsWith("/api/")) {
+                return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+            }
             return NextResponse.redirect(new URL("/auth/sign-in", request.url))
         }
         return NextResponse.next()
@@ -29,6 +33,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
     matcher: [
         "/dashboard/:path*",
+        "/api/dashboard/:path*",
         "/auth/sign-in",
         "/auth/sign-up"
     ]

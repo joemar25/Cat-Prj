@@ -1,6 +1,7 @@
 // src/app/api/queue/route.ts
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
+import { QueueStatus, ServiceType } from "@prisma/client"
 
 export async function GET(request: Request) {
     try {
@@ -9,8 +10,8 @@ export async function GET(request: Request) {
         const sort = searchParams.get('sort') || 'desc'
 
         const queues = await prisma.queue.findMany({
-            where: status ? {
-                status: status
+            where: status && status !== 'all' ? {
+                status: status as QueueStatus
             } : undefined,
             orderBy: [
                 { createdAt: sort === 'desc' ? 'desc' : 'asc' }
@@ -37,16 +38,49 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
-        const body = await request.json()
+        // Check content type and request method
+        const contentType = request.headers.get('content-type')
+        if (!contentType || !contentType.includes('application/json')) {
+            return NextResponse.json(
+                { error: "Invalid content type. Expected application/json" },
+                { status: 400 }
+            )
+        }
+
+        // Log raw request body for debugging
+        const rawBody = await request.text()
+        console.log('Raw request body:', rawBody)
+
+        // Parse the body
+        let body;
+        try {
+            body = JSON.parse(rawBody)
+        } catch (parseError) {
+            console.error('JSON parsing error:', parseError)
+            return NextResponse.json(
+                { error: "Invalid JSON in request body" },
+                { status: 400 }
+            )
+        }
+
+        // Validate required fields
         const { serviceType, userId, email, documents } = body
+
+        // Validate serviceType
+        if (!Object.values(ServiceType).includes(serviceType)) {
+            return NextResponse.json(
+                { error: `Invalid service type. Must be one of: ${Object.values(ServiceType).join(', ')}` },
+                { status: 400 }
+            )
+        }
 
         const queue = await prisma.queue.create({
             data: {
-                serviceType,
-                userId,
-                email,
+                serviceType: serviceType as ServiceType,
+                userId: userId || undefined,
+                email: email || undefined,
                 documents: documents || [],
-                status: "waiting"
+                status: QueueStatus.WAITING, // Always set to WAITING, ignore client-provided status
             },
             include: {
                 user: {
@@ -68,7 +102,6 @@ export async function POST(request: Request) {
     }
 }
 
-// Add this route to update queue status
 export async function PATCH(request: Request) {
     try {
         const body = await request.json()
@@ -77,8 +110,8 @@ export async function PATCH(request: Request) {
         const queue = await prisma.queue.update({
             where: { id },
             data: {
-                status,
-                completedAt: status === 'completed' ? new Date() : null
+                status: status as QueueStatus,
+                completedAt: status === QueueStatus.COMPLETED ? new Date() : null
             },
             include: {
                 user: {

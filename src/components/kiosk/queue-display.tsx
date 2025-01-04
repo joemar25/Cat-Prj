@@ -1,5 +1,4 @@
-// src\components\kiosk\queue-display.tsx
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Badge } from "@/components/ui/badge"
 import { formatDistanceToNow } from 'date-fns'
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -56,18 +55,16 @@ export default function QueueManagementPage() {
             try {
                 const response = await fetch('/api/queue')
                 const data = await response.json()
-                setQueues(data)
 
-                // Calculate stats
-                const newStats = data.reduce((acc: QueueStats, queue: QueueItem) => {
-                    acc[queue.status as keyof QueueStats]++
-                    return acc
-                }, {
-                    waiting: 0,
-                    processing: 0,
-                    completed: 0,
-                    cancelled: 0
-                })
+                // Safely calculate stats
+                const newStats = {
+                    waiting: data.filter((q: QueueItem) => q.status === 'WAITING').length,
+                    processing: data.filter((q: QueueItem) => q.status === 'PROCESSING').length,
+                    completed: data.filter((q: QueueItem) => q.status === 'COMPLETED').length,
+                    cancelled: data.filter((q: QueueItem) => q.status === 'CANCELLED').length
+                }
+
+                setQueues(data)
                 setStats(newStats)
             } catch (error) {
                 console.error('Error fetching queues:', error)
@@ -135,7 +132,7 @@ export default function QueueManagementPage() {
                                                 <div>
                                                     <span className="text-2xl font-bold">#{queue.ticketNumber}</span>
                                                     <p className="text-sm text-gray-500">
-                                                        {queue.serviceType === 'trueCopy' ? 'True Copy Request' : 'Verification'}
+                                                        {queue.serviceType === 'TRUE_COPY' ? 'True Copy Request' : 'Verification'}
                                                     </p>
                                                 </div>
                                                 <QueueStatusBadge status={queue.status} />

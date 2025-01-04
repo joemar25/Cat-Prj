@@ -1,10 +1,10 @@
 // src\lib\auth.config.ts
 import Credentials from "next-auth/providers/credentials"
-
 import { compare } from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import { signInSchema } from "@/lib/zod"
 import { NextAuthConfig } from "next-auth"
+import { Permission } from "@prisma/client"
 
 const authRoutes = ["/auth/sign-in", "/auth/sign-up"]
 const publicRoutes = ["/auth/sign-in", "/auth/sign-up"]
@@ -27,7 +27,7 @@ export default {
                             accounts: {
                                 where: { providerId: "credentials" },
                                 select: { password: true }
-                            }
+                            },
                         }
                     })
 
@@ -45,7 +45,8 @@ export default {
                         email: user.email,
                         emailVerified: user.emailVerified,
                         image: user.image,
-                        role: user.role ?? '-'
+                        role: user.role ?? '-',
+                        permissions: user.permissions // Include permissions in the returned user object
                     }
                 } catch (error) {
                     console.error("Auth error:", error)
@@ -79,6 +80,7 @@ export default {
             if (user) {
                 token.id = user.id
                 token.role = user.role // Add the `role` field to the JWT
+                token.permissions = user.permissions // Add the `permissions` field to the JWT
             }
             if (trigger === "update" && session) {
                 token = { ...token, ...session }
@@ -86,8 +88,9 @@ export default {
             return token
         },
         session({ session, token }) {
-            session.user.id = token.id as string // Explicitly cast `id` as string
-            session.user.role = token.role as string | undefined // Explicitly cast `role` as string | undefined
+            session.user.id = token.id as string
+            session.user.role = token.role as string | undefined
+            session.user.permissions = token.permissions as Permission[] | undefined
             return session
         },
     },

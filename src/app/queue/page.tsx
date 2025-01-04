@@ -1,13 +1,17 @@
-// src\app\queue\page.tsx
 "use client"
 
-import QueueDisplay from "@/components/kiosk/queue-display"
+import dynamic from 'next/dynamic'
 
-export default function HomePage() {
+// Dynamically import the component to ensure it's loaded correctly
+const QueueDisplay = dynamic(() => import("@/components/kiosk/queue-display"), {
+    ssr: false // Disable server-side rendering for this component
+})
+
+export default function QueuePage() {
     return (
-        <div className="min-h-screen p-8" >
-            <div className="max-w-7xl mx-auto space-y-8" >
-                < div className="flex justify-center" >
+        <div className="min-h-screen p-8">
+            <div className="max-w-7xl mx-auto space-y-8">
+                <div className="flex justify-center">
                     <QueueDisplay />
                 </div>
             </div>
