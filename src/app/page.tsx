@@ -15,8 +15,8 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex justify-center">
           {currentStep === 1 && <SelectServiceStep />}
-          {currentStep === 2 && service === "trueCopy" && <TrueCopyRequest />}
-          {currentStep === 2 && service === "verify" && <VerifyRegistration />}
+          {currentStep === 2 && service === "TRUE_COPY" && <TrueCopyRequest />}
+          {currentStep === 2 && service === "VERIFY" && <VerifyRegistration />}
           {currentStep === 3 && <SuccessStep />}
         </div>
       </div>

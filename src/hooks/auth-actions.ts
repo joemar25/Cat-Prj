@@ -6,6 +6,8 @@ import { prisma } from '@/lib/prisma';
 import { RegistrationForm, registrationSchema, signUpSchema } from '@/lib/zod';
 import { AuthError } from 'next-auth';
 
+import { ROLE_PERMISSIONS } from '@/types/auth';
+import { UserRole } from '@prisma/client';
 import bcryptjs from 'bcryptjs';
 
 export async function handleCredentialsSignin({
@@ -64,12 +66,17 @@ export async function handleSignUp({
     const hashedPassword = await bcryptjs.hash(password, 10);
     const now = new Date();
 
+    // Default to ADMIN role because this is signup
+    const userRole = UserRole.ADMIN;
+
     await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           email,
           name,
           emailVerified: false,
+          role: userRole,
+          permissions: ROLE_PERMISSIONS[userRole],
           createdAt: now,
           updatedAt: now,
         },

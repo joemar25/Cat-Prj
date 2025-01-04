@@ -1,6 +1,69 @@
 // src/app/api/queue/route.ts
 import { prisma } from "@/lib/prisma"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { QueueStatus, ServiceType } from "@prisma/client"
+
+export async function POST(request: NextRequest) {
+    try {
+        // Parse the body using .json() method
+        const body = await request.json()
+
+        // Validate service type
+        if (!body.serviceType) {
+            return NextResponse.json(
+                { error: "Service type is required" },
+                { status: 400 }
+            )
+        }
+
+        // Validate service type against enum
+        if (!Object.values(ServiceType).includes(body.serviceType)) {
+            return NextResponse.json(
+                { error: `Invalid service type. Must be one of: ${Object.values(ServiceType).join(', ')}` },
+                { status: 400 }
+            )
+        }
+
+        // Generate kiosk number
+        const kioskNumber = Math.floor(Math.random() * 9000 + 1000)
+
+        // Create queue entry
+        const queue = await prisma.queue.create({
+            data: {
+                serviceType: body.serviceType as ServiceType,
+                userId: body.userId || undefined,
+                email: body.email || undefined,
+                documents: body.documents || [],
+                status: QueueStatus.WAITING,
+                kioskNumber: kioskNumber
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                }
+            }
+        })
+
+        return NextResponse.json({
+            ...queue,
+            kioskNumber // Explicitly return the kiosk number
+        })
+    } catch (error) {
+        console.error('Queue creation error:', error)
+
+        // Ensure proper error response formatting
+        return NextResponse.json(
+            {
+                error: "Failed to create queue entry",
+                details: error instanceof Error ? error.message : String(error)
+            },
+            { status: 500 }
+        )
+    }
+}
 
 export async function GET(request: Request) {
     try {
@@ -9,8 +72,8 @@ export async function GET(request: Request) {
         const sort = searchParams.get('sort') || 'desc'
 
         const queues = await prisma.queue.findMany({
-            where: status ? {
-                status: status
+            where: status && status !== 'all' ? {
+                status: status as QueueStatus
             } : undefined,
             orderBy: [
                 { createdAt: sort === 'desc' ? 'desc' : 'asc' }
@@ -35,40 +98,6 @@ export async function GET(request: Request) {
     }
 }
 
-export async function POST(request: Request) {
-    try {
-        const body = await request.json()
-        const { serviceType, userId, email, documents } = body
-
-        const queue = await prisma.queue.create({
-            data: {
-                serviceType,
-                userId,
-                email,
-                documents: documents || [],
-                status: "waiting"
-            },
-            include: {
-                user: {
-                    select: {
-                        name: true,
-                        email: true
-                    }
-                }
-            }
-        })
-
-        return NextResponse.json(queue)
-    } catch (error) {
-        console.error('Queue creation error:', error)
-        return NextResponse.json(
-            { error: "Failed to create queue entry" },
-            { status: 500 }
-        )
-    }
-}
-
-// Add this route to update queue status
 export async function PATCH(request: Request) {
     try {
         const body = await request.json()
@@ -77,8 +106,8 @@ export async function PATCH(request: Request) {
         const queue = await prisma.queue.update({
             where: { id },
             data: {
-                status,
-                completedAt: status === 'completed' ? new Date() : null
+                status: status as QueueStatus,
+                completedAt: status === QueueStatus.COMPLETED ? new Date() : null
             },
             include: {
                 user: {
