@@ -11,12 +11,14 @@ export default function HomePage() {
   const { currentStep, service } = useKioskStore()
 
   return (
-    <div className="h-screen flex items-center justify-center p-8">
-      <div className="max-w-4xl w-full">
-        {currentStep === 1 && <SelectServiceStep />}
-        {currentStep === 2 && service === "trueCopy" && <TrueCopyRequest />}
-        {currentStep === 2 && service === "verify" && <VerifyRegistration />}
-        {currentStep === 3 && <SuccessStep />}
+    <div className="min-h-screen p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="flex justify-center">
+          {currentStep === 1 && <SelectServiceStep />}
+          {currentStep === 2 && service === "trueCopy" && <TrueCopyRequest />}
+          {currentStep === 2 && service === "verify" && <VerifyRegistration />}
+          {currentStep === 3 && <SuccessStep />}
+        </div>
       </div>
     </div>
   )
