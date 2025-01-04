@@ -67,7 +67,7 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground select-none;
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
     line-height: 1.4;
