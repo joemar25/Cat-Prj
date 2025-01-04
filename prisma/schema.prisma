@@ -2,50 +2,44 @@
 // Prisma Schema Configuration
 // =================================================================
 generator client {
-  provider = "prisma-client-js"
+   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("PG_DATABASE_URL")
+   provider = "postgresql"
+   url      = env("PG_DATABASE_URL")
 }
 
 // =================================================================
 // Queue Management Documentation
 // =================================================================
-/*
-Queue System Setup and Maintenance
---------------------------------
-
-1. Initial Setup:
-   - Run `npx prisma generate` to update Prisma Client with Queue model
-   - Run `npx prisma migrate dev --name add_queue_system` for initial queue table
-   
-2. Making Schema Changes:
-   - Update schema in this file
-   - Run `npx prisma generate` to update client
-   - Run `npx prisma migrate dev --name describe_your_change`
-
-3. Development Tools:
-   - Use `npx prisma studio` to view and manage queue data
-   - Use `npx prisma migrate reset` to reset queue during development
-
-4. Queue Status Types:
-   - "waiting"    : Request is in queue
-   - "processing" : Currently being handled
-   - "completed"  : Request fulfilled
-   - "cancelled"  : Request cancelled
-
-5. Service Types:
-   - "trueCopy"   : Request for document copies
-   - "verify"     : Account verification request
-
-6. Important Notes:
-   - Queue numbers auto-increment
-   - Timestamps auto-generate
-   - User relation is optional
-   - Documents field stores array of document types
-*/
+/**
+ * Queue System Setup and Maintenance
+ * --------------------------------
+ * 1. Initial Setup:
+ * - Run `npx prisma generate` to update Prisma Client with Queue model
+ * - Run `npx prisma migrate dev --name add_queue_system` for initial queue table
+ * 2. Making Schema Changes:
+ * - Update schema in this file
+ * - Run `npx prisma generate` to update client
+ * - Run `npx prisma migrate dev --name describe_your_change`
+ * 3. Development Tools:
+ * - Use `npx prisma studio` to view and manage queue data
+ * - Use `npx prisma migrate reset` to reset queue during development
+ * 4. Queue Status Types:
+ * - "waiting"    : Request is in queue
+ * - "processing" : Currently being handled
+ * - "completed"  : Request fulfilled
+ * - "cancelled"  : Request cancelled
+ * 5. Service Types:
+ * - "trueCopy"   : Request for document copies
+ * - "verify"     : Account verification request
+ * 6. Important Notes:
+ * - Queue numbers auto-increment
+ * - Timestamps auto-generate
+ * - User relation is optional
+ * - Documents field stores array of document types
+ */
 
 // =================================================================
 // Authentication Models
@@ -53,70 +47,88 @@ Queue System Setup and Maintenance
 // Generated using @better-auth/cli with custom modifications
 // Integration with NextAuth.js: https://authjs.dev/getting-started/adapters/prisma
 
+enum UserRole {
+   ADMIN
+   STAFF
+   USER
+}
+
+enum QueueStatus {
+   WAITING
+   PROCESSING
+   COMPLETED
+   CANCELLED
+}
+
+enum ServiceType {
+   TRUE_COPY
+   VERIFY
+}
+
 model User {
-  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email         String    @unique
-  name          String
-  emailVerified Boolean
-  image         String?
-  username      String?   @unique
-  role          String?   // Custom field for role-based access
-  createdAt     DateTime
-  updatedAt     DateTime
-  
-  // Relations
-  sessions      Session[]
-  accounts      Account[]
-  queues        Queue[]
+   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+   email         String   @unique
+   name          String
+   emailVerified Boolean
+   image         String?
+   username      String?  @unique
+   role          UserRole @default(USER)
+   createdAt     DateTime
+   updatedAt     DateTime
+
+   // Relations
+   sessions Session[]
+   accounts Account[]
+   queues   Queue[]
   profile       Profile?
   attachments   Attachment[]
 
-  @@map("user")
+   @@map("user")
 }
 
 model Session {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  expiresAt DateTime
-  token     String   @unique
-  createdAt DateTime
-  updatedAt DateTime
-  ipAddress String?
-  userAgent String?
-  userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+   expiresAt DateTime
+   token     String   @unique
+   createdAt DateTime
+   updatedAt DateTime
+   ipAddress String?
+   userAgent String?
+   userId    String   @db.Uuid
+   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("session")
+   @@map("session")
 }
 
 
 model Account {
-  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  accountId             String
-  providerId            String
-  userId                String    @db.Uuid
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  password              String?
-  accessToken           String?
-  refreshToken          String?
-  idToken              String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  createdAt            DateTime
-  updatedAt            DateTime
+   id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+   accountId             String
+   providerId            String
+   userId                String    @db.Uuid
+   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+   password              String?
+   accessToken           String?
+   refreshToken          String?
+   idToken               String?
+   accessTokenExpiresAt  DateTime?
+   refreshTokenExpiresAt DateTime?
+   scope                 String?
+   createdAt             DateTime
+   updatedAt             DateTime
 
-  @@map("account")
+   @@map("account")
 }
 
 model Verification {
-  id         String    @id
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime?
-  updatedAt  DateTime?
+   id         String    @id
+   identifier String
+   value      String
+   expiresAt  DateTime
+   createdAt  DateTime?
+   updatedAt  DateTime?
 
-  @@map("verification")
+   @@map("verification")
 }
 
 // =================================================================
@@ -124,21 +136,22 @@ model Verification {
 // =================================================================
 
 model Queue {
-  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  ticketNumber  Int       @unique @default(autoincrement())
-  status        String    @default("waiting") // waiting, processing, completed, cancelled
-  serviceType   String    // trueCopy, verify
-  userId        String?   @db.Uuid
-  email         String?
-  documents     String[]  // Array of document types for true copy requests
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  completedAt   DateTime?
-  
-  // Relations
-  user          User?     @relation(fields: [userId], references: [id])
+   id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+   ticketNumber    Int         @unique @default(autoincrement())
+   status          QueueStatus @default(WAITING)
+   serviceType     ServiceType
+   userId          String?     @db.Uuid
+   email           String?
+   documents       String[]
+   processingNotes String?
+   createdAt       DateTime    @default(now())
+   updatedAt       DateTime    @updatedAt
+   completedAt     DateTime?
 
-  @@map("queue")
+   // Relations
+   user User? @relation(fields: [userId], references: [id])
+
+   @@map("queue")
 }
 
 
@@ -196,36 +209,31 @@ model Attachment {
 // =================================================================
 // Prisma CLI Commands Reference
 // =================================================================
-/*
-Initial Setup:
--------------
-- prisma init                 : Initialize a new Prisma project
-- npx prisma generate         : Generate Prisma Client
-- npx @better-auth/cli init   : Initialize Better Auth (requires: pnpm add @better-auth/cli)
-
-Database Operations:
-------------------
-- npx prisma db push         : Push schema changes directly to database
-- npx prisma migrate dev     : Create a new migration and apply it
-- npx prisma migrate reset   : Reset database to initial state
-- npx prisma db seed        : Run database seeding
-- npx @better-auth/cli migrate: Run Better Auth migrations
-
-Development Tools:
-----------------
-- npx prisma studio         : Open Prisma Studio (database GUI)
-
-Common Workflows:
----------------
-1. Making schema changes:
-   - Update schema.prisma
-   - Run 'npx prisma generate'
-   - Run 'npx prisma db push' (development) or 'npx prisma migrate dev' (production)
-
-2. Resetting database:
-   - Run 'npx prisma migrate reset'
-   - Run 'npx prisma db seed' (if needed)
-
-3. Viewing data:
-   - Run 'npx prisma studio'
-*/
+/**
+ * Initial Setup:
+ * -------------
+ * - prisma init                 : Initialize a new Prisma project
+ * - npx prisma generate         : Generate Prisma Client
+ * - npx @better-auth/cli init   : Initialize Better Auth (requires: pnpm add @better-auth/cli)
+ * Database Operations:
+ * ------------------
+ * - npx prisma db push         : Push schema changes directly to database
+ * - npx prisma migrate dev     : Create a new migration and apply it
+ * - npx prisma migrate reset   : Reset database to initial state
+ * - npx prisma db seed        : Run database seeding
+ * - npx @better-auth/cli migrate: Run Better Auth migrations
+ * Development Tools:
+ * ----------------
+ * - npx prisma studio         : Open Prisma Studio (database GUI)
+ * Common Workflows:
+ * ---------------
+ * 1. Making schema changes:
+ * - Update schema.prisma
+ * - Run 'npx prisma generate'
+ * - Run 'npx prisma db push' (development) or 'npx prisma migrate dev' (production)
+ * 2. Resetting database:
+ * - Run 'npx prisma migrate reset'
+ * - Run 'npx prisma db seed' (if needed)
+ * 3. Viewing data:
+ * - Run 'npx prisma studio'
+ */
