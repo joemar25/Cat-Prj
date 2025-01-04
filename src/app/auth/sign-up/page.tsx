@@ -1,4 +1,3 @@
-// src\app\sign-up\page.tsx
 'use client'
 
 import { toast } from "sonner"
@@ -8,21 +7,26 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { signUpSchema, SignUpForm } from "@/lib/zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Separator } from "@/components/ui/separator"
 import { PasswordInput } from "@/components/custom/general/password-input"
 import { handleCredentialsSignin, handleSignUp } from "@/hooks/auth-actions"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const Page = () => {
   const [isLoading, setIsLoading] = useState(false)
+  // Use NEXT_PUBLIC env variable to determine development mode
+  const isDevelopment = process.env.NEXT_PUBLIC_NODE_ENV === 'development'
+  console.log("isDevelopment=", isDevelopment)
+  console.log("process.env.NEXT_PUBLIC_NODE_ENV=", process.env.NEXT_PUBLIC_NODE_ENV)
 
   const form = useForm<SignUpForm>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      name: "mar",
-      email: "mar@test.com",
-      password: "mar1234!",
-      confirmPassword: "mar1234!",
+      name: process.env.NEXT_PUBLIC_NODE_ENV === 'development' ? "mar" : "",
+      email: process.env.NEXT_PUBLIC_NODE_ENV === 'development' ? "mar@test.com" : "",
+      password: process.env.NEXT_PUBLIC_NODE_ENV === 'development' ? "mar1234!" : "",
+      confirmPassword: process.env.NEXT_PUBLIC_NODE_ENV === 'development' ? "mar1234!" : "",
+      role: "STAFF"
     },
   })
 
@@ -56,13 +60,6 @@ const Page = () => {
       <div className="p-6 rounded-lg shadow-lg w-full max-w-md">
         <h1 className="text-xl font-semibold mb-4">Create an Account</h1>
 
-        <div className="relative mb-4">
-          <Separator />
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-muted-foreground">
-            or
-          </span>
-        </div>
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {fields.map((field) => (
@@ -85,6 +82,32 @@ const Page = () => {
                 )}
               />
             ))}
+
+            {isDevelopment && (
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="ADMIN">Admin</SelectItem>
+                        <SelectItem value="STAFF">Staff</SelectItem>
+                        <SelectItem value="USER">User</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               control={form.control}
               name="password"

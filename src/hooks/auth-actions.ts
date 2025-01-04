@@ -1,4 +1,4 @@
-// src/hooks/auth.ts
+// src\hooks\auth-actions.ts
 "use server"
 
 import { AuthError } from "next-auth"
@@ -30,14 +30,28 @@ export async function handleSignOut() {
     await signOut()
 }
 
-export async function handleSignUp({ name, email, password, confirmPassword }: {
+export async function handleSignUp({
+    name,
+    email,
+    password,
+    confirmPassword,
+    role
+}: {
     name: string,
     email: string,
     password: string,
-    confirmPassword: string
+    confirmPassword: string,
+    role?: UserRole
 }) {
     try {
-        const parsedCredentials = signUpSchema.safeParse({ name, email, password, confirmPassword });
+        const parsedCredentials = signUpSchema.safeParse({
+            name,
+            email,
+            password,
+            confirmPassword,
+            role
+        });
+
         if (!parsedCredentials.success) {
             return { success: false, message: "Invalid data" };
         }
@@ -53,8 +67,16 @@ export async function handleSignUp({ name, email, password, confirmPassword }: {
         const hashedPassword = await bcryptjs.hash(password, 10);
         const now = new Date();
 
-        // Default to ADMIN role because this is signup
-        const userRole = UserRole.ADMIN;
+        // Determine the role based on environment and input
+        let userRole: UserRole;
+
+        if (process.env.NODE_ENV === 'development') {
+            // In development, allow role selection with STAFF as fallback
+            userRole = role || UserRole.STAFF;
+        } else {
+            // In production, always use STAFF role
+            userRole = UserRole.STAFF;
+        }
 
         await prisma.$transaction(async (tx) => {
             const user = await tx.user.create({

@@ -1,4 +1,3 @@
-// src\lib\zod.ts
 import { object, string, z } from "zod";
 
 // Helper functions for schema validation
@@ -24,12 +23,13 @@ export const signUpSchema = object({
     password: getPasswordSchema("password"),
     confirmPassword: getPasswordSchema("confirmPassword"),
     name: getNameSchema(),
+    role: z.enum(['ADMIN', 'STAFF', 'USER']).optional().default('STAFF'),
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
 });
 
-// Sign-in schema
+// Sign-in schema remains unchanged
 export const signInSchema = object({
     email: getEmailSchema(),
     password: getPasswordSchema("password"),
