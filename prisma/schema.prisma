@@ -33,6 +33,9 @@ model User {
   // Relations
   sessions      Session[]
   accounts      Account[]
+  queues         Queue []
+  profile       Profile?
+  attachments   Attachment[]
 
   @@map("user")
 }
@@ -102,6 +105,60 @@ model Queue {
   user          User?     @relation(fields: [userId], references: [id])
 
   @@map("queue")
+}
+
+
+
+enum AttachmentType {
+  BIRTH_CERTIFICATE
+  DEATH_CERTIFICATE
+  MARRIAGE_CERTIFICATE
+
+  
+}
+
+model Profile {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String    @unique @db.Uuid
+  dateOfBirth     DateTime?
+  phoneNumber     String?
+  address         String?
+  city            String?
+  state           String?
+  country         String?
+  postalCode      String?
+  bio             String?   @db.Text
+  occupation      String?
+  gender          String?
+  nationality     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relation to User
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profile")
+}
+
+
+model Attachment {
+  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String         @db.Uuid
+  type        AttachmentType @default(BIRTH_CERTIFICATE)
+  fileUrl     String
+  fileName    String
+  fileSize    Int
+  mimeType    String
+  status      String        @default("pending") // pending, verified, rejected
+  uploadedAt  DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  verifiedAt  DateTime?
+  notes       String?       @db.Text
+
+  // Relation to User
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("attachment")
 }
 
 // =================================================================
