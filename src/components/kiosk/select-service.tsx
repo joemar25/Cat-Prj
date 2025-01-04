@@ -16,13 +16,13 @@ export function SelectServiceStep() {
     const { goToStep, setService } = useKioskStore()
 
     const handleTrueCopy = () => {
-        setService("trueCopy")
+        setService("TRUE_COPY")
         goToStep(2)
     }
 
     const handleVerify = () => {
-        setService("verify")
-        goToStep(2) // Changed from 3 to 2
+        setService("VERIFY")
+        goToStep(2)
     }
 
     return (

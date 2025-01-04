@@ -22,14 +22,14 @@ export function SuccessStep() {
             <CardContent className="space-y-4">
                 <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto" />
                 <p className="text-lg">
-                    {service === "verify"
+                    {service === "VERIFY"
                         ? "Your account has been verified successfully!"
                         : "Your certified copy request has been processed!"
                     }
                 </p>
 
-                <div className="bg-blue-50 p-4 rounded-lg">
-                    <p className="text-sm text-blue-700 mb-2">Your request has been added to the queue.</p>
+                <div className="p-4 rounded-lg">
+                    <p className="text-sm mb-2">Your request has been added to the queue.</p>
                     {kioskNumber && (
                         <p className="text-xl font-bold">
                             Kiosk Number: <span className="text-blue-600">{kioskNumber}</span>
@@ -48,7 +48,7 @@ export function SuccessStep() {
                             <strong>Email: </strong> {email}
                         </p>
                     )}
-                    {service === 'trueCopy' && selectedDocuments.length > 0 && (
+                    {service === 'TRUE_COPY' && selectedDocuments.length > 0 && (
                         <p>
                             <strong>Documents: </strong>
                             {selectedDocuments.map(doc =>

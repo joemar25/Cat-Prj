@@ -145,6 +145,7 @@ model Verification {
 model Queue {
    id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
    ticketNumber    Int         @unique @default(autoincrement())
+   kioskNumber     Int?
    status          QueueStatus @default(WAITING)
    serviceType     ServiceType
    userId          String?     @db.Uuid

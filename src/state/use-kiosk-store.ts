@@ -1,4 +1,3 @@
-// src/state/use-kiosk-store.ts
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
@@ -12,6 +11,7 @@ interface KioskState {
     email?: string
     selectedDocuments: DocumentType[]
     kioskNumber?: number
+    queueId?: string
 
     /** Step navigation */
     nextStep: () => void
@@ -41,17 +41,27 @@ export const useKioskStore = create(
             email: undefined,
             selectedDocuments: [],
             kioskNumber: undefined,
+            queueId: undefined,
 
             nextStep: () => set((state) => ({ currentStep: state.currentStep + 1 })),
             prevStep: () => set((state) => {
-                if (state.currentStep === 3) return { currentStep: 2 }
+                if (state.currentStep === 3) {
+                    // When going back from success step, don't reset everything
+                    return {
+                        currentStep: 2,
+                        kioskNumber: undefined,
+                        queueId: undefined
+                    }
+                }
                 if (state.currentStep === 2) {
                     return {
                         currentStep: 1,
                         service: null,
                         userId: undefined,
                         email: undefined,
-                        selectedDocuments: []
+                        selectedDocuments: [],
+                        kioskNumber: undefined,
+                        queueId: undefined
                     }
                 }
                 return { currentStep: state.currentStep }
@@ -63,51 +73,79 @@ export const useKioskStore = create(
             setEmail: (email) => set(() => ({ email })),
             setSelectedDocuments: (docs) => set(() => ({ selectedDocuments: docs })),
 
-            completeVerification: async () => {
+            completeTrueCopy: async () => {
                 const state = get()
                 try {
-                    await fetch('/api/queue', {
+                    const response = await fetch('/api/queue', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            serviceType: 'VERIFY', // Use the exact enum value
+                            serviceType: 'TRUE_COPY',
+                            email: state.email || undefined,
+                            documents: state.selectedDocuments,
+                        }),
+                    })
+
+                    if (!response.ok) {
+                        const errorData = await response.json()
+                        throw new Error(errorData.error || 'Failed to create queue entry')
+                    }
+
+                    const data = await response.json()
+
+                    set({
+                        kioskNumber: data.kioskNumber,
+                        currentStep: 3,
+                        queueId: data.id
+                    })
+                } catch (error) {
+                    console.error('True Copy queue creation error:', error)
+                    alert(error instanceof Error ? error.message : 'Failed to create queue entry')
+                    set({
+                        kioskNumber: undefined,
+                        currentStep: 3,
+                        queueId: undefined
+                    })
+                }
+            },
+
+            completeVerification: async () => {
+                const state = get()
+                try {
+                    const response = await fetch('/api/queue', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            serviceType: 'VERIFY',
                             userId: state.userId || undefined,
                             email: state.email || undefined,
                             documents: [],
                         }),
                     })
-                    set({ currentStep: 3 })
-                } catch (error) {
-                    console.error('Failed to create queue entry:', error)
-                    set({ currentStep: 3 })
-                }
-            },
 
-            completeTrueCopy: async () => {
-                const state = get()
-                try {
-                    await fetch('/api/queue', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            serviceType: 'TRUE_COPY', // Use the exact enum value
-                            email: state.email || undefined,
-                            documents: state.selectedDocuments,
-                        }),
-                    })
+                    if (!response.ok) {
+                        const errorData = await response.json()
+                        throw new Error(errorData.error || 'Failed to create queue entry')
+                    }
+
+                    const data = await response.json()
+
                     set({
-                        kioskNumber: Math.floor(Math.random() * 9000 + 1000),
-                        currentStep: 3
+                        currentStep: 3,
+                        kioskNumber: data.kioskNumber,
+                        queueId: data.id
                     })
                 } catch (error) {
-                    console.error('Failed to create queue entry:', error)
+                    console.error('Verification queue creation error:', error)
+                    alert(error instanceof Error ? error.message : 'Failed to create queue entry')
                     set({
-                        kioskNumber: Math.floor(Math.random() * 9000 + 1000),
-                        currentStep: 3
+                        currentStep: 3,
+                        kioskNumber: undefined,
+                        queueId: undefined
                     })
                 }
             },
@@ -119,6 +157,7 @@ export const useKioskStore = create(
                 email: undefined,
                 selectedDocuments: [],
                 kioskNumber: undefined,
+                queueId: undefined,
             })),
         }),
         {

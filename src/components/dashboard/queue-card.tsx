@@ -68,7 +68,7 @@ export function QueueCard({ queue, onUpdateStatus, onDelete, onUpdateNotes }: Qu
         <Card>
             <CardHeader className="flex flex-row items-start justify-between space-y-0">
                 <div>
-                    <CardTitle>#{queue.ticketNumber}</CardTitle>
+                    <CardTitle>#{queue.kioskNumber}</CardTitle>
                     <p className="text-sm text-muted-foreground mt-1">
                         {queue.serviceType === ServiceType.TRUE_COPY ? 'True Copy Request' : 'Verification'}
                     </p>
