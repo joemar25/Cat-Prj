@@ -51,6 +51,7 @@ model Session {
   @@map("session")
 }
 
+
 model Account {
   id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   accountId             String
