@@ -35,22 +35,22 @@ export const signInSchema = object({
 });
 
 // Registration schema with profile and attachment
-export const registrationSchema = z
+export const registrationForm = z
   .object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email address'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
-    dateOfBirth: z.string().optional(),
-    phoneNumber: z.string().optional().nullable(),
-    address: z.string().optional().nullable(),
-    city: z.string().optional().nullable(),
-    state: z.string().optional().nullable(),
-    country: z.string().optional().nullable(),
-    postalCode: z.string().optional().nullable(),
-    occupation: z.string().optional().nullable(),
-    gender: z.enum(['male', 'female', 'other']).optional().nullable(),
-    nationality: z.string().optional().nullable(),
+    dateOfBirth: z.string(),
+    phoneNumber: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    country: z.string().optional(),
+    postalCode: z.string().optional(),
+    occupation: z.string().optional(),
+    gender: z.enum(['male', 'female', 'other']).optional(),
+    nationality: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -59,4 +59,4 @@ export const registrationSchema = z
 
 export type SignUpForm = z.infer<typeof signUpSchema>;
 export type SignInForm = z.infer<typeof signInSchema>;
-export type RegistrationForm = z.infer<typeof registrationSchema>;
+export type RegistrationForm = z.infer<typeof registrationForm>;
