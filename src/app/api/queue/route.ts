@@ -71,10 +71,34 @@ export async function GET(request: Request) {
         const status = searchParams.get('status')
         const sort = searchParams.get('sort') || 'desc'
 
+        // Calculate the timestamp for 5 seconds ago
+        const fiveSecondsAgo = new Date(Date.now() - 5000)
+
         const queues = await prisma.queue.findMany({
-            where: status && status !== 'all' ? {
-                status: status as QueueStatus
-            } : undefined,
+            where: {
+                ...(status === 'COMPLETED' ? {
+                    status: QueueStatus.COMPLETED,
+                    completedAt: {
+                        gte: fiveSecondsAgo
+                    }
+                } : (
+                    status && status !== 'all'
+                        ? { status: status as QueueStatus }
+                        : {
+                            ...(status !== 'COMPLETED' ? {
+                                OR: [
+                                    { status: { not: QueueStatus.COMPLETED } },
+                                    {
+                                        AND: [
+                                            { status: QueueStatus.COMPLETED },
+                                            { completedAt: { gte: fiveSecondsAgo } }
+                                        ]
+                                    }
+                                ]
+                            } : {})
+                        }
+                ))
+            },
             orderBy: [
                 { createdAt: sort === 'desc' ? 'desc' : 'asc' }
             ],

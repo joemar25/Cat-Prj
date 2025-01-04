@@ -27,30 +27,63 @@ export async function handleCredentialsSignin({
     }
     throw error;
   }
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    // restricting user role for login
+    if (!user || user.role === 'USER') {
+      return {
+        success: false,
+        message: 'Access denied. User role not allowed.',
+      };
+    }
+
+    await signIn('credentials', { email, password, redirectTo: '/dashboard' });
+    return { success: true };
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return {
+        success: false,
+        message:
+          error.type === 'CredentialsSignin'
+            ? 'Invalid credentials'
+            : 'Something went wrong',
+      };
+    }
+    throw error;
+  }
 }
 
 export async function handleSignOut() {
   await signOut();
 }
 
+type SignUpInput = {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  role?: 'ADMIN' | 'STAFF';
+};
+
 export async function handleSignUp({
   name,
   email,
   password,
   confirmPassword,
-}: {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}) {
+  role = 'STAFF',
+}: SignUpInput) {
   try {
     const parsedCredentials = signUpSchema.safeParse({
       name,
       email,
       password,
       confirmPassword,
+      role,
     });
+
     if (!parsedCredentials.success) {
       return { success: false, message: 'Invalid data' };
     }
@@ -66,8 +99,9 @@ export async function handleSignUp({
     const hashedPassword = await bcryptjs.hash(password, 10);
     const now = new Date();
 
-    // Default to ADMIN role because this is signup
-    const userRole = UserRole.ADMIN;
+    // Determine the role based on environment and input
+    const userRole: UserRole =
+      process.env.NODE_ENV === 'development' ? (role as UserRole) : 'STAFF';
 
     await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({

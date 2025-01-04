@@ -1,4 +1,4 @@
-// src\app\sign-up\page.tsx
+// src\app\auth\sign-up\page.tsx
 'use client'
 
 import { toast } from "sonner"
@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button"
 import { signUpSchema, SignUpForm } from "@/lib/zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Separator } from "@/components/ui/separator"
+import { UserRole } from "@prisma/client"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PasswordInput } from "@/components/custom/general/password-input"
 import { handleCredentialsSignin, handleSignUp } from "@/hooks/auth-actions"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
@@ -16,13 +18,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 const Page = () => {
   const [isLoading, setIsLoading] = useState(false)
 
+  // Use NEXT_PUBLIC env variable to determine development mode
+  const isDevelopment = process.env.NEXT_PUBLIC_NODE_ENV === 'development'
+
   const form = useForm<SignUpForm>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      name: "mar",
-      email: "mar@test.com",
-      password: "mar1234!",
-      confirmPassword: "mar1234!",
+      name: process.env.NEXT_PUBLIC_NODE_ENV === 'development' ? "mar" : "",
+      email: process.env.NEXT_PUBLIC_NODE_ENV === 'development' ? "mar@test.com" : "",
+      password: process.env.NEXT_PUBLIC_NODE_ENV === 'development' ? "mar1234!" : "",
+      confirmPassword: process.env.NEXT_PUBLIC_NODE_ENV === 'development' ? "mar1234!" : "",
+      role: UserRole.STAFF
     },
   })
 
@@ -50,6 +56,11 @@ const Page = () => {
     { name: "name", label: "Name", type: "text", placeholder: "Enter your name" },
     { name: "email", label: "Email", type: "email", placeholder: "Enter your email" },
   ] as const
+
+  const roleOptions = [
+    { value: UserRole.ADMIN, label: "Admin" },
+    { value: UserRole.STAFF, label: "Staff" },
+  ]
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -85,6 +96,37 @@ const Page = () => {
                 )}
               />
             ))}
+
+            {isDevelopment && (
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value as UserRole)}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {roleOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               control={form.control}
               name="password"

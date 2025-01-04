@@ -1,7 +1,6 @@
 // src\lib\zod.ts
 import { object, string, z } from 'zod';
 
-// Helper functions for schema validation
 const getPasswordSchema = (type: 'password' | 'confirmPassword') =>
   string({ required_error: `${type} is required` })
     .min(8, 'Password must be at least 8 characters long')
@@ -18,18 +17,18 @@ const getNameSchema = () =>
     .min(1, 'Name must be at least 1 character long')
     .max(32, 'Name must be less than 32 characters');
 
-// Sign-up schema
+// Sign-up schema using literal types for role
 export const signUpSchema = object({
   email: getEmailSchema(),
   password: getPasswordSchema('password'),
   confirmPassword: getPasswordSchema('confirmPassword'),
   name: getNameSchema(),
+  role: z.enum(['ADMIN', 'STAFF']).optional().default('STAFF'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],
 });
 
-// Sign-in schema
 export const signInSchema = object({
   email: getEmailSchema(),
   password: getPasswordSchema('password'),
@@ -58,7 +57,6 @@ export const registrationSchema = z
     path: ['confirmPassword'],
   });
 
-// Type inference for forms
 export type SignUpForm = z.infer<typeof signUpSchema>;
 export type SignInForm = z.infer<typeof signInSchema>;
 export type RegistrationForm = z.infer<typeof registrationSchema>;
