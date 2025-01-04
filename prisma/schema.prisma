@@ -83,6 +83,28 @@ model Verification {
 }
 
 // =================================================================
+// CRIS Custom Tables
+// =================================================================
+
+model Queue {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ticketNumber  Int       @unique @default(autoincrement())
+  status        String    @default("waiting") // waiting, processing, completed, cancelled
+  serviceType   String    // trueCopy, verify
+  userId        String?   @db.Uuid
+  email         String?
+  documents     String[]  // Array of document types for true copy requests
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  completedAt   DateTime?
+  
+  // Relations
+  user          User?     @relation(fields: [userId], references: [id])
+
+  @@map("queue")
+}
+
+// =================================================================
 // Prisma CLI Commands Reference
 // =================================================================
 /*
