@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { handleSignOut } from "@/hooks/auth-actions"
-import { QueueManagement } from "@/components/dashboard/queue-management"
+import { QueueManagement } from "@/components/custom/dashboard/queue-management"
 import { SessionProvider } from "next-auth/react"
 
 export default async function DashboardPage() {

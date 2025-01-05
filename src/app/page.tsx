@@ -2,10 +2,10 @@
 "use client"
 
 import { useKioskStore } from "@/state/use-kiosk-store"
-import { SuccessStep } from "@/components/kiosk/success-step"
-import { SelectServiceStep } from "@/components/kiosk/select-service"
-import { TrueCopyRequest } from "@/components/kiosk/true-copy-request"
-import { VerifyRegistration } from "@/components/kiosk/verify-registration"
+import { SuccessStep } from "@/components/custom/kiosk/success-step"
+import { SelectServiceStep } from "@/components/custom/kiosk/select-service"
+import { TrueCopyRequest } from "@/components/custom/kiosk/true-copy-request"
+import { VerifyRegistration } from "@/components/custom/kiosk/verify-registration"
 
 export default function HomePage() {
   const { currentStep, service } = useKioskStore()

@@ -1,17 +1,16 @@
-'use client';
+'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+import { toast } from 'sonner'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { handleRegistration } from '@/hooks/auth-actions'
+import { RegistrationForm, registrationForm } from '@/lib/zod'
 
-// Validation schema
-import RegisterForm from '@/components/registration/registration-form';
-import { handleRegistration } from '@/hooks/auth-actions';
-import { RegistrationForm, registrationForm } from '@/lib/zod';
+import RegisterForm from '@/components/custom/registration/registration-form'
 
 const Page = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<RegistrationForm>({
     resolver: zodResolver(registrationForm),
@@ -31,29 +30,29 @@ const Page = () => {
       gender: 'male',
       nationality: '',
     },
-  });
+  })
 
   const onSubmit = async (data: RegistrationForm) => {
-    setIsLoading(true);
-    console.log('Form submitted with data:', data);
+    setIsLoading(true)
+    console.log('Form submitted with data:', data)
 
     try {
-      const result = await handleRegistration(data);
+      const result = await handleRegistration(data)
 
       if (result.success) {
-        toast.success(result.message);
-        form.reset();
-        window.location.href = '/auth/sign-in';
+        toast.success(result.message)
+        form.reset()
+        window.location.href = '/auth/sign-in'
       } else {
-        toast.error(result.message);
+        toast.error(result.message)
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      toast.error('Failed to create account');
+      console.error('Registration error:', error)
+      toast.error('Failed to create account')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className='min-h-screen flex items-center justify-center'>
@@ -62,7 +61,7 @@ const Page = () => {
         <RegisterForm form={form} onSubmit={onSubmit} isLoading={isLoading} />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page

@@ -23,7 +23,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 
-import { ThemeMenu } from '../theme/theme-button'
+import { ThemeMenu } from '../../theme/theme-button'
 
 import { useRouter } from 'next/navigation'
 import { Icons } from '@/components/ui/icons'

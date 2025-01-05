@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic'
 
 // Dynamically import the component to ensure it's loaded correctly
-const QueueDisplay = dynamic(() => import("@/components/kiosk/queue-display"), {
+const QueueDisplay = dynamic(() => import("@/components/custom/kiosk/queue-display"), {
     ssr: false // Disable server-side rendering for this component
 })
 

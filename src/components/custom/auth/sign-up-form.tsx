@@ -1,3 +1,4 @@
+// src\components\custom\auth\sign-up-form.tsx
 'use client'
 
 import { toast } from "sonner"
@@ -7,9 +8,9 @@ import { useForm } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { handleCredentialsSignin, handleSignUp } from "@/hooks/auth-actions"
 import { signUpSchema, SignUpForm as SignUpData } from "@/lib/zod"
 import { PasswordInput } from "@/components/custom/general/password-input"
+import { handleCredentialsSignin, handleSignUp } from "@/hooks/auth-actions"
 import {
     Select,
     SelectContent,
