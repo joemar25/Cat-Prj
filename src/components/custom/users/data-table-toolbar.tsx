@@ -6,13 +6,13 @@ import { Table } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Icons } from '@/components/ui/icons'
-import { UserRole } from '@prisma/client'
+import { User, UserRole } from '@prisma/client'
 import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
 import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
+import { AddUserDialog } from './actions/add-user-dialog'
 
-interface DataTableToolbarProps<TData> {
+interface DataTableToolbarProps<TData extends User> {
     table: Table<TData>
-    onAddUser?: () => void
 }
 
 const userRoles = [
@@ -26,9 +26,8 @@ const verificationStatus = [
     { label: "Unverified", value: "false" }
 ]
 
-export function DataTableToolbar<TData>({
-    table,
-    onAddUser
+export function DataTableToolbar<TData extends User>({
+    table
 }: DataTableToolbarProps<TData>) {
     const isFiltered = table.getState().columnFilters.length > 0
 
@@ -41,7 +40,6 @@ export function DataTableToolbar<TData>({
     }, [nameColumn])
 
     const handleExport = () => {
-        // Implement export functionality
         console.log('Export functionality to be implemented')
     }
 
@@ -65,6 +63,8 @@ export function DataTableToolbar<TData>({
                         options={userRoles.map((role) => ({
                             label: role.label,
                             value: role.value,
+                            icon: role.value === UserRole.ADMIN ? Icons.shield :
+                                role.value === UserRole.STAFF ? Icons.user : Icons.userCog
                         }))}
                     />
                 )}
@@ -73,10 +73,7 @@ export function DataTableToolbar<TData>({
                     <DataTableFacetedFilter
                         column={statusColumn}
                         title='Status'
-                        options={verificationStatus.map((status) => ({
-                            label: status.label,
-                            value: status.value,
-                        }))}
+                        options={verificationStatus}
                     />
                 )}
 
@@ -100,13 +97,10 @@ export function DataTableToolbar<TData>({
                     <Icons.download className="mr-2 h-4 w-4" />
                     Export
                 </Button>
-                <Button
-                    className="h-10"
-                    onClick={onAddUser}
-                >
-                    <Icons.plus className="mr-2 h-4 w-4" />
-                    Add User
-                </Button>
+                <AddUserDialog onSuccess={() => {
+                    table.resetColumnFilters()
+                    table.resetSorting()
+                }} />
                 <DataTableViewOptions table={table} />
             </div>
         </div>

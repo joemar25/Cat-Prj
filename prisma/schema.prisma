@@ -18,18 +18,20 @@ datasource db {
 /// * - One-to-one with Profile
 /// * - Many-to-many with Permissions
 model User {
-  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email         String         @unique
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String       @unique
   name          String
   emailVerified Boolean
   image         String?
-  username      String?        @unique
-  role          UserRole       @default(ADMIN)
+  username      String?      @unique
+  role          UserRole     @default(ADMIN)
   permissions   Permission[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   lastLoginAt   DateTime?
-  language      String?        @default("en")
+  language      String?      @default("en")
+  active        Boolean      @default(true)
+
   accounts      Account[]
   attachments   Attachment[]
   auditLogs     AuditLog[]
@@ -418,3 +420,28 @@ model Feedback {
 
   @@map("feedback")
 }
+
+/**
+ * ### Initial Setup:
+ * - `prisma init`: Initialize a new Prisma project.
+ * - `npx prisma generate`: Generate Prisma Client.
+ * - `npx @better-auth/cli init`: Initialize Better Auth (requires `pnpm add @better-auth/cli`).
+ * ### Database Operations:
+ * - `npx prisma db push`: Push schema changes directly to the database.
+ * - `npx prisma migrate dev`: Create a new migration and apply it.
+ * - `npx prisma migrate reset`: Reset the database to the initial state.
+ * - `npx prisma db seed`: Run database seeding.
+ * - `npx @better-auth/cli migrate`: Run Better Auth migrations.
+ * ### Development Tools:
+ * - `npx prisma studio`: Open Prisma Studio (database GUI).
+ * ### Common Workflows:
+ * 1. **Making schema changes**:
+ * - Update `schema.prisma`.
+ * - Run `npx prisma generate`.
+ * - Run `npx prisma db push` (development) or `npx prisma migrate dev` (production).
+ * 2. **Resetting the database**:
+ * - Run `npx prisma migrate reset`.
+ * - Run `npx prisma db seed` (if needed).
+ * 3. **Viewing data**:
+ * - Run `npx prisma studio`.
+ */

@@ -1,3 +1,4 @@
+// src/components/custom/users/data-table.tsx
 'use client'
 
 import React from 'react'
@@ -15,6 +16,7 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table'
+import type { User } from '@prisma/client'
 
 import {
     Table,
@@ -30,18 +32,23 @@ import { DataTableToolbar } from './data-table-toolbar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Icons } from '@/components/ui/icons'
 
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
+// Define possible value types that can appear in the columns
+type UserValue = string | number | boolean | Date | null | undefined
+
+// Define strict types for the DataTable props
+interface DataTableProps<TData extends User> {
+    columns: ColumnDef<TData, UserValue>[]
     data: TData[]
     searchKey?: string
     selection?: boolean
 }
 
-export function DataTable<TData, TValue>({
+// Update the DataTable component to use the constrained generic type
+export function DataTable<TData extends User>({
     columns,
     data,
     selection = true,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
