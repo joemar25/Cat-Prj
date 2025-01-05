@@ -1,4 +1,4 @@
-// src/app/api/queue/route.ts
+// src\app\api\queue\route.ts
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 import { QueueStatus, ServiceType } from "@prisma/client"
@@ -71,8 +71,9 @@ export async function GET(request: Request) {
         const status = searchParams.get('status')
         const sort = searchParams.get('sort') || 'desc'
 
-        // Calculate the timestamp for 5 seconds ago
+        // Calculate timestamps for time windows
         const fiveSecondsAgo = new Date(Date.now() - 5000)
+        const tenSecondsAgo = new Date(Date.now() - 10000)
 
         const queues = await prisma.queue.findMany({
             where: {
@@ -81,21 +82,30 @@ export async function GET(request: Request) {
                     completedAt: {
                         gte: fiveSecondsAgo
                     }
+                } : status === 'CANCELLED' ? {
+                    status: QueueStatus.CANCELLED,
+                    completedAt: {
+                        gte: tenSecondsAgo
+                    }
                 } : (
                     status && status !== 'all'
                         ? { status: status as QueueStatus }
                         : {
-                            ...(status !== 'COMPLETED' ? {
-                                OR: [
-                                    { status: { not: QueueStatus.COMPLETED } },
-                                    {
-                                        AND: [
-                                            { status: QueueStatus.COMPLETED },
-                                            { completedAt: { gte: fiveSecondsAgo } }
-                                        ]
-                                    }
-                                ]
-                            } : {})
+                            OR: [
+                                { status: { not: { in: [QueueStatus.COMPLETED, QueueStatus.CANCELLED] } } },
+                                {
+                                    AND: [
+                                        { status: QueueStatus.COMPLETED },
+                                        { completedAt: { gte: fiveSecondsAgo } }
+                                    ]
+                                },
+                                {
+                                    AND: [
+                                        { status: QueueStatus.CANCELLED },
+                                        { completedAt: { gte: tenSecondsAgo } }
+                                    ]
+                                }
+                            ]
                         }
                 ))
             },
@@ -131,7 +141,7 @@ export async function PATCH(request: Request) {
             where: { id },
             data: {
                 status: status as QueueStatus,
-                completedAt: status === QueueStatus.COMPLETED ? new Date() : null
+                completedAt: status === QueueStatus.COMPLETED || status === QueueStatus.CANCELLED ? new Date() : null
             },
             include: {
                 user: {
