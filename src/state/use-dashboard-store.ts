@@ -85,12 +85,28 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
             const response = await fetch('/api/dashboard/queue', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, processingNotes: notes, action: 'update' })
+                body: JSON.stringify({
+                    id,
+                    notes: notes,
+                    action: 'update'
+                })
             })
-            if (!response.ok) throw new Error('Failed to update notes')
-            await get().fetchQueues()
+
+            if (!response.ok) {
+                const error = await response.json()
+                throw new Error(error.message || 'Failed to update notes')
+            }
+
+            // Update the queue in the local state with the complete updated data
+            const updatedQueue = await response.json()
+            set(state => ({
+                queues: state.queues.map(queue =>
+                    queue.id === id ? updatedQueue : queue
+                )
+            }))
         } catch (error) {
             set({ error: error instanceof Error ? error.message : 'Failed to update notes' })
+            throw error
         }
     },
 

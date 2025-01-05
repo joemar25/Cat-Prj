@@ -80,18 +80,27 @@ export async function PATCH(request: Request) {
         }
 
         const body = await request.json()
-        const { id, status, action } = body
+        const { id, status, action, notes } = body
 
         // Handle different actions
         switch (action) {
             case 'update':
+                const updateData: Prisma.QueueUpdateInput = {}
+
+                // Handle status update
+                if (status) {
+                    updateData.status = status as QueueStatus
+                    updateData.completedAt = status === QueueStatus.COMPLETED ? new Date() : null
+                }
+
+                // Handle notes update
+                if (notes !== undefined) {
+                    updateData.processingNotes = notes
+                }
+
                 const updatedQueue = await prisma.queue.update({
                     where: { id },
-                    data: {
-                        status: status as QueueStatus,
-                        completedAt: status === QueueStatus.COMPLETED ? new Date() : null,
-                        updatedAt: new Date()
-                    },
+                    data: updateData,
                     include: {
                         user: {
                             select: {

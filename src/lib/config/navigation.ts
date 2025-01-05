@@ -56,6 +56,13 @@ export const navigationConfig: NavigationConfiguration = {
             url: '/dashboard',
             iconName: 'layoutDashboard',
         },
+        {
+            id: 'manage-queue',
+            type: 'main',
+            title: 'Manage Queue',
+            url: '/manage-queue',
+            iconName: 'userCheck',
+        },
         // {
         //     id: 'documents',
         //     type: 'main',
