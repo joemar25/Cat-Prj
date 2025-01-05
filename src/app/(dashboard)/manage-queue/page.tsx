@@ -1,12 +1,8 @@
 // src\app\(dashboard)\manage-queue\page.tsx
-import { auth } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { DashboardHeader } from "@/components/custom/dashboard/header"
 import { QueueManagement } from "@/components/custom/manage-queue/management"
 
-export default async function DashboardPage() {
-  const session = await auth()
-  if (!session) redirect("/sign-in")
+export default async function ManageQueue() {
 
   return (
     <>
