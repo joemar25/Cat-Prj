@@ -1,108 +1,51 @@
+// src\components\custom\sidebar\nav-secondary.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
-import { LucideIcon, Mail, Phone, Clock, MessageSquare, ExternalLink, Send, Loader2 } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { useEffect, useState } from 'react'
+import { Send, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { handleSubmitFeedback } from '@/hooks/feedback'
 import { type NavSecondaryItem } from '@/lib/types/navigation'
-import { useUserFeedback } from '@/lib/services/user-feedbacks'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 
 interface NavSecondaryProps extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {
-  items: Array<NavSecondaryItem & { icon?: LucideIcon }>
-}
-
-const ContactInfo = () => {
-  return (
-    <div className="space-y-6">
-      <p className="text-muted-foreground">
-        Our support team is ready to assist you 24/7.
-      </p>
-      <Card className="transition-all hover:shadow-md">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-primary" />
-            Contact Options
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-6">
-          <div className="flex items-start space-x-4">
-            <Mail className="h-5 w-5 text-primary mt-1" />
-            <div className="space-y-1">
-              <Label className="text-base font-medium">Email</Label>
-              <a
-                href="mailto:support@example.com"
-                className="text-sm text-primary hover:underline flex items-center gap-1"
-              >
-                support@example.com
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            </div>
-          </div>
-
-          <div className="flex items-start space-x-4">
-            <Phone className="h-5 w-5 text-primary mt-1" />
-            <div className="space-y-1">
-              <Label className="text-base font-medium">Phone</Label>
-              <a
-                href="tel:1-800-SUPPORT"
-                className="text-sm text-primary hover:underline flex items-center gap-1"
-              >
-                1-800-SUPPORT
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            </div>
-          </div>
-
-          <div className="flex items-start space-x-4">
-            <Clock className="h-5 w-5 text-primary mt-1" />
-            <div className="space-y-1">
-              <Label className="text-base font-medium">Hours</Label>
-              <p className="text-sm text-muted-foreground">Available 24/7</p>
-            </div>
-          </div>
-
-          <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-            Start Live Chat
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  )
+  items: Array<NavSecondaryItem & { icon?: React.ElementType }>
 }
 
 const FeedbackForm = ({ onSubmit }: { onSubmit: () => void }) => {
   const [feedback, setFeedback] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  // const { createUserFeedback } = useUserFeedback();
 
-  // const handleSubmit = async () => {
-  //   if (!feedback.trim()) {
-  //     toast.error('Please enter your feedback')
-  //     return
-  //   }
+  const handleSubmit = async () => {
+    if (!feedback.trim()) {
+      toast.error('Feedback cannot be empty.')
+      return
+    }
 
-  //   setIsSubmitting(true)
-  //   try {
-  //     await createUserFeedback({
-  //       feedback_text: feedback.trim(),
-  //     })
-  //     toast.success('Feedback submitted successfully')
-  //     onSubmit()
-  //     setFeedback('')
-  //   } catch (error) {
-  //     toast.error('Failed to submit feedback', {
-  //       description: error instanceof Error ? error.message : String(error),
-  //     })
-  //   } finally {
-  //     setIsSubmitting(false)
-  //   }
-  // }
+    setIsSubmitting(true)
+
+    try {
+      const result = await handleSubmitFeedback({ feedback })
+
+      if (result.success) {
+        toast.success(result.message)
+        setFeedback('')
+        onSubmit()
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error) {
+      console.error('Failed to submit feedback:', error)
+      toast.error('An unexpected error occurred.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -124,7 +67,7 @@ const FeedbackForm = ({ onSubmit }: { onSubmit: () => void }) => {
           />
         </div>
         <Button
-          // onClick={handleSubmit}
+          onClick={handleSubmit}
           disabled={isSubmitting}
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
         >
@@ -153,14 +96,7 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
     setMounted(true)
   }, [])
 
-  const handleCustomerSupportClick = () => {
-    // Redirect to the specified link
-    window.location.href = "https://ipophil.freshdesk.com/support/home"
-  }
-
-  const handleClose = () => {
-    setOpenDialog(null);
-  }
+  const handleClose = () => setOpenDialog(null)
 
   const getDialogContent = (item: NavSecondaryItem) => {
     switch (item.title) {
@@ -180,22 +116,6 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
           {items.map((item) => {
             const ItemIcon = item.icon
 
-            if (item.title === 'Customer Support') {
-              // Directly return the menu item for "Customer Support" with redirection
-              return (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    size="sm"
-                    className="w-full transition-colors"
-                    onClick={handleCustomerSupportClick}
-                  >
-                    {ItemIcon && <ItemIcon className="h-4 w-4" />}
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )
-            }
-
             return (
               <SidebarMenuItem key={item.title}>
                 <Dialog
@@ -206,15 +126,15 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
                     <SidebarMenuButton
                       size="sm"
                       className={cn(
-                        "w-full transition-colors",
-                        openDialog === item.title && "bg-primary/10 text-primary"
+                        'w-full transition-colors',
+                        openDialog === item.title && 'bg-primary/10 text-primary'
                       )}
                     >
                       {ItemIcon && <ItemIcon className="h-4 w-4" />}
                       <span>{item.title}</span>
                     </SidebarMenuButton>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]" aria-describedby=''>
+                  <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                         {ItemIcon && <ItemIcon className="h-5 w-5 text-primary" />}
