@@ -1,15 +1,11 @@
-// src\components\custom\sidebar\nav-secondary.tsx
+// src/components/custom/sidebar/nav-secondary.tsx
 'use client'
 
-import { toast } from 'sonner'
+import { useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
-import { Send, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { handleSubmitFeedback } from '@/hooks/feedback'
 import { type NavSecondaryItem } from '@/lib/types/navigation'
+import { FeedbackForm } from '@/components/custom/feedback/feedback-form'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 
@@ -17,78 +13,8 @@ interface NavSecondaryProps extends React.ComponentPropsWithoutRef<typeof Sideba
   items: Array<NavSecondaryItem & { icon?: React.ElementType }>
 }
 
-const FeedbackForm = ({ onSubmit }: { onSubmit: () => void }) => {
-  const [feedback, setFeedback] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const handleSubmit = async () => {
-    if (!feedback.trim()) {
-      toast.error('Feedback cannot be empty.')
-      return
-    }
-
-    setIsSubmitting(true)
-
-    try {
-      const result = await handleSubmitFeedback({ feedback })
-
-      if (result.success) {
-        toast.success(result.message)
-        setFeedback('')
-        onSubmit()
-      } else {
-        toast.error(result.message)
-      }
-    } catch (error) {
-      console.error('Failed to submit feedback:', error)
-      toast.error('An unexpected error occurred.')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  return (
-    <div className="space-y-6">
-      <p className="text-muted-foreground">
-        Help us improve by sharing your thoughts and suggestions.
-      </p>
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="feedback" className="text-base font-medium">
-            Your Feedback
-          </Label>
-          <Textarea
-            id="feedback"
-            placeholder="What's on your mind?"
-            className="min-h-[120px] resize-none focus:ring-2 focus:ring-primary"
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-            disabled={isSubmitting}
-          />
-        </div>
-        <Button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Submitting...
-            </>
-          ) : (
-            <>
-              <Send className="mr-2 h-4 w-4" />
-              Submit Feedback
-            </>
-          )}
-        </Button>
-      </div>
-    </div>
-  )
-}
-
 export function NavSecondary({ items, ...props }: NavSecondaryProps) {
+  const { data: session } = useSession()
   const [mounted, setMounted] = useState(false)
   const [openDialog, setOpenDialog] = useState<string | null>(null)
 
@@ -96,12 +22,21 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
     setMounted(true)
   }, [])
 
-  const handleClose = () => setOpenDialog(null)
+  const handleCloseAction = async () => {
+    setOpenDialog(null)
+  }
 
   const getDialogContent = (item: NavSecondaryItem) => {
     switch (item.title) {
       case 'Send Feedback':
-        return <FeedbackForm onSubmit={handleClose} />
+        return session?.user?.id ? (
+          <FeedbackForm
+            userId={session.user.id}
+            onSubmitAction={handleCloseAction}
+          />
+        ) : (
+          <p className="text-muted-foreground">Please sign in to submit feedback.</p>
+        )
       default:
         return <p className="text-muted-foreground">Content for {item.title}</p>
     }

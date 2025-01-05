@@ -1,47 +1,48 @@
 // src/hooks/auth.ts
-'use server';
+'use server'
 
-import { signIn, signOut } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { signUpSchema } from '@/lib/zod';
+import bcryptjs from 'bcryptjs'
 
-import { ROLE_PERMISSIONS } from '@/types/auth';
-import { UserRole } from '@prisma/client';
-import bcryptjs, { hash } from 'bcryptjs';
-import { AuthError } from 'next-auth';
+import { hash } from 'bcryptjs'
+import { prisma } from '@/lib/prisma'
+import { AuthError } from 'next-auth'
+import { signUpSchema } from '@/lib/zod'
+import { UserRole } from '@prisma/client'
+import { signIn, signOut } from '@/lib/auth'
+import { ROLE_PERMISSIONS } from '@/types/auth'
 
 export async function handleCredentialsSignin({
   email,
   password,
 }: {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }) {
   try {
-    await signIn('credentials', { email, password, redirectTo: '/dashboard' });
+    await signIn('credentials', { email, password, redirectTo: '/dashboard' })
   } catch (error) {
     if (error instanceof AuthError) {
       return error.type === 'CredentialsSignin'
         ? { message: 'Invalid credentials' }
-        : { message: 'Something went wrong' };
+        : { message: 'Something went wrong' }
     }
-    throw error;
+    throw error
   }
   try {
     const user = await prisma.user.findUnique({
       where: { email },
-    });
+    })
 
     // restricting user role for login
     if (!user || user.role === 'USER') {
       return {
         success: false,
         message: 'Access denied. User role not allowed.',
-      };
+      }
     }
 
-    await signIn('credentials', { email, password, redirectTo: '/dashboard' });
-    return { success: true };
+    await signIn('credentials', { email, password, redirectTo: '/dashboard' })
+    return { success: true }
   } catch (error) {
     if (error instanceof AuthError) {
       return {
@@ -50,23 +51,23 @@ export async function handleCredentialsSignin({
           error.type === 'CredentialsSignin'
             ? 'Invalid credentials'
             : 'Something went wrong',
-      };
+      }
     }
-    throw error;
+    throw error
   }
 }
 
 export async function handleSignOut() {
-  await signOut();
+  await signOut()
 }
 
 type SignUpInput = {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  role?: 'ADMIN' | 'STAFF';
-};
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  role?: 'ADMIN' | 'STAFF'
+}
 
 export async function handleSignUp({
   name,
@@ -82,26 +83,26 @@ export async function handleSignUp({
       password,
       confirmPassword,
       role,
-    });
+    })
 
     if (!parsedCredentials.success) {
-      return { success: false, message: 'Invalid data' };
+      return { success: false, message: 'Invalid data' }
     }
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
-    });
+    })
 
     if (existingUser) {
-      return { success: false, message: 'Email already exists' };
+      return { success: false, message: 'Email already exists' }
     }
 
-    const hashedPassword = await bcryptjs.hash(password, 10);
-    const now = new Date();
+    const hashedPassword = await bcryptjs.hash(password, 10)
+    const now = new Date()
 
     // Determine the role based on environment and input
     const userRole: UserRole =
-      process.env.NODE_ENV === 'development' ? (role as UserRole) : 'STAFF';
+      process.env.NODE_ENV === 'development' ? (role as UserRole) : 'STAFF'
 
     await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
@@ -114,7 +115,7 @@ export async function handleSignUp({
           createdAt: now,
           updatedAt: now,
         },
-      });
+      })
 
       await tx.account.create({
         data: {
@@ -125,45 +126,45 @@ export async function handleSignUp({
           createdAt: now,
           updatedAt: now,
         },
-      });
-    });
+      })
+    })
 
-    return { success: true, message: 'Account created successfully' };
+    return { success: true, message: 'Account created successfully' }
   } catch (error) {
-    console.error('Signup error:', error);
-    return { success: false, message: 'An unexpected error occurred' };
+    console.error('Signup error:', error)
+    return { success: false, message: 'An unexpected error occurred' }
   }
 }
 
 type RegisterData = {
-  name: string;
-  email: string;
-  password: string;
-  dateOfBirth?: string;
-  phoneNumber?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  postalCode?: string;
-  occupation?: string;
-  gender?: string;
-  nationality?: string;
-};
+  name: string
+  email: string
+  password: string
+  dateOfBirth?: string
+  phoneNumber?: string
+  address?: string
+  city?: string
+  state?: string
+  country?: string
+  postalCode?: string
+  occupation?: string
+  gender?: string
+  nationality?: string
+}
 
 export async function handleRegistration(data: RegisterData) {
   try {
     // Check for existing user
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
-    });
+    })
 
     if (existingUser) {
-      return { success: false, message: 'Email already exists' };
+      return { success: false, message: 'Email already exists' }
     }
 
-    const hashedPassword = await hash(data.password, 10);
-    const now = new Date();
+    const hashedPassword = await hash(data.password, 10)
+    const now = new Date()
 
     await prisma.$transaction(async (tx) => {
       // Create user
@@ -177,7 +178,7 @@ export async function handleRegistration(data: RegisterData) {
           createdAt: now,
           updatedAt: now,
         },
-      });
+      })
 
       // Create account
       await tx.account.create({
@@ -189,7 +190,7 @@ export async function handleRegistration(data: RegisterData) {
           createdAt: now,
           updatedAt: now,
         },
-      });
+      })
 
       // Create profile
       await tx.profile.create({
@@ -206,12 +207,12 @@ export async function handleRegistration(data: RegisterData) {
           gender: data.gender || null,
           nationality: data.nationality || null,
         },
-      });
-    });
+      })
+    })
 
-    return { success: true, message: 'Registration successful' };
+    return { success: true, message: 'Registration successful' }
   } catch (error) {
-    console.error('Registration error:', error);
-    return { success: false, message: 'Registration failed' };
+    console.error('Registration error:', error)
+    return { success: false, message: 'Registration failed' }
   }
 }
