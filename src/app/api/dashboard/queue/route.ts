@@ -26,33 +26,54 @@ export async function GET(request: Request) {
         }
 
         const { searchParams } = new URL(request.url)
-        const status = searchParams.get('status')
-        const sort = searchParams.get('sort') || 'desc'
-        const page = parseInt(searchParams.get('page') || '1')
-        const limit = parseInt(searchParams.get('limit') || '10')
+        const aggregate = searchParams.get("aggregate") === "true"
+
+        // Fetch aggregate stats for all statuses
+        if (aggregate) {
+            const stats = await prisma.queue.groupBy({
+                by: ["status"],
+                _count: {
+                    status: true,
+                },
+            })
+
+            const total = await prisma.queue.count()
+
+            return NextResponse.json({
+                stats,
+                total,
+            })
+        }
+
+        // Fetch paginated queues
+        const status = searchParams.get("status")
+        const sort = searchParams.get("sort") || "desc"
+        const page = parseInt(searchParams.get("page") || "1")
+        const limit = parseInt(searchParams.get("limit") || "10")
         const skip = (page - 1) * limit
 
-        const where: Prisma.QueueWhereInput | undefined = status && status !== 'all'
-            ? { status: status as QueueStatus }
-            : undefined
+        const where: Prisma.QueueWhereInput | undefined =
+            status && status !== "all" ? { status: status as QueueStatus } : undefined
 
         const [queues, total] = await Promise.all([
             prisma.queue.findMany({
                 where,
-                orderBy: { createdAt: sort === 'desc' ? 'desc' : 'asc' },
+                orderBy: { createdAt: sort === "desc" ? "desc" : "asc" },
                 include: {
                     user: {
                         select: {
                             name: true,
-                            email: true
-                        }
-                    }
+                            email: true,
+                        },
+                    },
                 },
                 skip,
-                take: limit
+                take: limit,
             }),
-            prisma.queue.count({ where })
+            prisma.queue.count({ where }),
         ])
+
+        console.log("API Response:", { queues, total })
 
         return NextResponse.json({
             queues,
@@ -60,11 +81,11 @@ export async function GET(request: Request) {
                 total,
                 pages: Math.ceil(total / limit),
                 page,
-                limit
-            }
+                limit,
+            },
         })
     } catch (error) {
-        console.error('Queue fetch error:', error)
+        console.error("Queue fetch error:", error)
         return NextResponse.json(
             { error: "Failed to fetch queues" },
             { status: 500 }

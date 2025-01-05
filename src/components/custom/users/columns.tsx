@@ -1,14 +1,15 @@
+// src\components\custom\users\columns.tsx
 'use client'
 
-import { User, UserRole, Permission } from '@prisma/client'
 import { Icons } from '@/components/ui/icons'
 import { Badge } from '@/components/ui/badge'
+import { formatDistanceToNow } from 'date-fns'
 import { ColumnDef, Row } from '@tanstack/react-table'
+import { User, UserRole, Permission } from '@prisma/client'
 import { DataTableRowActions } from './data-table-row-actions'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { formatDistanceToNow } from 'date-fns'
 
 const roleVariants: Record<UserRole, { label: string; variant: "default" | "secondary" | "destructive" }> = {
     ADMIN: { label: "Administrator", variant: "destructive" },
@@ -16,7 +17,6 @@ const roleVariants: Record<UserRole, { label: string; variant: "default" | "seco
     USER: { label: "User", variant: "default" }
 }
 
-// Properly typed cell components
 interface UserCellProps {
     row: Row<User>
 }
@@ -168,8 +168,10 @@ export const columns: ColumnDef<User>[] = [
                 </div>
             )
         },
-        filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
+        filterFn: (row, id, value: string[]) => {
+            const rowValue = row.getValue(id) as boolean
+            const stringValue = String(rowValue)
+            return value.includes(stringValue)
         },
     },
     {

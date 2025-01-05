@@ -1,15 +1,15 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Row } from '@tanstack/react-table'
-import { User } from '@prisma/client'
-import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
-import { Icons } from '@/components/ui/icons'
-import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import { Row } from '@tanstack/react-table'
+import { useSession } from 'next-auth/react'
 import { hasPermission } from '@/types/auth'
+import { Icons } from '@/components/ui/icons'
+import { User } from '@prisma/client'
+import { Button } from '@/components/ui/button'
+import { EditUserDialog } from './actions/edit-user-dialog'
+import { deactivateUser, activateUser } from '@/hooks/users-action'
 
 import {
     Dialog,
@@ -17,76 +17,73 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
 
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-
 interface DataTableRowActionsProps {
     row: Row<User>
+    onUpdateAction?: (updatedUser: User) => void // Use a serializable action
 }
 
-export function DataTableRowActions({ row }: DataTableRowActionsProps) {
-    const router = useRouter()
+export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActionsProps) {
     const { data: session } = useSession()
     const user = row.original
     const [isLoading, setIsLoading] = useState(false)
+    const [editDialogOpen, setEditDialogOpen] = useState(false)
     const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
 
+    // Check permissions
     const canManageUsers = hasPermission(session?.user?.permissions ?? [], 'USERS_MANAGE')
-
     if (!canManageUsers) return null
 
-    const handleView = () => {
-        setViewDetailsOpen(true)
-    }
-
-    const handleEdit = () => {
-        router.push(`/users/${user.id}/edit`)
-    }
-
     const handleDeactivate = async () => {
+        setIsLoading(true)
         try {
-            setIsLoading(true)
-            const response = await fetch(`/api/users/${user.id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    active: false
-                })
-            })
-
-            if (!response.ok) {
-                throw new Error('Failed to deactivate user')
+            const result = await deactivateUser(user.id)
+            if (result.success) {
+                toast.success(result.message)
+                onUpdateAction?.({ ...user, emailVerified: false }) // Update user in parent component
+            } else {
+                toast.error(result.message)
             }
-
-            toast.success('User deactivated successfully')
-            router.refresh()
         } catch (error) {
             console.error('Error deactivating user:', error)
-            toast.error('Failed to deactivate user')
+            toast.error('An unexpected error occurred')
         } finally {
             setIsLoading(false)
         }
+    }
+
+    const handleActivate = async () => {
+        setIsLoading(true)
+        try {
+            const result = await activateUser(user.id)
+            if (result.success) {
+                toast.success(result.message)
+                onUpdateAction?.({ ...user, emailVerified: true }) // Update user in parent component
+            } else {
+                toast.error(result.message)
+            }
+        } catch (error) {
+            console.error('Error activating user:', error)
+            toast.error('An unexpected error occurred')
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleSave = (updatedUser: User) => {
+        toast.success(`User ${updatedUser.name} has been updated successfully!`)
+        onUpdateAction?.(updatedUser) // Notify parent of the updated user data
+        setEditDialogOpen(false) // Close the dialog
     }
 
     return (
@@ -95,64 +92,50 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
                 <DropdownMenuTrigger asChild>
                     <Button
                         variant="ghost"
-                        className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+                        className="h-8 w-8 p-0"
                     >
-                        <Icons.horizontalThreeDots className="h-4 w-4" />
                         <span className="sr-only">Open menu</span>
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[160px]">
-                    <DropdownMenuItem onClick={handleView}>
-                        <Icons.view className="mr-2 h-4 w-4" />
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setViewDetailsOpen(true)}>
                         View Details
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleEdit}>
+                    <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
                         <Icons.edit className="mr-2 h-4 w-4" />
                         Edit
                     </DropdownMenuItem>
-                    {user.id !== session?.user?.id && (
-                        <>
-                            <DropdownMenuSeparator />
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <DropdownMenuItem
-                                        onSelect={(e) => e.preventDefault()}
-                                        className="text-red-600 focus:text-red-600"
-                                    >
-                                        <Icons.trash className="mr-2 h-4 w-4" />
-                                        Deactivate
-                                    </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            This will deactivate the user account. The user will no longer be able to access the system.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction
-                                            onClick={handleDeactivate}
-                                            className="bg-red-600 focus:bg-red-600"
-                                        >
-                                            {isLoading ? (
-                                                <>
-                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                    Deactivating...
-                                                </>
-                                            ) : (
-                                                'Deactivate'
-                                            )}
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </>
+
+                    {user.emailVerified ? (
+                        <DropdownMenuItem
+                            onSelect={(e) => e.preventDefault()}
+                            onClick={handleDeactivate}
+                            disabled={isLoading}
+                            className="text-destructive focus:text-destructive"
+                        >
+                            <Icons.trash className="mr-2 h-4 w-4" />
+                            {isLoading ? 'Deactivating...' : 'Deactivate'}
+                        </DropdownMenuItem>
+                    ) : (
+                        <DropdownMenuItem onClick={handleActivate} disabled={isLoading}>
+                            <Icons.check className="mr-2 h-4 w-4" />
+                            {isLoading ? 'Activating...' : 'Activate'}
+                        </DropdownMenuItem>
                     )}
                 </DropdownMenuContent>
             </DropdownMenu>
 
+            {/* Edit User Dialog */}
+            <EditUserDialog
+                user={user}
+                open={editDialogOpen}
+                onOpenChangeAction={(open) => setEditDialogOpen(open)}
+                onSave={handleSave}
+            />
+
+            {/* View Details Dialog */}
             <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
@@ -163,22 +146,22 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <div className="font-medium">Name</div>
-                            <div className="col-span-3">{user.name}</div>
+                            <span className="font-medium">Name</span>
+                            <span className="col-span-3">{user.name}</span>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <div className="font-medium">Email</div>
-                            <div className="col-span-3">{user.email}</div>
+                            <span className="font-medium">Email</span>
+                            <span className="col-span-3">{user.email}</span>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <div className="font-medium">Role</div>
-                            <div className="col-span-3">{user.role}</div>
+                            <span className="font-medium">Role</span>
+                            <span className="col-span-3">{user.role}</span>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <div className="font-medium">Status</div>
-                            <div className="col-span-3">
+                            <span className="font-medium">Status</span>
+                            <span className="col-span-3">
                                 {user.emailVerified ? 'Verified' : 'Unverified'}
-                            </div>
+                            </span>
                         </div>
                     </div>
                 </DialogContent>

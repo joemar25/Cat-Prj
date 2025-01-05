@@ -116,13 +116,6 @@ export const navigationConfig: NavigationConfiguration = {
     ],
     secondaryNav: [
         {
-            id: 'support',
-            type: 'secondary',
-            title: 'Customer Support',
-            url: '/support',
-            iconName: 'helpCircle',
-        },
-        {
             id: 'feedback',
             type: 'secondary',
             title: 'Send Feedback',

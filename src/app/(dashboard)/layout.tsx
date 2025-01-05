@@ -10,7 +10,7 @@ type ChildrenProps = {
 export default async function AuthLayout({ children }: ChildrenProps) {
 
   const session = await auth()
-  if (!session) redirect("/sign-in")
+  if (!session) redirect("/")
 
   return (
     <SidebarProvider>

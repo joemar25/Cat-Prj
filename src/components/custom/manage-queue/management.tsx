@@ -35,38 +35,45 @@ const limitOptions = [
 export function QueueManagement() {
     const {
         queues,
+        stats,
+        total,
         status,
         page,
         limit,
-        total,
         totalPages,
         isLoading,
         error,
         setStatus,
         setPage,
         setLimit,
-        fetchQueues,
         updateQueueStatus,
-        updateNotes
+        updateNotes,
+        refreshData,
     } = useDashboardStore()
 
-    const [view, setView] = React.useState<'grid' | 'list'>('grid')
+    const [view, setView] = React.useState<'grid' | 'list'>('list')
     const [searchQuery, setSearchQuery] = React.useState('')
 
     React.useEffect(() => {
-        fetchQueues()
-    }, [fetchQueues, page, status, limit])
+        const fetch = async () => {
+            await refreshData()
+        }
+        fetch()
+    }, [refreshData, status, page, limit])
+
+    const handleRefresh = async () => {
+        try {
+            await refreshData()
+        } catch (error) {
+            console.error('Failed to refresh:', error)
+        }
+    }
 
     const handleStatusChange = (newStatus: string) => {
         setStatus(newStatus as QueueStatus | 'all')
     }
 
-    const handleRefresh = () => {
-        fetchQueues()
-    }
-
     const handleExport = () => {
-        // Implement CSV export functionality
         console.log('Export functionality to be implemented')
     }
 
@@ -151,27 +158,42 @@ export function QueueManagement() {
 
             {/* Stats Overview */}
             <div className="grid gap-4 md:grid-cols-4">
-                {statusOptions.slice(1).map((option) => (
-                    <Card key={option.value}>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                {option.label}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">
-                                {isLoading ? (
-                                    <Skeleton className="h-8 w-20" />
-                                ) : (
-                                    queues.filter(q => q.status === option.value).length
-                                )}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                                {Math.round((queues.filter(q => q.status === option.value).length / total) * 100)}% of total
-                            </p>
-                        </CardContent>
-                    </Card>
-                ))}
+                {isLoading ? (
+                    // Show skeletons while loading
+                    Array.from({ length: 4 }).map((_, index) => (
+                        <Card key={index}>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm font-medium">
+                                    <Skeleton className="h-4 w-24" />
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <Skeleton className="h-8 w-20" />
+                                <Skeleton className="h-4 w-32 mt-2" />
+                            </CardContent>
+                        </Card>
+                    ))
+                ) : (
+                    Object.entries(stats).map(([status, count]) => (
+                        <Card
+                            key={status}
+                            onClick={() => handleStatusChange(status)}
+                            className="cursor-pointer hover:shadow-lg transition-shadow"
+                        >
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm font-medium">
+                                    {QueueStatus[status as keyof typeof QueueStatus]}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{count}</div>
+                                <p className="text-xs text-muted-foreground">
+                                    {Math.round((count / total) * 100)}% of total
+                                </p>
+                            </CardContent>
+                        </Card>
+                    ))
+                )}
             </div>
 
             {/* Queue List */}
