@@ -66,6 +66,8 @@ import {
     Clipboard,
     QrCode,
     Barcode,
+    Download,
+    View,
 
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
@@ -77,6 +79,7 @@ import {
     ArrowUpIcon,
     CircleIcon,
     Cross2Icon,
+    DotsHorizontalIcon,
     InfoCircledIcon,
     StopwatchIcon,
 } from '@radix-ui/react-icons'
@@ -162,6 +165,10 @@ export const Icons = {
     clipboard: Clipboard,
     QrCode: QrCode,
     Barcode: Barcode,
+    download: Download,
+    plus: Plus,
+    view: View,
+    horizontalThreeDots: DotsHorizontalIcon,
     /**
      * Custom Icons below  
      */

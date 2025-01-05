@@ -100,6 +100,13 @@ export const navigationConfig: NavigationConfiguration = {
         //     iconName: 'fileText',
         // },
         {
+            id: 'users',
+            type: 'main',
+            title: 'Manage Users',
+            url: '/users',
+            iconName: 'user',
+        },
+        {
             id: 'settings',
             type: 'main',
             title: 'Settings',
