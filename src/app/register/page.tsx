@@ -42,7 +42,7 @@ const Page = () => {
       if (result.success) {
         toast.success(result.message)
         form.reset()
-        window.location.href = '/auth/sign-in'
+        window.location.href = '/auth'
       } else {
         toast.error(result.message)
       }

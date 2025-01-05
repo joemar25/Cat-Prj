@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl
 
     // Auth routes handling
-    if (pathname === "/auth/sign-in" || pathname === "/auth/sign-up") {
+    if (pathname === "/auth") {
         if (session) {
             return NextResponse.redirect(new URL("/dashboard", request.url))
         }
@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
             if (pathname.startsWith("/api/")) {
                 return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
             }
-            return NextResponse.redirect(new URL("/auth/sign-in", request.url))
+            return NextResponse.redirect(new URL("/auth", request.url))
         }
         return NextResponse.next()
     }
@@ -34,7 +34,6 @@ export const config = {
     matcher: [
         "/dashboard/:path*",
         "/api/dashboard/:path*",
-        "/auth/sign-in",
-        "/auth/sign-up"
+        "/auth",
     ]
 }

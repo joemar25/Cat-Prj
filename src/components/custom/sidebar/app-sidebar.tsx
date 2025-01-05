@@ -16,21 +16,14 @@ import { NavMainItem, NavSecondaryItem } from '@/lib/types/navigation'
 import { navigationConfig, transformToMainNavItem, transformToSecondaryNavItem } from '@/lib/config/navigation'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
-
-interface DocumentCounts {
-  dispatch: number
-  intransit: number
-  completed: number
-  received: number
-  total: number
-}
+import { handleSignOut } from '@/hooks/auth-actions'
 
 type AppSidebarProps = ComponentProps<typeof Sidebar>
 
 export function AppSidebar({ ...props }: AppSidebarProps) {
   const { visibleMainItems, visibleSecondaryItems, visibleSubItems } = useNavigationStore()
   const { data: session } = useSession()
-  const { tab, getInitialCount, updateCount } = useCount();
+  const { tab, getInitialCount, updateCount } = useCount()
 
 
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
@@ -40,25 +33,6 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
   const router = useRouter()
 
   const closeLogout = () => setIsLogoutOpen(false)
-
-  const handleLogout = async () => {
-    try {
-      setIsLoggingOut(true)
-      await signOut({
-        redirect: false,
-        callbackUrl: '/'
-      })
-      router.push('/')
-      toast.success('Successfully logged out')
-    } catch (error) {
-      console.error('Logout failed:', error)
-      toast.error('Failed to logout. Please try again.')
-    } finally {
-      setIsLoggingOut(false)
-      closeLogout()
-    }
-  }
-
 
   const visibleSecondaryNav = useMemo<NavSecondaryItem[]>(() => {
     return navigationConfig.secondaryNav
@@ -127,7 +101,7 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
                 Cancel
               </Button>
               <Button
-                onClick={handleLogout}
+                onClick={handleSignOut}
                 className='px-4 py-2 bg-red-600 text-sm text-white rounded-md hover:bg-red-700 disabled:bg-red-400'
                 disabled={isLoggingOut}
               >
