@@ -50,90 +50,48 @@ export function transformToSecondaryNavItem(item: NavConfig): NavSecondaryItem {
 export const navigationConfig: NavigationConfiguration = {
     mainNav: [
         {
-            id: 'home',
-            type: 'main',
-            title: 'Home',
-            url: '/home',
-            iconName: 'building',
-        },
-        {
             id: 'dashboard',
             type: 'main',
             title: 'Dashboard',
             url: '/dashboard',
             iconName: 'layoutDashboard',
         },
-        {
-            id: 'documents',
-            type: 'main',
-            title: 'Documents',
-            url: '/documents',
-            iconName: 'folder',
-            items: [
-                {
-                    id: 'dispatch',
-                    title: 'Owned',
-                    url: '/documents/dispatch',
-                },
-                {
-                    id: 'intransit',
-                    title: 'In Transit',
-                    url: '/documents/intransit',
-                },
-                {
-                    id: 'received',
-                    title: 'Received',
-                    url: '/documents/recieved',
-                },
-                {
-                    id: 'completed',
-                    title: 'Completed',
-                    url: '/documents/completed',
-                },
-            ],
-        },
-        {
-            id: 'management',
-            type: 'main',
-            title: 'Management',
-            url: '/users',
-            iconName: 'settings',
-            items: [
-                {
-                    id: 'actions',
-                    title: 'Actions',
-                    url: '/document-actions',
-                },
-                {
-                    id: 'agencies',
-                    title: 'Agencies',
-                    url: '/agencies',
-                },
-
-                {
-                    id: 'types',
-                    title: 'Type',
-                    url: '/document-types',
-                },
-                {
-                    id: 'users',
-                    title: 'Users',
-                    url: '/users',
-                },
-                {
-                    id: 'cms',
-                    title: 'CMS',
-                    url: '/cms',
-                },
-            ],
-        },
-        {
-            id: 'reports',
-            type: 'main',
-            title: 'Reports',
-            url: '/reports',
-            iconName: 'fileText',
-        },
+        // {
+        //     id: 'documents',
+        //     type: 'main',
+        //     title: 'Documents',
+        //     url: '/documents',
+        //     iconName: 'folder',
+        //     items: [
+        //         {
+        //             id: 'dispatch',
+        //             title: 'Owned',
+        //             url: '/documents/dispatch',
+        //         },
+        //         {
+        //             id: 'intransit',
+        //             title: 'In Transit',
+        //             url: '/documents/intransit',
+        //         },
+        //         {
+        //             id: 'received',
+        //             title: 'Received',
+        //             url: '/documents/recieved',
+        //         },
+        //         {
+        //             id: 'completed',
+        //             title: 'Completed',
+        //             url: '/documents/completed',
+        //         },
+        //     ],
+        // },
+        // {
+        //     id: 'reports',
+        //     type: 'main',
+        //     title: 'Reports',
+        //     url: '/reports',
+        //     iconName: 'fileText',
+        // },
         {
             id: 'settings',
             type: 'main',

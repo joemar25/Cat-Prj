@@ -1,38 +1,32 @@
 'use client'
 
-import Image from 'next/image'
+// import Image from 'next/image'
 
 import { toast } from 'sonner'
 import { NavMain } from './nav-main'
-import { useRouter } from 'next/navigation'
 import { Icons } from '@/components/ui/icons'
 import { NavSecondary } from './nav-secondary'
 import { Button } from '@/components/ui/button'
-import { signOut, useSession } from 'next-auth/react'
-import { useCount } from '@/lib/context/count-context'
+import { ComponentProps, useMemo, useState } from 'react'
 import { useNavigationStore } from '@/lib/stores/navigation'
-import { ComponentProps, useEffect, useMemo, useState } from 'react'
 import { NavMainItem, NavSecondaryItem } from '@/lib/types/navigation'
 import { navigationConfig, transformToMainNavItem, transformToSecondaryNavItem } from '@/lib/config/navigation'
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { handleSignOut } from '@/hooks/auth-actions'
 
 type AppSidebarProps = ComponentProps<typeof Sidebar>
 
 export function AppSidebar({ ...props }: AppSidebarProps) {
-  const { visibleMainItems, visibleSecondaryItems, visibleSubItems } = useNavigationStore()
-  const { data: session } = useSession()
-  const { tab, getInitialCount, updateCount } = useCount()
-
-
-  const [isLogoutOpen, setIsLogoutOpen] = useState(false)
+  const { visibleMainItems, visibleSecondaryItems } = useNavigationStore()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false)
 
-
-  const router = useRouter()
-
-  const closeLogout = () => setIsLogoutOpen(false)
+  const visibleMainNav = useMemo<NavMainItem[]>(() => {
+    return navigationConfig.mainNav
+      .filter((item) => visibleMainItems.includes(item.id))
+      .map(transformToMainNavItem)
+  }, [visibleMainItems])
 
   const visibleSecondaryNav = useMemo<NavSecondaryItem[]>(() => {
     return navigationConfig.secondaryNav
@@ -40,21 +34,31 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
       .map(transformToSecondaryNavItem)
   }, [visibleSecondaryItems])
 
+  const closeLogout = () => setIsLogoutOpen(false)
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    await handleSignOut()
+    toast.success('Successfully logged out', {
+      duration: 3000
+    })
+    setIsLoggingOut(false)
+    closeLogout()
+  }
+
   return (
     <Sidebar variant='inset' {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg" asChild>
+            <SidebarMenuButton size="lg" asChild>
               <span className="peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left outline-none ring-sidebar-ring transition-[width,height,padding] disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[state=open]:hover:bg-transparent data-[state=open]:hover:text-inherit group-data-[collapsible=icon]:!size-8 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 hover:bg-transparent hover:focus-ring-0 hover:text-inherit h-12 text-sm group-data-[collapsible=icon]:!p-0">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
+                {/* <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Image src="/logo.svg" alt="Logo" width={32} height={32} priority />
-                </div>
+                </div> */}
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="font-semibold">
-                    {/* removed truncate */}
-                    Intellectual Property Office of the Philippines
+                    Quanby Queueing System
                   </span>
                 </div>
               </span>
@@ -64,7 +68,8 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        <NavSecondary items={visibleSecondaryNav} className='mt-auto' />
+        <NavMain items={visibleMainNav} />
+        <NavSecondary items={visibleSecondaryNav} className="mt-auto" />
       </SidebarContent>
 
       <SidebarFooter>
@@ -84,7 +89,7 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
               </button>
             </div>
           </DialogTrigger>
-          <DialogContent className='flex flex-col items-center justify-center text-center space-y-6 p-8 max-w-sm mx-auto rounded-lg' aria-describedby=''>
+          <DialogContent className='flex flex-col items-center justify-center text-center space-y-6 p-8 max-w-sm mx-auto rounded-lg'>
             <DialogHeader className='flex flex-col items-center'>
               <DialogTitle className='text-lg font-semibold'>Confirm Logout</DialogTitle>
               <DialogDescription className='text-sm text-muted-foreground'>
@@ -101,7 +106,7 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
                 Cancel
               </Button>
               <Button
-                onClick={handleSignOut}
+                onClick={handleLogout}
                 className='px-4 py-2 bg-red-600 text-sm text-white rounded-md hover:bg-red-700 disabled:bg-red-400'
                 disabled={isLoggingOut}
               >

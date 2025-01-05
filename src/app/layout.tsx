@@ -5,7 +5,6 @@ import localFont from 'next/font/local'
 import { Metadata } from 'next'
 import { Toaster } from 'sonner'
 import { SessionProvider } from 'next-auth/react'
-import { CountProvider } from '@/lib/context/count-context'
 import { ThemeProvider } from '@/components/custom/provider/theme-provider'
 
 const geistSans = localFont({
@@ -33,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en' className={`${geistSans.className} ${geistMono.variable} antialiased`} suppressHydrationWarning>
-      <body className=''>
+      <body className='text-foreground'>
         <ThemeProvider
           attribute='class'
           defaultTheme='system'
@@ -42,13 +41,7 @@ export default function RootLayout({
         >
 
           <SessionProvider>
-            <CountProvider> {/* Wrap your layout with CountProvider */}
-              <div className='min-h-screen flex flex-col'>
-                <main className='flex-1 flex flex-col'>
-                  {children}
-                </main>
-              </div>
-            </CountProvider>
+            {children}
           </SessionProvider>
 
           <Toaster
@@ -58,7 +51,6 @@ export default function RootLayout({
             theme='system'
             className='toaster-override'
           />
-
         </ThemeProvider>
       </body>
     </html>
