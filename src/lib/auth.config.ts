@@ -1,14 +1,13 @@
 // src/lib/auth.config.ts
-import { prisma } from '@/lib/prisma';
-import { signInSchema } from '@/lib/zod';
-import { Permission } from '@prisma/client';
-import { compare } from 'bcryptjs';
-import { NextAuthConfig } from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
+import { prisma } from '@/lib/prisma'
+import { signInSchema } from '@/lib/zod'
+import { Permission, UserRole } from '@prisma/client'
+import { compare } from 'bcryptjs'
+import { NextAuthConfig, Session } from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
 
-// Route definitions
-const authRoutes = ['/auth/sign-in', '/auth/sign-up'];
-const publicRoutes = ['/auth/sign-in', '/auth/sign-up'];
+const authRoutes = ['/auth/sign-in', '/auth/sign-up']
+const publicRoutes = ['/auth/sign-in', '/auth/sign-up']
 
 export default {
   providers: [
@@ -27,11 +26,9 @@ export default {
       },
       async authorize(credentials) {
         try {
-          // Validate credentials against schema
-          const parsedCredentials = signInSchema.safeParse(credentials);
-          if (!parsedCredentials.success) return null;
+          const parsedCredentials = signInSchema.safeParse(credentials)
+          if (!parsedCredentials.success) return null
 
-          // Find user and their credentials
           const user = await prisma.user.findUnique({
             where: {
               email: credentials.email as string,
@@ -42,87 +39,83 @@ export default {
                 select: { password: true },
               },
             },
-          });
+          })
 
-          // Check if user and password exist
-          if (!user || !user.accounts[0]?.password) return null;
+          if (!user || !user.accounts[0]?.password) return null
 
-          // Verify password
           const isPasswordValid = await compare(
             credentials.password as string,
             user.accounts[0].password
-          );
-          if (!isPasswordValid) return null;
+          )
+          if (!isPasswordValid) return null
 
-          // Return user data on successful authentication
           return {
             id: user.id,
             name: user.name,
             email: user.email,
             emailVerified: user.emailVerified,
             image: user.image,
-            role: user.role ?? '-',
-            permissions: user.permissions, // Include permissions
-          };
+            role: user.role,
+            permissions: user.permissions,
+          }
         } catch (error) {
-          console.error('Auth error:', error);
-          return null;
+          console.error('Auth error:', error)
+          return null
         }
       },
     }),
   ],
   callbacks: {
-    // Handle route authorization
     authorized({ request: { nextUrl }, auth }) {
-      const isLoggedIn = !!auth?.user;
-      const { pathname } = nextUrl;
+      const isLoggedIn = !!auth?.user
+      const { pathname } = nextUrl
 
-      // Allow access to public routes
       if (publicRoutes.includes(pathname)) {
-        return true;
+        return true
       }
 
-      // Handle auth routes for logged-in users
       if (authRoutes.includes(pathname)) {
         if (isLoggedIn) {
-          return Response.redirect(new URL('/', nextUrl));
+          return Response.redirect(new URL('/', nextUrl))
         }
-        return true; // Allow access to auth pages if not logged in
+        return true
       }
 
-      // Require authentication for all other routes
-      return isLoggedIn;
+      return isLoggedIn
     },
 
-    // Handle JWT token creation and updates
     jwt({ token, user, trigger, session }) {
       if (user) {
-        // Add user data to token
-        token.id = user.id;
-        token.role = user.role;
-        token.permissions = user.permissions;
+        token.id = user.id
+        token.role = user.role
+        token.permissions = user.permissions
       }
 
-      // Handle session updates
       if (trigger === 'update' && session) {
-        token = { ...token, ...session };
+        token = { ...token, ...session }
       }
 
-      return token;
+      return token
     },
 
-    // Handle session data
-    session({ session, token }) {
-      // Add user data to session
-      session.user.id = token.id as string;
-      session.user.role = token.role as string | undefined;
-      session.user.permissions = token.permissions as Permission[] | undefined;
-
-      return session;
+    async session({ session, token }): Promise<Session> {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id as string,
+          role: token.role as UserRole,
+          permissions: token.permissions as Permission[],
+          email: session.user.email,
+          name: session.user.name,
+          image: session.user.image,
+        },
+        expires: session.expires
+      }
     },
   },
 
   pages: {
-    signIn: '/auth/signin',
+    signIn: '/auth',
   },
-} satisfies NextAuthConfig;
+} satisfies NextAuthConfig

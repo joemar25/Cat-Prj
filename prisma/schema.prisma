@@ -1,320 +1,420 @@
-// =================================================================
-// Prisma Schema Configuration
-// =================================================================
+// prisma\schema.prisma
 
 generator client {
-   provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-   provider = "postgresql"
-   url      = env("PG_DATABASE_URL")
+  provider = "postgresql"
+  url      = env("PG_DATABASE_URL")
 }
 
-/**
- * ### Configuration Details:
- * - The `prisma-client-js` generator creates the Prisma Client for database access.
- * - The `db` datasource connects to a PostgreSQL database, with the connection URL sourced from the environment variable `PG_DATABASE_URL`.
- */
-
-// =================================================================
-// Queue Management Documentation
-// =================================================================
-
-/**
- * Queue System Setup and Maintenance
- * -----------------------------------
- * ### Initial Setup:
- * 1. Run `npx prisma generate` to update Prisma Client with the Queue model.
- * 2. Run `npx prisma migrate dev --name add_queue_system` to create the initial queue table.
- * ### Making Schema Changes:
- * 1. Update the schema in this file.
- * 2. Run `npx prisma generate` to update the client.
- * 3. Run `npx prisma migrate dev --name describe_your_change` to apply changes.
- * ### Development Tools:
- * - Use `npx prisma studio` to view and manage queue data.
- * - Use `npx prisma migrate reset` to reset the database during development.
- * ### Queue Status Types:
- * - "waiting": Request is in the queue.
- * - "processing": Request is currently being handled.
- * - "completed": Request has been fulfilled.
- * - "cancelled": Request has been cancelled.
- * ### Service Types:
- * - "trueCopy": Request for document copies.
- * - "verify": Account verification request.
- * ### Important Notes:
- * - Queue numbers auto-increment.
- * - Timestamps are automatically generated.
- * - User relation is optional.
- * - The `documents` field stores an array of document types.
- */
-
-// =================================================================
-// Authentication Models
-// =================================================================
-
-enum UserRole {
-   ADMIN
-   STAFF
-   USER
-}
-
-/**
- * ### UserRole Enum:
- * Defines the roles available for users in the system:
- * - `ADMIN`: Has full permissions.
- * - `STAFF`: Has limited administrative permissions.
- * - `USER`: Standard user role.
- */
-
-enum QueueStatus {
-   WAITING
-   PROCESSING
-   COMPLETED
-   CANCELLED
-}
-
-/**
- * ### QueueStatus Enum:
- * Represents the current status of a queue request:
- * - `WAITING`: The request is in the queue and not yet processed.
- * - `PROCESSING`: The request is currently being handled.
- * - `COMPLETED`: The request has been fulfilled.
- * - `CANCELLED`: The request was cancelled by the user or staff.
- */
-
-enum ServiceType {
-   TRUE_COPY
-   VERIFY
-}
-
-/**
- * ### ServiceType Enum:
- * Defines the types of services available in the queue system:
- * - `TRUE_COPY`: Request for document copies.
- * - `VERIFY`: Account verification request.
- */
-
-enum Permission {
-   QUEUE_VIEW
-   QUEUE_PROCESS
-   QUEUE_DELETE
-   QUEUE_UPDATE
-   QUEUE_ADD_NOTES
-   USERS_MANAGE
-}
-
-/**
- * ### Permission Enum:
- * Lists the specific permissions for users in the system:
- * - `QUEUE_VIEW`: Allows viewing of queue items.
- * - `QUEUE_PROCESS`: Allows processing queue requests.
- * - `QUEUE_DELETE`: Allows deletion of queue items.
- * - `QUEUE_UPDATE`: Allows updating of queue details.
- * - `QUEUE_ADD_NOTES`: Allows adding notes to queue items.
- * - `USERS_MANAGE`: Allows managing user accounts and roles.
- */
-
+/// *
+/// * User Model
+/// * @model
+/// * Central user entity storing authentication and profile data
+/// * Relationships:
+/// * - One-to-many with Sessions, Accounts, Queues
+/// * - One-to-one with Profile
+/// * - Many-to-many with Permissions
 model User {
-   id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-   email         String       @unique
-   name          String
-   emailVerified Boolean
-   image         String?
-   username      String?      @unique
-   role          UserRole     @default(ADMIN)
-   permissions   Permission[]
-   createdAt     DateTime
-   updatedAt     DateTime
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String         @unique
+  name          String
+  emailVerified Boolean
+  image         String?
+  username      String?        @unique
+  role          UserRole       @default(ADMIN)
+  permissions   Permission[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  lastLoginAt   DateTime?
+  language      String?        @default("en")
+  accounts      Account[]
+  attachments   Attachment[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  profile       Profile?
+  queues        Queue[]
+  sessions      Session[]
+  workflows     Workflow[]
+  Feedback      Feedback[]
 
-   // Relations
-   sessions    Session[]
-   accounts    Account[]
-   queues      Queue[]
-   profile     Profile?
-   attachments Attachment[]
-
-   @@map("user")
+  @@map("user")
 }
 
-/**
- * ### User Model:
- * Represents system users and their attributes:
- * - Has fields for `id`, `email`, `name`, `role`, and permissions.
- * - Supports relations to sessions, accounts, and queues.
- */
-
+/// *
+/// * Session Model
+/// * @model
+/// * Manages active user sessions
+/// * Features:
+/// * - Secure token management
+/// * - Device tracking
+/// * - Automatic cleanup
 model Session {
-   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-   expiresAt DateTime
-   token     String   @unique
-   createdAt DateTime
-   updatedAt DateTime
-   ipAddress String?
-   userAgent String?
-   userId    String   @db.Uuid
-   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-   @@map("session")
+  @@map("session")
 }
 
-/**
- * ### Session Model:
- * Stores user sessions, including `token`, expiration, and device details:
- * - Links to a user via the `userId` field.
- * - Automatically deletes sessions if the linked user is removed.
- */
-
+/// *
+/// * Account Model
+/// * @model
+/// * Handles external authentication providers
+/// * Features:
+/// * - OAuth token management
+/// * - Multiple provider support
+/// * - Automatic token refresh
 model Account {
-   id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-   accountId             String
-   providerId            String
-   userId                String    @db.Uuid
-   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-   password              String?
-   accessToken           String?
-   refreshToken          String?
-   idToken               String?
-   accessTokenExpiresAt  DateTime?
-   refreshTokenExpiresAt DateTime?
-   scope                 String?
-   createdAt             DateTime
-   updatedAt             DateTime
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  accountId             String
+  providerId            String
+  userId                String    @db.Uuid
+  password              String?
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-   @@map("account")
+  @@map("account")
 }
 
-/**
- * ### Account Model:
- * Represents external accounts linked to users:
- * - Includes fields for tokens, provider details, and expiration times.
- * - Supports cascading deletions when linked users are removed.
- */
-
+/// *
+/// * Verification Model
+/// * @model
+/// * Handles time-sensitive verification tokens
+/// * Used for:
+/// * - Email verification
+/// * - Password reset
+/// * - Account confirmation
 model Verification {
-   id         String    @id
-   identifier String
-   value      String
-   expiresAt  DateTime
-   createdAt  DateTime?
-   updatedAt  DateTime?
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
 
-   @@map("verification")
+  @@map("verification")
 }
 
-/**
- * ### Verification Model:
- * Handles verification tokens for user-related operations:
- * - Includes `identifier`, `value`, and expiration time.
- * - Primarily used for email or password verification processes.
- */
-
-// =================================================================
-// CRIS Custom Tables
-// =================================================================
-
+/// *
+/// * Queue Model
+/// * @model
+/// * Manages document service requests
+/// * Features:
+/// * - Automatic ticket numbering
+/// * - Status tracking
+/// * - Processing notes
 model Queue {
-   id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-   ticketNumber    Int         @unique @default(autoincrement())
-   kioskNumber     Int?
-   status          QueueStatus @default(WAITING)
-   serviceType     ServiceType
-   userId          String?     @db.Uuid
-   email           String?
-   documents       String[]
-   processingNotes String?
-   createdAt       DateTime    @default(now())
-   updatedAt       DateTime    @updatedAt
-   completedAt     DateTime?
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ticketNumber    Int         @unique @default(autoincrement())
+  kioskNumber     Int?
+  status          QueueStatus @default(WAITING)
+  serviceType     ServiceType
+  userId          String?     @db.Uuid
+  email           String?
+  documents       String[]
+  processingNotes String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  completedAt     DateTime?
+  user            User?       @relation(fields: [userId], references: [id])
 
-   // Relations
-   user User? @relation(fields: [userId], references: [id])
-
-   @@map("queue")
+  @@map("queue")
 }
 
-enum AttachmentType {
-   BIRTH_CERTIFICATE
-   DEATH_CERTIFICATE
-   MARRIAGE_CERTIFICATE
-}
-
+/// *
+/// * Profile Model
+/// * @model
+/// * Extended user information
+/// * Stores:
+/// * - Personal details
+/// * - Contact information
+/// * - Demographic data
 model Profile {
-   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-   userId      String    @unique @db.Uuid
-   dateOfBirth DateTime?
-   phoneNumber String?
-   address     String?
-   city        String?
-   state       String?
-   country     String?
-   postalCode  String?
-   bio         String?   @db.Text
-   occupation  String?
-   gender      String?
-   nationality String?
-   createdAt   DateTime  @default(now())
-   updatedAt   DateTime  @updatedAt
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String    @unique @db.Uuid
+  dateOfBirth DateTime?
+  phoneNumber String?
+  address     String?
+  city        String?
+  state       String?
+  country     String?
+  postalCode  String?
+  bio         String?
+  occupation  String?
+  gender      String?
+  nationality String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-   // Relation to User
-   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-   @@map("profile")
+  @@map("profile")
 }
 
+/// *
+/// * Document Model
+/// * @model
+/// * Central document repository
+/// * Features:
+/// * - Version control
+/// * - Metadata storage
+/// * - Workflow integration
+model Document {
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type          AttachmentType
+  title         String
+  description   String?
+  metadata      Json?
+  status        DocumentStatus @default(PENDING)
+  version       Int            @default(1)
+  isLatest      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  attachments   Attachment[]
+  auditLogs     AuditLog[]
+  workflowSteps WorkflowStep[]
+
+  @@map("document")
+}
+
+/// *
+/// * Attachment Model
+/// * @model
+/// * Handles physical document files
+/// * Features:
+/// * - File metadata
+/// * - Document verification
+/// * - Processing status
 model Attachment {
-   id         String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-   userId     String         @db.Uuid
-   type       AttachmentType @default(BIRTH_CERTIFICATE)
-   fileUrl    String
-   fileName   String
-   fileSize   Int
-   mimeType   String
-   status     String         @default("pending") // pending, verified, rejected
-   uploadedAt DateTime       @default(now())
-   updatedAt  DateTime       @updatedAt
-   verifiedAt DateTime?
-   notes      String?        @db.Text
+  id         String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String         @db.Uuid
+  documentId String         @db.Uuid
+  type       AttachmentType
+  fileUrl    String
+  fileName   String
+  fileSize   Int
+  mimeType   String
+  status     DocumentStatus @default(PENDING)
+  uploadedAt DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  verifiedAt DateTime?
+  notes      String?
+  metadata   Json?
+  hash       String?
+  document   Document       @relation(fields: [documentId], references: [id])
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-   // Relation to User
-   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-   @@map("attachment")
+  @@map("attachment")
 }
 
-/**
- * ### Queue Model:
- * Represents the queue system:
- * - Stores queue-specific attributes such as `ticketNumber`, `status`, and `serviceType`.
- * - Includes optional relations to a user for tracking requests.
- * - Automatically tracks timestamps (`createdAt`, `updatedAt`).
- */
+/// *
+/// * Workflow Model
+/// * @model
+/// * Defines document processing workflows
+/// * Features:
+/// * - Customizable steps
+/// * - Active status tracking
+/// * - Creator attribution
+model Workflow {
+  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  description String?
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  createdBy   String         @db.Uuid
+  user        User           @relation(fields: [createdBy], references: [id])
+  steps       WorkflowStep[]
 
-// =================================================================
-// Prisma CLI Commands Reference
-// =================================================================
+  @@map("workflow")
+}
 
-/**
- * ### Initial Setup:
- * - `prisma init`: Initialize a new Prisma project.
- * - `npx prisma generate`: Generate Prisma Client.
- * - `npx @better-auth/cli init`: Initialize Better Auth (requires `pnpm add @better-auth/cli`).
- * ### Database Operations:
- * - `npx prisma db push`: Push schema changes directly to the database.
- * - `npx prisma migrate dev`: Create a new migration and apply it.
- * - `npx prisma migrate reset`: Reset the database to the initial state.
- * - `npx prisma db seed`: Run database seeding.
- * - `npx @better-auth/cli migrate`: Run Better Auth migrations.
- * ### Development Tools:
- * - `npx prisma studio`: Open Prisma Studio (database GUI).
- * ### Common Workflows:
- * 1. **Making schema changes**:
- * - Update `schema.prisma`.
- * - Run `npx prisma generate`.
- * - Run `npx prisma db push` (development) or `npx prisma migrate dev` (production).
- * 2. **Resetting the database**:
- * - Run `npx prisma migrate reset`.
- * - Run `npx prisma db seed` (if needed).
- * 3. **Viewing data**:
- * - Run `npx prisma studio`.
- */
+/// *
+/// * WorkflowStep Model
+/// * @model
+/// * Individual workflow process steps
+/// * Features:
+/// * - Order management
+/// * - Deadline tracking
+/// * - Requirement flags
+model WorkflowStep {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workflowId String    @db.Uuid
+  documentId String    @db.Uuid
+  name       String
+  order      Int
+  isRequired Boolean   @default(true)
+  deadline   DateTime?
+  status     String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  document   Document  @relation(fields: [documentId], references: [id])
+  workflow   Workflow  @relation(fields: [workflowId], references: [id])
+
+  @@map("workflow_step")
+}
+
+/// *
+/// * Notification Model
+/// * @model
+/// * System notification management
+/// * Features:
+/// * - Multiple notification types
+/// * - Read status tracking
+/// * - Timestamp logging
+model Notification {
+  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String           @db.Uuid
+  type      NotificationType
+  title     String
+  message   String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  readAt    DateTime?
+  user      User             @relation(fields: [userId], references: [id])
+
+  @@map("notification")
+}
+
+/// *
+/// * AuditLog Model
+/// * @model
+/// * System activity tracking
+/// * Features:
+/// * - Detailed action logging
+/// * - Entity tracking
+/// * - User attribution
+model AuditLog {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @db.Uuid
+  action     String
+  entityType String
+  entityId   String   @db.Uuid
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  document   Document @relation(fields: [entityId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@map("audit_log")
+}
+
+/// *
+/// * Defines user role levels in the system
+/// * @enum {string}
+/// * - ADMIN: Full system access and management capabilities
+/// * - STAFF: Limited administrative access for daily operations
+/// * - USER: Basic access for standard users
+enum UserRole {
+  ADMIN
+  STAFF
+  USER
+}
+
+/// *
+/// * Defines the possible states of a queue item
+/// * @enum {string}
+/// * - WAITING: Initial state when request is created
+/// * - PROCESSING: Request is being handled by staff
+/// * - COMPLETED: Request has been successfully processed
+/// * - CANCELLED: Request was terminated before completion
+enum QueueStatus {
+  WAITING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+/// *
+/// * Defines the types of services available
+/// * @enum {string}
+/// * - TRUE_COPY: Request for certified true copies
+/// * - VERIFY: Document verification service
+/// * - CERTIFICATION: New certificate issuance
+/// * - AUTHENTICATION: Document authentication service
+enum ServiceType {
+  TRUE_COPY
+  VERIFY
+  CERTIFICATION
+  AUTHENTICATION
+}
+
+/// *
+/// * Defines granular system permissions
+/// * @enum {string}
+/// * Each permission controls access to specific system functionality
+enum Permission {
+  QUEUE_VIEW
+  QUEUE_PROCESS
+  QUEUE_DELETE
+  QUEUE_UPDATE
+  QUEUE_ADD_NOTES
+  USERS_MANAGE
+  DOCUMENTS_MANAGE
+  WORKFLOW_MANAGE
+  REPORTS_VIEW
+  SYSTEM_SETTINGS
+}
+
+/// *
+/// * Defines document processing states
+/// * @enum {string}
+/// * Tracks the verification status of documents
+enum DocumentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+/// *
+/// * Defines notification delivery channels
+/// * @enum {string}
+/// * Supports multiple communication methods
+enum NotificationType {
+  EMAIL
+  SYSTEM
+  SMS
+}
+
+/// *
+/// * Defines types of civil registry documents
+/// * @enum {string}
+/// * Categories for different certificate types
+enum AttachmentType {
+  BIRTH_CERTIFICATE
+  DEATH_CERTIFICATE
+  MARRIAGE_CERTIFICATE
+}
+
+/// *
+/// * Feedback Model
+/// * @model
+/// * Allows for user-submitted feedback
+model Feedback {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  feedback    String
+  submittedBy String?  @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User? @relation(fields: [submittedBy], references: [id])
+
+  @@map("feedback")
+}

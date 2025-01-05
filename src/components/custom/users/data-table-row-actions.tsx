@@ -1,15 +1,14 @@
 'use client'
 
+import { toast } from 'sonner'
 import { useState } from 'react'
+import { User } from '@prisma/client'
+import { Loader2, MoreVertical } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Row } from '@tanstack/react-table'
-import { User } from '@prisma/client'
-import { useSession } from 'next-auth/react'
-import { toast } from 'sonner'
-import { Icons } from '@/components/ui/icons'
-import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
 import { hasPermission } from '@/types/auth'
+import { useSession } from 'next-auth/react'
+import { Button } from '@/components/ui/button'
 
 import {
     Dialog,
@@ -23,6 +22,7 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
@@ -50,29 +50,21 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
     const [isLoading, setIsLoading] = useState(false)
     const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
 
+    // Check permissions
     const canManageUsers = hasPermission(session?.user?.permissions ?? [], 'USERS_MANAGE')
-
     if (!canManageUsers) return null
 
-    const handleView = () => {
-        setViewDetailsOpen(true)
-    }
-
-    const handleEdit = () => {
-        router.push(`/users/${user.id}/edit`)
-    }
+    // Handlers
+    const handleView = () => setViewDetailsOpen(true)
+    const handleEdit = () => router.push(`/users/${user.id}/edit`)
 
     const handleDeactivate = async () => {
         try {
             setIsLoading(true)
             const response = await fetch(`/api/users/${user.id}`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    active: false
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ active: false }),
             })
 
             if (!response.ok) {
@@ -91,25 +83,32 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
 
     return (
         <>
+            {/* -- Dropdown Menu Trigger -- */}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
                         variant="ghost"
-                        className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+                        size="icon"
+                        className="h-8 w-8 p-0 data-[state=open]:bg-muted"
                     >
-                        <Icons.horizontalThreeDots className="h-4 w-4" />
+                        <MoreVertical className="h-4 w-4" />
                         <span className="sr-only">Open menu</span>
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[160px]">
+
+                {/* -- Dropdown Items -- */}
+                <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+
                     <DropdownMenuItem onClick={handleView}>
-                        <Icons.view className="mr-2 h-4 w-4" />
                         View Details
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleEdit}>
-                        <Icons.edit className="mr-2 h-4 w-4" />
                         Edit
                     </DropdownMenuItem>
+
+                    {/* Hide "Deactivate" if it's the current user (self) */}
                     {user.id !== session?.user?.id && (
                         <>
                             <DropdownMenuSeparator />
@@ -117,24 +116,24 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
                                 <AlertDialogTrigger asChild>
                                     <DropdownMenuItem
                                         onSelect={(e) => e.preventDefault()}
-                                        className="text-red-600 focus:text-red-600"
+                                        className="text-destructive focus:text-destructive"
                                     >
-                                        <Icons.trash className="mr-2 h-4 w-4" />
                                         Deactivate
                                     </DropdownMenuItem>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
-                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                        <AlertDialogTitle>Deactivate User</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            This will deactivate the user account. The user will no longer be able to access the system.
+                                            This will deactivate the user account. The user will no
+                                            longer be able to access the system. Are you sure?
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                                         <AlertDialogAction
                                             onClick={handleDeactivate}
-                                            className="bg-red-600 focus:bg-red-600"
+                                            className="bg-destructive text-destructive-foreground"
                                         >
                                             {isLoading ? (
                                                 <>
@@ -153,29 +152,30 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
                 </DropdownMenuContent>
             </DropdownMenu>
 
+            {/* -- User Details Dialog -- */}
             <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[480px]">
                     <DialogHeader>
                         <DialogTitle>User Details</DialogTitle>
                         <DialogDescription>
-                            Detailed information about the user.
+                            A summary of key user information.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <div className="font-medium">Name</div>
+                            <div className="font-semibold">Name</div>
                             <div className="col-span-3">{user.name}</div>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <div className="font-medium">Email</div>
+                            <div className="font-semibold">Email</div>
                             <div className="col-span-3">{user.email}</div>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <div className="font-medium">Role</div>
+                            <div className="font-semibold">Role</div>
                             <div className="col-span-3">{user.role}</div>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <div className="font-medium">Status</div>
+                            <div className="font-semibold">Status</div>
                             <div className="col-span-3">
                                 {user.emailVerified ? 'Verified' : 'Unverified'}
                             </div>

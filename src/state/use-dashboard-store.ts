@@ -1,13 +1,14 @@
 // src/state/use-dashboard-store.ts
 import { create } from "zustand"
-import type { Queue, QueueStatus } from "@prisma/client"
+import { Queue, QueueStatus } from "@prisma/client"
 
 interface DashboardState {
     queues: Queue[]
+    stats: { [key in QueueStatus]?: number }
+    total: number
     status: QueueStatus | 'all'
     page: number
     limit: number
-    total: number
     totalPages: number
     isLoading: boolean
     error: string | null
@@ -17,6 +18,8 @@ interface DashboardState {
     setPage: (page: number) => void
     setLimit: (limit: number) => void
     fetchQueues: () => Promise<void>
+    fetchStats: () => Promise<void>
+    refreshData: () => Promise<void>
     updateQueueStatus: (id: string, status: QueueStatus) => Promise<void>
     updateNotes: (id: string, notes: string) => Promise<void>
     deleteQueue: (id: string) => Promise<void>
@@ -24,10 +27,11 @@ interface DashboardState {
 
 export const useDashboardStore = create<DashboardState>((set, get) => ({
     queues: [],
-    status: 'all',
+    stats: {},
+    total: 0,
+    status: QueueStatus.WAITING, // 'all',
     page: 1,
     limit: 10,
-    total: 0,
     totalPages: 0,
     isLoading: false,
     error: null,
@@ -38,35 +42,54 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
     fetchQueues: async () => {
         const { status, page, limit } = get()
-        set({ isLoading: true, error: null })
-
         try {
             const searchParams = new URLSearchParams({
                 page: page.toString(),
                 limit: limit.toString(),
-                ...(status !== 'all' && { status })
             })
 
+            if (status !== 'all') {
+                searchParams.append('status', status)
+            }
+
             const response = await fetch(`/api/dashboard/queue?${searchParams.toString()}`)
-            if (!response.ok) throw new Error('Failed to fetch queues')
+
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Failed to fetch queues')
+            }
 
             const data = await response.json()
+
             set({
                 queues: data.queues,
                 total: data.pagination.total,
                 totalPages: data.pagination.pages,
-                isLoading: false
             })
         } catch (error) {
-            set({
-                error: error instanceof Error ? error.message : 'Failed to fetch queues',
-                isLoading: false,
-                queues: []
+            throw error
+        }
+    },
+
+    fetchStats: async () => {
+        try {
+            const response = await fetch(`/api/dashboard/queue?aggregate=true`)
+            if (!response.ok) throw new Error("Failed to fetch stats")
+
+            const data = await response.json()
+            const stats: { [key in QueueStatus]?: number } = {}
+            data.stats.forEach((item: { status: QueueStatus; _count: { status: number } }) => {
+                stats[item.status] = item._count.status
             })
+
+            set({ stats, total: data.total })
+        } catch (error) {
+            throw error
         }
     },
 
     updateQueueStatus: async (id: string, status: QueueStatus) => {
+        set({ isLoading: true, error: null })
         try {
             const response = await fetch('/api/dashboard/queue', {
                 method: 'PATCH',
@@ -74,9 +97,11 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
                 body: JSON.stringify({ id, status, action: 'update' })
             })
             if (!response.ok) throw new Error('Failed to update status')
-            await get().fetchQueues()
+            await get().refreshData()
         } catch (error) {
             set({ error: error instanceof Error ? error.message : 'Failed to update status' })
+        } finally {
+            set({ isLoading: false })
         }
     },
 
@@ -85,11 +110,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
             const response = await fetch('/api/dashboard/queue', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id,
-                    notes: notes,
-                    action: 'update'
-                })
+                body: JSON.stringify({ id, notes, action: 'update' })
             })
 
             if (!response.ok) {
@@ -97,10 +118,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
                 throw new Error(error.message || 'Failed to update notes')
             }
 
-            // Update the queue in the local state with the complete updated data
             const updatedQueue = await response.json()
-            set(state => ({
-                queues: state.queues.map(queue =>
+            set((state) => ({
+                queues: state.queues.map((queue) =>
                     queue.id === id ? updatedQueue : queue
                 )
             }))
@@ -111,6 +131,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     },
 
     deleteQueue: async (id: string) => {
+        set({ isLoading: true, error: null })
         try {
             const response = await fetch('/api/dashboard/queue', {
                 method: 'PATCH',
@@ -118,9 +139,27 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
                 body: JSON.stringify({ id, action: 'delete' })
             })
             if (!response.ok) throw new Error('Failed to delete queue')
-            await get().fetchQueues()
+            await get().refreshData()
         } catch (error) {
             set({ error: error instanceof Error ? error.message : 'Failed to delete queue' })
+        } finally {
+            set({ isLoading: false })
+        }
+    },
+
+    refreshData: async () => {
+        set({ isLoading: true, error: null })
+        try {
+            await Promise.all([
+                get().fetchQueues(),
+                get().fetchStats()
+            ])
+        } catch (error) {
+            set({
+                error: error instanceof Error ? error.message : 'Failed to refresh data'
+            })
+        } finally {
+            set({ isLoading: false })
         }
     }
 }))
