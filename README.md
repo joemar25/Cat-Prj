@@ -5,6 +5,7 @@
   - install prisma (`npm install @prisma/client`)
   - setup prisma (env setup)
   - run migrations (`npx prisma db push`)
+  - run dev migration (`npx prisma migrate dev`)
   - see prisma db (`npx prisma studio`)
 - auth setup (todo)
 

@@ -26,18 +26,18 @@ export function SelectServiceStep() {
     }
 
     return (
-        <Card className="max-w-md w-full p-6">
+        <div className="max-w-md w-full p-2">
             <CardHeader>
-                <CardTitle className="text-xl">Select Service</CardTitle>
+                <CardTitle className="text-3xl">Select Service</CardTitle> {/* Increased font size */}
             </CardHeader>
             <CardContent className="flex flex-col space-y-4">
-                <p>Please choose the service you want to proceed with:</p>
+                <p className="text-lg">Please choose the service you want to proceed with:</p> {/* Increased font size */}
 
                 <Button onClick={handleTrueCopy}>Request True Copy</Button>
                 <Button variant="outline" onClick={handleVerify}>
                     Verify Registration
                 </Button>
             </CardContent>
-        </Card>
+        </div>
     )
 }

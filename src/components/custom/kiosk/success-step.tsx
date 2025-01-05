@@ -15,7 +15,7 @@ export function SuccessStep() {
     } = useKioskStore()
 
     return (
-        <Card className="max-w-md w-full p-6 text-center">
+        <div className="max-w-md w-full p-6 text-center">
             <CardHeader>
                 <CardTitle className="text-xl">Success!</CardTitle>
             </CardHeader>
@@ -61,6 +61,6 @@ export function SuccessStep() {
             <CardFooter className="flex justify-center space-x-4">
                 <Button onClick={resetFlow}>Done</Button>
             </CardFooter>
-        </Card>
+        </div>
     )
 }

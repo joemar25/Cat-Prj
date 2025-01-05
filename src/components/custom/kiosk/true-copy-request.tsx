@@ -37,54 +37,53 @@ export function TrueCopyRequest() {
     }
 
     return (
-        <Card className="max-w-md w-full p-6" >
+        <div className="max-w-md w-full p-6">
             <CardHeader>
-                <CardTitle className="text-xl" > Request Certified Copy </CardTitle>
+                <CardTitle className="text-2xl">Request Certified Copy</CardTitle>
             </CardHeader>
 
-            < CardContent className="space-y-6" >
-                <div className="space-y-4" >
-                    <Label className="font-medium" > Select Documents </Label>
-                    {
-                        documentTypes.map((doc) => (
-                            <div key={doc.value} className="flex items-center space-x-2" >
-                                <Checkbox
-                                    id={doc.value}
-                                    checked={selectedDocs.includes(doc.value)}
-                                    onCheckedChange={() => handleDocSelect(doc.value)}
-                                />
-                                < Label htmlFor={doc.value} > {doc.label} </Label>
-                            </div>
-                        ))
-                    }
+            <CardContent className="space-y-6">
+                <div className="space-y-4">
+                    <Label className="font-medium text-lg">Select Documents</Label>
+                    {documentTypes.map((doc) => (
+                        <div key={doc.value} className="flex items-center space-x-2">
+                            <Checkbox
+                                id={doc.value}
+                                checked={selectedDocs.includes(doc.value)}
+                                onCheckedChange={() => handleDocSelect(doc.value)}
+                            />
+                            <Label htmlFor={doc.value} className="text-lg">{doc.label}</Label>
+                        </div>
+                    ))}
                 </div>
 
-                < div >
-                    <Label htmlFor="email" className="font-medium" >
+                <div>
+                    <Label htmlFor="email" className="font-medium text-lg">
                         Email Address
                     </Label>
-                    < Input
+                    <Input
                         id="email"
                         type="email"
                         placeholder="Enter your registered email"
                         value={localEmail}
                         onChange={(e) => setLocalEmail(e.target.value)}
-                        className="mt-2"
+                        className="mt-2 text-lg"
                     />
                 </div>
             </CardContent>
 
-            < CardFooter className="flex justify-between" >
-                <Button variant="outline" onClick={prevStep} >
+            <CardFooter className="flex justify-between">
+                <Button variant="outline" onClick={prevStep} className="text-lg">
                     Back
                 </Button>
-                < Button
+                <Button
                     onClick={handleSubmit}
                     disabled={!localEmail || selectedDocs.length === 0}
+                    className="text-lg"
                 >
                     Request Copies
                 </Button>
             </CardFooter>
-        </Card>
+        </div>
     )
 }

@@ -54,16 +54,16 @@ export function VerifyRegistration() {
     }
 
     return (
-        <Card className="max-w-md w-full p-6">
+        <div className="max-w-md w-full p-6">
             <CardHeader>
-                <CardTitle className="text-xl">Account Verification</CardTitle>
+                <CardTitle className="text-3xl">Account Verification</CardTitle>
             </CardHeader>
 
             <CardContent className="space-y-4">
                 {!confirmed ? (
                     <>
                         <div>
-                            <Label htmlFor="userId" className="font-medium">
+                            <Label htmlFor="userId" className="font-medium text-lg">
                                 User ID
                             </Label>
                             <Input
@@ -77,8 +77,8 @@ export function VerifyRegistration() {
 
                         <Alert>
                             <AlertCircle className="h-4 w-4" />
-                            <AlertTitle>Account Verification</AlertTitle>
-                            <AlertDescription>
+                            <AlertTitle className="text-lg">Account Verification</AlertTitle>
+                            <AlertDescription className="text-base">
                                 Please enter your user ID to verify your account details.
                             </AlertDescription>
                         </Alert>
@@ -86,7 +86,7 @@ export function VerifyRegistration() {
                         {error && (
                             <Alert variant="destructive">
                                 <AlertCircle className="h-4 w-4" />
-                                <AlertDescription>{error}</AlertDescription>
+                                <AlertDescription className="text-base">{error}</AlertDescription>
                             </Alert>
                         )}
                     </>
@@ -95,17 +95,17 @@ export function VerifyRegistration() {
                         <div className="flex items-center space-x-4">
                             <UserIcon className="w-12 h-12 text-blue-500" />
                             <div>
-                                <h3 className="font-bold">{userDetails.name}</h3>
-                                <p className="text-sm text-gray-500">{userDetails.email}</p>
+                                <h3 className="font-bold text-xl">{userDetails.name}</h3>
+                                <p className="text-base text-gray-500">{userDetails.email}</p>
                             </div>
                         </div>
 
                         <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                            <p>
+                            <p className="text-base">
                                 <strong>Registration Date: </strong>
                                 {formatDate(userDetails.createdAt)}
                             </p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-base text-gray-600">
                                 Please confirm if these details are correct.
                             </p>
                         </div>
@@ -130,6 +130,6 @@ export function VerifyRegistration() {
                     </Button>
                 )}
             </CardFooter>
-        </Card>
+        </div>
     )
 }
