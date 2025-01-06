@@ -2,9 +2,20 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { getEmailSchema, getNameSchema, getPasswordSchema } from '@/lib/zod';
+import {
+  CertifiedCopyFormData,
+  getEmailSchema,
+  getNameSchema,
+  getPasswordSchema,
+} from '@/lib/zod';
 import { ROLE_PERMISSIONS } from '@/types/auth';
-import { Profile, User, UserRole } from '@prisma/client';
+import {
+  AttachmentType,
+  DocumentStatus,
+  Profile,
+  User,
+  UserRole,
+} from '@prisma/client';
 import { hash } from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -228,54 +239,62 @@ export async function deactivateUser(userId: string) {
   }
 }
 
-// Schema matches the model exactly
-const certifiedCopySchema = z.object({
-  lcrNo: z.string().optional(),
-  bookNo: z.string().optional(),
-  pageNo: z.string().optional(),
-  searchedBy: z.string().optional(),
-  contactNo: z.string().optional(),
-  date: z.string(), // Will be converted to DateTime
-  attachmentId: z.string(),
-});
-
-type CreateCertifiedCopyInput = z.infer<typeof certifiedCopySchema>;
-
-export async function handleCreateCertifiedCopy(
-  data: CreateCertifiedCopyInput
+export async function createCertifiedCopy(
+  data: CertifiedCopyFormData,
+  userId: string
 ) {
   try {
-    // Validate input data
-    const validatedData = certifiedCopySchema.parse(data);
+    // Use a transaction to ensure all or nothing
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Create Document first
+      const document = await tx.document.create({
+        data: {
+          type: AttachmentType.BIRTH_CERTIFICATE, // or appropriate type
+          title: `Certified Copy - ${data.lcrNo}`,
+          status: DocumentStatus.PENDING,
+          version: 1,
+          isLatest: true,
+        },
+      });
 
-    // Create certified copy using prisma
-    const certifiedCopy = await prisma.certifiedCopy.create({
-      data: {
-        lcrNo: validatedData.lcrNo,
-        bookNo: validatedData.bookNo,
-        pageNo: validatedData.pageNo,
-        searchedBy: validatedData.searchedBy,
-        contactNo: validatedData.contactNo,
-        date: validatedData.date ? new Date(validatedData.date) : null,
-        attachmentId: validatedData.attachmentId,
-      },
-      include: {
-        attachment: true,
-      },
+      // 2. Create Attachment
+      const attachment = await tx.attachment.create({
+        data: {
+          userId: userId,
+          documentId: document.id,
+          type: AttachmentType.BIRTH_CERTIFICATE, // or appropriate type
+          fileUrl: '', // placeholder
+          fileName: `certified-copy-${data.lcrNo}`,
+          fileSize: 0, // placeholder
+          mimeType: 'application/pdf', // placeholder
+          status: DocumentStatus.PENDING,
+        },
+      });
+
+      // 3. Create CertifiedCopy
+      const certifiedCopy = await tx.certifiedCopy.create({
+        data: {
+          lcrNo: data.lcrNo,
+          bookNo: data.bookNo,
+          pageNo: data.pageNo,
+          searchedBy: data.searchedBy,
+          contactNo: data.contactNo,
+          date: data.date ? new Date(data.date) : null,
+          attachmentId: attachment.id,
+        },
+      });
+
+      return { certifiedCopy, attachment, document };
     });
 
     revalidatePath('/users');
-
     return {
       success: true,
       message: 'Certified copy created successfully',
-      data: certifiedCopy,
+      data: result,
     };
   } catch (error) {
     console.error('Error creating certified copy:', error);
-    if (error instanceof z.ZodError) {
-      return { success: false, message: error.errors[0].message };
-    }
     return { success: false, message: 'Failed to create certified copy' };
   }
 }

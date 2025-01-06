@@ -136,6 +136,8 @@ export function DataTableRowActions({
               <AddCertifiedCopyDialog
                 open={certifiedCopyOpen}
                 onOpenChange={setCertifiedCopyOpen}
+                user={user}
+                onUpdateAction={onUpdateAction}
               />
             </>
           )}

@@ -1,4 +1,3 @@
-// src/components/custom/users/actions/add-certified-copy-dialog.tsx
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -19,16 +18,30 @@ import {
 } from '@/components/ui/form';
 import { Icons } from '@/components/ui/icons';
 import { Input } from '@/components/ui/input';
+
+import { activateUser, createCertifiedCopy } from '@/hooks/users-action';
 import { certifiedCopySchema, type CertifiedCopyFormData } from '@/lib/zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { User } from '@prisma/client';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  user: User;
+  onUpdateAction?: (updatedUser: User) => void;
 }
 
-export function AddCertifiedCopyDialog({ open, onOpenChange }: Props) {
+export function AddCertifiedCopyDialog({
+  open,
+  onOpenChange,
+  user,
+  onUpdateAction,
+}: Props) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<CertifiedCopyFormData>({
     resolver: zodResolver(certifiedCopySchema),
     defaultValues: {
@@ -41,6 +54,35 @@ export function AddCertifiedCopyDialog({ open, onOpenChange }: Props) {
     },
   });
 
+  const onSubmit = async (data: CertifiedCopyFormData) => {
+    setIsSubmitting(true);
+    try {
+      // Create certified copy and related records
+      const certifiedCopyResult = await createCertifiedCopy(data, user.id);
+
+      if (!certifiedCopyResult.success) {
+        toast.error(certifiedCopyResult.message);
+        return;
+      }
+
+      // Then activate the user
+      const activationResult = await activateUser(user.id);
+      if (activationResult.success) {
+        toast.success('User activated and certified copy created successfully');
+        onUpdateAction?.({ ...user, emailVerified: true });
+        form.reset();
+        onOpenChange(false);
+      } else {
+        toast.error(activationResult.message);
+      }
+    } catch (error) {
+      console.error('Error in submit process:', error);
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[600px] max-h-[90vh] overflow-y-auto'>
@@ -51,7 +93,7 @@ export function AddCertifiedCopyDialog({ open, onOpenChange }: Props) {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form className='space-y-6'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
@@ -143,12 +185,22 @@ export function AddCertifiedCopyDialog({ open, onOpenChange }: Props) {
                 type='button'
                 variant='outline'
                 onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>
-              <Button type='submit'>
-                <Icons.check className='mr-2 h-4 w-4' />
-                Confirm
+              <Button type='submit' disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Icons.check className='mr-2 h-4 w-4' />
+                    Confirm
+                  </>
+                )}
               </Button>
             </div>
           </form>
