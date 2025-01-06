@@ -1,9 +1,15 @@
-
 // src/types/dashboard.ts
-import { Session } from 'next-auth'
+import { User as NextAuthUser } from 'next-auth'
+import { UserRole, Permission } from '@prisma/client'
+
+interface ExtendedUser extends NextAuthUser {
+    id: string
+    role: UserRole
+    permissions: Permission[]
+}
 
 export interface DashboardHeaderProps {
-    user?: Session['user']
+    user?: ExtendedUser
     breadcrumbs?: {
         href?: string
         label: string
@@ -12,5 +18,5 @@ export interface DashboardHeaderProps {
 }
 
 export interface UserHeaderNavProps {
-    user?: Session['user']
+    user?: ExtendedUser
 }

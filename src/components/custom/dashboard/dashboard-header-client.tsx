@@ -1,25 +1,28 @@
 'use client'
 
 import { formatDateTime } from '@/utils/date'
+import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { UserHeaderNav } from './user-header-nav'
 import { Separator } from '@/components/ui/separator'
 import { useState, useEffect, Fragment } from 'react'
+import { NotificationBell } from './notification-bell'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { DashboardHeaderProps } from '@/types/dashboard'
 import { ThemeChange } from '@/components/theme/theme-change'
-import { UserHeaderNav } from '@/components/custom/dashboard/user-header-nav'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 
-export function DashboardHeader({ user, breadcrumbs = [] }: DashboardHeaderProps) {
+export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeaderProps) {
     const [currentTime, setCurrentTime] = useState<Date | null>(null)
+    const pathname = usePathname()
+    const isDashboardRoot = pathname === '/dashboard'
 
     useEffect(() => {
         setCurrentTime(new Date())
         const timer = setInterval(() => {
             setCurrentTime(new Date())
         }, 1000)
-
         return () => clearInterval(timer)
     }, [])
 
@@ -43,7 +46,7 @@ export function DashboardHeader({ user, breadcrumbs = [] }: DashboardHeaderProps
         <header className='flex h-16 shrink-0 items-center px-4 justify-between mr-4 ml-4 mt-4 mb-2 rounded-lg shadow-sm border bg-popover'>
             <div className='flex items-center gap-2'>
                 <SidebarTrigger className='-ml-1' />
-                {user ? (
+                {user && isDashboardRoot ? (
                     <div className='flex items-center gap-2'>
                         <span className='text-muted-foreground'>
                             {getGreeting()}
@@ -51,12 +54,6 @@ export function DashboardHeader({ user, breadcrumbs = [] }: DashboardHeaderProps
                         <span className='font-semibold'>
                             {user.name}! ✨
                         </span>
-
-                        {user.role && (
-                            <span className='text-muted-foreground font-light'>
-                                {user.role}
-                            </span>
-                        )}
                     </div>
                 ) : breadcrumbs.length > 0 ? (
                     <>
@@ -103,6 +100,7 @@ export function DashboardHeader({ user, breadcrumbs = [] }: DashboardHeaderProps
                     </div>
                 )}
                 <ThemeChange />
+                <NotificationBell />
                 <UserHeaderNav user={user} />
             </div>
         </header>
