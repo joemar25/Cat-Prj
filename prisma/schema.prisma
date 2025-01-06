@@ -190,7 +190,7 @@ model Document {
   attachments   Attachment[]
   auditLogs     AuditLog[]
   workflowSteps WorkflowStep[]
-  certifiedCopies CertifiedCopy[]
+
 
   @@map("document")
 }
@@ -221,6 +221,7 @@ model Attachment {
   hash       String?
   document   Document       @relation(fields: [documentId], references: [id])
   user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    certifiedCopies CertifiedCopy[]
 
   @@map("attachment")
 }
@@ -425,25 +426,26 @@ model Feedback {
 
 /// *
 /// * CertifiedCopy Model
-/// * @model
-/// * Represents an application for a certified true copy of a document
+/// * @model 
+/// * Represents an application for a certified true copy of an attachment
 /// * Features:
 /// * - Applicant information
 /// * - Application metadata
-/// * - Relationship to the original document
+/// * - Relationship to the original attachment
 model CertifiedCopy {
   id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  lcrNo        String?
+  lcrNo        String? 
   bookNo       String?
   pageNo       String?
   searchedBy   String?
   contactNo    String?
   date         DateTime?
-  document     Document @relation(fields: [documentId], references: [id])
-  documentId   String   @db.Uuid
+  attachment   Attachment @relation(fields: [attachmentId], references: [id])
+  attachmentId String   @db.Uuid
 
   @@map("certified_copy")
 }
+
 
 /**
  * ### Initial Setup:
