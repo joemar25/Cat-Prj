@@ -1,7 +1,7 @@
 // src\components\custom\registration\registration-form.tsx
-'use client'
+'use client';
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -9,23 +9,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { RegistrationForm } from '@/lib/zod'
-import { UseFormReturn } from 'react-hook-form'
+} from '@/components/ui/select';
+import { RegistrationForm } from '@/lib/zod';
+import { UseFormReturn } from 'react-hook-form';
 
 type RegisterFormProps = {
-  form: UseFormReturn<RegistrationForm>
-  onSubmit: (data: RegistrationForm) => Promise<void>
-  isLoading: boolean
-}
+  form: UseFormReturn<RegistrationForm>;
+  onSubmit: (data: RegistrationForm) => Promise<void>;
+  isLoading: boolean;
+};
 
 const RegisterForm = ({ form, onSubmit, isLoading }: RegisterFormProps) => {
   return (
@@ -120,11 +120,7 @@ const RegisterForm = ({ form, onSubmit, isLoading }: RegisterFormProps) => {
                 <FormItem>
                   <FormLabel className=''>Date of Birth</FormLabel>
                   <FormControl>
-                    <Input
-                      type='date'
-                      {...field}
-                      className=''
-                    />
+                    <Input type='date' {...field} className='' />
                   </FormControl>
                   <FormMessage className='text-red-400' />
                 </FormItem>
@@ -211,9 +207,7 @@ const RegisterForm = ({ form, onSubmit, isLoading }: RegisterFormProps) => {
 
         {/* Address Information */}
         <div className='space-y-4'>
-          <h2 className='text-lg font-medium'>
-            Address Information
-          </h2>
+          <h2 className='text-lg font-medium'>Address Information</h2>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <FormField
               control={form.control}
@@ -303,16 +297,12 @@ const RegisterForm = ({ form, onSubmit, isLoading }: RegisterFormProps) => {
           </div>
         </div>
 
-        <Button
-          type='submit'
-          className='w-full'
-          disabled={isLoading}
-        >
+        <Button type='submit' className='w-full' disabled={isLoading}>
           {isLoading ? 'Creating Account...' : 'Create Account'}
         </Button>
       </form>
     </Form>
-  )
-}
+  );
+};
 
-export default RegisterForm
+export default RegisterForm;

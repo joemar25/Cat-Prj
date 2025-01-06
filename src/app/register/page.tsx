@@ -1,58 +1,69 @@
-'use client'
+'use client';
 
-import { toast } from 'sonner'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { handleRegistration } from '@/hooks/auth-actions'
-import { RegistrationForm, registrationForm } from '@/lib/zod'
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
-import RegisterForm from '@/components/custom/registration/registration-form'
+import RegisterForm from '@/components/custom/auth/registration-form';
+import { handleRegistration } from '@/hooks/auth-actions';
+import { RegistrationForm, registrationForm } from '@/lib/zod';
 
-const Page = () => {
-  const [isLoading, setIsLoading] = useState(false)
+interface PageProps {
+  onSuccess?: () => void;
+}
+
+const Page = ({ onSuccess }: PageProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  // Directly check NEXT_PUBLIC_NODE_ENV like in sign-up-form
+  const isDevelopment = process.env.NODE_ENV === 'development';
 
   const form = useForm<RegistrationForm>({
     resolver: zodResolver(registrationForm),
+    // Define defaultValues directly in useForm like in sign-up-form
     defaultValues: {
-      name: 'Scott Andrew Bedis',
-      email: 'bedisscottandrew@gmail.com',
-      password: '11111111',
-      confirmPassword: '11111111',
-      dateOfBirth: '2024-01-04',
-      phoneNumber: '09082091538',
-      address: 'Multiverse 1-0',
-      city: 'Legazpi',
-      state: '222222',
-      country: '22222222',
-      postalCode: '4509',
-      occupation: '',
-      gender: 'male',
-      nationality: '',
+      name: isDevelopment ? 'Scott Andrew Bedis' : '',
+      email: isDevelopment ? 'bedisscottandrew@gmail.com' : '',
+      password: isDevelopment ? '11111111' : '',
+      confirmPassword: isDevelopment ? '11111111' : '',
+      dateOfBirth: isDevelopment ? '2024-01-04' : '',
+      phoneNumber: isDevelopment ? '09082091538' : '',
+      address: isDevelopment ? 'Multiverse 1-0' : '',
+      city: isDevelopment ? 'Legazpi' : '',
+      state: isDevelopment ? '222222' : '',
+      country: isDevelopment ? '22222222' : '',
+      postalCode: isDevelopment ? '4509' : '',
+      occupation: isDevelopment ? 'Developer' : '',
+      gender: isDevelopment ? 'male' : 'other',
+      nationality: isDevelopment ? 'Filipino' : '',
     },
-  })
+  });
 
   const onSubmit = async (data: RegistrationForm) => {
-    setIsLoading(true)
-    console.log('Form submitted with data:', data)
+    setIsLoading(true);
+    console.log('Form submitted with data:', data);
 
     try {
-      const result = await handleRegistration(data)
+      const result = await handleRegistration(data);
 
       if (result.success) {
-        toast.success(result.message)
-        form.reset()
-        window.location.href = '/auth'
+        toast.success(result.message);
+        form.reset();
+        onSuccess?.();
+        window.location.href = '/auth';
       } else {
-        toast.error(result.message)
+        toast.error(result.message);
       }
     } catch (error) {
-      console.error('Registration error:', error)
-      toast.error('Failed to create account')
+      console.error('Registration error:', error);
+      toast.error('Failed to create account');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+
+  console.log('Current form values:', form.getValues()); // Debug log
+  console.log('Is Development:', isDevelopment); // Debug log
 
   return (
     <div className='min-h-screen flex items-center justify-center'>
@@ -61,7 +72,7 @@ const Page = () => {
         <RegisterForm form={form} onSubmit={onSubmit} isLoading={isLoading} />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;
