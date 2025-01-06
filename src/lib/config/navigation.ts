@@ -105,6 +105,13 @@ export const navigationConfig: NavigationConfiguration = {
             ],
         },
         {
+            id: 'Feedback',
+            type: 'main',
+            title: 'Feedback',
+            url: '/feedback',
+            iconName: 'mail',
+        },
+        {
             id: 'settings',
             type: 'main',
             title: 'Settings',

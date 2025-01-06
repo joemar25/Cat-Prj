@@ -1,43 +1,41 @@
-// src/app/(dashboard)/feedback/page.tsx
+// src\app\(dashboard)\feedback\page.tsx
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { Skeleton } from '@/components/ui/skeleton'
-import { columns } from '@/components/custom/users/columns'
-import { DataTable } from '@/components/custom/users/data-table'
+import { columns } from '@/components/custom/feedback/columns'
+import { DataTable } from '@/components/custom/feedback/data-table'
 import { DashboardHeader } from '@/components/custom/dashboard/header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-async function getUsers() {
-  try {
-    const users = await prisma.user.findMany({
-      orderBy: {
-        createdAt: 'desc'
+async function getFeedback() {
+  const feedback = await prisma.feedback.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: {
+      user: {
+        select: {
+          name: true,
+          email: true,
+          image: true,
+        },
       },
-      include: {
-        profile: {
-          select: {
-            phoneNumber: true,
-            address: true,
-            city: true,
-            state: true,
-            country: true
-          }
-        }
-      }
-    })
-    return users
-  } catch (error) {
-    console.error('Error fetching users:', error)
-    return []
-  }
+    },
+  })
+
+  return feedback.map((item) => ({
+    ...item,
+    createdAt: new Date(item.createdAt),
+    updatedAt: new Date(item.updatedAt),
+  }))
 }
 
-function UsersTableSkeleton() {
+function FeedbackTableSkeleton() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl font-semibold">Loading Users</CardTitle>
-        <CardDescription>Please wait while we fetch the user data...</CardDescription>
+        <CardTitle className="text-xl font-semibold">Loading Feedback</CardTitle>
+        <CardDescription>Please wait while we fetch the feedback data...</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -52,21 +50,22 @@ function UsersTableSkeleton() {
   )
 }
 
-export default async function UsersPage() {
-  const users = await getUsers()
+export default async function FeedbackPage() {
+  const feedback = await getFeedback()
 
   return (
     <>
       <DashboardHeader
         breadcrumbs={[
-          { label: 'Users', href: '/manage-users', active: true },
+          { label: 'Dashboard', href: '/dashboard', active: false },
+          { label: 'Feedback', href: '/feedback', active: true },
         ]}
       />
 
       <div className="flex flex-1 flex-col gap-4 p-4">
-        <Suspense fallback={<UsersTableSkeleton />}>
+        <Suspense fallback={<FeedbackTableSkeleton />}>
           <DataTable
-            data={users}
+            data={feedback}
             columns={columns}
             selection={false}
           />

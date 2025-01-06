@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 import { type NavSecondaryItem } from '@/lib/types/navigation'
-import { FeedbackForm } from '@/components/custom/feedback/feedback-form'
+import { FeedbackForm } from '@/components/custom/feedback/actions/feedback-form'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 
