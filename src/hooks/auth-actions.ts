@@ -15,45 +15,56 @@ export async function handleCredentialsSignin({
   email,
   password,
 }: {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }) {
   try {
-    await signIn('credentials', { email, password, redirectTo: '/dashboard' })
-  } catch (error) {
-    if (error instanceof AuthError) {
-      return error.type === 'CredentialsSignin'
-        ? { message: 'Invalid credentials' }
-        : { message: 'Something went wrong' }
-    }
-    throw error
-  }
-  try {
+    // Fetch the user from the database
     const user = await prisma.user.findUnique({
       where: { email },
-    })
+    });
 
-    // restricting user role for login
-    if (!user || user.role === 'USER') {
+    // Check if the user exists and is not a regular user
+    if (!user || user.role === UserRole.USER) {
       return {
         success: false,
-        message: 'Access denied. User role not allowed.',
-      }
+        message: 'Access denied. Regular users are not allowed to log in.',
+      };
     }
 
-    await signIn('credentials', { email, password, redirectTo: '/dashboard' })
-    return { success: true }
+    // Attempt to sign in
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false, // Avoid automatic redirect to handle responses better
+    });
+
+    if (result?.error) {
+      return {
+        success: false,
+        message: 'Invalid credentials. Please try again.',
+      };
+    }
+
+    // Redirect to dashboard on successful login
+    return {
+      success: true,
+      redirectTo: '/dashboard',
+    };
   } catch (error) {
+    console.error('Signin error:', error);
+
     if (error instanceof AuthError) {
       return {
         success: false,
         message:
           error.type === 'CredentialsSignin'
             ? 'Invalid credentials'
-            : 'Something went wrong',
-      }
+            : 'Something went wrong during sign-in.',
+      };
     }
-    throw error
+
+    return { success: false, message: 'An unexpected error occurred.' };
   }
 }
 

@@ -73,7 +73,7 @@ export async function GET(request: Request) {
             prisma.queue.count({ where }),
         ])
 
-        console.log("API Response:", { queues, total })
+        // console.log("API Response:", { queues, total })
 
         return NextResponse.json({
             queues,

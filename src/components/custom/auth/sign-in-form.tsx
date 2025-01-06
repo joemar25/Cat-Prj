@@ -1,4 +1,3 @@
-// src\components\custom\auth\sign-in-form.tsx
 'use client'
 
 import { toast } from "sonner"
@@ -10,7 +9,14 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { handleCredentialsSignin } from "@/hooks/auth-actions"
 import { signInSchema, SignInForm as SignInData } from "@/lib/zod"
 import { PasswordInput } from "@/components/custom/general/password-input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form"
 
 export const SignInForm = () => {
     const [isLoading, setIsLoading] = useState(false)
@@ -25,14 +31,23 @@ export const SignInForm = () => {
 
     const onSubmit = async (values: SignInData) => {
         setIsLoading(true)
-        const result = await handleCredentialsSignin(values)
 
-        if (result?.success) {
-            toast.success("Signed in successfully")
-        } else {
-            toast.error(result?.message || "Sign-in failed")
+        try {
+            const result = await handleCredentialsSignin(values)
+
+            if (result?.success) {
+                toast.success("Signed in successfully")
+                // Redirect to dashboard
+                window.location.href = result.redirectTo || "/dashboard"
+            } else {
+                toast.error(result?.message || "Sign-in failed")
+            }
+        } catch (error) {
+            console.error("Sign-in error:", error)
+            toast.error("An unexpected error occurred. Please try again.")
+        } finally {
+            setIsLoading(false)
         }
-        setIsLoading(false)
     }
 
     return (
@@ -45,7 +60,7 @@ export const SignInForm = () => {
                         <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
-                                <Input {...field} placeholder="Enter your email" />
+                                <Input {...field} placeholder="Enter your email" type="email" />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

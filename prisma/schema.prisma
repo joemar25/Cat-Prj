@@ -191,7 +191,6 @@ model Document {
   auditLogs     AuditLog[]
   workflowSteps WorkflowStep[]
 
-
   @@map("document")
 }
 
@@ -204,24 +203,24 @@ model Document {
 /// * - Document verification
 /// * - Processing status
 model Attachment {
-  id         String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId     String         @db.Uuid
-  documentId String         @db.Uuid
-  type       AttachmentType
-  fileUrl    String
-  fileName   String
-  fileSize   Int
-  mimeType   String
-  status     DocumentStatus @default(PENDING)
-  uploadedAt DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
-  verifiedAt DateTime?
-  notes      String?
-  metadata   Json?
-  hash       String?
-  document   Document       @relation(fields: [documentId], references: [id])
-  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-    certifiedCopies CertifiedCopy[]
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String          @db.Uuid
+  documentId      String          @db.Uuid
+  type            AttachmentType
+  fileUrl         String
+  fileName        String
+  fileSize        Int
+  mimeType        String
+  status          DocumentStatus  @default(PENDING)
+  uploadedAt      DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  verifiedAt      DateTime?
+  notes           String?
+  metadata        Json?
+  hash            String?
+  document        Document        @relation(fields: [documentId], references: [id])
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  certifiedCopies CertifiedCopy[]
 
   @@map("attachment")
 }
@@ -423,7 +422,6 @@ model Feedback {
   @@map("feedback")
 }
 
-
 /// *
 /// * CertifiedCopy Model
 /// * @model 
@@ -433,19 +431,18 @@ model Feedback {
 /// * - Application metadata
 /// * - Relationship to the original attachment
 model CertifiedCopy {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  lcrNo        String? 
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lcrNo        String?
   bookNo       String?
   pageNo       String?
   searchedBy   String?
   contactNo    String?
   date         DateTime?
   attachment   Attachment @relation(fields: [attachmentId], references: [id])
-  attachmentId String   @db.Uuid
+  attachmentId String     @db.Uuid
 
   @@map("certified_copy")
 }
-
 
 /**
  * ### Initial Setup:

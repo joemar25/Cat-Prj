@@ -82,3 +82,29 @@ Feature Checklist for Development
 14. Customizable Workflows
     - [ ] Add functionality to configure workflows for different office processes.
     - [ ] Implement a dynamic process editor for customization.
+
+## Additional Features Checklist
+
+1. Content Management System (CMS) for the Kiosk
+   - [ ] Create a user-friendly interface for managing kiosk content.
+   - [ ] Enable uploading, updating, and deleting kiosk materials (e.g., videos, banners, announcements).
+   - [ ] Ensure real-time updates to kiosks with minimal downtime.
+
+2. Restrict User Role from Logging In
+   - [x] Prevent `USER` role from accessing the system through authentication.
+   - [ ] Add proper error messages to inform unauthorized users of access denial.
+
+3. Queued Ticket Document Showcase
+   - [ ] When a ticket is clicked, display a detailed view of required documents.
+   - [ ] Implement an easy-to-read checklist format for required documents.
+   - [ ] Enable dynamic updates if additional documents are required.
+
+4. Document Management
+   - [ ] Add CRUD functionality for managing civil registry documents.
+   - [ ] Enable metadata tagging for easy categorization and search.
+   - [ ] Support document versioning to keep track of changes.
+
+5. Feedback System
+   - [ ] Allow `STAFF` and `ADMIN` roles to submit feedback through the system.
+   - [ ] Display feedback in a table format for easy review.
+   - [ ] Include filters to sort feedback by date, user, or category.
