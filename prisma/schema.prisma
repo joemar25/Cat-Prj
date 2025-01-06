@@ -190,6 +190,7 @@ model Document {
   attachments   Attachment[]
   auditLogs     AuditLog[]
   workflowSteps WorkflowStep[]
+  certifiedCopies CertifiedCopy[]
 
   @@map("document")
 }
@@ -419,6 +420,29 @@ model Feedback {
   user User? @relation(fields: [submittedBy], references: [id])
 
   @@map("feedback")
+}
+
+
+/// *
+/// * CertifiedCopy Model
+/// * @model
+/// * Represents an application for a certified true copy of a document
+/// * Features:
+/// * - Applicant information
+/// * - Application metadata
+/// * - Relationship to the original document
+model CertifiedCopy {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lcrNo        String?
+  bookNo       String?
+  pageNo       String?
+  searchedBy   String?
+  contactNo    String?
+  date         DateTime?
+  document     Document @relation(fields: [documentId], references: [id])
+  documentId   String   @db.Uuid
+
+  @@map("certified_copy")
 }
 
 /**
