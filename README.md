@@ -89,6 +89,7 @@ Feature Checklist for Development
    - [ ] Create a user-friendly interface for managing kiosk content.
    - [ ] Enable uploading, updating, and deleting kiosk materials (e.g., videos, banners, announcements).
    - [ ] Ensure real-time updates to kiosks with minimal downtime.
+   - [ ] Backup data manually base on ROLE (primarily admin).
 
 2. Restrict User Role from Logging In
    - [x] Prevent `USER` role from accessing the system through authentication.
@@ -105,6 +106,16 @@ Feature Checklist for Development
    - [ ] Support document versioning to keep track of changes.
 
 5. Feedback System
-   - [ ] Allow `STAFF` and `ADMIN` roles to submit feedback through the system.
+   - [x] Allow `STAFF` and `ADMIN` roles to submit feedback through the system.
    - [ ] Display feedback in a table format for easy review.
    - [ ] Include filters to sort feedback by date, user, or category.
+
+6. User Profile Customization in Settings
+   - [ ] BLANK
+
+7. User Management
+   - [ ] CRUD functionality
+   - [ ] Distinguished Controls for Regular users and Admin can manage staff members
+
+8. Citizen Portal
+   - [ ] BLANK

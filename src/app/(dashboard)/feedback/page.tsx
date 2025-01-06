@@ -1,4 +1,4 @@
-// src/app/(dashboard)/users/page.tsx
+// src/app/(dashboard)/feedback/page.tsx
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -10,11 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 async function getUsers() {
   try {
     const users = await prisma.user.findMany({
-      where: {
-        role: 'USER',
-      },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: 'desc'
       },
       include: {
         profile: {
@@ -23,14 +20,14 @@ async function getUsers() {
             address: true,
             city: true,
             state: true,
-            country: true,
-          },
-        },
-      },
+            country: true
+          }
+        }
+      }
     })
     return users
   } catch (error) {
-    console.error('Error fetching admin users:', error)
+    console.error('Error fetching users:', error)
     return []
   }
 }

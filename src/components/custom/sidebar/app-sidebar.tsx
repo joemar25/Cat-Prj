@@ -1,8 +1,8 @@
-// src\components\custom\sidebar\app-sidebar.tsx
 'use client'
 
 import Image from 'next/image'
 
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { NavMain } from './nav-main'
 import { UserRole } from '@prisma/client'
@@ -10,14 +10,24 @@ import { Icons } from '@/components/ui/icons'
 import { NavSecondary } from './nav-secondary'
 import { Button } from '@/components/ui/button'
 import { handleSignOut } from '@/hooks/auth-actions'
-import { ComponentProps, useMemo, useState } from 'react'
 import { useNavigationStore } from '@/lib/stores/navigation'
-import { NavMainItem, NavSecondaryItem } from '@/lib/types/navigation'
-import { navigationConfig, transformToMainNavItem, transformToSecondaryNavItem } from '@/lib/config/navigation'
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
+import {
+  navigationConfig,
+  transformToMainNavItem,
+  transformToSecondaryNavItem,
+} from '@/lib/config/navigation'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from '@/components/ui/sidebar'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 
-type AppSidebarProps = ComponentProps<typeof Sidebar> & {
+type AppSidebarProps = {
   role: UserRole
 }
 
@@ -26,15 +36,15 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
 
-  const visibleMainNav = useMemo<NavMainItem[]>(() => {
+  const visibleMainNav = useMemo(() => {
     return navigationConfig.mainNav
-      .filter((item) => visibleMainItems.includes(item.id))
-      .map(transformToMainNavItem)
-  }, [visibleMainItems])
+      .filter(item => visibleMainItems.includes(item.id))
+      .map(item => transformToMainNavItem(item, role))
+  }, [visibleMainItems, role])
 
-  const visibleSecondaryNav = useMemo<NavSecondaryItem[]>(() => {
+  const visibleSecondaryNav = useMemo(() => {
     return navigationConfig.secondaryNav
-      .filter((item) => visibleSecondaryItems.includes(item.id))
+      .filter(item => visibleSecondaryItems.includes(item.id))
       .map(transformToSecondaryNavItem)
   }, [visibleSecondaryItems])
 
@@ -43,17 +53,15 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const handleLogout = async () => {
     setIsLoggingOut(true)
     await handleSignOut()
-    toast.success("Successfully logged out", {
-      duration: 3000,
-    })
+    toast.success('Successfully logged out', { duration: 3000 })
     setIsLoggingOut(false)
     closeLogout()
   }
 
   const roleLabel = {
-    ADMIN: "Administrator",
-    STAFF: "Staff",
-    USER: "User",
+    ADMIN: 'Administrator',
+    STAFF: 'Staff',
+    USER: 'User',
   }
 
   return (
@@ -64,7 +72,9 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <div className="flex items-center gap-3">
+
                 {/* Logo */}
+                {/* <Icons.logo className="h-10 w-10 rounded-full" /> */}
                 <Image
                   src={"/images/lgu-legazpi.png"}
                   alt="Logo"
@@ -73,12 +83,10 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
                   priority
                   className="rounded-full flex-shrink-0"
                 />
+
                 {/* Title */}
                 <div className="flex-1 overflow-hidden">
-                  <span
-                    className="block font-semibold text-muted-foreground leading-normal break-words max-h-16 overflow-auto"
-                    title="Quanby Queueing System"
-                  >
+                  <span className="block font-semibold text-muted-foreground leading-normal break-words max-h-16 overflow-auto">
                     Quanby Queueing System
                   </span>
                 </div>
@@ -156,3 +164,5 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
     </Sidebar>
   )
 }
+
+// working

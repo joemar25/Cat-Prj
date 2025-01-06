@@ -1,4 +1,4 @@
-// src/app/(dashboard)/users/page.tsx
+// src/app/(dashboard)/users/staffs/page.tsx
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -11,7 +11,7 @@ async function getUsers() {
   try {
     const users = await prisma.user.findMany({
       where: {
-        role: 'USER',
+        role: 'STAFF',
       },
       orderBy: {
         createdAt: 'desc',

@@ -1,6 +1,6 @@
-// src/lib/config/navigation.ts
-import { Icons } from '@/components/ui/icons'
 import type { LucideIcon } from 'lucide-react'
+
+import { Icons } from '@/components/ui/icons'
 import {
     type NavConfig,
     type NavMainItem,
@@ -8,9 +8,9 @@ import {
     type NavigationConfiguration,
     hasSubItems,
 } from '@/lib/types/navigation'
+import { UserRole } from '@prisma/client'
 
-// Helper function to transform config to main nav item
-export function transformToMainNavItem(item: NavConfig): NavMainItem {
+export function transformToMainNavItem(item: NavConfig, role: UserRole): NavMainItem {
     const baseItem: NavMainItem = {
         title: item.title,
         url: item.url,
@@ -22,17 +22,34 @@ export function transformToMainNavItem(item: NavConfig): NavMainItem {
     }
 
     if (hasSubItems(item)) {
-        baseItem.items = item.items.map(subItem => ({
-            title: subItem.title,
-            url: subItem.url,
-            notViewedCount: subItem.notViewedCount,
-        }))
+        baseItem.items = item.items
+            .filter(subItem => {
+                // Admin can see all sub-items
+                if (role === 'ADMIN') return true
+
+                // Staff can only see regular users
+                if (role === 'STAFF' && subItem.url === '/users') {
+                    return true
+                }
+
+                // Regular users and other roles should not see any sub-items
+                return false
+            })
+            .map(subItem => ({
+                title: subItem.title,
+                url: subItem.url,
+                notViewedCount: subItem.notViewedCount,
+            }))
+
+        // Ensure dropdown is only visible if there are items for this role
+        if (baseItem.items?.length === 0) {
+            baseItem.items = undefined
+        }
     }
 
     return baseItem
 }
 
-// Helper function to transform config to secondary nav item
 export function transformToSecondaryNavItem(item: NavConfig): NavSecondaryItem {
     const baseItem: NavSecondaryItem = {
         title: item.title,
@@ -63,48 +80,29 @@ export const navigationConfig: NavigationConfiguration = {
             url: '/manage-queue',
             iconName: 'userCheck',
         },
-        // {
-        //     id: 'documents',
-        //     type: 'main',
-        //     title: 'Documents',
-        //     url: '/documents',
-        //     iconName: 'folder',
-        //     items: [
-        //         {
-        //             id: 'dispatch',
-        //             title: 'Owned',
-        //             url: '/documents/dispatch',
-        //         },
-        //         {
-        //             id: 'intransit',
-        //             title: 'In Transit',
-        //             url: '/documents/intransit',
-        //         },
-        //         {
-        //             id: 'received',
-        //             title: 'Received',
-        //             url: '/documents/recieved',
-        //         },
-        //         {
-        //             id: 'completed',
-        //             title: 'Completed',
-        //             url: '/documents/completed',
-        //         },
-        //     ],
-        // },
-        // {
-        //     id: 'reports',
-        //     type: 'main',
-        //     title: 'Reports',
-        //     url: '/reports',
-        //     iconName: 'fileText',
-        // },
         {
             id: 'users',
             type: 'main',
             title: 'Manage Users',
             url: '/users',
             iconName: 'user',
+            items: [
+                {
+                    id: 'admin',
+                    title: 'Admin',
+                    url: '/users/admin',
+                },
+                {
+                    id: 'staffs',
+                    title: 'Staffs',
+                    url: '/users/staffs',
+                },
+                {
+                    id: 'regular-users',
+                    title: 'Regular Users',
+                    url: '/users',
+                },
+            ],
         },
         {
             id: 'settings',
