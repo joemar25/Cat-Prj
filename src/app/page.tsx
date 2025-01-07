@@ -1,38 +1,44 @@
-// src/app/page.tsx
-"use client"
+"use client";
 
-import { useKioskStore } from "@/state/use-kiosk-store"
-import { SuccessStep } from "@/components/custom/kiosk/success-step"
-import { SelectServiceStep } from "@/components/custom/kiosk/select-service"
-import { TrueCopyRequest } from "@/components/custom/kiosk/true-copy-request"
-import { VerifyRegistration } from "@/components/custom/kiosk/verify-registration"
-import { Card } from "@/components/ui/card"
-import { motion, AnimatePresence } from "framer-motion"
+import { useKioskStore } from "@/state/use-kiosk-store";
+import { SuccessStep } from "@/components/custom/kiosk/success-step";
+import { SelectServiceStep } from "@/components/custom/kiosk/select-service";
+import { TrueCopyRequest } from "@/components/custom/kiosk/true-copy-request";
+import { VerifyRegistration } from "@/components/custom/kiosk/verify-registration";
+import { KioskHeader } from "@/components/custom/kiosk/kiosk-header";
+import { motion, AnimatePresence } from "framer-motion";
+import { CircleArrowRight, CircleArrowLeft } from "lucide-react";
 
 export default function HomePage() {
-  const { currentStep, service } = useKioskStore()
+  const { currentStep, service, goToStep, completeTrueCopy } = useKioskStore();
 
-  // Define stepComponents with explicit type
+  const handleNextStep = () => {
+    if (currentStep === 2 && service === "TRUE_COPY") {
+      // For the last step of TrueCopyRequest, call the completion function
+      completeTrueCopy();
+    } else if (currentStep < 3) {
+      goToStep(currentStep + 1);
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentStep > 1) {
+      goToStep(currentStep - 1);
+    }
+  };
+
   const stepComponents: { [key: number]: JSX.Element } = {
     1: <SelectServiceStep />,
     2: service === "TRUE_COPY" ? <TrueCopyRequest /> : <VerifyRegistration />,
     3: <SuccessStep />,
-  }
+  };
 
   return (
-    <div className="min-h-screen p-8 flex items-center justify-center">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Center logo and text */}
-        <div className="flex flex-col items-center justify-center space-y-4"> {/* Added flex-col and space-y-4 for vertical alignment */}
-          <img 
-            src="images/lgu-legazpi.png" 
-            alt="LGU Legazpi Logo" 
-            className="w-20 h-20 md:w-32 md:h-32 lg:w-40 lg:h-40" // Larger logo for desktop
-          />
-          <span className="text-3xl md:text-4xl lg:text-5xl font-semibold">LGU LEGAZPI</span> {/* Larger text for desktop */}
-        </div>
-        <div className="flex justify-center">
-          <Card className="max-w-md w-full p-6 overflow-hidden">
+    <div className="w-full h-dvh">
+      <div className="flex flex-col justify-center items-center h-full gap-8">
+        <KioskHeader />
+        <div className="flex relative justify-center items-center w-full h-full">
+          <div className="max-w-screen-xl mx-auto w-full">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}
@@ -44,9 +50,35 @@ export default function HomePage() {
                 {stepComponents[currentStep]}
               </motion.div>
             </AnimatePresence>
-          </Card>
+          </div>
+
+          {/* Back Arrow */}
+          {currentStep > 1 && (
+            <button
+              type="button"
+              className="absolute top-1/2 left-12 -translate-y-1/2 hover:scale-105 transition-all hover:bg-gray-300 rounded-full"
+              onClick={handlePreviousStep}
+            >
+              <CircleArrowLeft className="w-12 h-12" />
+            </button>
+          )}
+
+          {/* Next/Submit Arrow */}
+          <button
+            type="button"
+            className={`absolute top-1/2 right-12 -translate-y-1/2 hover:scale-105 transition-all rounded-full ${
+              currentStep === 3 ? "bg-green-500 hover:bg-green-600" : "hover:bg-[#FFD101]"
+            }`}
+            onClick={handleNextStep}
+          >
+            {currentStep === 3 ? (
+              <span className="px-6 py-3 text-white font-semibold">Submit</span>
+            ) : (
+              <CircleArrowRight className="w-12 h-12" />
+            )}
+          </button>
         </div>
       </div>
     </div>
-  )
+  );
 }
