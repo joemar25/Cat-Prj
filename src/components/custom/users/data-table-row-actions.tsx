@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-import { Button } from '@/components/ui/button'
-import { Icons } from '@/components/ui/icons'
-import { deactivateUser } from '@/hooks/users-action'
-import { hasPermission } from '@/types/auth'
-import { User } from '@prisma/client'
-import { Row } from '@tanstack/react-table'
-import { useSession } from 'next-auth/react'
-import { useState } from 'react'
-import { toast } from 'sonner'
-import { EditUserDialog } from './actions/edit-user-dialog'
+import { Button } from '@/components/ui/button';
+import { Icons } from '@/components/ui/icons';
+import { deactivateUser } from '@/hooks/users-action';
+import { hasPermission } from '@/types/auth';
+import { User } from '@prisma/client';
+import { Row } from '@tanstack/react-table';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { EditUserDialog } from './actions/edit-user-dialog';
 
 import {
   Dialog,
@@ -17,7 +17,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@/components/ui/dialog';
 
 import {
   DropdownMenu,
@@ -26,49 +26,49 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { AddCertifiedCopyDialog } from './actions/add-certified-copy-dialog'
+} from '@/components/ui/dropdown-menu';
+import { AddCertifiedCopyDialog } from './actions/add-certified-copy-dialog';
 
 interface DataTableRowActionsProps {
-  row: Row<User>
-  onUpdateAction?: (updatedUser: User) => void // Use a serializable action
+  row: Row<User>;
+  onUpdateAction?: (updatedUser: User) => void; // Use a serializable action
 }
 
 export function DataTableRowActions({
   row,
   onUpdateAction,
 }: DataTableRowActionsProps) {
-  const { data: session } = useSession()
-  const user = row.original
-  const [isLoading, setIsLoading] = useState(false)
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
-  const [certifiedCopyOpen, setCertifiedCopyOpen] = useState(false)
+  const { data: session } = useSession();
+  const user = row.original;
+  const [isLoading, setIsLoading] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
+  const [certifiedCopyOpen, setCertifiedCopyOpen] = useState(false);
 
   // Check permissions
   const canManageUsers = hasPermission(
     session?.user?.permissions ?? [],
     'USERS_MANAGE'
-  )
-  if (!canManageUsers) return null
+  );
+  if (!canManageUsers) return null;
 
   const handleDeactivate = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const result = await deactivateUser(user.id)
+      const result = await deactivateUser(user.id);
       if (result.success) {
-        toast.success(result.message)
-        onUpdateAction?.({ ...user, emailVerified: false }) // Update user in parent component
+        toast.success(result.message);
+        onUpdateAction?.({ ...user, emailVerified: false }); // Update user in parent component
       } else {
-        toast.error(result.message)
+        toast.error(result.message);
       }
     } catch (error) {
-      console.error('Error deactivating user:', error)
-      toast.error('An unexpected error occurred')
+      console.error('Error deactivating user:', error);
+      toast.error('An unexpected error occurred');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   //   const handleActivate = async () => {
   //     setIsLoading(true)
@@ -89,16 +89,32 @@ export function DataTableRowActions({
   //   }
 
   const handleSave = (updatedUser: User) => {
-    toast.success(`User ${updatedUser.name} has been updated successfully!`)
-    onUpdateAction?.(updatedUser) // Notify parent of the updated user data
-    setEditDialogOpen(false) // Close the dialog
-  }
+    toast.success(`User ${updatedUser.name} has been updated successfully!`);
+    onUpdateAction?.(updatedUser); // Notify parent of the updated user data
+    setEditDialogOpen(false); // Close the dialog
+  };
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='h-8 w-8 p-0'>
+            <svg
+              className='h-4 w-4 dark:text-gray-100 text-gray-800'
+              xmlns='http://www.w3.org/2000/svg'
+              width='24'
+              height='24'
+              viewBox='0 0 24 24'
+              fill='currentColor'
+              stroke='currentColor'
+              strokeWidth='2'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+            >
+              <circle cx='5' cy='12' r='1' />
+              <circle cx='12' cy='12' r='1' />
+              <circle cx='19' cy='12' r='1' />
+            </svg>
             <span className='sr-only'>Open menu</span>
           </Button>
         </DropdownMenuTrigger>
@@ -184,5 +200,5 @@ export function DataTableRowActions({
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }
