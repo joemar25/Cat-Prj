@@ -1,20 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { KioskService, useKioskStore } from "@/state/use-kiosk-store";
 import { motion } from "framer-motion";
 
-export function SelectServiceStep() {
-  const { setService } = useKioskStore();
-  const [selectedService, setSelectedService] = useState<string | null>(null);
+interface SelectServiceStepProps {
+  onServiceSelected: (service: string) => void;
+  selectedService: string | null; // Add selectedService prop
+}
 
- const handleSelectService = (service: string) => {
-   setSelectedService(service);
-   setService(service as KioskService); // Cast service to KioskService
- };
+export function SelectServiceStep({ onServiceSelected, selectedService: initialService }: SelectServiceStepProps) {
+  const { service, setService } = useKioskStore(); // Get the current service from the store
+  const [selectedService, setSelectedService] = useState<string>(initialService || "VERIFY"); // Initialize with prop
+
+  // Sync the selectedService state with the service from the store
+  useEffect(() => {
+    if (service) {
+      setSelectedService(service);
+    } else {
+      setSelectedService("VERIFY"); // Default to "VERIFY" if service is null
+    }
+  }, [service]);
+
+  const handleSelectService = (service: string) => {
+    setSelectedService(service);
+    setService(service as KioskService); // Update the service in the store
+    onServiceSelected(service); // Notify parent component
+  };
 
   return (
-    <div className="w-full h-full  flex justify-evenly items-center p-8">
+    <div className="w-full h-full flex justify-evenly items-center p-8">
       <motion.div
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
@@ -49,9 +64,6 @@ export function SelectServiceStep() {
     </div>
   );
 }
-
-
-
 //do not delete
 // const KioskSelectService = () => {
 //   return (

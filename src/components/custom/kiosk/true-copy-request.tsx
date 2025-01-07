@@ -4,9 +4,15 @@ import { useState } from "react";
 import { useKioskStore, DocumentType } from "@/state/use-kiosk-store";
 import { motion } from "framer-motion";
 
-export function TrueCopyRequest() {
-  const { setSelectedDocuments, completeTrueCopy } = useKioskStore();
-  const [selectedDoc, setSelectedDoc] = useState<DocumentType | null>(null);
+interface TrueCopyRequestProps {
+  onDocumentsSelected: (documents: DocumentType[]) => void;
+  showSubmitButton: boolean;
+  onSubmit: () => void;
+}
+
+export function TrueCopyRequest({ onDocumentsSelected, showSubmitButton, onSubmit }: TrueCopyRequestProps) {
+  const { setSelectedDocuments } = useKioskStore();
+  const [selectedDocs, setSelectedDocs] = useState<DocumentType[]>([]);
 
   const documentTypes = [
     { value: "birth" as DocumentType, label: "Birth Certificate", icon: "/birth-cert.svg" },
@@ -15,51 +21,54 @@ export function TrueCopyRequest() {
   ];
 
   const handleSelectDocument = (docType: DocumentType) => {
-    setSelectedDoc(docType);
-    setSelectedDocuments([docType]);
-  };
-
-  const handleSubmit = () => {
-    if (selectedDoc) {
-      completeTrueCopy();
+    let updatedDocs: DocumentType[];
+    if (selectedDocs.includes(docType)) {
+      // If the document is already selected, remove it
+      updatedDocs = selectedDocs.filter((doc) => doc !== docType);
     } else {
-      alert("Please select a document type before proceeding.");
+      // If the document is not selected, add it
+      updatedDocs = [...selectedDocs, docType];
     }
+    setSelectedDocs(updatedDocs);
+    setSelectedDocuments(updatedDocs); // Update the global state
+    onDocumentsSelected(updatedDocs); // Notify the parent component
   };
 
   return (
-    <div className="w-full h-full flex justify-evenly items-center p-8">
-      {documentTypes.map((doc) => (
-        <motion.div
-          key={doc.value}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className={`rounded-lg shadow-sm p-4 h-72 w-72 border-2 border-black cursor-pointer ${
-            selectedDoc === doc.value ? "bg-[#FFD200] h-80 w-80" : ""
-          }`}
-          onClick={() => handleSelectDocument(doc.value)}
+    <div className="w-full h-full flex flex-col justify-evenly items-center p-8">
+      <div className="flex justify-evenly items-center w-full">
+        {documentTypes.map((doc) => (
+          <motion.div
+            key={doc.value}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className={`rounded-lg shadow-sm p-4 h-72 w-72 border-2 border-black cursor-pointer ${
+              selectedDocs.includes(doc.value) ? "bg-[#FFD200] h-80 w-80" : ""
+            }`}
+            onClick={() => handleSelectDocument(doc.value)}
+          >
+            <div className="w-full h-full flex flex-col gap-4 justify-center items-center">
+              <img src={doc.icon} className="w-24 h-24" alt={doc.label} />
+              <span className="uppercase font-semibold w-full max-w-sm text-center">
+                {doc.label}
+              </span>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+      {showSubmitButton && (
+        <button
+          type="button"
+          className="mt-8 px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-all"
+          onClick={onSubmit}
+          disabled={selectedDocs.length === 0}
         >
-          <div className="w-full h-full flex flex-col gap-4 justify-center items-center">
-            <img src={doc.icon} className="w-24 h-24" alt={doc.label} />
-            <span className="uppercase font-semibold w-full max-w-sm text-center">
-              {doc.label}
-            </span>
-          </div>
-        </motion.div>
-      ))}
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold mt-8"
-        onClick={handleSubmit}
-      >
-        Submit
-      </motion.button>
+          Submit
+        </button>
+      )}
     </div>
   );
 }
-
-
 
 // const KioskTrueCopyRequest = () => {
 //     return (

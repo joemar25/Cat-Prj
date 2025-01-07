@@ -1,8 +1,8 @@
 // src/components/kiosk/success-step.tsx
-import { CheckCircle2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useKioskStore } from "@/state/use-kiosk-store"
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
+import { CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useKioskStore } from "@/state/use-kiosk-store";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 
 export function SuccessStep() {
     const {
@@ -12,7 +12,7 @@ export function SuccessStep() {
         kioskNumber,
         selectedDocuments,
         resetFlow
-    } = useKioskStore()
+    } = useKioskStore();
 
     return (
         <div className="max-w-md w-full p-6 text-center">
@@ -62,5 +62,5 @@ export function SuccessStep() {
                 <Button onClick={resetFlow}>Done</Button>
             </CardFooter>
         </div>
-    )
+    );
 }
