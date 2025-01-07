@@ -1,17 +1,17 @@
 // src/app/(dashboard)/users/page.tsx
-import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header.tsx';
-import { columns } from '@/components/custom/users/columns';
-import { DataTable } from '@/components/custom/users/data-table';
+import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header.tsx'
+import { columns } from '@/components/custom/users/columns'
+import { DataTable } from '@/components/custom/users/data-table'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { prisma } from '@/lib/prisma';
-import { Suspense } from 'react';
+} from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { prisma } from '@/lib/prisma'
+import { Suspense } from 'react'
 
 async function getUsers() {
   try {
@@ -23,13 +23,13 @@ async function getUsers() {
         createdAt: 'desc',
       },
       include: {
-        profile: true, // Includes all fields from the profile table
+        profile: true,
       },
-    });
-    return users;
+    })
+    return users
   } catch (error) {
-    console.error('Error fetching user data:', error);
-    return [];
+    console.error('Error fetching user data:', error)
+    return []
   }
 }
 
@@ -52,11 +52,11 @@ function UsersTableSkeleton() {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
 
 export default async function UsersPage() {
-  const users = await getUsers();
+  const users = await getUsers()
 
   return (
     <>
@@ -70,5 +70,5 @@ export default async function UsersPage() {
         </Suspense>
       </div>
     </>
-  );
+  )
 }
