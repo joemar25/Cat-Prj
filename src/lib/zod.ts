@@ -70,3 +70,103 @@ export type SignUpForm = z.infer<typeof signUpSchema>;
 export type SignInForm = z.infer<typeof signInSchema>;
 export type RegistrationForm = z.infer<typeof registrationForm>;
 export type CertifiedCopyFormData = z.infer<typeof certifiedCopySchema>;
+
+// ------------- Update/Edit -----------//
+// Basic schema for user edit
+export const editUserSchema = z.object({
+  name: z
+    .string({ required_error: 'Name is required' })
+    .min(2, 'Name must be at least 2 characters')
+    .max(50, 'Name must not exceed 50 characters')
+    .transform((val) => val.trim()),
+  email: z
+    .string({ required_error: 'Email is required' })
+    .email('Please enter a valid email address')
+    .min(5, 'Email is too short')
+    .max(50, 'Email must not exceed 50 characters')
+    .transform((val) => val.toLowerCase()),
+});
+
+// Schema for profile edit
+export const editProfileSchema = z.object({
+  dateOfBirth: z
+    .string()
+    .optional()
+    .nullable()
+    .refine(
+      (date) => !date || new Date(date) <= new Date(),
+      'Date of birth cannot be in the future'
+    ),
+  phoneNumber: z
+    .string()
+    .optional()
+    .nullable()
+    .refine(
+      (phone) =>
+        !phone ||
+        /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im.test(phone),
+      'Please enter a valid phone number'
+    ),
+  address: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => val?.trim()),
+  city: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => val?.trim()),
+  state: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => val?.trim()),
+  country: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => val?.trim()),
+  postalCode: z
+    .string()
+    .optional()
+    .nullable()
+    .refine(
+      (postal) => !postal || /^[0-9]{4}$/.test(postal),
+      'Please enter a valid Philippine postal code (4 digits).'
+    ),
+
+  bio: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => val?.trim())
+    .refine(
+      (bio) => !bio || bio.length <= 500,
+      'Bio must not exceed 500 characters'
+    ),
+  occupation: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => val?.trim()),
+  gender: z
+    .enum(['male', 'female', 'other'], {
+      errorMap: () => ({ message: 'Please select a valid gender' }),
+    })
+    .optional()
+    .nullable(),
+  nationality: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => val?.trim()),
+});
+
+// Combined schema for the edit form
+export const editUserFormSchema = editUserSchema.merge(editProfileSchema);
+
+// Export types
+export type EditUserSchema = z.infer<typeof editUserSchema>;
+export type EditProfileSchema = z.infer<typeof editProfileSchema>;
+export type EditUserFormData = z.infer<typeof editUserFormSchema>;
