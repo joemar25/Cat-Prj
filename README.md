@@ -93,7 +93,7 @@ Feature Checklist for Development
 
 2. Restrict User Role from Logging In
    - [x] Prevent `USER` role from accessing the system through authentication.
-   - [ ] Add proper error messages to inform unauthorized users of access denial.
+   - [x] Add proper error messages to inform unauthorized users of access denial.
 
 3. Queued Ticket Document Showcase
    - [ ] When a ticket is clicked, display a detailed view of required documents.
@@ -107,8 +107,8 @@ Feature Checklist for Development
 
 5. Feedback System
    - [x] Allow `STAFF` and `ADMIN` roles to submit feedback through the system.
-   - [ ] Display feedback in a table format for easy review.
-   - [ ] Include filters to sort feedback by date, user, or category.
+   - [x] Display feedback in a table format for easy review.
+   - [x] Include filters to sort feedback by user.
 
 6. User Profile Customization in Settings
    - [ ] BLANK
