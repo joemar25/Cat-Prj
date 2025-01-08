@@ -1,12 +1,15 @@
+import BirthCertificateForm from "@/components/custom/forms/birth-form";
+import DeathCertificateForm from "@/components/custom/forms/death-form";
+import MarriageCertificateForm from "@/components/custom/forms/marriage-form";
 
-import BirthForm from "@/components/custom/forms/birth-form";
 export default async function dummyForm() {
-
   return (
     <>
-    <div>
-        <BirthForm />
-    </div>
+      <div>
+        {/* <BirthCertificateForm /> */}
+        {/* <DeathCertificateForm /> */}
+        <MarriageCertificateForm />
+      </div>
     </>
-  )
+  );
 }
