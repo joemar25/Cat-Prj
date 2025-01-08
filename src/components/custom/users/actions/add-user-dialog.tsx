@@ -1,14 +1,7 @@
 // src\components\custom\users\actions\add-user-dialog.tsx
 'use client';
 
-import * as React from 'react';
-import { toast } from 'sonner';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { registrationForm, RegistrationForm } from '@/lib/zod';
-import { handleCreateUser } from '@/hooks/users-action';
 import { Button } from '@/components/ui/button';
-import { Icons } from '@/components/ui/icons';
 import {
   Dialog,
   DialogContent,
@@ -17,14 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Form,
   FormControl,
@@ -33,6 +18,21 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Icons } from '@/components/ui/icons';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { handleCreateUser } from '@/hooks/users-action';
+import { registrationForm, RegistrationForm } from '@/lib/zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as React from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 interface AddUserDialogProps {
   onSuccess?: () => void;
@@ -46,8 +46,7 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
     defaultValues: {
       name: '',
       email: '',
-      password: '',
-      confirmPassword: '',
+
       dateOfBirth: '',
       phoneNumber: '',
       address: '',
@@ -95,11 +94,11 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
           Add User
         </Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-[600px] max-h-[90vh] overflow-y-auto'>
+      <DialogContent className='sm:max-w-7xl max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
-          <DialogTitle>Add New User</DialogTitle>
+          <DialogTitle>Register New User</DialogTitle>
           <DialogDescription>
-            Create a new user account with detailed information.
+            Regsiter new user account with detailed information.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -133,42 +132,6 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
                           {...field}
                           type='email'
                           placeholder='Enter email address'
-                        />
-                      </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='password'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type='password'
-                          placeholder='Enter password'
-                        />
-                      </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='confirmPassword'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type='password'
-                          placeholder='Confirm password'
                         />
                       </FormControl>
                       <FormMessage className='text-red-400' />
@@ -371,4 +334,72 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
     </Dialog>
   );
 }
-// working
+
+// ---------- Marriage Available ----------------//
+// ---------- Form 3A ----------------//
+// Fields
+// Two colums husband and wife
+// Row of the two columns
+/**
+ * Name
+ * Data of Birth/Age
+ * Citizenship
+ * Civil Status
+ * Mother
+ * Father
+ * 1 row
+ * Registry Number
+ * Date of Regsitration
+ * Date of Marriage
+ * Place of Marriage
+ *
+ * Prepared by: name and signature of the current staff, position
+ * verified by: name and signature of the current staff, position
+ * Amount Paid
+ * O.R Number
+ * Date Paid
+ *
+ */
+
+// ---------- Birth Available ----------------//
+// ---------- Form 1A ----------------//
+// Fields
+/**
+ * Page Number
+ * Book Number
+ * Registry Number
+ * Date of Registration
+ * Name of Child
+ * Sex
+ * Date of Birth
+ * Place of Birth
+ * Name of Mother
+ * Name of Father
+ * Cititzenship of Mother
+ * Citizenship of Father
+ * Date of Marrigae Parents
+ * Place of Marrigae Parents
+ * Remarks
+ * Prepared By
+ * Verified By
+ *
+ */
+// ---------- Death Available ----------------//
+// ---------- Form 1A ----------------//
+// Fields
+/**
+ * Registry Number
+ * Date of Registration Number
+ * Name of Deceased
+ * Sex
+ * Age
+ * Civil Status
+ * Citizenship
+ * Date of Death
+ * Place of Death
+ * Cause of Death
+ * Prepared By
+ * Verified By
+ *
+ *
+ */
