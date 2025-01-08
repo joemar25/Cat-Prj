@@ -2,9 +2,9 @@
 'use client'; // Mark this as a Client Component
 
 import BirthAnnotationForm from '@/components/custom/forms/annotations/birthcert';
-import BirthCertificateForm from '@/components/custom/forms/certificates/birth-form';
-import DeathCertificateForm from '@/components/custom/forms/certificates/death-form';
-import MarriageCertificateForm from '@/components/custom/forms/certificates/marriage-form';
+import BirthCertificateForm from '@/components/custom/forms/requests/birth-request-form';
+import DeathCertificateForm from '@/components/custom/forms/requests/death-request-form';
+import MarriageCertificateForm from '@/components/custom/forms/requests/marriage-request-form';
 
 import RequestCertificatesModal from '@/components/custom/modals/request-certificates-modal'; // Corrected import
 import { useState } from 'react';
