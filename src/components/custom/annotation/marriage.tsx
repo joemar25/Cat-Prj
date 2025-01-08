@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-const MarriageCertificateForm = () => {
+const MarriageAnnotationForm = () => {
   return (
     <div className="container mx-auto p-4">
       <Card className="w-full max-w-3xl mx-auto bg-white">
@@ -162,4 +162,4 @@ const MarriageCertificateForm = () => {
   );
 };
 
-export default MarriageCertificateForm;
+export default MarriageAnnotationForm;
