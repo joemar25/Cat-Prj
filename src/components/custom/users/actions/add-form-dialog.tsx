@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { BirthRegistrationForm } from './birth-registration-form';
+import DeathAnnotationForm from '../../annotation/death';
 // import { BirthRegistrationForm } from './birth-registration-form';
 // import { DeathCertificateForm } from './death-certificate-form';
 // import { DeathRegistrationForm } from './death-registration-form';
@@ -23,7 +24,7 @@ import { BirthRegistrationForm } from './birth-registration-form';
 export function FormDialog() {
   const [open, setOpen] = useState(false);
   const [birthFormOpen, setBirthFormOpen] = useState(false);
-  //   const [deathFormOpen, setDeathFormOpen] = useState(false);
+  const [deathFormOpen, setDeathFormOpen] = useState(false);
   //   const [marriageFormOpen, setMarriageFormOpen] = useState(false);
   //   const [deathCertificateOpen, setDeathCertificateOpen] = useState(false);
   //   const [marriageCertificateOpen, setMarriageCertificateOpen] = useState(false);
@@ -37,7 +38,7 @@ export function FormDialog() {
         setBirthFormOpen(true);
         break;
       case 'death':
-        // setDeathFormOpen(true);
+        setDeathFormOpen(true);
         break;
       case 'marriage':
         // setMarriageFormOpen(true);
@@ -180,7 +181,30 @@ export function FormDialog() {
       <BirthRegistrationForm
         open={birthFormOpen}
         onOpenChange={setBirthFormOpen}
+        onCancel={() => {
+          setBirthFormOpen(false);
+          setTimeout(() => setOpen(true), 0);
+        }}
       />
+
+      {/* Death Annotation Form */}
+      <DeathAnnotationForm
+        open={deathFormOpen}
+        onOpenChange={setDeathFormOpen}
+        onCancel={() => {
+          setDeathFormOpen(false);
+          setTimeout(() => setOpen(true), 0);
+        }}
+      />
+
+      {/* <DeathAnnotationForm
+        open={deathFormOpen}
+        onOpenChange={setDeathFormOpen}
+        onCancel={() => {
+          setDeathFormOpen(false);
+          setTimeout(() => setOpen(true), 0);
+        }}
+      /> */}
       {/* <DeathRegistrationForm
         open={deathFormOpen}
         onOpenChange={setDeathFormOpen}

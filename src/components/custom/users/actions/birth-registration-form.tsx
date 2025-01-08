@@ -207,11 +207,13 @@ type FormValues = z.infer<typeof formSchema>;
 interface BirthRegistrationFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCancel: () => void;
 }
 
 export function BirthRegistrationForm({
   open,
   onOpenChange,
+  onCancel,
 }: BirthRegistrationFormProps) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -605,7 +607,7 @@ export function BirthRegistrationForm({
                 type='button'
                 variant='outline'
                 className='h-10'
-                onClick={() => onOpenChange(false)}
+                onClick={onCancel}
               >
                 Cancel
               </Button>
