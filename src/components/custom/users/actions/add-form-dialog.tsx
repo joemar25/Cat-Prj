@@ -13,8 +13,8 @@ import { Separator } from '@/components/ui/separator';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { BirthAnnotationForm } from '../../forms/annotations/birth-annotation-form';
-import DeathAnnotationForm from '../../forms/annotations/death';
-import MarriageAnnotationForm from '../../forms/annotations/marriage';
+import DeathAnnotationForm from '../../forms/annotations/death-annotation-form';
+import MarriageAnnotationForm from '../../forms/annotations/marriage-annotation-form';
 
 // import { BirthRegistrationForm } from './birth-registration-form';
 // import { DeathCertificateForm } from './death-certificate-form';
@@ -28,21 +28,21 @@ export function FormDialog() {
   const [birthFormOpen, setBirthFormOpen] = useState(false);
   const [deathFormOpen, setDeathFormOpen] = useState(false);
   const [marriageFormOpen, setMarriageFormOpen] = useState(false);
-  //   const [deathCertificateOpen, setDeathCertificateOpen] = useState(false);
+  // const [deathCertificateOpen, setDeathCertificateOpen] = useState(false);
   //   const [marriageCertificateOpen, setMarriageCertificateOpen] = useState(false);
-  //   const [liveBirthCertificateOpen, setLiveBirthCertificateOpen] =
-  //     useState(false);
+  // const [birthCertificateFormOpen, setBirthCertificateFormOpen] =
+  //   useState(false);
 
   const handleFormSelect = (formType: string) => {
     setOpen(false);
     switch (formType) {
-      case 'birth':
+      case 'birth-annotation':
         setBirthFormOpen(true);
         break;
-      case 'death':
+      case 'death-annotation':
         setDeathFormOpen(true);
         break;
-      case 'marriage':
+      case 'marriage-annotation':
         setMarriageFormOpen(true);
         break;
       case 'death-certificate':
@@ -52,7 +52,7 @@ export function FormDialog() {
         // setMarriageCertificateOpen(true);
         break;
       case 'live-birth-certificate':
-        // setLiveBirthCertificateOpen(true);
+        // setBirthCertificateFormOpen(true);
         break;
       default:
         break;
@@ -91,6 +91,21 @@ export function FormDialog() {
                 </p>
               </CardContent>
             </Card>
+            <Card
+              className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
+              onClick={() => handleFormSelect('death-certificate')}
+            >
+              <CardHeader>
+                <CardTitle className='text-center text-base'>
+                  Certificate of Death
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='text-center'>
+                <p className='text-sm text-muted-foreground'>
+                  (Municipal Form No. 103)
+                </p>
+              </CardContent>
+            </Card>
 
             <Card
               className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
@@ -107,22 +122,6 @@ export function FormDialog() {
                 </p>
               </CardContent>
             </Card>
-
-            <Card
-              className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
-              onClick={() => handleFormSelect('death-certificate')}
-            >
-              <CardHeader>
-                <CardTitle className='text-center text-base'>
-                  Certificate of Death
-                </CardTitle>
-              </CardHeader>
-              <CardContent className='text-center'>
-                <p className='text-sm text-muted-foreground'>
-                  (Municipal Form No. 103)
-                </p>
-              </CardContent>
-            </Card>
           </div>
 
           <Separator className='my-2' />
@@ -130,7 +129,7 @@ export function FormDialog() {
           <div className='flex gap-4'>
             <Card
               className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
-              onClick={() => handleFormSelect('birth')}
+              onClick={() => handleFormSelect('birth-annotation')}
             >
               <CardHeader>
                 <CardTitle className='text-center text-base'>
@@ -146,7 +145,7 @@ export function FormDialog() {
 
             <Card
               className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
-              onClick={() => handleFormSelect('death')}
+              onClick={() => handleFormSelect('death-annotation')}
             >
               <CardHeader>
                 <CardTitle className='text-center text-base'>
@@ -162,7 +161,7 @@ export function FormDialog() {
 
             <Card
               className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
-              onClick={() => handleFormSelect('marriage')}
+              onClick={() => handleFormSelect('marriage-annotation')}
             >
               <CardHeader>
                 <CardTitle className='text-center text-base'>
@@ -207,35 +206,6 @@ export function FormDialog() {
           setTimeout(() => setOpen(true), 0);
         }}
       />
-
-      {/* <DeathAnnotationForm
-        open={deathFormOpen}
-        onOpenChange={setDeathFormOpen}
-        onCancel={() => {
-          setDeathFormOpen(false);
-          setTimeout(() => setOpen(true), 0);
-        }}
-      /> */}
-      {/* <DeathRegistrationForm
-        open={deathFormOpen}
-        onOpenChange={setDeathFormOpen}
-      />
-      <MarriageRegistrationForm
-        open={marriageFormOpen}
-        onOpenChange={setMarriageFormOpen}
-      />
-      <DeathCertificateForm
-        open={deathCertificateOpen}
-        onOpenChange={setDeathCertificateOpen}
-      />
-      <MarriageCertificateForm
-        open={marriageCertificateOpen}
-        onOpenChange={setMarriageCertificateOpen}
-      />
-      <LiveBirthCertificateForm
-        open={liveBirthCertificateOpen}
-        onOpenChange={setLiveBirthCertificateOpen}
-      /> */}
     </>
   );
 }
