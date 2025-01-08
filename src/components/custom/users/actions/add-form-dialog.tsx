@@ -12,9 +12,10 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import DeathAnnotationForm from '../../annotation/death';
-import MarriageAnnotationForm from '../../annotation/marriage';
-import { BirthRegistrationForm } from './birth-registration-form';
+import { BirthAnnotationForm } from '../../forms/annotations/birth-annotation-form';
+import DeathAnnotationForm from '../../forms/annotations/death';
+import MarriageAnnotationForm from '../../forms/annotations/marriage';
+
 // import { BirthRegistrationForm } from './birth-registration-form';
 // import { DeathCertificateForm } from './death-certificate-form';
 // import { DeathRegistrationForm } from './death-registration-form';
@@ -179,7 +180,7 @@ export function FormDialog() {
       </Dialog>
 
       {/* Separate form dialogs */}
-      <BirthRegistrationForm
+      <BirthAnnotationForm
         open={birthFormOpen}
         onOpenChange={setBirthFormOpen}
         onCancel={() => {

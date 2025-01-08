@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
@@ -20,203 +19,29 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
+import {
+  BirthAnnotationFormProps,
+  BirthAnnotationFormValues,
+  birthAnnotationSchema,
+} from '@/lib/types/zod-form-annotations/formSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns';
-import { CalendarIcon, Eye } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Eye } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-interface DatePickerFieldProps {
-  field: {
-    value: Date | undefined;
-    onChange: (date: Date | undefined) => void;
-  };
-  label: string;
-  placeholder?: string;
-}
+import DatePickerField from '../../datepickerfield/date-picker-field';
 
-const DatePickerField = ({
-  field,
-  label,
-  placeholder = 'Pick a date',
-}: DatePickerFieldProps) => {
-  // State for current month displayed in calendar
-  const [currentDate, setCurrentDate] = useState<Date>(
-    field.value || new Date()
-  );
-  const [calendarOpen, setCalendarOpen] = useState(false);
-
-  // Update currentDate when field.value changes
-  useEffect(() => {
-    if (field.value) {
-      setCurrentDate(field.value);
-    }
-  }, [field.value]);
-
-  // Get current year for the dropdown's default value
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth();
-
-  // Generate years from 1900 to current year
-  const years = Array.from(
-    { length: new Date().getFullYear() - 1900 + 1 },
-    (_, i) => new Date().getFullYear() - i
-  );
-
-  const handleMonthChange = (month: number) => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(month);
-    setCurrentDate(newDate);
-  };
-
-  const handleYearChange = (year: number) => {
-    const newDate = new Date(currentDate);
-    newDate.setFullYear(year);
-    setCurrentDate(newDate);
-  };
-
-  return (
-    <FormItem>
-      <FormLabel>{label}</FormLabel>
-      <div className='relative'>
-        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-          <PopoverTrigger asChild>
-            <FormControl>
-              <Button
-                variant='outline'
-                role='combobox'
-                className={cn(
-                  'w-full h-10',
-                  'px-3 py-2',
-                  'flex items-center justify-between',
-                  'text-left font-normal',
-                  'bg-background',
-                  'border border-input hover:bg-accent hover:text-accent-foreground',
-                  !field.value && 'text-muted-foreground'
-                )}
-              >
-                {field.value ? (
-                  format(field.value, 'MMMM do, yyyy')
-                ) : (
-                  <span>{placeholder}</span>
-                )}
-                <CalendarIcon className='h-4 w-4 opacity-50 shrink-0 ml-auto' />
-              </Button>
-            </FormControl>
-          </PopoverTrigger>
-          <PopoverContent className='w-auto p-0' align='start'>
-            <div className='border-b border-border p-3'>
-              <div className='flex items-center justify-between space-x-2'>
-                <Select
-                  value={currentMonth.toString()}
-                  onValueChange={(value) => handleMonthChange(parseInt(value))}
-                >
-                  <SelectTrigger className='w-[140px] h-8'>
-                    <SelectValue>{format(currentDate, 'MMMM')}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent position='popper'>
-                    {Array.from({ length: 12 }, (_, i) => (
-                      <SelectItem key={i} value={i.toString()}>
-                        {format(new Date(2000, i, 1), 'MMMM')}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={currentYear.toString()}
-                  onValueChange={(value) => handleYearChange(parseInt(value))}
-                >
-                  <SelectTrigger className='w-[95px] h-8'>
-                    <SelectValue>{currentYear}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent position='popper'>
-                    {years.map((year) => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <Calendar
-              mode='single'
-              selected={field.value}
-              month={currentDate}
-              onMonthChange={setCurrentDate}
-              onSelect={(date) => {
-                field.onChange(date);
-                setCalendarOpen(false);
-              }}
-              disabled={(date: Date): boolean =>
-                date > new Date() || date < new Date('1900-01-01')
-              }
-              initialFocus
-              className='rounded-b-md'
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-      <FormMessage />
-    </FormItem>
-  );
-};
-
-const formSchema = z.object({
-  pageNumber: z.string().min(1, 'Page number is required'),
-  bookNumber: z.string().min(1, 'Book number is required'),
-  registryNumber: z.string().min(1, 'Registry number is required'),
-  dateOfRegistration: z.date({
-    required_error: 'Registration date is required',
-  }),
-  childFirstName: z.string().min(1, 'First name is required'),
-  childMiddleName: z.string().optional(),
-  childLastName: z.string().min(1, 'Last name is required'),
-  sex: z.string().min(1, 'Sex is required'),
-  dateOfBirth: z.date({
-    required_error: 'Date of birth is required',
-  }),
-  placeOfBirth: z.string().min(1, 'Place of birth is required'),
-  motherName: z.string().min(1, "Mother's name is required"),
-  fatherName: z.string().min(1, "Father's name is required"),
-  motherCitizenship: z.string().min(1, "Mother's citizenship is required"),
-  fatherCitizenship: z.string().min(1, "Father's citizenship is required"),
-  parentsMarriageDate: z.date({
-    required_error: 'Marriage date is required',
-  }),
-  parentsMarriagePlace: z.string().min(1, 'Marriage place is required'),
-  remarks: z.string().optional(),
-  preparedBy: z.string().min(1, 'Prepared by is required'),
-  verifiedBy: z.string().min(1, 'Verified by is required'),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-interface BirthRegistrationFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
-}
-
-export function BirthRegistrationForm({
+export function BirthAnnotationForm({
   open,
   onOpenChange,
   onCancel,
-}: BirthRegistrationFormProps) {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+}: BirthAnnotationFormProps) {
+  const form = useForm<BirthAnnotationFormValues>({
+    resolver: zodResolver(birthAnnotationSchema),
     defaultValues: {
       pageNumber: '',
       bookNumber: '',
@@ -225,7 +50,7 @@ export function BirthRegistrationForm({
     },
   });
 
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: BirthAnnotationFormValues) => {
     console.log(values);
     // Handle form submission
   };
