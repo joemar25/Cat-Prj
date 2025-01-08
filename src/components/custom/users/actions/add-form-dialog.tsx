@@ -12,8 +12,9 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import { BirthRegistrationForm } from './birth-registration-form';
 import DeathAnnotationForm from '../../annotation/death';
+import MarriageAnnotationForm from '../../annotation/marriage';
+import { BirthRegistrationForm } from './birth-registration-form';
 // import { BirthRegistrationForm } from './birth-registration-form';
 // import { DeathCertificateForm } from './death-certificate-form';
 // import { DeathRegistrationForm } from './death-registration-form';
@@ -25,7 +26,7 @@ export function FormDialog() {
   const [open, setOpen] = useState(false);
   const [birthFormOpen, setBirthFormOpen] = useState(false);
   const [deathFormOpen, setDeathFormOpen] = useState(false);
-  //   const [marriageFormOpen, setMarriageFormOpen] = useState(false);
+  const [marriageFormOpen, setMarriageFormOpen] = useState(false);
   //   const [deathCertificateOpen, setDeathCertificateOpen] = useState(false);
   //   const [marriageCertificateOpen, setMarriageCertificateOpen] = useState(false);
   //   const [liveBirthCertificateOpen, setLiveBirthCertificateOpen] =
@@ -41,7 +42,7 @@ export function FormDialog() {
         setDeathFormOpen(true);
         break;
       case 'marriage':
-        // setMarriageFormOpen(true);
+        setMarriageFormOpen(true);
         break;
       case 'death-certificate':
         // setDeathCertificateOpen(true);
@@ -193,6 +194,15 @@ export function FormDialog() {
         onOpenChange={setDeathFormOpen}
         onCancel={() => {
           setDeathFormOpen(false);
+          setTimeout(() => setOpen(true), 0);
+        }}
+      />
+
+      <MarriageAnnotationForm
+        open={marriageFormOpen}
+        onOpenChange={setMarriageFormOpen}
+        onCancel={() => {
+          setMarriageFormOpen(false);
           setTimeout(() => setOpen(true), 0);
         }}
       />
