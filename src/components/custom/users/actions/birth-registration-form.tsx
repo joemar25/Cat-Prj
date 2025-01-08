@@ -34,7 +34,7 @@ import {
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import { CalendarIcon, Save } from 'lucide-react';
+import { CalendarIcon, Eye } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -610,8 +610,8 @@ export function BirthRegistrationForm({
                 Cancel
               </Button>
               <Button type='submit' className='h-10 ml-2'>
-                <Save className='mr-2 h-4 w-4' />
-                Save Registration
+                <Eye className='mr-2 h-4 w-4' />
+                Preview
               </Button>
             </DialogFooter>
           </form>
