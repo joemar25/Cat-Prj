@@ -29,7 +29,7 @@ import {
   BirthAnnotationFormProps,
   BirthAnnotationFormValues,
   birthAnnotationSchema,
-} from '@/lib/types/zod-form-annotations/formSchema';
+} from '@/lib/types/zod-form-annotations/formSchemaAnnotation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye } from 'lucide-react';
 import { useForm } from 'react-hook-form';
