@@ -1,18 +1,13 @@
 'use client';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -20,16 +15,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
-import { z } from "zod";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 // Define the Zod schema
 const birthCertificateSchema = z.object({
@@ -40,7 +39,7 @@ const birthCertificateSchema = z.object({
     firstName: z.string(),
     middleName: z.string().optional(),
     lastName: z.string(),
-    sex: z.enum(["Male", "Female"]),
+    sex: z.enum(['Male', 'Female']),
     dateOfBirth: z.object({
       day: z.string(),
       month: z.string(),
@@ -102,7 +101,7 @@ const birthCertificateSchema = z.object({
     }),
   }),
   attendant: z.object({
-    type: z.enum(["Physician", "Nurse", "Midwife", "Hilot", "Others"]),
+    type: z.enum(['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others']),
     certification: z.object({
       time: z.string(),
       signature: z.string(),
@@ -164,7 +163,7 @@ export default function BirthCertificateForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className='max-w-5xl max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
           <DialogTitle className='text-2xl font-bold text-center'>
             Republic of the Philippines
@@ -176,19 +175,22 @@ export default function BirthCertificateForm({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
             <Card>
-              <CardContent className="space-y-6">
+              <CardContent className='space-y-6'>
                 {/* Registry Information */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                   <FormField
                     control={form.control}
-                    name="registryNo"
+                    name='registryNo'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Registry No.</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter registry number" {...field} />
+                          <Input
+                            placeholder='Enter registry number'
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -196,12 +198,12 @@ export default function BirthCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="province"
+                    name='province'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>City/Province</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter province" {...field} />
+                          <Input placeholder='Enter province' {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -209,12 +211,15 @@ export default function BirthCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="cityMunicipality"
+                    name='cityMunicipality'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>City/Municipality</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter city/municipality" {...field} />
+                          <Input
+                            placeholder='Enter city/municipality'
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -227,16 +232,19 @@ export default function BirthCertificateForm({
                   <CardHeader>
                     <CardTitle>Child Information</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <CardContent className='space-y-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="childInfo.firstName"
+                        name='childInfo.firstName'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>First Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter first name" {...field} />
+                              <Input
+                                placeholder='Enter first name'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -244,12 +252,15 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="childInfo.middleName"
+                        name='childInfo.middleName'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Middle Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter middle name" {...field} />
+                              <Input
+                                placeholder='Enter middle name'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -257,12 +268,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="childInfo.lastName"
+                        name='childInfo.lastName'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Last Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter last name" {...field} />
+                              <Input placeholder='Enter last name' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -270,22 +281,25 @@ export default function BirthCertificateForm({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                       <FormField
                         control={form.control}
-                        name="childInfo.sex"
+                        name='childInfo.sex'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Sex</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select sex" />
+                                  <SelectValue placeholder='Select sex' />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="Male">Male</SelectItem>
-                                <SelectItem value="Female">Female</SelectItem>
+                                <SelectItem value='Male'>Male</SelectItem>
+                                <SelectItem value='Female'>Female</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -294,12 +308,16 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="childInfo.weight"
+                        name='childInfo.weight'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Weight at Birth (grams)</FormLabel>
                             <FormControl>
-                              <Input type="number" placeholder="Enter weight" {...field} />
+                              <Input
+                                type='number'
+                                placeholder='Enter weight'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -307,23 +325,28 @@ export default function BirthCertificateForm({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="childInfo.dateOfBirth.month"
+                        name='childInfo.dateOfBirth.month'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Month of Birth</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select month" />
+                                  <SelectValue placeholder='Select month' />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
                                 {Array.from({ length: 12 }, (_, i) => (
                                   <SelectItem key={i + 1} value={String(i + 1)}>
-                                    {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                                    {new Date(0, i).toLocaleString('default', {
+                                      month: 'long',
+                                    })}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -334,14 +357,17 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="childInfo.dateOfBirth.day"
+                        name='childInfo.dateOfBirth.day'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Day of Birth</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select day" />
+                                  <SelectValue placeholder='Select day' />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -358,12 +384,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="childInfo.dateOfBirth.year"
+                        name='childInfo.dateOfBirth.year'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Year of Birth</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter year" {...field} />
+                              <Input placeholder='Enter year' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -371,15 +397,18 @@ export default function BirthCertificateForm({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="childInfo.placeOfBirth.hospital"
+                        name='childInfo.placeOfBirth.hospital'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Hospital/Clinic/Institution</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter place of birth" {...field} />
+                              <Input
+                                placeholder='Enter place of birth'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -387,12 +416,15 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="childInfo.placeOfBirth.cityMunicipality"
+                        name='childInfo.placeOfBirth.cityMunicipality'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>City/Municipality</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter city/municipality" {...field} />
+                              <Input
+                                placeholder='Enter city/municipality'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -400,12 +432,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="childInfo.placeOfBirth.province"
+                        name='childInfo.placeOfBirth.province'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Province</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter province" {...field} />
+                              <Input placeholder='Enter province' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -413,24 +445,27 @@ export default function BirthCertificateForm({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="childInfo.typeOfBirth"
+                        name='childInfo.typeOfBirth'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Type of Birth</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select type" />
+                                  <SelectValue placeholder='Select type' />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="Single">Single</SelectItem>
-                                <SelectItem value="Twin">Twin</SelectItem>
-                                <SelectItem value="Triplet">Triplet</SelectItem>
-                                <SelectItem value="Other">Other</SelectItem>
+                                <SelectItem value='Single'>Single</SelectItem>
+                                <SelectItem value='Twin'>Twin</SelectItem>
+                                <SelectItem value='Triplet'>Triplet</SelectItem>
+                                <SelectItem value='Other'>Other</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -439,21 +474,24 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="childInfo.multipleBirth"
+                        name='childInfo.multipleBirth'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>If Multiple Birth</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select order" />
+                                  <SelectValue placeholder='Select order' />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="First">First</SelectItem>
-                                <SelectItem value="Second">Second</SelectItem>
-                                <SelectItem value="Third">Third</SelectItem>
-                                <SelectItem value="Other">Other</SelectItem>
+                                <SelectItem value='First'>First</SelectItem>
+                                <SelectItem value='Second'>Second</SelectItem>
+                                <SelectItem value='Third'>Third</SelectItem>
+                                <SelectItem value='Other'>Other</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -462,12 +500,15 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="childInfo.birthOrder"
+                        name='childInfo.birthOrder'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Birth Order</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter birth order" {...field} />
+                              <Input
+                                placeholder='Enter birth order'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -482,18 +523,23 @@ export default function BirthCertificateForm({
                 <Card>
                   <CardHeader>
                     <CardTitle>Mother Information</CardTitle>
-                    <CardTitle className="text-sm font-medium pt-8">Maiden Name :</CardTitle>
+                    <CardTitle className='text-sm font-medium pt-8'>
+                      Maiden Name :
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <CardContent className='space-y-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="motherInfo.firstName"
+                        name='motherInfo.firstName'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>First Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter first name" {...field} />
+                              <Input
+                                placeholder='Enter first name'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -501,12 +547,15 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="motherInfo.middleName"
+                        name='motherInfo.middleName'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Middle Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter middle name" {...field} />
+                              <Input
+                                placeholder='Enter middle name'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -514,12 +563,15 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="motherInfo.lastName"
+                        name='motherInfo.lastName'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Last Name (Maiden)</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter maiden name" {...field} />
+                              <Input
+                                placeholder='Enter maiden name'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -527,15 +579,18 @@ export default function BirthCertificateForm({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="motherInfo.citizenship"
+                        name='motherInfo.citizenship'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Citizenship</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter citizenship" {...field} />
+                              <Input
+                                placeholder='Enter citizenship'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -543,12 +598,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="motherInfo.religion"
+                        name='motherInfo.religion'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Religion</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter religion" {...field} />
+                              <Input placeholder='Enter religion' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -556,27 +611,36 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="motherInfo.occupation"
+                        name='motherInfo.occupation'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Occupation</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter occupation" {...field} />
+                              <Input
+                                placeholder='Enter occupation'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="motherInfo.age"
+                        name='motherInfo.age'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Age at time of this birth (completed Years)</FormLabel>
+                            <FormLabel>
+                              Age at time of this birth (completed Years)
+                            </FormLabel>
                             <FormControl>
-                              <Input type="number" placeholder="Enter age" {...field} />
+                              <Input
+                                type='number'
+                                placeholder='Enter age'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -584,15 +648,15 @@ export default function BirthCertificateForm({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="motherInfo.totalChildren"
+                        name='motherInfo.totalChildren'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Total Children Born Alive</FormLabel>
                             <FormControl>
-                              <Input type="number" {...field} />
+                              <Input type='number' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -600,12 +664,14 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="motherInfo.livingChildren"
+                        name='motherInfo.livingChildren'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>No. Children Still Living including this birth</FormLabel>
+                            <FormLabel>
+                              No. Children Still Living including this birth
+                            </FormLabel>
                             <FormControl>
-                              <Input type="number" {...field} />
+                              <Input type='number' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -613,12 +679,14 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="motherInfo.childrenDead"
+                        name='motherInfo.childrenDead'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>No. Children Born Alive But now Dead</FormLabel>
+                            <FormLabel>
+                              No. Children Born Alive But now Dead
+                            </FormLabel>
                             <FormControl>
-                              <Input type="number" {...field} />
+                              <Input type='number' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -626,15 +694,18 @@ export default function BirthCertificateForm({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
                       <FormField
                         control={form.control}
-                        name="motherInfo.residence.address"
+                        name='motherInfo.residence.address'
                         render={({ field }) => (
-                          <FormItem className="col-span-2">
+                          <FormItem className='col-span-2'>
                             <FormLabel>Address</FormLabel>
                             <FormControl>
-                              <Input placeholder="House No., St., Barangay" {...field} />
+                              <Input
+                                placeholder='House No., St., Barangay'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -642,12 +713,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="motherInfo.residence.cityMunicipality"
+                        name='motherInfo.residence.cityMunicipality'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>City/Municipality</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter city" {...field} />
+                              <Input placeholder='Enter city' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -655,12 +726,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="motherInfo.residence.province"
+                        name='motherInfo.residence.province'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Province</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter province" {...field} />
+                              <Input placeholder='Enter province' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -668,12 +739,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="motherInfo.residence.country"
+                        name='motherInfo.residence.country'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Country</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter Country" {...field} />
+                              <Input placeholder='Enter Country' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -687,16 +758,19 @@ export default function BirthCertificateForm({
                   <CardHeader>
                     <CardTitle>Father Information</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <CardContent className='space-y-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="fatherInfo.firstName"
+                        name='fatherInfo.firstName'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>First Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter first name" {...field} />
+                              <Input
+                                placeholder='Enter first name'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -704,12 +778,15 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="fatherInfo.middleName"
+                        name='fatherInfo.middleName'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Middle Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter middle name" {...field} />
+                              <Input
+                                placeholder='Enter middle name'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -717,12 +794,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="fatherInfo.lastName"
+                        name='fatherInfo.lastName'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Last Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter last name" {...field} />
+                              <Input placeholder='Enter last name' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -730,15 +807,18 @@ export default function BirthCertificateForm({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="fatherInfo.citizenship"
+                        name='fatherInfo.citizenship'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Citizenship</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter citizenship" {...field} />
+                              <Input
+                                placeholder='Enter citizenship'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -746,12 +826,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="fatherInfo.religion"
+                        name='fatherInfo.religion'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Religion</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter religion" {...field} />
+                              <Input placeholder='Enter religion' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -759,12 +839,15 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="fatherInfo.occupation"
+                        name='fatherInfo.occupation'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Occupation</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter occupation" {...field} />
+                              <Input
+                                placeholder='Enter occupation'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -773,15 +856,21 @@ export default function BirthCertificateForm({
                     </div>
 
                     {/* Added Age Input */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="fatherInfo.age"
+                        name='fatherInfo.age'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Age at time of this birth (completed Years)</FormLabel>
+                            <FormLabel>
+                              Age at time of this birth (completed Years)
+                            </FormLabel>
                             <FormControl>
-                              <Input type="number" placeholder="Enter age" {...field} />
+                              <Input
+                                type='number'
+                                placeholder='Enter age'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -789,15 +878,18 @@ export default function BirthCertificateForm({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
                       <FormField
                         control={form.control}
-                        name="fatherInfo.residence.address"
+                        name='fatherInfo.residence.address'
                         render={({ field }) => (
-                          <FormItem className="col-span-2">
+                          <FormItem className='col-span-2'>
                             <FormLabel>Address</FormLabel>
                             <FormControl>
-                              <Input placeholder="House No., St., Barangay" {...field} />
+                              <Input
+                                placeholder='House No., St., Barangay'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -805,12 +897,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="fatherInfo.residence.cityMunicipality"
+                        name='fatherInfo.residence.cityMunicipality'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>City/Municipality</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter city" {...field} />
+                              <Input placeholder='Enter city' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -818,12 +910,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="fatherInfo.residence.province"
+                        name='fatherInfo.residence.province'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Province</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter province" {...field} />
+                              <Input placeholder='Enter province' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -831,12 +923,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="fatherInfo.residence.country"
+                        name='fatherInfo.residence.country'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Country</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter Country" {...field} />
+                              <Input placeholder='Enter Country' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -851,24 +943,29 @@ export default function BirthCertificateForm({
                   <CardHeader>
                     <CardTitle>Marriage of Parents</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <CardContent className='space-y-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="marriageOfParents.date.month"
+                        name='marriageOfParents.date.month'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Month</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select month" />
+                                  <SelectValue placeholder='Select month' />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
                                 {Array.from({ length: 12 }, (_, i) => (
                                   <SelectItem key={i + 1} value={String(i + 1)}>
-                                    {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                                    {new Date(0, i).toLocaleString('default', {
+                                      month: 'long',
+                                    })}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -879,14 +976,17 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="marriageOfParents.date.day"
+                        name='marriageOfParents.date.day'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Day</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select day" />
+                                  <SelectValue placeholder='Select day' />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -903,12 +1003,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="marriageOfParents.date.year"
+                        name='marriageOfParents.date.year'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Year</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter year" {...field} />
+                              <Input placeholder='Enter year' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -916,15 +1016,15 @@ export default function BirthCertificateForm({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="marriageOfParents.place.cityMunicipality"
+                        name='marriageOfParents.place.cityMunicipality'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>City/Municipality</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter city" {...field} />
+                              <Input placeholder='Enter city' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -932,12 +1032,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="marriageOfParents.place.province"
+                        name='marriageOfParents.place.province'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Province</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter province" {...field} />
+                              <Input placeholder='Enter province' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -945,12 +1045,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="marriageOfParents.place.country"
+                        name='marriageOfParents.place.country'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Country</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter country" {...field} />
+                              <Input placeholder='Enter country' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -965,10 +1065,10 @@ export default function BirthCertificateForm({
                   <CardHeader>
                     <CardTitle>Attendant Information</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className='space-y-4'>
                     <FormField
                       control={form.control}
-                      name="attendant.type"
+                      name='attendant.type'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Type of Attendant</FormLabel>
@@ -976,45 +1076,45 @@ export default function BirthCertificateForm({
                             <RadioGroup
                               onValueChange={field.onChange}
                               defaultValue={field.value}
-                              className="grid grid-cols-2 md:grid-cols-5 gap-4"
+                              className='grid grid-cols-2 md:grid-cols-5 gap-4'
                             >
-                              <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormItem className='flex items-center space-x-3 space-y-0'>
                                 <FormControl>
-                                  <RadioGroupItem value="Physician" />
+                                  <RadioGroupItem value='Physician' />
                                 </FormControl>
-                                <FormLabel className="font-normal">
+                                <FormLabel className='font-normal'>
                                   Physician
                                 </FormLabel>
                               </FormItem>
-                              <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormItem className='flex items-center space-x-3 space-y-0'>
                                 <FormControl>
-                                  <RadioGroupItem value="Nurse" />
+                                  <RadioGroupItem value='Nurse' />
                                 </FormControl>
-                                <FormLabel className="font-normal">
+                                <FormLabel className='font-normal'>
                                   Nurse
                                 </FormLabel>
                               </FormItem>
-                              <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormItem className='flex items-center space-x-3 space-y-0'>
                                 <FormControl>
-                                  <RadioGroupItem value="Midwife" />
+                                  <RadioGroupItem value='Midwife' />
                                 </FormControl>
-                                <FormLabel className="font-normal">
+                                <FormLabel className='font-normal'>
                                   Midwife
                                 </FormLabel>
                               </FormItem>
-                              <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormItem className='flex items-center space-x-3 space-y-0'>
                                 <FormControl>
-                                  <RadioGroupItem value="Hilot" />
+                                  <RadioGroupItem value='Hilot' />
                                 </FormControl>
-                                <FormLabel className="font-normal">
+                                <FormLabel className='font-normal'>
                                   Hilot
                                 </FormLabel>
                               </FormItem>
-                              <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormItem className='flex items-center space-x-3 space-y-0'>
                                 <FormControl>
-                                  <RadioGroupItem value="Others" />
+                                  <RadioGroupItem value='Others' />
                                 </FormControl>
-                                <FormLabel className="font-normal">
+                                <FormLabel className='font-normal'>
                                   Others
                                 </FormLabel>
                               </FormItem>
@@ -1025,15 +1125,15 @@ export default function BirthCertificateForm({
                       )}
                     />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                       <FormField
                         control={form.control}
-                        name="attendant.certification.time"
+                        name='attendant.certification.time'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Time of Birth</FormLabel>
                             <FormControl>
-                              <Input type="time" {...field} />
+                              <Input type='time' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1041,12 +1141,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="attendant.certification.date"
+                        name='attendant.certification.date'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Date</FormLabel>
                             <FormControl>
-                              <Input type="date" {...field} />
+                              <Input type='date' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1054,15 +1154,15 @@ export default function BirthCertificateForm({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                       <FormField
                         control={form.control}
-                        name="attendant.certification.name"
+                        name='attendant.certification.name'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Name in Print</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter name" {...field} />
+                              <Input placeholder='Enter name' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1070,12 +1170,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="attendant.certification.title"
+                        name='attendant.certification.title'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Title or Position</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter title" {...field} />
+                              <Input placeholder='Enter title' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1085,12 +1185,15 @@ export default function BirthCertificateForm({
 
                     <FormField
                       control={form.control}
-                      name="attendant.certification.address"
+                      name='attendant.certification.address'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Address</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter complete address" {...field} />
+                            <Input
+                              placeholder='Enter complete address'
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1104,16 +1207,16 @@ export default function BirthCertificateForm({
                   <CardHeader>
                     <CardTitle>Certification of Informant</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <CardContent className='space-y-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                       <FormField
                         control={form.control}
-                        name="informant.name"
+                        name='informant.name'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Name in Print</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter name" {...field} />
+                              <Input placeholder='Enter name' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1121,12 +1224,15 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="informant.relationship"
+                        name='informant.relationship'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Relationship to the Child</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter relationship" {...field} />
+                              <Input
+                                placeholder='Enter relationship'
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1136,12 +1242,15 @@ export default function BirthCertificateForm({
 
                     <FormField
                       control={form.control}
-                      name="informant.address"
+                      name='informant.address'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Address</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter complete address" {...field} />
+                            <Input
+                              placeholder='Enter complete address'
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1150,12 +1259,12 @@ export default function BirthCertificateForm({
 
                     <FormField
                       control={form.control}
-                      name="informant.date"
+                      name='informant.date'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Date</FormLabel>
                           <FormControl>
-                            <Input type="date" {...field} />
+                            <Input type='date' {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1169,16 +1278,16 @@ export default function BirthCertificateForm({
                   <CardHeader>
                     <CardTitle>Received By</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <CardContent className='space-y-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="receivedBy.name"
+                        name='receivedBy.name'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Name in Print</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter name" {...field} />
+                              <Input placeholder='Enter name' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1186,12 +1295,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="receivedBy.title"
+                        name='receivedBy.title'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Title or Position</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter title" {...field} />
+                              <Input placeholder='Enter title' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1199,12 +1308,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="receivedBy.date"
+                        name='receivedBy.date'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Date</FormLabel>
                             <FormControl>
-                              <Input type="date" {...field} />
+                              <Input type='date' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1217,18 +1326,20 @@ export default function BirthCertificateForm({
                 {/* Registered By */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Registered at the Office of Civil Registrar</CardTitle>
+                    <CardTitle>
+                      Registered at the Office of Civil Registrar
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <CardContent className='space-y-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={form.control}
-                        name="registeredBy.name"
+                        name='registeredBy.name'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Name in Print</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter name" {...field} />
+                              <Input placeholder='Enter name' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1236,12 +1347,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="registeredBy.title"
+                        name='registeredBy.title'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Title or Position</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter title" {...field} />
+                              <Input placeholder='Enter title' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1249,12 +1360,12 @@ export default function BirthCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="registeredBy.date"
+                        name='registeredBy.date'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Date</FormLabel>
                             <FormControl>
-                              <Input type="date" {...field} />
+                              <Input type='date' {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1272,13 +1383,13 @@ export default function BirthCertificateForm({
                   <CardContent>
                     <FormField
                       control={form.control}
-                      name="remarks"
+                      name='remarks'
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
                             <Textarea
-                              placeholder="Enter remarks or annotations"
-                              className="min-h-[100px]"
+                              placeholder='Enter remarks or annotations'
+                              className='min-h-[100px]'
                               {...field}
                             />
                           </FormControl>
@@ -1289,11 +1400,11 @@ export default function BirthCertificateForm({
                   </CardContent>
                 </Card>
 
-                <div className="flex justify-end space-x-4">
-                  <Button type="button" variant="outline" onClick={onCancel}>
+                <div className='flex justify-end space-x-4'>
+                  <Button type='button' variant='outline' onClick={onCancel}>
                     Cancel
                   </Button>
-                  <Button type="submit">Submit Form</Button>
+                  <Button type='submit'>Submit Form</Button>
                 </div>
               </CardContent>
             </Card>
