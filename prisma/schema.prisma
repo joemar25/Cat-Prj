@@ -1,4 +1,4 @@
-// prisma\schema.prisma
+// prisma/schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -12,7 +12,7 @@ datasource db {
 /// *
 /// * User Model
 /// * @model
-/// * Central user entity storing authentication and profile data
+/// * Central user entity for authentication and system access
 /// * Relationships:
 /// * - One-to-many with Sessions, Accounts, Queues
 /// * - One-to-one with Profile
@@ -40,9 +40,115 @@ model User {
   queues        Queue[]
   sessions      Session[]
   workflows     Workflow[]
-  Feedback      Feedback[]
+  feedback      Feedback[]
+  preparedForms CivilRegistryForm[] @relation("PreparedBy")
+  verifiedForms CivilRegistryForm[] @relation("VerifiedBy")
 
   @@map("user")
+}
+
+/// *
+/// * CivilRegistryForm Model
+/// * @model
+/// * Stores civil registry form data for individuals who do not need authentication
+/// * Relationships:
+/// * - Many-to-one with User (preparedBy, verifiedBy)
+model CivilRegistryForm {
+  id                          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  formType                    FormType
+  pageNumber                  String
+  bookNumber                  String
+  registryNumber              String
+  dateOfRegistration          DateTime
+  husbandName                 String?
+  wifeName                    String?
+  husbandDateOfBirth          DateTime?
+  wifeDateOfBirth             DateTime?
+  husbandAge                  Int?
+  wifeAge                     Int?
+  husbandCitizenship          String?
+  wifeCitizenship             String?
+  husbandCivilStatus          String?
+  wifeCivilStatus             String?
+  husbandMother               String?
+  wifeMother                  String?
+  husbandFather               String?
+  wifeFather                  String?
+  husbandRegistryNumber       String?
+  wifeRegistryNumber          String?
+  husbandDateOfRegistryNumber DateTime?
+  wifeDateOfRegistryNumber    DateTime?
+  dateOfMarriage              DateTime?
+  placeOfMarriage             String?
+  nameOfChild                 String?
+  sex                         String?
+  dateOfBirth                 DateTime?
+  placeOfBirth                String?
+  nameOfMother                String?
+  citizenshipOfMother         String?
+  nameOfFather                String?
+  citizenshipOfFather         String?
+  dateOfMarriageParents       DateTime?
+  placeOfMarriageParents      String?
+  nameOfDeceased              String?
+  age                         Int?
+  civilStatus                 String?
+  citizenship                 String?
+  dateOfDeath                 DateTime?
+  placeOfDeath                String?
+  causeOfDeath                String?
+  preparedById                String?   @db.Uuid
+  verifiedById                String?   @db.Uuid
+  preparedBy                  User?     @relation("PreparedBy", fields: [preparedById], references: [id])
+  verifiedBy                  User?     @relation("VerifiedBy", fields: [verifiedById], references: [id])
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+
+  @@map("civil_registry_form")
+}
+
+/// *
+/// * CertifiedCopy Model
+/// * @model 
+/// * Represents an application for a certified true copy of an attachment
+/// * Features:
+/// * - Applicant information
+/// * - Application metadata
+/// * - Relationship to the original attachment
+model CertifiedCopy {
+  id                  String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lcrNo               String?
+  bookNo              String?
+  pageNo              String?
+  searchedBy          String?
+  contactNo           String?
+  date                DateTime?
+  attachment          Attachment @relation(fields: [attachmentId], references: [id])
+  attachmentId        String     @db.Uuid
+  requesterName       String
+  relationshipToOwner String
+  address             String
+  purpose             String
+  remarks             String?
+  signature           String?
+  amountPaid          Float?
+  orNumber            String?
+  datePaid            DateTime?
+  registeredDate      DateTime?
+  isRegistered        Boolean    @default(false)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  @@map("certified_copy")
+}
+
+/// *
+/// * Defines the types of civil registry forms
+/// * @enum {string}
+enum FormType {
+  MARRIAGE
+  BIRTH
+  DEATH
 }
 
 /// *
@@ -319,6 +425,22 @@ model AuditLog {
 }
 
 /// *
+/// * Feedback Model
+/// * @model
+/// * Allows for user-submitted feedback
+model Feedback {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  feedback    String
+  submittedBy String?  @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User? @relation(fields: [submittedBy], references: [id])
+
+  @@map("feedback")
+}
+
+/// *
 /// * Defines user role levels in the system
 /// * @enum {string}
 /// * - ADMIN: Full system access and management capabilities
@@ -405,66 +527,3 @@ enum AttachmentType {
   DEATH_CERTIFICATE
   MARRIAGE_CERTIFICATE
 }
-
-/// *
-/// * Feedback Model
-/// * @model
-/// * Allows for user-submitted feedback
-model Feedback {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  feedback    String
-  submittedBy String?  @db.Uuid
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user User? @relation(fields: [submittedBy], references: [id])
-
-  @@map("feedback")
-}
-
-/// *
-/// * CertifiedCopy Model
-/// * @model 
-/// * Represents an application for a certified true copy of an attachment
-/// * Features:
-/// * - Applicant information
-/// * - Application metadata
-/// * - Relationship to the original attachment
-model CertifiedCopy {
-  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  lcrNo        String?
-  bookNo       String?
-  pageNo       String?
-  searchedBy   String?
-  contactNo    String?
-  date         DateTime?
-  attachment   Attachment @relation(fields: [attachmentId], references: [id])
-  attachmentId String     @db.Uuid
-
-  @@map("certified_copy")
-}
-
-/**
- * ### Initial Setup:
- * - `prisma init`: Initialize a new Prisma project.
- * - `npx prisma generate`: Generate Prisma Client.
- * - `npx @better-auth/cli init`: Initialize Better Auth (requires `pnpm add @better-auth/cli`).
- * ### Database Operations:
- * - `npx prisma db push`: Push schema changes directly to the database.
- * - `npx prisma migrate dev`: Create a new migration and apply it.
- * - `npx prisma migrate reset`: Reset the database to the initial state.
- * - `npx prisma db seed`: Run database seeding.
- * - `npx @better-auth/cli migrate`: Run Better Auth migrations.
- * ### Development Tools:
- * - `npx prisma studio`: Open Prisma Studio (database GUI).
- * ### Common Workflows:
- * 1. **Making schema changes**:
- * - Update `schema.prisma`.
- * - Run `npx prisma generate`.
- * - Run `npx prisma db push` (development) or `npx prisma migrate dev` (production).
- * 2. **Resetting the database**:
- * - Run `npx prisma migrate reset`.
- * - Run `npx prisma db seed` (if needed).
- * 3. **Viewing data**:
- * - Run `npx prisma studio`.
- */
