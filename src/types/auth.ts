@@ -1,3 +1,4 @@
+// src\types\auth.ts
 import { UserRole, Permission } from "@prisma/client"
 
 /**

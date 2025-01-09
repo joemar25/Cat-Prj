@@ -1,11 +1,15 @@
 // prisma/seed.ts
-import { PrismaClient, UserRole, Permission } from '@prisma/client'
 import { hash } from 'bcrypt'
+import { generateTestData } from './seed-data'
+import { ROLE_PERMISSIONS } from '@/types/auth'
+import { PrismaClient, UserRole } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 async function main() {
+    console.log('Starting database seeding...')
     const defaultPassword = await hash('password', 12)
+    const userIds: string[] = []
 
     // Create users with different roles
     const adminUser = await prisma.user.upsert({
@@ -16,18 +20,7 @@ async function main() {
             name: 'Admin User',
             emailVerified: true,
             role: UserRole.ADMIN,
-            permissions: [
-                Permission.QUEUE_VIEW,
-                Permission.QUEUE_PROCESS,
-                Permission.QUEUE_DELETE,
-                Permission.QUEUE_UPDATE,
-                Permission.QUEUE_ADD_NOTES,
-                Permission.USERS_MANAGE,
-                Permission.DOCUMENTS_MANAGE,
-                Permission.WORKFLOW_MANAGE,
-                Permission.REPORTS_VIEW,
-                Permission.SYSTEM_SETTINGS
-            ],
+            permissions: ROLE_PERMISSIONS[UserRole.ADMIN],
             createdAt: new Date(),
             updatedAt: new Date(),
             accounts: {
@@ -41,6 +34,7 @@ async function main() {
             }
         }
     })
+    userIds.push(adminUser.id)
 
     const staffUser = await prisma.user.upsert({
         where: { email: 'staff@cris.gov.ph' },
@@ -50,14 +44,7 @@ async function main() {
             name: 'Staff User',
             emailVerified: true,
             role: UserRole.STAFF,
-            permissions: [
-                Permission.QUEUE_VIEW,
-                Permission.QUEUE_PROCESS,
-                Permission.QUEUE_UPDATE,
-                Permission.QUEUE_ADD_NOTES,
-                Permission.DOCUMENTS_MANAGE,
-                Permission.REPORTS_VIEW
-            ],
+            permissions: ROLE_PERMISSIONS[UserRole.STAFF],
             createdAt: new Date(),
             updatedAt: new Date(),
             accounts: {
@@ -71,6 +58,7 @@ async function main() {
             }
         }
     })
+    userIds.push(staffUser.id)
 
     const regularUser = await prisma.user.upsert({
         where: { email: 'user@gmail.com' },
@@ -80,7 +68,7 @@ async function main() {
             name: 'Regular User',
             emailVerified: true,
             role: UserRole.USER,
-            permissions: [Permission.QUEUE_VIEW],
+            permissions: ROLE_PERMISSIONS[UserRole.USER],
             createdAt: new Date(),
             updatedAt: new Date(),
             accounts: {
@@ -94,51 +82,65 @@ async function main() {
             }
         }
     })
+    userIds.push(regularUser.id)
 
-    // Create user profiles
-    await prisma.profile.createMany({
-        data: [
-            {
-                userId: adminUser.id,
-                dateOfBirth: new Date('1990-01-01'),
-                phoneNumber: '+639123456789',
-                address: 'Manila City Hall',
-                city: 'Manila',
-                state: 'Metro Manila',
-                country: 'Philippines',
-                postalCode: '1000',
-                occupation: 'System Administrator',
-                gender: 'Other',
-                nationality: 'Filipino'
-            },
-            {
-                userId: staffUser.id,
-                dateOfBirth: new Date('1995-05-05'),
-                phoneNumber: '+639187654321',
-                address: 'Manila City Hall',
-                city: 'Manila',
-                state: 'Metro Manila',
-                country: 'Philippines',
-                postalCode: '1000',
-                occupation: 'Civil Registry Staff',
-                gender: 'Other',
-                nationality: 'Filipino'
-            },
-            {
-                userId: regularUser.id,
-                dateOfBirth: new Date('1998-12-25'),
-                phoneNumber: '+639199999999',
-                address: '123 Sample St.',
-                city: 'Manila',
-                state: 'Metro Manila',
-                country: 'Philippines',
-                postalCode: '1000',
-                occupation: 'Student',
-                gender: 'Other',
-                nationality: 'Filipino'
-            }
-        ]
+    // Create user profiles using upsert
+    await prisma.profile.upsert({
+        where: { userId: adminUser.id },
+        update: {},
+        create: {
+            userId: adminUser.id,
+            dateOfBirth: new Date('1990-01-01'),
+            phoneNumber: '+639123456789',
+            address: 'Manila City Hall',
+            city: 'Manila',
+            state: 'Metro Manila',
+            country: 'Philippines',
+            postalCode: '1000',
+            occupation: 'System Administrator',
+            gender: 'Other',
+            nationality: 'Filipino'
+        }
     })
+
+    await prisma.profile.upsert({
+        where: { userId: staffUser.id },
+        update: {},
+        create: {
+            userId: staffUser.id,
+            dateOfBirth: new Date('1995-05-05'),
+            phoneNumber: '+639187654321',
+            address: 'Manila City Hall',
+            city: 'Manila',
+            state: 'Metro Manila',
+            country: 'Philippines',
+            postalCode: '1000',
+            occupation: 'Civil Registry Staff',
+            gender: 'Other',
+            nationality: 'Filipino'
+        }
+    })
+
+    await prisma.profile.upsert({
+        where: { userId: regularUser.id },
+        update: {},
+        create: {
+            userId: regularUser.id,
+            dateOfBirth: new Date('1998-12-25'),
+            phoneNumber: '+639199999999',
+            address: '123 Sample St.',
+            city: 'Manila',
+            state: 'Metro Manila',
+            country: 'Philippines',
+            postalCode: '1000',
+            occupation: 'Student',
+            gender: 'Other',
+            nationality: 'Filipino'
+        }
+    })
+
+    // Generate test data using our new generator
+    await generateTestData(prisma, userIds)
 
     console.log(`Seeding completed successfully!`)
     console.log(`Test accounts created:`)
@@ -154,10 +156,3 @@ main()
         await prisma.$disconnect()
         process.exit(1)
     })
-
-// commands:
-// rm -rf prisma/migrations
-// npx prisma migrate dev--name init
-// npx prisma db push
-// npx prisma db pull
-// npx prisma migrate reset
