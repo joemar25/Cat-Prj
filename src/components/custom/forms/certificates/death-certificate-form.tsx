@@ -221,22 +221,22 @@ export default function DeathCertificateForm({
               </CardHeader>
               <CardContent>
                 {/* Registry Information */}
-                <FormField
-                  control={form.control}
-                  name="registryNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Registry Number</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 {/* Location Information */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4 pb-2">
+                  <FormField
+                    control={form.control}
+                    name="registryNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Registry Number</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="province"
@@ -266,7 +266,7 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Personal Information */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4 gap-4">
                   <FormField
                     control={form.control}
                     name="name.first"
@@ -306,10 +306,6 @@ export default function DeathCertificateForm({
                       </FormItem>
                     )}
                   />
-                </div>
-
-                {/* Sex and Civil Status */}
-                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="sex"
@@ -334,6 +330,11 @@ export default function DeathCertificateForm({
                       </FormItem>
                     )}
                   />
+                </div>
+
+                {/* Sex and Civil Status */}
+                <div className="grid grid-cols-2 gap-4">
+                  
                   <FormField
                     control={form.control}
                     name="civilStatus"
@@ -388,90 +389,89 @@ export default function DeathCertificateForm({
 
                 {/* Age at the Time of Death */}
                 <div className="flex flex-col gap-2">
-                <h1>Age at the Time of Death</h1>
-                <div className="grid grid-cols-4 gap-4">
-                  
-                  <FormField
-                    control={form.control}
-                    name="ageAtDeath.years"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Years</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            type="number"
-                            min={0}
-                            onChange={(e) =>
-                              field.onChange(parseInt(e.target.value, 10))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="ageAtDeath.months"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Months</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            type="number"
-                            min={0}
-                            onChange={(e) =>
-                              field.onChange(parseInt(e.target.value, 10))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="ageAtDeath.days"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Days</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            type="number"
-                            min={0}
-                            onChange={(e) =>
-                              field.onChange(parseInt(e.target.value, 10))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="ageAtDeath.hours"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Hours</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            type="number"
-                            min={0}
-                            onChange={(e) =>
-                              field.onChange(parseInt(e.target.value, 10))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                  <h1>Age at the Time of Death</h1>
+                  <div className="grid grid-cols-4 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="ageAtDeath.years"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Years</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="number"
+                              min={0}
+                              onChange={(e) =>
+                                field.onChange(parseInt(e.target.value, 10))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="ageAtDeath.months"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Months</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="number"
+                              min={0}
+                              onChange={(e) =>
+                                field.onChange(parseInt(e.target.value, 10))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="ageAtDeath.days"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Days</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="number"
+                              min={0}
+                              onChange={(e) =>
+                                field.onChange(parseInt(e.target.value, 10))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="ageAtDeath.hours"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Hours</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="number"
+                              min={0}
+                              onChange={(e) =>
+                                field.onChange(parseInt(e.target.value, 10))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
 
                 {/* Place of Death */}
