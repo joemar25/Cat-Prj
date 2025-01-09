@@ -1733,58 +1733,7 @@ export function MarriageCertificateForm({
                           </div>
                         </CardContent>
                       </Card>
-                      {/* ------------------------------------------------------------------------------------- */}
-                      {/* Marriage License Details */}
-                      {/* <Card className='border dark:border-border'>
-              <CardContent className='p-6'>
-                <h3 className='font-semibold text-lg mb-4'>
-                  Marriage License Details
-                </h3>
-                <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-                  <FormField
-                    control={form.control}
-                    name='marriageLicense.number'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>License Number</FormLabel>
-                        <FormControl>
-                          <Input
-                            className='h-10'
-                            placeholder='Enter license number'
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name='marriageLicense.dateIssued'
-                    render={({ field }) => (
-                      <DatePickerField field={field} label='Date Issued' />
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name='marriageLicense.placeIssued'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Place Issued</FormLabel>
-                        <FormControl>
-                          <Input
-                            className='h-10'
-                            placeholder='Enter place where license was issued'
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
-            </Card> */}
+
                       <DialogFooter>
                         <Button
                           type='button'
