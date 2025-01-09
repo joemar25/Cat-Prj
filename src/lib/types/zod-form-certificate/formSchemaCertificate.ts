@@ -108,8 +108,8 @@ export const marriageCertificateSchema = z.object({
 
   // Contracting Parties Signatures
   contractingPartiesSignature: z.object({
-    husband: z.string().optional(),
-    wife: z.string().optional(),
+    husband: z.any().nullable(),
+    wife: z.any().nullable(),
   }),
 
   // Witnesses
@@ -117,10 +117,10 @@ export const marriageCertificateSchema = z.object({
     .array(
       z.object({
         name: z.string().min(1, 'Witness name is required'),
-        signature: z.string().min(1, 'Witness signature is required'),
+        signature: z.any().nullable(), // or more specific type if you're using a particular file upload solution
       })
     )
-    .min(2, 'At least two witnesses are required'),
+    .min(2),
 
   // Receipt Information
   receivedBy: z.object({
@@ -162,8 +162,8 @@ export const defaultMarriageCertificateValues: Partial<MarriageCertificateFormVa
     executiveOrderApplied: false,
     presidentialDecreeApplied: false,
     witnesses: [
-      { name: '', signature: '' },
-      { name: '', signature: '' },
+      { name: '', signature: null },
+      { name: '', signature: null },
     ],
     solemnizingOfficer: {
       name: '',
@@ -173,8 +173,8 @@ export const defaultMarriageCertificateValues: Partial<MarriageCertificateFormVa
       expiryDate: new Date(),
     },
     contractingPartiesSignature: {
-      husband: '',
-      wife: '',
+      husband: null,
+      wife: null,
     },
     dateOfMarriage: new Date(),
   };
