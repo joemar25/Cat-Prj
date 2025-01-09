@@ -27,7 +27,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AddCertifiedCopyDialog } from './actions/add-certified-copy-dialog';
 
 interface DataTableRowActionsProps {
   row: Row<User>;
@@ -43,7 +42,6 @@ export function DataTableRowActions({
   const [isLoading, setIsLoading] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
-  const [certifiedCopyOpen, setCertifiedCopyOpen] = useState(false);
 
   // Check permissions
   const canManageUsers = hasPermission(
@@ -126,20 +124,20 @@ export function DataTableRowActions({
             </DropdownMenuItem>
           ) : (
             <>
-              <DropdownMenuItem
+              {/* <DropdownMenuItem
                 onSelect={(e) => e.preventDefault()}
                 onClick={() => setCertifiedCopyOpen(true)}
                 disabled={isLoading}
-              >
+              > 
                 <Icons.check className='mr-2 h-4 w-4' />
                 {isLoading ? 'Activating...' : 'Activate'}
-              </DropdownMenuItem>
-              <AddCertifiedCopyDialog
+              </DropdownMenuItem> */}
+              {/* <AddCertifiedCopyDialog
                 open={certifiedCopyOpen}
                 onOpenChange={setCertifiedCopyOpen}
                 user={user}
                 onUpdateAction={onUpdateAction}
-              />
+              /> */}
             </>
           )}
         </DropdownMenuContent>

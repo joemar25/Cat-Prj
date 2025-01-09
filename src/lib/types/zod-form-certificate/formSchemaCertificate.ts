@@ -155,26 +155,101 @@ export interface MarriageCertificateFormProps {
 // Default values
 export const defaultMarriageCertificateValues: Partial<MarriageCertificateFormValues> =
   {
+    registryNo: 'SAMPLE-123',
+    province: 'Sample Province',
+    cityMunicipality: 'Sample City',
+
+    husbandFirstName: 'John',
+    husbandLastName: 'Doe',
+    husbandAge: 30,
+    husbandDateOfBirth: new Date('1990-01-01'),
+    husbandPlaceOfBirth: {
+      cityMunicipality: 'Husband City',
+      province: 'Husband Province',
+      country: 'Husband Country',
+    },
     husbandSex: 'male',
+    husbandCitizenship: 'Husband Citizenship',
+    husbandResidence: 'Husband Residence',
+    husbandReligion: 'Husband Religion',
+    husbandCivilStatus: 'single',
+    husbandFatherName: {
+      first: 'Father First',
+      middle: 'Father Middle',
+      last: 'Father Last',
+    },
+    husbandFatherCitizenship: 'Father Citizenship',
+    husbandMotherMaidenName: {
+      first: 'Mother First',
+      middle: 'Mother Middle',
+      last: 'Mother Last',
+    },
+    husbandMotherCitizenship: 'Mother Citizenship',
+
+    wifeFirstName: 'Jane',
+    wifeLastName: 'Smith',
+    wifeAge: 28,
+    wifeDateOfBirth: new Date('1992-01-01'),
+    wifePlaceOfBirth: {
+      cityMunicipality: 'Wife City',
+      province: 'Wife Province',
+      country: 'Wife Country',
+    },
     wifeSex: 'female',
+    wifeCitizenship: 'Wife Citizenship',
+    wifeResidence: 'Wife Residence',
+    wifeReligion: 'Wife Religion',
+    wifeCivilStatus: 'single',
+    wifeFatherName: {
+      first: 'Wife Father First',
+      middle: 'Wife Father Middle',
+      last: 'Wife Father Last',
+    },
+    wifeFatherCitizenship: 'Wife Father Citizenship',
+    wifeMotherMaidenName: {
+      first: 'Wife Mother First',
+      middle: 'Wife Mother Middle',
+      last: 'Wife Mother Last',
+    },
+    wifeMotherCitizenship: 'Wife Mother Citizenship',
+
+    placeOfMarriage: {
+      office: 'Sample Office',
+      cityMunicipality: 'Marriage City',
+      province: 'Marriage Province',
+    },
+    dateOfMarriage: new Date('2023-06-01'),
+    timeOfMarriage: '10:00',
+
     marriageSettlement: false,
     noMarriageLicense: false,
     executiveOrderApplied: false,
     presidentialDecreeApplied: false,
-    witnesses: [
-      { name: '', signature: null },
-      { name: '', signature: null },
-    ],
+
     solemnizingOfficer: {
-      name: '',
-      position: '',
-      religion: '',
-      registryNo: '',
-      expiryDate: new Date(),
+      name: 'Officer Name',
+      position: 'Officer Position',
+      religion: 'Officer Religion',
+      registryNo: 'Officer Registry No',
+      expiryDate: new Date('2024-12-31'),
     },
-    contractingPartiesSignature: {
-      husband: null,
-      wife: null,
+
+    witnesses: [
+      { name: 'Witness One', signature: null },
+      { name: 'Witness Two', signature: null },
+    ],
+
+    receivedBy: {
+      name: 'Receiver Name',
+      position: 'Receiver Position',
+      date: new Date('2023-06-02'),
     },
-    dateOfMarriage: new Date(),
+
+    registeredBy: {
+      name: 'Registrar Name',
+      position: 'Registrar Position',
+      date: new Date('2023-06-03'),
+    },
+
+    remarks: 'Sample remarks',
   };
