@@ -41,7 +41,7 @@ import {
   marriageCertificateSchema,
 } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import DatePickerField from '../../datepickerfield/date-picker-field';
 
@@ -1795,8 +1795,8 @@ export function MarriageCertificateForm({
                           Cancel
                         </Button>
                         <Button type='submit' className='h-10 ml-2'>
-                          <Eye className='mr-2 h-4 w-4' />
-                          Preview
+                          <Save className='mr-2 h-4 w-4' />
+                          Save Registration
                         </Button>
                       </DialogFooter>
                     </form>
