@@ -25,8 +25,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import {
+  defaultMarriageCertificateValues,
   MarriageCertificateFormProps,
   MarriageCertificateFormValues,
   marriageCertificateSchema,
@@ -43,19 +45,7 @@ export function MarriageCertificateForm({
 }: MarriageCertificateFormProps) {
   const form = useForm<MarriageCertificateFormValues>({
     resolver: zodResolver(marriageCertificateSchema),
-    defaultValues: {
-      registryNo: '',
-      province: '',
-      cityMunicipality: '',
-      dateOfMarriage: new Date(),
-      witnesses: [
-        { name: '', address: '' },
-        { name: '', address: '' },
-      ],
-      husbandConsentContactNo: '',
-      husbandSex: 'male',
-      wifeSex: 'female',
-    },
+    defaultValues: defaultMarriageCertificateValues,
   });
 
   const onSubmit = async (values: MarriageCertificateFormValues) => {
@@ -1229,15 +1219,21 @@ export function MarriageCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name={`witnesses.${index}.address`}
+                        name={`witnesses.${index}.signature`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Address</FormLabel>
+                            <FormLabel>Signature</FormLabel>
                             <FormControl>
                               <Input
+                                type='file'
                                 className='h-10'
-                                placeholder='Enter complete address'
-                                {...field}
+                                accept='image/*'
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    field.onChange(file);
+                                  }
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -1369,6 +1365,252 @@ export function MarriageCertificateForm({
                             className='min-h-[100px] resize-none'
                             placeholder='Enter any additional remarks or annotations'
                             {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Marriage Settlement Details */}
+            <Card className='border dark:border-border'>
+              <CardContent className='p-6'>
+                <h3 className='font-semibold text-lg mb-4'>
+                  Marriage Settlement Details
+                </h3>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                  <FormField
+                    control={form.control}
+                    name='marriageSettlement'
+                    render={({ field }) => (
+                      <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                        <div className='space-y-0.5'>
+                          <FormLabel className='text-base'>
+                            Marriage Settlement
+                          </FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Solemnizing Officer Details */}
+            <Card className='border dark:border-border'>
+              <CardContent className='p-6'>
+                <h3 className='font-semibold text-lg mb-4'>
+                  Solemnizing Officer Details
+                </h3>
+                <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+                  <FormField
+                    control={form.control}
+                    name='solemnizingOfficer.name'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            className='h-10'
+                            placeholder='Enter solemnizing officer name'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='solemnizingOfficer.position'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Position</FormLabel>
+                        <FormControl>
+                          <Input
+                            className='h-10'
+                            placeholder='Enter position'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='solemnizingOfficer.religion'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Religion</FormLabel>
+                        <FormControl>
+                          <Input
+                            className='h-10'
+                            placeholder='Enter religion'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='solemnizingOfficer.registryNo'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Registry Number</FormLabel>
+                        <FormControl>
+                          <Input
+                            className='h-10'
+                            placeholder='Enter registry number'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='solemnizingOfficer.expiryDate'
+                    render={({ field }) => (
+                      <DatePickerField
+                        field={field}
+                        label='Registry Expiry Date'
+                      />
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Legal Documentation Details */}
+            <Card className='border dark:border-border'>
+              <CardContent className='p-6'>
+                <h3 className='font-semibold text-lg mb-4'>
+                  Legal Documentation
+                </h3>
+                <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+                  <FormField
+                    control={form.control}
+                    name='noMarriageLicense'
+                    render={({ field }) => (
+                      <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                        <div className='space-y-0.5'>
+                          <FormLabel className='text-base'>
+                            No Marriage License Required
+                          </FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='executiveOrderApplied'
+                    render={({ field }) => (
+                      <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                        <div className='space-y-0.5'>
+                          <FormLabel className='text-base'>
+                            Executive Order Applied
+                          </FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='presidentialDecreeApplied'
+                    render={({ field }) => (
+                      <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                        <div className='space-y-0.5'>
+                          <FormLabel className='text-base'>
+                            Presidential Decree Applied
+                          </FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Signatures */}
+            <Card className='border dark:border-border'>
+              <CardContent className='p-6'>
+                <h3 className='font-semibold text-lg mb-4'>
+                  Contracting Parties Signatures
+                </h3>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                  <FormField
+                    control={form.control}
+                    name='contractingPartiesSignature.husband'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Husband&apos;s Signature</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='file'
+                            className='h-10'
+                            accept='image/*'
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                // Handle file upload logic here
+                                field.onChange(file);
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='contractingPartiesSignature.wife'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Wife&apos;s Signature</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='file'
+                            className='h-10'
+                            accept='image/*'
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                // Handle file upload logic here
+                                field.onChange(file);
+                              }
+                            }}
                           />
                         </FormControl>
                         <FormMessage />

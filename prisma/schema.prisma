@@ -132,6 +132,7 @@ model MarriageCertificateForm {
   husbandDateOfBirth         DateTime        // 2a
   husbandAge                 Int             // 2b
   husbandPlaceOfBirth        Json            // 3 {cityMunicipality, province, country}
+  husbandSex                 String          // 4a
   husbandCitizenship         String          // 4b
   husbandResidence           String          // 5
   husbandReligion            String?         // 6
@@ -150,6 +151,7 @@ model MarriageCertificateForm {
   wifeDateOfBirth           DateTime
   wifeAge                   Int
   wifePlaceOfBirth          Json         // {cityMunicipality, province, country}
+  wifeSex                    String          // 4a
   wifeCitizenship           String
   wifeResidence             String
   wifeReligion              String?
@@ -185,7 +187,7 @@ model MarriageCertificateForm {
   solemnizingOfficerSignature String?
 
   // 20a Witnesses
-  witnesses                 Json[]       // Array of {name, address}
+  witnesses                 Json[]       // Array of { name: string, signature: string }
 
   @@map("marriage_certificate_form")
   @@index([husbandLastName, husbandFirstName])
