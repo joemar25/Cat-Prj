@@ -16,13 +16,7 @@ import { BirthAnnotationForm } from '../../forms/annotations/birth-annotation-fo
 import DeathAnnotationForm from '../../forms/annotations/death-annotation-form';
 import MarriageAnnotationForm from '../../forms/annotations/marriage-annotation-form';
 import MarriageCertificateForm from '../../forms/certificates/marriage-certificate-form';
-
-// import { BirthRegistrationForm } from './birth-registration-form';
-// import { DeathCertificateForm } from './death-certificate-form';
-// import { DeathRegistrationForm } from './death-registration-form';
-// import { LiveBirthCertificateForm } from './live-birth-certificate-form';
-// import { MarriageCertificateForm } from './marriage-certificate-form';
-// import { MarriageRegistrationForm } from './marriage-registration-form';
+import BirthCertificateForm from '../../forms/certificates/birth-certificate-form';
 
 export function FormDialog() {
   const [open, setOpen] = useState(false);
@@ -30,10 +24,7 @@ export function FormDialog() {
   const [deathFormOpen, setDeathFormOpen] = useState(false);
   const [marriageFormOpen, setMarriageFormOpen] = useState(false);
   const [marriageCertificateOpen, setMarriageCertificateOpen] = useState(false);
-  // const [deathCertificateOpen, setDeathCertificateOpen] = useState(false);
-  //   const [marriageCertificateOpen, setMarriageCertificateOpen] = useState(false);
-  // const [birthCertificateFormOpen, setBirthCertificateFormOpen] =
-  //   useState(false);
+  const [birthCertificateFormOpen, setBirthCertificateFormOpen] = useState(false);
 
   const handleFormSelect = (formType: string) => {
     setOpen(false);
@@ -48,13 +39,13 @@ export function FormDialog() {
         setMarriageFormOpen(true);
         break;
       case 'death-certificate':
-        // setDeathCertificateOpen(true);
+        // Handle death certificate form
         break;
       case 'marriage-certificate':
         setMarriageCertificateOpen(true);
         break;
       case 'live-birth-certificate':
-        // setBirthCertificateFormOpen(true);
+        setBirthCertificateFormOpen(true);
         break;
       default:
         break;
@@ -190,7 +181,6 @@ export function FormDialog() {
         }}
       />
 
-      {/* Death Annotation Form */}
       <DeathAnnotationForm
         open={deathFormOpen}
         onOpenChange={setDeathFormOpen}
@@ -214,6 +204,15 @@ export function FormDialog() {
         onOpenChange={setMarriageCertificateOpen}
         onCancel={() => {
           setMarriageCertificateOpen(false);
+          setTimeout(() => setOpen(true), 0);
+        }}
+      />
+
+      <BirthCertificateForm
+        open={birthCertificateFormOpen}
+        onOpenChange={setBirthCertificateFormOpen}
+        onCancel={() => {
+          setBirthCertificateFormOpen(false);
           setTimeout(() => setOpen(true), 0);
         }}
       />
