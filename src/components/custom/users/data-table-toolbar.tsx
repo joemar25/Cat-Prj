@@ -1,50 +1,49 @@
-'use client';
+'use client'
 
-import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter';
-import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options';
-import { Button } from '@/components/ui/button';
-import { Icons } from '@/components/ui/icons';
-import { Input } from '@/components/ui/input';
-import { User, UserRole } from '@prisma/client';
-import { Cross2Icon } from '@radix-ui/react-icons';
-import { Table } from '@tanstack/react-table';
-import { useCallback } from 'react';
-import { FormDialog } from './actions/add-form-dialog';
+import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
+import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
+import { Button } from '@/components/ui/button'
+import { Icons } from '@/components/ui/icons'
+import { Input } from '@/components/ui/input'
+import { User, UserRole } from '@prisma/client'
+import { Cross2Icon } from '@radix-ui/react-icons'
+import { Table } from '@tanstack/react-table'
+import { useCallback } from 'react'
 
 interface DataTableToolbarProps<TData extends User> {
-  table: Table<TData>;
+  table: Table<TData>
 }
 
 const userRoles = [
   { label: 'Administrator', value: UserRole.ADMIN },
   { label: 'Staff', value: UserRole.STAFF },
   { label: 'User', value: UserRole.USER },
-];
+]
 
 const verificationStatus = [
   { label: 'Verified', value: 'true' },
   { label: 'Unverified', value: 'false' },
-];
+]
 
 export function DataTableToolbar<TData extends User>({
   table,
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const isFiltered = table.getState().columnFilters.length > 0
 
-  const nameColumn = table.getColumn('name');
-  const roleColumn = table.getColumn('role');
-  const statusColumn = table.getColumn('emailVerified');
+  const nameColumn = table.getColumn('name')
+  const roleColumn = table.getColumn('role')
+  const statusColumn = table.getColumn('emailVerified')
 
   const handleSearch = useCallback(
     (value: string) => {
-      nameColumn?.setFilterValue(value);
+      nameColumn?.setFilterValue(value)
     },
     [nameColumn]
-  );
+  )
 
   const handleExport = () => {
-    console.log('Export functionality to be implemented');
-  };
+    console.log('Export functionality to be implemented')
+  }
 
   return (
     <div className='flex items-center justify-between'>
@@ -106,15 +105,13 @@ export function DataTableToolbar<TData extends User>({
         </Button>
         {/* <AddUserDialog
           onSuccess={() => {
-            table.resetColumnFilters();
-            table.resetSorting();
+            table.resetColumnFilters()
+            table.resetSorting()
           }}
         /> */}
-
-        <FormDialog />
 
         <DataTableViewOptions table={table} />
       </div>
     </div>
-  );
+  )
 }

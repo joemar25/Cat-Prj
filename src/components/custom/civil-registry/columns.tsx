@@ -4,12 +4,12 @@
 import { Badge } from '@/components/ui/badge'
 import { formatDistanceToNow } from 'date-fns'
 import { ColumnDef } from '@tanstack/react-table'
-import { CivilRegistryForm, FormType, User } from '@prisma/client'
+import { BaseRegistryForm, FormType, User } from '@prisma/client'
 import { DataTableRowActions } from './data-table-row-actions'
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
 
 // Define the type for the form with included relations
-type CivilRegistryFormWithRelations = CivilRegistryForm & {
+type CivilRegistryFormWithRelations = BaseRegistryForm & {
     preparedBy: User | null
     verifiedBy: User | null
 }

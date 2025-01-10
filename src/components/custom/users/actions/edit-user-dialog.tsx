@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -15,46 +15,46 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Icons } from '@/components/ui/icons';
-import { Input } from '@/components/ui/input';
+} from '@/components/ui/form'
+import { Icons } from '@/components/ui/icons'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   handleUpdateUser,
   handleUpdateUserProfile,
-} from '@/hooks/users-action';
-import { EditUserFormData, editUserFormSchema } from '@/lib/zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { User } from '@prisma/client';
-import { useEffect, useTransition } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+} from '@/hooks/users-action'
+import { EditUserFormData, editUserFormSchema } from '@/lib/zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { User } from '@prisma/client'
+import { useEffect, useTransition } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 interface EditUserDialogProps {
   user: User & {
     profile?: {
-      dateOfBirth?: Date | null;
-      phoneNumber?: string | null;
-      address?: string | null;
-      city?: string | null;
-      state?: string | null;
-      country?: string | null;
-      postalCode?: string | null;
-      bio?: string | null;
-      occupation?: string | null;
-      gender?: 'male' | 'female' | 'other' | null;
-      nationality?: string | null;
-    } | null;
-  };
-  open: boolean;
-  onOpenChangeAction: (open: boolean) => void;
-  onSave?: (user: User) => void;
+      dateOfBirth?: Date | null
+      phoneNumber?: string | null
+      address?: string | null
+      city?: string | null
+      state?: string | null
+      country?: string | null
+      postalCode?: string | null
+      bio?: string | null
+      occupation?: string | null
+      gender?: 'male' | 'female' | 'other' | null
+      nationality?: string | null
+    } | null
+  }
+  open: boolean
+  onOpenChangeAction: (open: boolean) => void
+  onSave?: (user: User) => void
 }
 
 export function EditUserDialog({
@@ -63,7 +63,7 @@ export function EditUserDialog({
   onOpenChangeAction,
   onSave,
 }: EditUserDialogProps) {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition()
 
   const form = useForm<EditUserFormData>({
     resolver: zodResolver(editUserFormSchema),
@@ -82,12 +82,12 @@ export function EditUserDialog({
       gender: undefined,
       nationality: undefined,
     },
-  });
+  })
 
   // Reset form values when `user` changes or dialog is opened
   useEffect(() => {
     if (open && user) {
-      console.log('User data: ssssssssssssssssssssssssss', user);
+      console.log('User data: ssssssssssssssssssssssssss', user)
 
       form.reset({
         name: user.name || '',
@@ -104,9 +104,9 @@ export function EditUserDialog({
         occupation: user.profile?.occupation || '',
         gender: user.profile?.gender || null,
         nationality: user.profile?.nationality || '',
-      });
+      })
     }
-  }, [user, open, form]);
+  }, [user, open, form])
 
   const onSubmit = async (data: EditUserFormData) => {
     startTransition(async () => {
@@ -114,14 +114,14 @@ export function EditUserDialog({
         const userData = {
           name: data.name,
           email: data.email,
-        };
+        }
 
-        console.log('Submitting user data:', userData); // Debug user data
-        const userResult = await handleUpdateUser(user.id, userData);
+        console.log('Submitting user data:', userData) // Debug user data
+        const userResult = await handleUpdateUser(user.id, userData)
 
         if (!userResult.success || !userResult.data) {
-          toast.error(userResult.message || 'Failed to update user');
-          return;
+          toast.error(userResult.message || 'Failed to update user')
+          return
         }
 
         const profileData = {
@@ -136,27 +136,27 @@ export function EditUserDialog({
           occupation: data.occupation || null,
           gender: data.gender || null,
           nationality: data.nationality || null,
-        };
+        }
 
-        console.log('Submitting profile data:', profileData); // Debug profile data
+        console.log('Submitting profile data:', profileData) // Debug profile data
         const profileResult = await handleUpdateUserProfile(
           user.id,
           profileData
-        );
+        )
 
         if (!profileResult.success) {
-          toast.error(profileResult.message || 'Failed to update profile');
-          return;
+          toast.error(profileResult.message || 'Failed to update profile')
+          return
         }
 
-        onOpenChangeAction(false);
-        onSave?.(userResult.data);
+        onOpenChangeAction(false)
+        onSave?.(userResult.data)
       } catch (error) {
-        console.error('Error updating user:', error);
-        toast.error('An unexpected error occurred');
+        console.error('Error updating user:', error)
+        toast.error('An unexpected error occurred')
       }
-    });
-  };
+    })
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
@@ -457,5 +457,5 @@ export function EditUserDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

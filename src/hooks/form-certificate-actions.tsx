@@ -1,12 +1,13 @@
-'use server';
+// src\hooks\form-certificate-actions.tsx
+'use server'
 
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'
 import {
   BirthCertificateFormValues,
   DeathCertificateFormValues,
   MarriageCertificateFormValues,
-} from '@/lib/types/zod-form-certificate/formSchemaCertificate';
-import { revalidatePath } from 'next/cache';
+} from '@/lib/types/zod-form-certificate/formSchemaCertificate'
+import { revalidatePath } from 'next/cache'
 
 export async function createMarriageCertificate(
   data: MarriageCertificateFormValues
@@ -108,13 +109,13 @@ export async function createMarriageCertificate(
           },
         },
       },
-    });
+    })
 
-    revalidatePath('/marriage-certificates');
-    return { success: true, data: baseForm };
+    revalidatePath('/marriage-certificates')
+    return { success: true, data: baseForm }
   } catch (error) {
-    console.error('Error creating marriage certificate:', error);
-    return { success: false, error: 'Failed to create marriage certificate' };
+    console.error('Error creating marriage certificate:', error)
+    return { success: false, error: 'Failed to create marriage certificate' }
   }
 }
 
@@ -218,21 +219,21 @@ export async function createDeathCertificate(data: DeathCertificateFormValues) {
             // Burial Permit
             burialPermit: data.disposal.burialPermit.number
               ? {
-                  number: data.disposal.burialPermit.number,
-                  date: data.disposal.burialPermit.dateIssued.toISOString(), // Convert Date to string
-                  cemetery: data.cemeteryAddress,
-                }
+                number: data.disposal.burialPermit.number,
+                date: data.disposal.burialPermit.dateIssued.toISOString(), // Convert Date to string
+                cemetery: data.cemeteryAddress,
+              }
               : undefined, // Use undefined instead of null
           },
         },
       },
-    });
+    })
 
-    revalidatePath('/users/admin'); // Adjust based on your route
-    return { success: true, data: baseForm };
+    revalidatePath('/users/admin') // Adjust based on your route
+    return { success: true, data: baseForm }
   } catch (error) {
-    console.error('Error creating death certificate:', error);
-    return { success: false, error: 'Failed to create death certificate' };
+    console.error('Error creating death certificate:', error)
+    return { success: false, error: 'Failed to create death certificate' }
   }
 }
 
@@ -328,12 +329,12 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
         // Set dateOfRegistration to current date
         dateOfRegistration: new Date(),
       },
-    });
+    })
 
-    revalidatePath('/birth-certificates');
-    return { success: true, data: baseForm };
+    revalidatePath('/birth-certificates')
+    return { success: true, data: baseForm }
   } catch (error) {
-    console.error('Error creating birth certificate:', error);
-    return { success: false, error: 'Failed to create birth certificate' };
+    console.error('Error creating birth certificate:', error)
+    return { success: false, error: 'Failed to create birth certificate' }
   }
 }
