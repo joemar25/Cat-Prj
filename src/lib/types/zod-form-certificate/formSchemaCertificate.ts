@@ -1,17 +1,18 @@
-import { z } from 'zod';
+// src\lib\types\zod-form-certificate\formSchemaCertificate.ts
+import { z } from 'zod'
 
 // Sub-schemas
 const nameSchema = z.object({
   first: z.string().min(1, 'First name is required'),
   middle: z.string().optional(),
   last: z.string().min(1, 'Last name is required'),
-});
+})
 
 const placeOfBirthSchema = z.object({
   cityMunicipality: z.string().min(1, 'City/Municipality is required'),
   province: z.string().min(1, 'Province is required'),
   country: z.string().min(1, 'Country is required'),
-});
+})
 
 // Main schema
 export const marriageCertificateSchema = z.object({
@@ -129,145 +130,145 @@ export const marriageCertificateSchema = z.object({
       placeIssued: z.string().min(1, 'Place issued is required'),
     })
     .optional(),
-});
+})
 // Type inference
 export type MarriageCertificateFormValues = z.infer<
   typeof marriageCertificateSchema
->;
+>
 
 // Realistic default values
 export const defaultMarriageCertificateValues: Partial<MarriageCertificateFormValues> =
-  {
-    registryNo: '2024-0001',
-    province: 'Bulacan',
+{
+  registryNo: '2024-0001',
+  province: 'Bulacan',
+  cityMunicipality: 'Malolos',
+
+  husbandFirstName: 'Juan Miguel',
+  husbandMiddleName: 'Santos',
+  husbandLastName: 'Dela Cruz',
+  husbandAge: 28,
+  husbandDateOfBirth: new Date('1995-06-15'),
+  husbandPlaceOfBirth: {
+    cityMunicipality: 'Quezon City',
+    province: 'Metro Manila',
+    country: 'Philippines',
+  },
+  husbandSex: 'male',
+  husbandCitizenship: 'Filipino',
+  husbandResidence: '123 Sampaguita Street, Brgy. San Jose, Malolos, Bulacan',
+  husbandReligion: 'Roman Catholic',
+  husbandCivilStatus: 'single',
+
+  husbandFatherName: {
+    first: 'Roberto',
+    middle: 'Manuel',
+    last: 'Dela Cruz',
+  },
+  husbandFatherCitizenship: 'Filipino',
+  husbandMotherMaidenName: {
+    first: 'Maria',
+    middle: 'Reyes',
+    last: 'Santos',
+  },
+  husbandMotherCitizenship: 'Filipino',
+
+  wifeFirstName: 'Maria Clara',
+  wifeMiddleName: 'Rodriguez',
+  wifeLastName: 'Reyes',
+  wifeAge: 26,
+  wifeDateOfBirth: new Date('1997-09-23'),
+  wifePlaceOfBirth: {
     cityMunicipality: 'Malolos',
+    province: 'Bulacan',
+    country: 'Philippines',
+  },
+  wifeSex: 'female',
+  wifeCitizenship: 'Filipino',
+  wifeResidence:
+    '456 Ilang-Ilang Street, Brgy. Santa Isabel, Malolos, Bulacan',
+  wifeReligion: 'Roman Catholic',
+  wifeCivilStatus: 'single',
 
-    husbandFirstName: 'Juan Miguel',
-    husbandMiddleName: 'Santos',
-    husbandLastName: 'Dela Cruz',
-    husbandAge: 28,
-    husbandDateOfBirth: new Date('1995-06-15'),
-    husbandPlaceOfBirth: {
-      cityMunicipality: 'Quezon City',
-      province: 'Metro Manila',
-      country: 'Philippines',
-    },
-    husbandSex: 'male',
-    husbandCitizenship: 'Filipino',
-    husbandResidence: '123 Sampaguita Street, Brgy. San Jose, Malolos, Bulacan',
-    husbandReligion: 'Roman Catholic',
-    husbandCivilStatus: 'single',
+  wifeFatherName: {
+    first: 'Antonio',
+    middle: 'Garcia',
+    last: 'Reyes',
+  },
+  wifeFatherCitizenship: 'Filipino',
+  wifeMotherMaidenName: {
+    first: 'Teresa',
+    middle: 'Santos',
+    last: 'Rodriguez',
+  },
+  wifeMotherCitizenship: 'Filipino',
 
-    husbandFatherName: {
-      first: 'Roberto',
-      middle: 'Manuel',
-      last: 'Dela Cruz',
-    },
-    husbandFatherCitizenship: 'Filipino',
-    husbandMotherMaidenName: {
-      first: 'Maria',
-      middle: 'Reyes',
-      last: 'Santos',
-    },
-    husbandMotherCitizenship: 'Filipino',
+  placeOfMarriage: {
+    office:
+      'Malolos Cathedral (Minor Basilica and Cathedral of the Immaculate Conception)',
+    cityMunicipality: 'Malolos',
+    province: 'Bulacan',
+  },
+  dateOfMarriage: new Date('2024-02-14'),
+  timeOfMarriage: '10:30',
 
-    wifeFirstName: 'Maria Clara',
-    wifeMiddleName: 'Rodriguez',
-    wifeLastName: 'Reyes',
-    wifeAge: 26,
-    wifeDateOfBirth: new Date('1997-09-23'),
-    wifePlaceOfBirth: {
-      cityMunicipality: 'Malolos',
-      province: 'Bulacan',
-      country: 'Philippines',
-    },
-    wifeSex: 'female',
-    wifeCitizenship: 'Filipino',
-    wifeResidence:
-      '456 Ilang-Ilang Street, Brgy. Santa Isabel, Malolos, Bulacan',
-    wifeReligion: 'Roman Catholic',
-    wifeCivilStatus: 'single',
+  // Husband's Side Consent Information
+  husbandConsentGivenBy: {
+    first: 'Roberto',
+    middle: 'Manuel',
+    last: 'Dela Cruz',
+  },
+  husbandConsentRelationship: 'father',
+  husbandConsentResidence:
+    '123 Sampaguita Street, Brgy. San Jose, Malolos, Bulacan',
 
-    wifeFatherName: {
-      first: 'Antonio',
-      middle: 'Garcia',
-      last: 'Reyes',
-    },
-    wifeFatherCitizenship: 'Filipino',
-    wifeMotherMaidenName: {
-      first: 'Teresa',
-      middle: 'Santos',
-      last: 'Rodriguez',
-    },
-    wifeMotherCitizenship: 'Filipino',
+  // Wife's Side Consent Information
+  wifeConsentGivenBy: {
+    first: 'Antonio',
+    middle: 'Garcia',
+    last: 'Reyes',
+  },
+  wifeConsentRelationship: 'father',
+  wifeConsentResidence:
+    '456 Ilang-Ilang Street, Brgy. Santa Isabel, Malolos, Bulacan',
 
-    placeOfMarriage: {
-      office:
-        'Malolos Cathedral (Minor Basilica and Cathedral of the Immaculate Conception)',
-      cityMunicipality: 'Malolos',
-      province: 'Bulacan',
+  // Additional required fields
+  marriageSettlement: false,
+  noMarriageLicense: false,
+  executiveOrderApplied: false,
+  presidentialDecreeApplied: false,
+  witnesses: [
+    {
+      name: 'Juan dela Torre',
+      signature: '',
     },
-    dateOfMarriage: new Date('2024-02-14'),
-    timeOfMarriage: '10:30',
-
-    // Husband's Side Consent Information
-    husbandConsentGivenBy: {
-      first: 'Roberto',
-      middle: 'Manuel',
-      last: 'Dela Cruz',
+    {
+      name: 'Maria Santos',
+      signature: '',
     },
-    husbandConsentRelationship: 'father',
-    husbandConsentResidence:
-      '123 Sampaguita Street, Brgy. San Jose, Malolos, Bulacan',
-
-    // Wife's Side Consent Information
-    wifeConsentGivenBy: {
-      first: 'Antonio',
-      middle: 'Garcia',
-      last: 'Reyes',
-    },
-    wifeConsentRelationship: 'father',
-    wifeConsentResidence:
-      '456 Ilang-Ilang Street, Brgy. Santa Isabel, Malolos, Bulacan',
-
-    // Additional required fields
-    marriageSettlement: false,
-    noMarriageLicense: false,
-    executiveOrderApplied: false,
-    presidentialDecreeApplied: false,
-    witnesses: [
-      {
-        name: 'Juan dela Torre',
-        signature: '',
-      },
-      {
-        name: 'Maria Santos',
-        signature: '',
-      },
-    ],
-    solemnizingOfficer: {
-      name: 'Rev. Fr. Jose Santos',
-      position: 'Parish Priest',
-      religion: 'Roman Catholic',
-      registryNoExpiryDate: '2025-12-31',
-    },
-    contractingPartiesSignature: {
-      husband: '',
-      wife: '',
-    },
-    solemnizingOfficerSignature: '',
-    marriageLicenseDetails: {
-      number: '2024-001',
-      dateIssued: new Date('2024-01-14').toISOString(), // 30 days before marriage
-      placeIssued: 'Malolos City Civil Registry',
-    },
-  };
+  ],
+  solemnizingOfficer: {
+    name: 'Rev. Fr. Jose Santos',
+    position: 'Parish Priest',
+    religion: 'Roman Catholic',
+    registryNoExpiryDate: '2025-12-31',
+  },
+  contractingPartiesSignature: {
+    husband: '',
+    wife: '',
+  },
+  solemnizingOfficerSignature: '',
+  marriageLicenseDetails: {
+    number: '2024-001',
+    dateIssued: new Date('2024-01-14').toISOString(), // 30 days before marriage
+    placeIssued: 'Malolos City Civil Registry',
+  },
+}
 
 // Props interface
 export interface MarriageCertificateFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onCancel: () => void
 }
 // ------------------------------------- Death Certificate Schema --------------------//////
 
@@ -403,141 +404,141 @@ export const deathCertificateSchema = z.object({
   }),
 
   remarks: z.string().optional(),
-});
+})
 
 // Type inference
-export type DeathCertificateFormValues = z.infer<typeof deathCertificateSchema>;
+export type DeathCertificateFormValues = z.infer<typeof deathCertificateSchema>
 export const defaultDeathCertificateValues: Partial<DeathCertificateFormValues> =
-  {
-    // Registry Information
-    registryNumber: '2024-0002',
-    province: 'Bulacan',
-    cityMunicipality: 'Malolos',
+{
+  // Registry Information
+  registryNumber: '2024-0002',
+  province: 'Bulacan',
+  cityMunicipality: 'Malolos',
 
-    // Personal Information
-    name: {
-      first: 'Ricardo',
-      middle: 'Santos',
-      last: 'Dela Cruz',
-    },
-    sex: 'Male',
-    dateOfDeath: new Date('2024-01-15'),
-    dateOfBirth: new Date('1950-06-20'),
-    timeOfDeath: {
-      hour: '08',
-      minute: '30',
-    },
-    ageAtDeath: {
-      years: 73,
-      months: 6,
-      days: 25,
-      hours: 8,
-    },
-    placeOfDeath: 'Bulacan Medical Center, Malolos City',
-    civilStatus: 'Married',
-    religion: 'Roman Catholic',
-    citizenship: 'Filipino',
-    residence: '123 Rizal Street, Brgy. Tikay, Malolos, Bulacan',
-    occupation: 'Retired Teacher',
+  // Personal Information
+  name: {
+    first: 'Ricardo',
+    middle: 'Santos',
+    last: 'Dela Cruz',
+  },
+  sex: 'Male',
+  dateOfDeath: new Date('2024-01-15'),
+  dateOfBirth: new Date('1950-06-20'),
+  timeOfDeath: {
+    hour: '08',
+    minute: '30',
+  },
+  ageAtDeath: {
+    years: 73,
+    months: 6,
+    days: 25,
+    hours: 8,
+  },
+  placeOfDeath: 'Bulacan Medical Center, Malolos City',
+  civilStatus: 'Married',
+  religion: 'Roman Catholic',
+  citizenship: 'Filipino',
+  residence: '123 Rizal Street, Brgy. Tikay, Malolos, Bulacan',
+  occupation: 'Retired Teacher',
 
-    // Family Information
-    fatherName: {
-      first: 'Roberto',
-      middle: 'Martinez',
-      last: 'Dela Cruz',
-    },
-    motherMaidenName: {
-      first: 'Maria',
-      middle: 'Reyes',
-      last: 'Santos',
-    },
+  // Family Information
+  fatherName: {
+    first: 'Roberto',
+    middle: 'Martinez',
+    last: 'Dela Cruz',
+  },
+  motherMaidenName: {
+    first: 'Maria',
+    middle: 'Reyes',
+    last: 'Santos',
+  },
 
-    // Medical Certificate
-    causesOfDeath: {
-      immediate: 'Acute Myocardial Infarction',
-      antecedent: 'Coronary Artery Disease',
-      underlying: 'Hypertension',
-      contributingConditions: 'Diabetes Mellitus Type 2',
+  // Medical Certificate
+  causesOfDeath: {
+    immediate: 'Acute Myocardial Infarction',
+    antecedent: 'Coronary Artery Disease',
+    underlying: 'Hypertension',
+    contributingConditions: 'Diabetes Mellitus Type 2',
+  },
+  maternalCondition: 'none',
+  deathByExternalCauses: {
+    mannerOfDeath: 'Natural',
+    placeOfOccurrence: 'Hospital',
+  },
+  attendant: {
+    type: 'Hospital Authority',
+    duration: {
+      from: new Date('2024-01-14'),
+      to: new Date('2024-01-15'),
     },
-    maternalCondition: 'none',
-    deathByExternalCauses: {
-      mannerOfDeath: 'Natural',
-      placeOfOccurrence: 'Hospital',
-    },
-    attendant: {
-      type: 'Hospital Authority',
-      duration: {
-        from: new Date('2024-01-14'),
-        to: new Date('2024-01-15'),
-      },
-    },
+  },
 
-    // Certification
-    certification: {
-      hasAttended: true,
-      deathDateTime: '2024-01-15T08:30',
-      signature: '',
-      nameInPrint: 'Dr. Juan Perez',
-      titleOfPosition: 'Attending Physician',
-      address: 'Bulacan Medical Center, Malolos City',
-      date: new Date('2024-01-15'),
-    },
+  // Certification
+  certification: {
+    hasAttended: true,
+    deathDateTime: '2024-01-15T08:30',
+    signature: '',
+    nameInPrint: 'Dr. Juan Perez',
+    titleOfPosition: 'Attending Physician',
+    address: 'Bulacan Medical Center, Malolos City',
+    date: new Date('2024-01-15'),
+  },
 
-    // Disposal Information
-    disposal: {
-      method: 'Burial',
-      burialPermit: {
-        number: 'BP-2024-0015',
-        dateIssued: new Date('2024-01-16'),
-      },
-      transferPermit: {
-        number: 'N/A',
-        dateIssued: new Date('2024-01-16'),
-      },
+  // Disposal Information
+  disposal: {
+    method: 'Burial',
+    burialPermit: {
+      number: 'BP-2024-0015',
+      dateIssued: new Date('2024-01-16'),
     },
-    cemeteryAddress: 'Malolos Catholic Cemetery, Malolos City, Bulacan',
-
-    // Informant Information
-    informant: {
-      signature: '',
-      nameInPrint: 'Maria Elena Dela Cruz',
-      relationshipToDeceased: 'Spouse',
-      address: '123 Rizal Street, Brgy. Tikay, Malolos, Bulacan',
-      date: new Date('2024-01-15'),
+    transferPermit: {
+      number: 'N/A',
+      dateIssued: new Date('2024-01-16'),
     },
+  },
+  cemeteryAddress: 'Malolos Catholic Cemetery, Malolos City, Bulacan',
 
-    // Administrative Details
-    preparedBy: {
-      signature: '',
-      nameInPrint: 'Ana Santos',
-      titleOrPosition: 'Civil Registry Staff',
-      date: new Date('2024-01-15'),
-    },
+  // Informant Information
+  informant: {
+    signature: '',
+    nameInPrint: 'Maria Elena Dela Cruz',
+    relationshipToDeceased: 'Spouse',
+    address: '123 Rizal Street, Brgy. Tikay, Malolos, Bulacan',
+    date: new Date('2024-01-15'),
+  },
 
-    // Received By
-    receivedBy: {
-      signature: '',
-      nameInPrint: 'Pedro Reyes',
-      titleOrPosition: 'Registration Officer',
-      date: new Date('2024-01-15'),
-    },
+  // Administrative Details
+  preparedBy: {
+    signature: '',
+    nameInPrint: 'Ana Santos',
+    titleOrPosition: 'Civil Registry Staff',
+    date: new Date('2024-01-15'),
+  },
 
-    // Civil Registrar Details
-    registeredAtCivilRegistrar: {
-      signature: '',
-      nameInPrint: 'Maria Clara Torres',
-      titleOrPosition: 'Civil Registrar',
-      date: new Date('2024-01-15'),
-    },
+  // Received By
+  receivedBy: {
+    signature: '',
+    nameInPrint: 'Pedro Reyes',
+    titleOrPosition: 'Registration Officer',
+    date: new Date('2024-01-15'),
+  },
 
-    remarks: '',
-  };
+  // Civil Registrar Details
+  registeredAtCivilRegistrar: {
+    signature: '',
+    nameInPrint: 'Maria Clara Torres',
+    titleOrPosition: 'Civil Registrar',
+    date: new Date('2024-01-15'),
+  },
+
+  remarks: '',
+}
 
 export interface DeathCertificateFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
-  onSubmit?: (data: DeathCertificateFormValues) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onCancel: () => void
+  onSubmit?: (data: DeathCertificateFormValues) => void
 }
 
 // --------------------------------- Birth Certificate Schema --------------------------//
@@ -658,127 +659,127 @@ export const birthCertificateSchema = z.object({
   }),
 
   remarks: z.string().optional(),
-});
+})
 
 // Type inference
-export type BirthCertificateFormValues = z.infer<typeof birthCertificateSchema>;
+export type BirthCertificateFormValues = z.infer<typeof birthCertificateSchema>
 
 // Default data for the birth certificate form
 export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> =
-  {
-    registryNo: '2024-0003',
-    province: 'Bulacan',
-    cityMunicipality: 'Malolos',
+{
+  registryNo: '2024-0003',
+  province: 'Bulacan',
+  cityMunicipality: 'Malolos',
 
-    childInfo: {
-      firstName: 'Juan',
-      middleName: 'Santos',
-      lastName: 'Dela Cruz',
-      sex: 'Male',
-      dateOfBirth: {
-        day: '15',
-        month: '6',
-        year: '2024',
-      },
-      placeOfBirth: {
-        hospital: 'Bulacan Medical Center',
-        cityMunicipality: 'Malolos',
-        province: 'Bulacan',
-      },
-      typeOfBirth: 'Single',
-      birthOrder: '1',
-      weight: '3.2',
+  childInfo: {
+    firstName: 'Juan',
+    middleName: 'Santos',
+    lastName: 'Dela Cruz',
+    sex: 'Male',
+    dateOfBirth: {
+      day: '15',
+      month: '6',
+      year: '2024',
     },
-
-    motherInfo: {
-      firstName: 'Maria',
-      middleName: 'Garcia',
-      lastName: 'Santos',
-      citizenship: 'Filipino',
-      religion: 'Roman Catholic',
-      totalChildren: '2',
-      livingChildren: '2',
-      childrenDead: '0',
-      occupation: 'Teacher',
-      age: '28',
-      residence: {
-        address: '123 Main St., Brgy. Mojon',
-        cityMunicipality: 'Malolos',
-        province: 'Bulacan',
-        country: 'Philippines',
-      },
+    placeOfBirth: {
+      hospital: 'Bulacan Medical Center',
+      cityMunicipality: 'Malolos',
+      province: 'Bulacan',
     },
+    typeOfBirth: 'Single',
+    birthOrder: '1',
+    weight: '3.2',
+  },
 
-    fatherInfo: {
-      firstName: 'Juan',
-      middleName: 'Reyes',
-      lastName: 'Dela Cruz',
-      citizenship: 'Filipino',
-      religion: 'Roman Catholic',
-      occupation: 'Engineer',
-      age: '30',
-      residence: {
-        address: '123 Main St., Brgy. Mojon',
-        cityMunicipality: 'Malolos',
-        province: 'Bulacan',
-        country: 'Philippines',
-      },
+  motherInfo: {
+    firstName: 'Maria',
+    middleName: 'Garcia',
+    lastName: 'Santos',
+    citizenship: 'Filipino',
+    religion: 'Roman Catholic',
+    totalChildren: '2',
+    livingChildren: '2',
+    childrenDead: '0',
+    occupation: 'Teacher',
+    age: '28',
+    residence: {
+      address: '123 Main St., Brgy. Mojon',
+      cityMunicipality: 'Malolos',
+      province: 'Bulacan',
+      country: 'Philippines',
     },
+  },
 
-    marriageOfParents: {
-      date: {
-        month: '12',
-        day: '25',
-        year: '2020',
-      },
-      place: {
-        cityMunicipality: 'Malolos',
-        province: 'Bulacan',
-        country: 'Philippines',
-      },
+  fatherInfo: {
+    firstName: 'Juan',
+    middleName: 'Reyes',
+    lastName: 'Dela Cruz',
+    citizenship: 'Filipino',
+    religion: 'Roman Catholic',
+    occupation: 'Engineer',
+    age: '30',
+    residence: {
+      address: '123 Main St., Brgy. Mojon',
+      cityMunicipality: 'Malolos',
+      province: 'Bulacan',
+      country: 'Philippines',
     },
+  },
 
-    attendant: {
-      type: 'Physician',
-      certification: {
-        time: '10:30',
-        name: 'Dr. John Smith',
-        title: 'Obstetrician',
-        address: 'Bulacan Medical Center',
-        date: '2024-06-15',
-      },
+  marriageOfParents: {
+    date: {
+      month: '12',
+      day: '25',
+      year: '2020',
     },
+    place: {
+      cityMunicipality: 'Malolos',
+      province: 'Bulacan',
+      country: 'Philippines',
+    },
+  },
 
-    informant: {
-      name: 'Maria Santos Dela Cruz',
-      relationship: 'Mother',
-      address: '123 Main St., Brgy. Mojon, Malolos, Bulacan',
+  attendant: {
+    type: 'Physician',
+    certification: {
+      time: '10:30',
+      name: 'Dr. John Smith',
+      title: 'Obstetrician',
+      address: 'Bulacan Medical Center',
       date: '2024-06-15',
     },
+  },
 
-    preparedBy: {
-      name: 'Jane Doe',
-      title: 'Clerk',
-      date: '2024-06-15',
-    },
+  informant: {
+    name: 'Maria Santos Dela Cruz',
+    relationship: 'Mother',
+    address: '123 Main St., Brgy. Mojon, Malolos, Bulacan',
+    date: '2024-06-15',
+  },
 
-    receivedBy: {
-      name: 'John Doe',
-      title: 'Registrar',
-      date: '2024-06-15',
-    },
+  preparedBy: {
+    name: 'Jane Doe',
+    title: 'Clerk',
+    date: '2024-06-15',
+  },
 
-    registeredBy: {
-      name: 'Mary Smith',
-      title: 'Civil Registrar',
-      date: '2024-06-15',
-    },
+  receivedBy: {
+    name: 'John Doe',
+    title: 'Registrar',
+    date: '2024-06-15',
+  },
 
-    remarks: '',
-  };
+  registeredBy: {
+    name: 'Mary Smith',
+    title: 'Civil Registrar',
+    date: '2024-06-15',
+  },
+
+  remarks: '',
+}
 
 export interface BirthCertificateFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onCancel: () => void
 }
