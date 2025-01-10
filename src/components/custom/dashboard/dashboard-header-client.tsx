@@ -43,7 +43,7 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
     }
 
     return (
-        <header className='flex h-16 shrink-0 items-center px-4 justify-between mr-4 ml-4 mt-4 mb-2 rounded-lg shadow-sm border bg-popover'>
+        <header className='z-[100] flex h-16 shrink-0 items-center px-4 justify-between mx-4 rounded-lg shadow-sm border bg-popover sticky top-2'>
             <div className='flex items-center gap-2'>
                 <SidebarTrigger className='-ml-1' />
                 {user && isDashboardRoot ? (
