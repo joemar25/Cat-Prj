@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useKioskStore, DocumentType } from "@/state/use-kiosk-store";
-import { motion } from "framer-motion";
+import { DocumentType, useKioskStore } from '@/state/use-kiosk-store';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { useState } from 'react';
 
 interface TrueCopyRequestProps {
   onDocumentsSelected: (documents: DocumentType[]) => void;
@@ -10,46 +11,65 @@ interface TrueCopyRequestProps {
   onSubmit: () => void;
 }
 
-export function TrueCopyRequest({ onDocumentsSelected, showSubmitButton, onSubmit }: TrueCopyRequestProps) {
+export function TrueCopyRequest({
+  onDocumentsSelected,
+  showSubmitButton,
+  onSubmit,
+}: TrueCopyRequestProps) {
   const { setSelectedDocuments } = useKioskStore();
   const [selectedDocs, setSelectedDocs] = useState<DocumentType[]>([]);
 
   const documentTypes = [
-    { value: "birth" as DocumentType, label: "Birth Certificate", icon: "/birth-cert.svg" },
-    { value: "marriage" as DocumentType, label: "Marriage Certificate", icon: "/marriage-cert.svg" },
-    { value: "death" as DocumentType, label: "Death Certificate", icon: "/death-cert.svg" },
+    {
+      value: 'birth' as DocumentType,
+      label: 'Birth Certificate',
+      icon: '/birth-cert.svg',
+    },
+    {
+      value: 'marriage' as DocumentType,
+      label: 'Marriage Certificate',
+      icon: '/marriage-cert.svg',
+    },
+    {
+      value: 'death' as DocumentType,
+      label: 'Death Certificate',
+      icon: '/death-cert.svg',
+    },
   ];
 
   const handleSelectDocument = (docType: DocumentType) => {
     let updatedDocs: DocumentType[];
     if (selectedDocs.includes(docType)) {
-      // If the document is already selected, remove it
       updatedDocs = selectedDocs.filter((doc) => doc !== docType);
     } else {
-      // If the document is not selected, add it
       updatedDocs = [...selectedDocs, docType];
     }
     setSelectedDocs(updatedDocs);
-    setSelectedDocuments(updatedDocs); // Update the global state
-    onDocumentsSelected(updatedDocs); // Notify the parent component
+    setSelectedDocuments(updatedDocs);
+    onDocumentsSelected(updatedDocs);
   };
 
   return (
-    <div className="w-full h-full flex flex-col justify-evenly items-center p-8">
-      <div className="flex justify-evenly items-center w-full">
+    <div className='w-full h-full flex flex-col justify-evenly items-center p-8'>
+      <div className='flex justify-evenly items-center w-full'>
         {documentTypes.map((doc) => (
           <motion.div
             key={doc.value}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className={`rounded-lg shadow-sm p-4 h-72 w-72 border-2 border-black cursor-pointer ${
-              selectedDocs.includes(doc.value) ? "bg-[#FFD200] h-80 w-80" : ""
+              selectedDocs.includes(doc.value) ? 'bg-[#FFD200] h-80 w-80' : ''
             }`}
             onClick={() => handleSelectDocument(doc.value)}
           >
-            <div className="w-full h-full flex flex-col gap-4 justify-center items-center">
-              <img src={doc.icon} className="w-24 h-24" alt={doc.label} />
-              <span className="uppercase font-semibold w-full max-w-sm text-center">
+            <div className='w-full h-full flex flex-col gap-4 justify-center items-center'>
+              <Image
+                src={doc.icon}
+                alt={doc.label}
+                width={96} // Set appropriate width
+                height={96} // Set appropriate height
+              />
+              <span className='uppercase font-semibold w-full max-w-sm text-center'>
                 {doc.label}
               </span>
             </div>
@@ -58,8 +78,8 @@ export function TrueCopyRequest({ onDocumentsSelected, showSubmitButton, onSubmi
       </div>
       {showSubmitButton && (
         <button
-          type="button"
-          className="mt-8 px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-all"
+          type='button'
+          className='mt-8 px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-all'
           onClick={onSubmit}
           disabled={selectedDocs.length === 0}
         >
@@ -69,56 +89,3 @@ export function TrueCopyRequest({ onDocumentsSelected, showSubmitButton, onSubmi
     </div>
   );
 }
-
-// const KioskTrueCopyRequest = () => {
-//     return (
-//         <div className="w-full p-6">
-//             {/* <CardHeader>
-//                 <CardTitle className="text-2xl">Request Certified Copy</CardTitle>
-//             </CardHeader> */}
-
-//             <CardContent className="space-y-6">
-//                 <div className="space-y-4">
-//                     <Label className="font-medium text-lg">Select Documents</Label>
-//                     {documentTypes.map((doc) => (
-//                         <div key={doc.value} className="flex items-center space-x-2">
-//                             <Checkbox
-//                                 id={doc.value}
-//                                 checked={selectedDocs.includes(doc.value)}
-//                                 onCheckedChange={() => handleDocSelect(doc.value)}
-//                             />
-//                             <Label htmlFor={doc.value} className="text-lg">{doc.label}</Label>
-//                         </div>
-//                     ))}
-//                 </div>
-
-//                 {/* <div>
-//                     <Label htmlFor="email" className="font-medium text-lg">
-//                         Email Address
-//                     </Label>
-//                     <Input
-//                         id="email"
-//                         type="email"
-//                         placeholder="Enter your registered email"
-//                         value={localEmail}
-//                         onChange={(e) => setLocalEmail(e.target.value)}
-//                         className="mt-2 text-lg"
-//                     />
-//                 </div> */}
-//             </CardContent>
-
-//             {/* <CardFooter className="flex justify-between">
-//                 <Button variant="outline" onClick={prevStep} className="text-lg">
-//                     Back
-//                 </Button>
-//                 <Button
-//                     onClick={handleSubmit}
-//                     disabled={!localEmail || selectedDocs.length === 0}
-//                     className="text-lg"
-//                 >
-//                     Request Copies
-//                 </Button>
-//             </CardFooter> */}
-//         </div>
-//     )
-// };

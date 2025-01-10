@@ -1,59 +1,104 @@
 // src/app/_actions/civil-registry.ts
-'use server'
+'use server';
 
-import { prisma } from '@/lib/prisma'
-import { revalidatePath } from 'next/cache'
-import { CivilRegistryForm } from '@prisma/client'
+import { prisma } from '@/lib/prisma';
+import { BaseRegistryForm, FormType } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
 
-export type CivilRegistryFormWithRelations = CivilRegistryForm & {
-  preparedBy: { name: string } | null
-  verifiedBy: { name: string } | null
-}
+export type BaseRegistryFormWithRelations = BaseRegistryForm & {
+  preparedBy: { name: string } | null;
+  verifiedBy: { name: string } | null;
+};
 
-export async function deleteCivilRegistryForm(formId: string) {
+export async function deleteBaseRegistryForm(formId: string) {
   try {
-    await prisma.civilRegistryForm.delete({
+    await prisma.baseRegistryForm.delete({
       where: { id: formId },
-    })
+    });
 
-    revalidatePath('/civil-registry')
-    return { success: true, message: 'Form deleted successfully' }
+    revalidatePath('/civil-registry');
+    return { success: true, message: 'Form deleted successfully' };
   } catch (error) {
-    console.error('Error deleting civil registry form:', error)
-    return { success: false, message: 'Failed to delete form' }
+    console.error('Error deleting civil registry form:', error);
+    return { success: false, message: 'Failed to delete form' };
   }
 }
 
-export async function updateCivilRegistryForm(
+export async function updateBaseRegistryForm(
   formId: string,
-  data: Partial<CivilRegistryForm>
+  data: Partial<BaseRegistryForm>
 ): Promise<{
-  success: boolean
-  message: string
-  data?: CivilRegistryFormWithRelations
+  success: boolean;
+  message: string;
+  data?: BaseRegistryFormWithRelations;
 }> {
   try {
-    const updatedForm = await prisma.civilRegistryForm.update({
+    const updatedForm = await prisma.baseRegistryForm.update({
       where: { id: formId },
       data,
       include: {
         preparedBy: {
-          select: { name: true }
+          select: { name: true },
         },
         verifiedBy: {
-          select: { name: true }
-        }
-      }
-    })
+          select: { name: true },
+        },
+      },
+    });
 
-    revalidatePath('/civil-registry')
+    revalidatePath('/civil-registry');
     return {
       success: true,
       message: 'Form updated successfully',
-      data: updatedForm as CivilRegistryFormWithRelations
-    }
+      data: updatedForm as BaseRegistryFormWithRelations,
+    };
   } catch (error) {
-    console.error('Error updating civil registry form:', error)
-    return { success: false, message: 'Failed to update form' }
+    console.error('Error updating civil registry form:', error);
+    return { success: false, message: 'Failed to update form' };
+  }
+}
+
+export async function addBaseRegistryForm(data: {
+  formType: FormType;
+  registryNumber: string;
+  province: string;
+  cityMunicipality: string;
+  pageNumber: string;
+  bookNumber: string;
+  dateOfRegistration: Date;
+  formNumber: string;
+}) {
+  try {
+    const baseForm = await prisma.baseRegistryForm.create({
+      data: {
+        formType: data.formType,
+        formNumber: data.formNumber,
+        registryNumber: data.registryNumber,
+        province: data.province,
+        cityMunicipality: data.cityMunicipality,
+        pageNumber: data.pageNumber,
+        bookNumber: data.bookNumber,
+        dateOfRegistration: data.dateOfRegistration,
+        status: 'PENDING',
+      },
+      include: {
+        preparedBy: {
+          select: { name: true },
+        },
+        verifiedBy: {
+          select: { name: true },
+        },
+      },
+    });
+
+    revalidatePath('/civil-registry');
+    return {
+      success: true,
+      message: 'Form created successfully',
+      data: baseForm as BaseRegistryFormWithRelations,
+    };
+  } catch (error) {
+    console.error('Error creating civil registry form:', error);
+    return { success: false, message: 'Failed to create form' };
   }
 }

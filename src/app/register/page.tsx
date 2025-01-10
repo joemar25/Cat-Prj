@@ -3,24 +3,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-
 import RegisterForm from '@/components/custom/auth/registration-form';
-import { handleRegistration } from '@/hooks/auth-actions';
 import { RegistrationForm, registrationForm } from '@/lib/zod';
 
-interface PageProps {
-  onSuccess?: () => void;
-}
-
-const Page = ({ onSuccess }: PageProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-  // Directly check NEXT_PUBLIC_NODE_ENV like in sign-up-form
+const Page = () => {
+  const [isLoading] = useState(false);
   const isDevelopment = process.env.NODE_ENV === 'development';
 
   const form = useForm<RegistrationForm>({
     resolver: zodResolver(registrationForm),
-    // Define defaultValues directly in useForm like in sign-up-form
     defaultValues: {
       name: isDevelopment ? 'Scott Andrew Bedis' : '',
       email: isDevelopment ? 'bedisscottandrew@gmail.com' : '',
@@ -40,30 +31,12 @@ const Page = ({ onSuccess }: PageProps) => {
   });
 
   const onSubmit = async (data: RegistrationForm) => {
-    setIsLoading(true);
     console.log('Form submitted with data:', data);
-
-    try {
-      const result = await handleRegistration(data);
-
-      if (result.success) {
-        toast.success(result.message);
-        form.reset();
-        onSuccess?.();
-        window.location.href = '/auth';
-      } else {
-        toast.error(result.message);
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      toast.error('Failed to create account');
-    } finally {
-      setIsLoading(false);
-    }
+    // Add your desired behavior here or leave it empty for UI-only
   };
 
-  console.log('Current form values:', form.getValues()); // Debug log
-  console.log('Is Development:', isDevelopment); // Debug log
+  console.log('Current form values:', form.getValues());
+  console.log('Is Development:', isDevelopment);
 
   return (
     <div className='min-h-screen flex items-center justify-center'>

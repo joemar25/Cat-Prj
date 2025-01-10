@@ -2,9 +2,20 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { getEmailSchema, getNameSchema, getPasswordSchema } from '@/lib/zod';
+import {
+  CertifiedCopyFormData,
+  getEmailSchema,
+  getNameSchema,
+  getPasswordSchema,
+} from '@/lib/zod';
 import { ROLE_PERMISSIONS } from '@/types/auth';
-import { Profile, User, UserRole } from '@prisma/client';
+import {
+  AttachmentType,
+  DocumentStatus,
+  Profile,
+  User,
+  UserRole,
+} from '@prisma/client';
 import { hash } from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -227,63 +238,66 @@ export async function deactivateUser(userId: string) {
     return { success: false, message: 'Failed to deactivate user' };
   }
 }
+export async function createCertifiedCopy(
+  data: CertifiedCopyFormData,
+  userId: string
+) {
+  try {
+    // Use a transaction to ensure all or nothing
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Create Document first
+      const document = await tx.document.create({
+        data: {
+          type: AttachmentType.BIRTH_CERTIFICATE, // or appropriate type
+          title: `Certified Copy - ${data.lcrNo}`,
+          status: DocumentStatus.PENDING,
+          version: 1,
+          isLatest: true,
+        },
+      });
 
-// export async function createCertifiedCopy(
-//   data: CertifiedCopyFormData,
-//   userId: string
-// ) {
-//   try {
-//     // Use a transaction to ensure all or nothing
-//     const result = await prisma.$transaction(async (tx) => {
-//       // 1. Create Document first
-//       const document = await tx.document.create({
-//         data: {
-//           type: AttachmentType.BIRTH_CERTIFICATE, // or appropriate type
-//           title: `Certified Copy - ${data.lcrNo}`,
-//           status: DocumentStatus.PENDING,
-//           version: 1,
-//           isLatest: true,
-//         },
-//       });
+      // 2. Create Attachment
+      const attachment = await tx.attachment.create({
+        data: {
+          userId: userId,
+          documentId: document.id,
+          type: AttachmentType.BIRTH_CERTIFICATE, // or appropriate type
+          fileUrl: '', // placeholder
+          fileName: `certified-copy-${data.lcrNo}`,
+          fileSize: 0, // placeholder
+          mimeType: 'application/pdf', // placeholder
+          status: DocumentStatus.PENDING,
+        },
+      });
 
-//       // 2. Create Attachment
-//       const attachment = await tx.attachment.create({
-//         data: {
-//           userId: userId,
-//           documentId: document.id,
-//           type: AttachmentType.BIRTH_CERTIFICATE, // or appropriate type
-//           fileUrl: '', // placeholder
-//           fileName: `certified-copy-${data.lcrNo}`,
-//           fileSize: 0, // placeholder
-//           mimeType: 'application/pdf', // placeholder
-//           status: DocumentStatus.PENDING,
-//         },
-//       });
+      // 3. Create CertifiedCopy
+      const certifiedCopy = await tx.certifiedCopy.create({
+        data: {
+          lcrNo: data.lcrNo,
+          bookNo: data.bookNo,
+          pageNo: data.pageNo,
+          searchedBy: data.searchedBy,
+          contactNo: data.contactNo,
+          date: data.date ? new Date(data.date) : null,
+          attachmentId: attachment.id,
+          requesterName: data.requesterName, // Include required fields
+          relationshipToOwner: data.relationshipToOwner,
+          address: data.address,
+          purpose: data.purpose,
+        },
+      });
 
-//       // 3. Create CertifiedCopy
-//       const certifiedCopy = await tx.certifiedCopy.create({
-//         data: {
-//           lcrNo: data.lcrNo,
-//           bookNo: data.bookNo,
-//           pageNo: data.pageNo,
-//           searchedBy: data.searchedBy,
-//           contactNo: data.contactNo,
-//           date: data.date ? new Date(data.date) : null,
-//           attachmentId: attachment.id,
-//         },
-//       });
+      return { certifiedCopy, attachment, document };
+    });
 
-//       return { certifiedCopy, attachment, document };
-//     });
-
-//     revalidatePath('/users');
-//     return {
-//       success: true,
-//       message: 'Certified copy created successfully',
-//       data: result,
-//     };
-//   } catch (error) {
-//     console.error('Error creating certified copy:', error);
-//     return { success: false, message: 'Failed to create certified copy' };
-//   }
-// }
+    revalidatePath('/users');
+    return {
+      success: true,
+      message: 'Certified copy created successfully',
+      data: result,
+    };
+  } catch (error) {
+    console.error('Error creating certified copy:', error);
+    return { success: false, message: 'Failed to create certified copy' };
+  }
+}
