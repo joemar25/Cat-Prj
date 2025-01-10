@@ -269,3 +269,273 @@ export interface MarriageCertificateFormProps {
   onOpenChange: (open: boolean) => void;
   onCancel: () => void;
 }
+// ------------------------------------- Death Certificate Schema --------------------//////
+
+// Main Death Certificate Schema
+export const deathCertificateSchema = z.object({
+  // Registry Information
+  registryNumber: z.string().min(1, 'Registry number is required'),
+  province: z.string().min(1, 'Province is required'),
+  cityMunicipality: z.string().min(1, 'City/Municipality is required'),
+
+  // Time of death format
+  timeOfDeath: z.object({
+    hour: z.string(),
+    minute: z.string(),
+  }),
+
+  // Personal Information
+  name: nameSchema,
+  sex: z.enum(['Male', 'Female']),
+  dateOfDeath: z.date(),
+  dateOfBirth: z.date(),
+  ageAtDeath: z.object({
+    years: z.number().optional(),
+    months: z.number().optional(),
+    days: z.number().optional(),
+    hours: z.number().optional(),
+  }),
+  placeOfDeath: z.string().min(1, 'Place of death is required'),
+  civilStatus: z.enum(['Single', 'Married', 'Widowed', 'Divorced']),
+  religion: z.string().min(1, 'Religion is required'),
+  citizenship: z.string().min(1, 'Citizenship is required'),
+  residence: z.string().min(1, 'Residence is required'),
+  occupation: z.string().min(1, 'Occupation is required'),
+
+  // Family Information
+  fatherName: nameSchema,
+  motherMaidenName: nameSchema,
+
+  // Medical Certificate
+  causesOfDeath: z.object({
+    immediate: z.string().min(1, 'Immediate cause is required'),
+    antecedent: z.string().min(1, 'Antecedent cause is required'),
+    underlying: z.string().min(1, 'Underlying cause is required'),
+    contributingConditions: z.string().optional(),
+  }),
+
+  // Maternal Condition (for females)
+  maternalCondition: z
+    .enum([
+      'pregnant_not_in_labour',
+      'pregnant_in_labour',
+      'less_than_42_days',
+      '42_days_to_1_year',
+      'none',
+    ])
+    .optional(),
+
+  // External Causes
+  deathByExternalCauses: z.object({
+    mannerOfDeath: z.string().min(1, 'Manner of death is required'),
+    placeOfOccurrence: z.string().min(1, 'Place of occurrence is required'),
+  }),
+
+  // Medical Attendance
+  attendant: z.object({
+    type: z.enum([
+      'Private Physician',
+      'Public Health Officer',
+      'Hospital Authority',
+      'None',
+      'Others',
+    ]),
+    duration: z.object({
+      from: z.date().optional(),
+      to: z.date().optional(),
+    }),
+  }),
+
+  // Certification
+  certification: z.object({
+    hasAttended: z.boolean(),
+    deathDateTime: z.string().min(1, 'Date and time of death is required'),
+    signature: z.string().optional(),
+    nameInPrint: z.string().min(1, 'Name is required'),
+    titleOfPosition: z.string().min(1, 'Title/Position is required'),
+    address: z.string().min(1, 'Address is required'),
+    date: z.date(),
+  }),
+
+  // Disposal Information
+  disposal: z.object({
+    method: z.string().min(1, 'Disposal method is required'),
+    burialPermit: z.object({
+      number: z.string().min(1, 'Permit number is required'),
+      dateIssued: z.date(),
+    }),
+    transferPermit: z.object({
+      number: z.string().optional(),
+      dateIssued: z.date(),
+    }),
+  }),
+  cemeteryAddress: z.string().min(1, 'Cemetery address is required'),
+
+  // Informant Details
+  informant: z.object({
+    signature: z.string().optional(),
+    nameInPrint: z.string().min(1, 'Informant name is required'),
+    relationshipToDeceased: z.string().min(1, 'Relationship is required'),
+    address: z.string().min(1, 'Address is required'),
+    date: z.date(),
+  }),
+
+  // Administrative Information
+  preparedBy: z.object({
+    signature: z.string().optional(),
+    nameInPrint: z.string().min(1, 'Name is required'),
+    titleOrPosition: z.string().min(1, 'Title/Position is required'),
+    date: z.date(),
+  }),
+
+  receivedBy: z.object({
+    signature: z.string().optional(),
+    nameInPrint: z.string().min(1, 'Name is required'),
+    titleOrPosition: z.string().min(1, 'Title/Position is required'),
+    date: z.date(),
+  }),
+
+  registeredAtCivilRegistrar: z.object({
+    signature: z.string().optional(),
+    nameInPrint: z.string().min(1, 'Name is required'),
+    titleOrPosition: z.string().min(1, 'Title/Position is required'),
+    date: z.date(),
+  }),
+
+  remarks: z.string().optional(),
+});
+
+// Type inference
+export type DeathCertificateFormValues = z.infer<typeof deathCertificateSchema>;
+export const defaultDeathCertificateValues: Partial<DeathCertificateFormValues> =
+  {
+    // Registry Information
+    registryNumber: '2024-0002',
+    province: 'Bulacan',
+    cityMunicipality: 'Malolos',
+
+    // Personal Information
+    name: {
+      first: 'Ricardo',
+      middle: 'Santos',
+      last: 'Dela Cruz',
+    },
+    sex: 'Male',
+    dateOfDeath: new Date('2024-01-15'),
+    dateOfBirth: new Date('1950-06-20'),
+    timeOfDeath: {
+      hour: '08',
+      minute: '30',
+    },
+    ageAtDeath: {
+      years: 73,
+      months: 6,
+      days: 25,
+      hours: 8,
+    },
+    placeOfDeath: 'Bulacan Medical Center, Malolos City',
+    civilStatus: 'Married',
+    religion: 'Roman Catholic',
+    citizenship: 'Filipino',
+    residence: '123 Rizal Street, Brgy. Tikay, Malolos, Bulacan',
+    occupation: 'Retired Teacher',
+
+    // Family Information
+    fatherName: {
+      first: 'Roberto',
+      middle: 'Martinez',
+      last: 'Dela Cruz',
+    },
+    motherMaidenName: {
+      first: 'Maria',
+      middle: 'Reyes',
+      last: 'Santos',
+    },
+
+    // Medical Certificate
+    causesOfDeath: {
+      immediate: 'Acute Myocardial Infarction',
+      antecedent: 'Coronary Artery Disease',
+      underlying: 'Hypertension',
+      contributingConditions: 'Diabetes Mellitus Type 2',
+    },
+    maternalCondition: 'none',
+    deathByExternalCauses: {
+      mannerOfDeath: 'Natural',
+      placeOfOccurrence: 'Hospital',
+    },
+    attendant: {
+      type: 'Hospital Authority',
+      duration: {
+        from: new Date('2024-01-14'),
+        to: new Date('2024-01-15'),
+      },
+    },
+
+    // Certification
+    certification: {
+      hasAttended: true,
+      deathDateTime: '2024-01-15T08:30',
+      signature: '',
+      nameInPrint: 'Dr. Juan Perez',
+      titleOfPosition: 'Attending Physician',
+      address: 'Bulacan Medical Center, Malolos City',
+      date: new Date('2024-01-15'),
+    },
+
+    // Disposal Information
+    disposal: {
+      method: 'Burial',
+      burialPermit: {
+        number: 'BP-2024-0015',
+        dateIssued: new Date('2024-01-16'),
+      },
+      transferPermit: {
+        number: 'N/A',
+        dateIssued: new Date('2024-01-16'),
+      },
+    },
+    cemeteryAddress: 'Malolos Catholic Cemetery, Malolos City, Bulacan',
+
+    // Informant Information
+    informant: {
+      signature: '',
+      nameInPrint: 'Maria Elena Dela Cruz',
+      relationshipToDeceased: 'Spouse',
+      address: '123 Rizal Street, Brgy. Tikay, Malolos, Bulacan',
+      date: new Date('2024-01-15'),
+    },
+
+    // Administrative Details
+    preparedBy: {
+      signature: '',
+      nameInPrint: 'Ana Santos',
+      titleOrPosition: 'Civil Registry Staff',
+      date: new Date('2024-01-15'),
+    },
+
+    // Received By
+    receivedBy: {
+      signature: '',
+      nameInPrint: 'Pedro Reyes',
+      titleOrPosition: 'Registration Officer',
+      date: new Date('2024-01-15'),
+    },
+
+    // Civil Registrar Details
+    registeredAtCivilRegistrar: {
+      signature: '',
+      nameInPrint: 'Maria Clara Torres',
+      titleOrPosition: 'Civil Registrar',
+      date: new Date('2024-01-15'),
+    },
+
+    remarks: '',
+  };
+
+export interface DeathCertificateFormProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCancel: () => void;
+  onSubmit?: (data: DeathCertificateFormValues) => void;
+}

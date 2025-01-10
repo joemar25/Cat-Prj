@@ -1,13 +1,20 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -15,192 +22,68 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Save } from "lucide-react";
-import { useForm } from "react-hook-form";
-import DatePickerField from "../../datepickerfield/date-picker-field";
-import * as z from "zod";
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { createDeathCertificate } from '@/hooks/form-certificate-actions';
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
-
-// Define the schema for the form
-const deathCertificateSchema = z.object({
-  // Registry Information
-  registryNumber: z.string(),
-
-  // Location Information
-  province: z.string(),
-  cityMunicipality: z.string(),
-
-  // Personal Information
-  name: z.object({
-    first: z.string(),
-    middle: z.string(),
-    last: z.string(),
-  }),
-  timeOfDeath: z.object({
-    a: z.string(),
-    b: z.string(),
-    c: z.string(),
-  }),
-  sex: z.enum(["Male", "Female"]),
-  dateOfDeath: z.date(),
-  dateOfBirth: z.date(),
-  ageAtDeath: z.object({
-    years: z.number().optional(),
-    months: z.number().optional(),
-    days: z.number().optional(),
-    hours: z.number().optional(),
-  }),
-  placeOfDeath: z.string(),
-  civilStatus: z.enum(["Single", "Married", "Widowed", "Divorced"]),
-  religion: z.string(),
-  citizenship: z.string(),
-  residence: z.string(),
-  occupation: z.string(),
-
-  // Family Information
-  fatherName: z.object({
-    first: z.string(),
-    middle: z.string(),
-    last: z.string(),
-  }),
-  motherMaidenName: z.object({
-    first: z.string(),
-    middle: z.string(),
-    last: z.string(),
-  }),
-
-  // Medical Certificate
-  causesOfDeath: z.object({
-    immediate: z.string(),
-    antecedent: z.string(),
-    underlying: z.string(),
-    contributingConditions: z.string(),
-  }),
-  maternalCondition: z
-    .enum([
-      "pregnant_not_in_labour",
-      "pregnant_in_labour",
-      "less_than_42_days",
-      "42_days_to_1_year",
-      "none",
-    ])
-    .optional(),
-  deathByExternalCauses: z.object({
-    mannerOfDeath: z.string(),
-    placeOfOccurrence: z.string(),
-  }),
-  attendant: z.object({
-    type: z.enum([
-      "Private Physician",
-      "Public Health Officer",
-      "Hospital Authority",
-      "None",
-      "Others",
-    ]),
-    duration: z.object({
-      from: z.date().optional(),
-      to: z.date().optional(),
-    }),
-  }),
-  certification: z.object({
-    hasAttended: z.boolean(),
-    deathDateTime: z.string(),
-    signature: z.string(),
-    nameInPrint: z.string(),
-    titleOfPosition: z.string(),
-    address: z.string(),
-    date: z.date(),
-  }),
-  disposal: z.object({
-    method: z.string(),
-    burialPermit: z.object({
-      number: z.string(),
-      dateIssued: z.date(),
-    }),
-    transferPermit: z.object({
-      number: z.string(),
-      dateIssued: z.date(),
-    }),
-  }),
-  cemeteryAddress: z.string(),
-  informant: z.object({
-    signature: z.string(),
-    nameInPrint: z.string(),
-    relationshipToDeceased: z.string(),
-    address: z.string(),
-    date: z.date(),
-  }),
-  preparedBy: z.object({
-    signature: z.string(),
-    nameInPrint: z.string(),
-    titleOrPosition: z.string(),
-    date: z.date(),
-  }),
-  receivedBy: z.object({
-    signature: z.string(),
-    nameInPrint: z.string(),
-    titleOrPosition: z.string(),
-    date: z.date(),
-  }),
-  registeredAtCivilRegistrar: z.object({
-    signature: z.string(),
-    nameInPrint: z.string(),
-    titleOrPosition: z.string(),
-    date: z.date(),
-  }),
-  remarks: z.string().optional(),
-});
-
-type DeathCertificateFormValues = z.infer<typeof deathCertificateSchema>;
-
-interface DeathCertificateFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
-}
+  DeathCertificateFormProps,
+  DeathCertificateFormValues,
+  deathCertificateSchema,
+  defaultDeathCertificateValues,
+} from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2, Save } from 'lucide-react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import DatePickerField from '../../datepickerfield/date-picker-field';
 
 export default function DeathCertificateForm({
   open,
   onOpenChange,
   onCancel,
 }: DeathCertificateFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<DeathCertificateFormValues>({
     resolver: zodResolver(deathCertificateSchema),
-    defaultValues: {
-      sex: "Male",
-      civilStatus: "Single",
-      attendant: { type: "None" },
-    },
+    defaultValues: defaultDeathCertificateValues,
   });
 
-  function onSubmit(data: DeathCertificateFormValues) {
-    console.log(data);
+  async function onSubmit(data: DeathCertificateFormValues) {
+    try {
+      setIsSubmitting(true);
+      const result = await createDeathCertificate(data);
+
+      if (result.success) {
+        toast.success('Death certificate has been registered successfully');
+        onOpenChange(false); // Close the dialog
+        form.reset(); // Reset the form
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast.error('Failed to register death certificate. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className='max-w-5xl max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">
+          <DialogTitle className='text-2xl font-bold text-center'>
             Republic of the Philippines
             <br />
             OFFICE OF THE CIVIL REGISTRAR GENERAL
@@ -210,8 +93,8 @@ export default function DeathCertificateForm({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <Card className="w-full max-w-4xl mx-auto">
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+            <Card className='w-full max-w-4xl mx-auto'>
               <CardHeader>
                 <CardTitle>Certificate of Death</CardTitle>
                 <CardDescription>
@@ -223,10 +106,10 @@ export default function DeathCertificateForm({
                 {/* Registry Information */}
 
                 {/* Location Information */}
-                <div className="grid grid-cols-3 gap-4 pb-2">
+                <div className='grid grid-cols-3 gap-4 pb-2'>
                   <FormField
                     control={form.control}
-                    name="registryNumber"
+                    name='registryNumber'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Registry Number</FormLabel>
@@ -239,7 +122,7 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="province"
+                    name='province'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Province</FormLabel>
@@ -252,7 +135,7 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="cityMunicipality"
+                    name='cityMunicipality'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>City/Municipality</FormLabel>
@@ -266,10 +149,10 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Personal Information */}
-                <div className="grid grid-cols-4 gap-4">
+                <div className='grid grid-cols-4 gap-4'>
                   <FormField
                     control={form.control}
-                    name="name.first"
+                    name='name.first'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>First Name</FormLabel>
@@ -282,7 +165,7 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="name.middle"
+                    name='name.middle'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Middle Name</FormLabel>
@@ -295,7 +178,7 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="name.last"
+                    name='name.last'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Last Name</FormLabel>
@@ -308,7 +191,7 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="sex"
+                    name='sex'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Sex</FormLabel>
@@ -318,12 +201,12 @@ export default function DeathCertificateForm({
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select sex" />
+                              <SelectValue placeholder='Select sex' />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Male">Male</SelectItem>
-                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value='Male'>Male</SelectItem>
+                            <SelectItem value='Female'>Female</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -333,11 +216,10 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Sex and Civil Status */}
-                <div className="grid grid-cols-2 gap-4">
-                  
+                <div className='grid grid-cols-2 gap-4'>
                   <FormField
                     control={form.control}
-                    name="civilStatus"
+                    name='civilStatus'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Civil Status</FormLabel>
@@ -347,14 +229,14 @@ export default function DeathCertificateForm({
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select civil status" />
+                              <SelectValue placeholder='Select civil status' />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Single">Single</SelectItem>
-                            <SelectItem value="Married">Married</SelectItem>
-                            <SelectItem value="Widowed">Widowed</SelectItem>
-                            <SelectItem value="Divorced">Divorced</SelectItem>
+                            <SelectItem value='Single'>Single</SelectItem>
+                            <SelectItem value='Married'>Married</SelectItem>
+                            <SelectItem value='Widowed'>Widowed</SelectItem>
+                            <SelectItem value='Divorced'>Divorced</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -364,23 +246,23 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Date of Death and Date of Birth */}
-                <div className="grid grid-cols-2 gap-4 py-2">
+                <div className='grid grid-cols-2 gap-4 py-2'>
                   <FormField
                     control={form.control}
-                    name="dateOfDeath"
+                    name='dateOfDeath'
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <DatePickerField field={field} label="Date of Death" />
+                      <FormItem className='flex flex-col'>
+                        <DatePickerField field={field} label='Date of Death' />
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name="dateOfBirth"
+                    name='dateOfBirth'
                     render={({ field }) => (
-                      <FormItem className=" pb-2">
-                        <DatePickerField field={field} label="Date of Birth" />
+                      <FormItem className=' pb-2'>
+                        <DatePickerField field={field} label='Date of Birth' />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -388,19 +270,19 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Age at the Time of Death */}
-                <div className="flex flex-col gap-2">
+                <div className='flex flex-col gap-2'>
                   <h1>Age at the Time of Death</h1>
-                  <div className="grid grid-cols-4 gap-4">
+                  <div className='grid grid-cols-4 gap-4'>
                     <FormField
                       control={form.control}
-                      name="ageAtDeath.years"
+                      name='ageAtDeath.years'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Years</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              type="number"
+                              type='number'
                               min={0}
                               onChange={(e) =>
                                 field.onChange(parseInt(e.target.value, 10))
@@ -413,14 +295,14 @@ export default function DeathCertificateForm({
                     />
                     <FormField
                       control={form.control}
-                      name="ageAtDeath.months"
+                      name='ageAtDeath.months'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Months</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              type="number"
+                              type='number'
                               min={0}
                               onChange={(e) =>
                                 field.onChange(parseInt(e.target.value, 10))
@@ -433,14 +315,14 @@ export default function DeathCertificateForm({
                     />
                     <FormField
                       control={form.control}
-                      name="ageAtDeath.days"
+                      name='ageAtDeath.days'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Days</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              type="number"
+                              type='number'
                               min={0}
                               onChange={(e) =>
                                 field.onChange(parseInt(e.target.value, 10))
@@ -453,14 +335,14 @@ export default function DeathCertificateForm({
                     />
                     <FormField
                       control={form.control}
-                      name="ageAtDeath.hours"
+                      name='ageAtDeath.hours'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Hours</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              type="number"
+                              type='number'
                               min={0}
                               onChange={(e) =>
                                 field.onChange(parseInt(e.target.value, 10))
@@ -477,9 +359,9 @@ export default function DeathCertificateForm({
                 {/* Place of Death */}
                 <FormField
                   control={form.control}
-                  name="placeOfDeath"
+                  name='placeOfDeath'
                   render={({ field }) => (
-                    <FormItem className="pb-2">
+                    <FormItem className='pb-2'>
                       <FormLabel>Place of Death</FormLabel>
                       <FormControl>
                         <Input {...field} />
@@ -490,10 +372,10 @@ export default function DeathCertificateForm({
                 />
 
                 {/* Religion, Citizenship, Residence, and Occupation */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className='grid grid-cols-2 gap-4'>
                   <FormField
                     control={form.control}
-                    name="religion"
+                    name='religion'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Religion</FormLabel>
@@ -506,7 +388,7 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="citizenship"
+                    name='citizenship'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Citizenship</FormLabel>
@@ -518,10 +400,10 @@ export default function DeathCertificateForm({
                     )}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className='grid grid-cols-2 gap-4'>
                   <FormField
                     control={form.control}
-                    name="residence"
+                    name='residence'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Residence</FormLabel>
@@ -534,7 +416,7 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="occupation"
+                    name='occupation'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Occupation</FormLabel>
@@ -548,13 +430,13 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Family Information */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className='grid grid-cols-2 gap-4'>
                   <FormField
                     control={form.control}
-                    name="fatherName.first"
+                    name='fatherName.first'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Father's First Name</FormLabel>
+                        <FormLabel>Father&apos;s First Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -564,10 +446,10 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="fatherName.last"
+                    name='fatherName.last'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Father's Last Name</FormLabel>
+                        <FormLabel>Father&apos;s Last Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -576,13 +458,13 @@ export default function DeathCertificateForm({
                     )}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className='grid grid-cols-2 gap-4'>
                   <FormField
                     control={form.control}
-                    name="motherMaidenName.first"
+                    name='motherMaidenName.first'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Mother's First Name</FormLabel>
+                        <FormLabel>Mother&apos;s First Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -592,10 +474,10 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="motherMaidenName.last"
+                    name='motherMaidenName.last'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Mother's Last Name</FormLabel>
+                        <FormLabel>Mother&apos;s Last Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -606,11 +488,11 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Medical Certificate */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Medical Certificate</h3>
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold'>Medical Certificate</h3>
                   <FormField
                     control={form.control}
-                    name="causesOfDeath.immediate"
+                    name='causesOfDeath.immediate'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Immediate Cause</FormLabel>
@@ -623,7 +505,7 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="causesOfDeath.antecedent"
+                    name='causesOfDeath.antecedent'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Antecedent Cause</FormLabel>
@@ -636,7 +518,7 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="causesOfDeath.underlying"
+                    name='causesOfDeath.underlying'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Underlying Cause</FormLabel>
@@ -650,10 +532,10 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Maternal Condition */}
-                {form.watch("sex") === "Female" && (
+                {form.watch('sex') === 'Female' && (
                   <FormField
                     control={form.control}
-                    name="maternalCondition"
+                    name='maternalCondition'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Maternal Condition</FormLabel>
@@ -663,23 +545,23 @@ export default function DeathCertificateForm({
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select maternal condition" />
+                              <SelectValue placeholder='Select maternal condition' />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="pregnant_not_in_labour">
+                            <SelectItem value='pregnant_not_in_labour'>
                               Pregnant, not in labour
                             </SelectItem>
-                            <SelectItem value="pregnant_in_labour">
+                            <SelectItem value='pregnant_in_labour'>
                               Pregnant, in labour
                             </SelectItem>
-                            <SelectItem value="less_than_42_days">
+                            <SelectItem value='less_than_42_days'>
                               Less than 42 days after delivery
                             </SelectItem>
-                            <SelectItem value="42_days_to_1_year">
+                            <SelectItem value='42_days_to_1_year'>
                               42 days to 1 year after delivery
                             </SelectItem>
-                            <SelectItem value="none">
+                            <SelectItem value='none'>
                               None of the choices
                             </SelectItem>
                           </SelectContent>
@@ -691,20 +573,20 @@ export default function DeathCertificateForm({
                 )}
 
                 {/* Death by External Causes */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold'>
                     Death by External Causes
                   </h3>
                   <FormField
                     control={form.control}
-                    name="deathByExternalCauses.mannerOfDeath"
+                    name='deathByExternalCauses.mannerOfDeath'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Manner of Death</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Homicide, Suicide, Accident, Legal Intervention, etc."
+                            placeholder='Homicide, Suicide, Accident, Legal Intervention, etc.'
                           />
                         </FormControl>
                         <FormMessage />
@@ -713,14 +595,14 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="deathByExternalCauses.placeOfOccurrence"
+                    name='deathByExternalCauses.placeOfOccurrence'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Place of Occurrence</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="home, farm, factory, street, sea, etc."
+                            placeholder='home, farm, factory, street, sea, etc.'
                           />
                         </FormControl>
                         <FormMessage />
@@ -730,13 +612,13 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Attendant Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold'>
                     Attendant Information
                   </h3>
                   <FormField
                     control={form.control}
-                    name="attendant.type"
+                    name='attendant.type'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Type of Attendant</FormLabel>
@@ -746,44 +628,44 @@ export default function DeathCertificateForm({
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select attendant type" />
+                              <SelectValue placeholder='Select attendant type' />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Private Physician">
+                            <SelectItem value='Private Physician'>
                               Private Physician
                             </SelectItem>
-                            <SelectItem value="Public Health Officer">
+                            <SelectItem value='Public Health Officer'>
                               Public Health Officer
                             </SelectItem>
-                            <SelectItem value="Hospital Authority">
+                            <SelectItem value='Hospital Authority'>
                               Hospital Authority
                             </SelectItem>
-                            <SelectItem value="None">None</SelectItem>
-                            <SelectItem value="Others">Others</SelectItem>
+                            <SelectItem value='None'>None</SelectItem>
+                            <SelectItem value='Others'>Others</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className='grid grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
-                      name="attendant.duration.from"
+                      name='attendant.duration.from'
                       render={({ field }) => (
                         <FormItem>
-                          <DatePickerField field={field} label="From" />
+                          <DatePickerField field={field} label='From' />
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
-                      name="attendant.duration.to"
+                      name='attendant.duration.to'
                       render={({ field }) => (
                         <FormItem>
-                          <DatePickerField field={field} label="To" />
+                          <DatePickerField field={field} label='To' />
                           <FormMessage />
                         </FormItem>
                       )}
@@ -792,17 +674,17 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Certification of Death */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold'>
                     Certification of Death
                   </h3>
                   <FormField
                     control={form.control}
-                    name="certification.hasAttended"
+                    name='certification.hasAttended'
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">
+                      <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                        <div className='space-y-0.5'>
+                          <FormLabel className='text-base'>
                             Have you attended the deceased?
                           </FormLabel>
                         </div>
@@ -817,21 +699,21 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="certification.deathDateTime"
+                    name='certification.deathDateTime'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Date and Time of Death</FormLabel>
                         <FormControl>
-                          <Input {...field} type="datetime-local" />
+                          <Input {...field} type='datetime-local' />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className='grid grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
-                      name="certification.signature"
+                      name='certification.signature'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Signature</FormLabel>
@@ -844,7 +726,7 @@ export default function DeathCertificateForm({
                     />
                     <FormField
                       control={form.control}
-                      name="certification.nameInPrint"
+                      name='certification.nameInPrint'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Name in Print</FormLabel>
@@ -858,7 +740,7 @@ export default function DeathCertificateForm({
                   </div>
                   <FormField
                     control={form.control}
-                    name="certification.titleOfPosition"
+                    name='certification.titleOfPosition'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Title or Position</FormLabel>
@@ -871,7 +753,7 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="certification.address"
+                    name='certification.address'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Address</FormLabel>
@@ -884,10 +766,10 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="certification.date"
+                    name='certification.date'
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <DatePickerField field={field} label="Date" />
+                      <FormItem className='flex flex-col'>
+                        <DatePickerField field={field} label='Date' />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -895,34 +777,34 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Disposal Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold'>
                     Disposal Information
                   </h3>
                   <FormField
                     control={form.control}
-                    name="disposal.method"
+                    name='disposal.method'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Method of Disposal</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Burial, Cremation, etc."
+                            placeholder='Burial, Cremation, etc.'
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-4">
-                      <h4 className="text-sm font-medium">
+                  <div className='grid grid-cols-2 gap-4'>
+                    <div className='space-y-4'>
+                      <h4 className='text-sm font-medium'>
                         Burial/Cremation Permit
                       </h4>
                       <FormField
                         control={form.control}
-                        name="disposal.burialPermit.number"
+                        name='disposal.burialPermit.number'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Permit Number</FormLabel>
@@ -935,23 +817,23 @@ export default function DeathCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="disposal.burialPermit.dateIssued"
+                        name='disposal.burialPermit.dateIssued'
                         render={({ field }) => (
                           <FormItem>
                             <DatePickerField
                               field={field}
-                              label="Date Issued"
+                              label='Date Issued'
                             />
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                     </div>
-                    <div className="space-y-4">
-                      <h4 className="text-sm font-medium">Transfer Permit</h4>
+                    <div className='space-y-4'>
+                      <h4 className='text-sm font-medium'>Transfer Permit</h4>
                       <FormField
                         control={form.control}
-                        name="disposal.transferPermit.number"
+                        name='disposal.transferPermit.number'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Permit Number</FormLabel>
@@ -964,12 +846,12 @@ export default function DeathCertificateForm({
                       />
                       <FormField
                         control={form.control}
-                        name="disposal.transferPermit.dateIssued"
+                        name='disposal.transferPermit.dateIssued'
                         render={({ field }) => (
                           <FormItem>
                             <DatePickerField
                               field={field}
-                              label="Date Issued"
+                              label='Date Issued'
                             />
                             <FormMessage />
                           </FormItem>
@@ -982,7 +864,7 @@ export default function DeathCertificateForm({
                 {/* Cemetery Information */}
                 <FormField
                   control={form.control}
-                  name="cemeteryAddress"
+                  name='cemeteryAddress'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -997,14 +879,14 @@ export default function DeathCertificateForm({
                 />
 
                 {/* Informant Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold'>
                     Certification of Informant
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className='grid grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
-                      name="informant.signature"
+                      name='informant.signature'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Signature</FormLabel>
@@ -1017,7 +899,7 @@ export default function DeathCertificateForm({
                     />
                     <FormField
                       control={form.control}
-                      name="informant.nameInPrint"
+                      name='informant.nameInPrint'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Name in Print</FormLabel>
@@ -1031,7 +913,7 @@ export default function DeathCertificateForm({
                   </div>
                   <FormField
                     control={form.control}
-                    name="informant.relationshipToDeceased"
+                    name='informant.relationshipToDeceased'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Relationship to the Deceased</FormLabel>
@@ -1044,7 +926,7 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="informant.address"
+                    name='informant.address'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Address</FormLabel>
@@ -1057,10 +939,10 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="informant.date"
+                    name='informant.date'
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <DatePickerField field={field} label="Date" />
+                      <FormItem className='flex flex-col'>
+                        <DatePickerField field={field} label='Date' />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -1068,12 +950,12 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Received By */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Received By</h3>
-                  <div className="grid grid-cols-2 gap-4">
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold'>Received By</h3>
+                  <div className='grid grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
-                      name="receivedBy.signature"
+                      name='receivedBy.signature'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Signature</FormLabel>
@@ -1086,7 +968,7 @@ export default function DeathCertificateForm({
                     />
                     <FormField
                       control={form.control}
-                      name="receivedBy.nameInPrint"
+                      name='receivedBy.nameInPrint'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Name in Print</FormLabel>
@@ -1100,7 +982,7 @@ export default function DeathCertificateForm({
                   </div>
                   <FormField
                     control={form.control}
-                    name="receivedBy.titleOrPosition"
+                    name='receivedBy.titleOrPosition'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Title or Position</FormLabel>
@@ -1113,10 +995,10 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="receivedBy.date"
+                    name='receivedBy.date'
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <DatePickerField field={field} label="Date" />
+                      <FormItem className='flex flex-col'>
+                        <DatePickerField field={field} label='Date' />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -1124,14 +1006,14 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Registered at Civil Registrar */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold'>
                     Registered at the Office of the Civil Registrar
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className='grid grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
-                      name="registeredAtCivilRegistrar.signature"
+                      name='registeredAtCivilRegistrar.signature'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Signature</FormLabel>
@@ -1144,7 +1026,7 @@ export default function DeathCertificateForm({
                     />
                     <FormField
                       control={form.control}
-                      name="registeredAtCivilRegistrar.nameInPrint"
+                      name='registeredAtCivilRegistrar.nameInPrint'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Name in Print</FormLabel>
@@ -1158,7 +1040,7 @@ export default function DeathCertificateForm({
                   </div>
                   <FormField
                     control={form.control}
-                    name="registeredAtCivilRegistrar.titleOrPosition"
+                    name='registeredAtCivilRegistrar.titleOrPosition'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Title or Position</FormLabel>
@@ -1171,10 +1053,10 @@ export default function DeathCertificateForm({
                   />
                   <FormField
                     control={form.control}
-                    name="registeredAtCivilRegistrar.date"
+                    name='registeredAtCivilRegistrar.date'
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <DatePickerField field={field} label="Date" />
+                      <FormItem className='flex flex-col'>
+                        <DatePickerField field={field} label='Date' />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -1182,20 +1064,20 @@ export default function DeathCertificateForm({
                 </div>
 
                 {/* Remarks/Annotations */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold'>
                     Remarks/Annotations (For LCRO/OCRG Use Only)
                   </h3>
                   <FormField
                     control={form.control}
-                    name="remarks"
+                    name='remarks'
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
                           <Textarea
                             {...field}
-                            className="min-h-[100px]"
-                            placeholder="Official remarks and annotations will be entered here"
+                            className='min-h-[100px]'
+                            placeholder='Official remarks and annotations will be entered here'
                           />
                         </FormControl>
                         <FormMessage />
@@ -1207,16 +1089,29 @@ export default function DeathCertificateForm({
                 {/* Submit Button */}
                 <DialogFooter>
                   <Button
-                    type="button"
-                    variant="outline"
-                    className="h-10"
+                    type='button'
+                    variant='outline'
+                    className='h-10'
                     onClick={onCancel}
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" className="h-10 ml-2">
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Registration
+                  <Button
+                    type='submit'
+                    className='h-10 ml-2'
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className='mr-2 h-4 w-4' />
+                        Save Registration
+                      </>
+                    )}
                   </Button>
                 </DialogFooter>
               </CardContent>
