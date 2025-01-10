@@ -32,8 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
+import { createMarriageCertificate } from '@/hooks/form-certificate-actions';
 import {
   defaultMarriageCertificateValues,
   MarriageCertificateFormProps,
@@ -41,8 +40,10 @@ import {
   marriageCertificateSchema,
 } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Save } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import DatePickerField from '../../datepickerfield/date-picker-field';
 
 export function MarriageCertificateForm({
@@ -50,13 +51,30 @@ export function MarriageCertificateForm({
   onOpenChange,
   onCancel,
 }: MarriageCertificateFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<MarriageCertificateFormValues>({
     resolver: zodResolver(marriageCertificateSchema),
     defaultValues: defaultMarriageCertificateValues,
   });
 
   const onSubmit = async (values: MarriageCertificateFormValues) => {
-    console.log(values);
+    try {
+      setIsSubmitting(true);
+      const result = await createMarriageCertificate(values);
+
+      if (result.success) {
+        toast.success('Marriage certificate has been registered successfully');
+        onOpenChange(false); // Close the dialog
+        form.reset(); // Reset the form
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast.error('Failed to register marriage certificate. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -1204,9 +1222,8 @@ export function MarriageCertificateForm({
                               name='placeOfMarriage.office'
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>
-                                    Place of Marriage (Office/Church/Mosque)
-                                  </FormLabel>
+                                  {/* (Office/Church/Mosque) */}
+                                  <FormLabel>Place of Marriage </FormLabel>
                                   <FormControl>
                                     <Input
                                       className='h-10'
@@ -1284,7 +1301,7 @@ export function MarriageCertificateForm({
                         </CardContent>
                       </Card>
                       {/* Witnesses Information */}
-                      <Card className='border dark:border-border'>
+                      {/* <Card className='border dark:border-border'>
                         <CardContent className='p-6'>
                           <h3 className='font-semibold text-lg mb-4'>
                             Witnesses
@@ -1343,9 +1360,9 @@ export function MarriageCertificateForm({
                             ))}
                           </div>
                         </CardContent>
-                      </Card>
+                      </Card> */}
                       {/* Receipt Information */}
-                      <Card className='border dark:border-border'>
+                      {/* <Card className='border dark:border-border'>
                         <CardContent className='p-6'>
                           <h3 className='font-semibold text-lg mb-4'>
                             Receipt Information
@@ -1397,9 +1414,9 @@ export function MarriageCertificateForm({
                             />
                           </div>
                         </CardContent>
-                      </Card>
+                      </Card> */}
                       {/* Registration Information */}
-                      <Card className='border dark:border-border'>
+                      {/* <Card className='border dark:border-border'>
                         <CardContent className='p-6'>
                           <h3 className='font-semibold text-lg mb-4'>
                             Registration Information
@@ -1451,9 +1468,9 @@ export function MarriageCertificateForm({
                             />
                           </div>
                         </CardContent>
-                      </Card>
+                      </Card> */}
                       {/* Remarks/Annotations */}
-                      <Card className='border dark:border-border'>
+                      {/* <Card className='border dark:border-border'>
                         <CardContent className='p-6'>
                           <h3 className='font-semibold text-lg mb-4'>
                             Remarks/Annotations
@@ -1478,10 +1495,10 @@ export function MarriageCertificateForm({
                             />
                           </div>
                         </CardContent>
-                      </Card>
+                      </Card> */}
 
                       {/* Marriage Settlement Details */}
-                      <Card className='border dark:border-border'>
+                      {/* <Card className='border dark:border-border'>
                         <CardContent className='p-6'>
                           <h3 className='font-semibold text-lg mb-4'>
                             Marriage Settlement Details
@@ -1508,10 +1525,10 @@ export function MarriageCertificateForm({
                             />
                           </div>
                         </CardContent>
-                      </Card>
+                      </Card> */}
 
                       {/* Solemnizing Officer Details */}
-                      <Card className='border dark:border-border'>
+                      {/* <Card className='border dark:border-border'>
                         <CardContent className='p-6'>
                           <h3 className='font-semibold text-lg mb-4'>
                             Solemnizing Officer Details
@@ -1597,10 +1614,10 @@ export function MarriageCertificateForm({
                             />
                           </div>
                         </CardContent>
-                      </Card>
+                      </Card> */}
 
                       {/* Legal Documentation Details */}
-                      <Card className='border dark:border-border'>
+                      {/* <Card className='border dark:border-border'>
                         <CardContent className='p-6'>
                           <h3 className='font-semibold text-lg mb-4'>
                             Legal Documentation
@@ -1665,10 +1682,10 @@ export function MarriageCertificateForm({
                             />
                           </div>
                         </CardContent>
-                      </Card>
+                      </Card> */}
 
                       {/* Signatures */}
-                      <Card className='border dark:border-border'>
+                      {/* <Card className='border dark:border-border'>
                         <CardContent className='p-6'>
                           <h3 className='font-semibold text-lg mb-4'>
                             Contracting Parties Signatures
@@ -1732,7 +1749,7 @@ export function MarriageCertificateForm({
                             />
                           </div>
                         </CardContent>
-                      </Card>
+                      </Card> */}
 
                       <DialogFooter>
                         <Button
@@ -1740,12 +1757,26 @@ export function MarriageCertificateForm({
                           variant='outline'
                           className='h-10'
                           onClick={onCancel}
+                          disabled={isSubmitting}
                         >
                           Cancel
                         </Button>
-                        <Button type='submit' className='h-10 ml-2'>
-                          <Save className='mr-2 h-4 w-4' />
-                          Save Registration
+                        <Button
+                          type='submit'
+                          className='h-10 ml-2'
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <Save className='mr-2 h-4 w-4' />
+                              Save Registration
+                            </>
+                          )}
                         </Button>
                       </DialogFooter>
                     </form>
