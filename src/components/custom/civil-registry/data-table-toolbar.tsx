@@ -10,6 +10,7 @@ import { Cross2Icon } from '@radix-ui/react-icons'
 import { Table } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { AddCivilRegistryFormDialog } from './actions/add-form-dialog'
+import { toast } from 'sonner'
 
 interface DataTableToolbarProps<TData extends BaseRegistryForm> {
   table: Table<TData>
@@ -38,8 +39,41 @@ export function DataTableToolbar<TData extends BaseRegistryForm>({
   )
 
   const handleExport = () => {
-    console.log('Export functionality to be implemented')
-  }
+    try {
+      const tableData = table.getCoreRowModel().rows.map((row) => row.original);
+
+      if (tableData.length === 0) {
+        toast.error('No data available to export');
+        return;
+      }
+
+      // Generate CSV content
+      const headers = Object.keys(tableData[0]).join(',');
+      const rows = tableData
+        .map((row) =>
+          Object.values(row)
+            .map((value) => `"${value}"`)
+            .join(',')
+        )
+        .join('\n');
+      const csvContent = `${headers}\n${rows}`;
+
+      // Create a Blob and trigger download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'exported-data.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success('Data exported successfully');
+    } catch (error) {
+      toast.error('Failed to export data');
+      console.error('Export Error:', error);
+    }
+  };
 
   const handleScanForm = () => {
     console.log('Scanning form functionality to be implemented')
@@ -112,6 +146,11 @@ export function DataTableToolbar<TData extends BaseRegistryForm>({
         <Button variant={"default"} className="h-10" onClick={handleScanForm}>
           <Icons.post className="mr-2 h-4 w-4" />
           Scan Form
+        </Button>
+
+        <Button variant={"default"} className="h-10" onClick={handleScanForm}>
+          <Icons.post className="mr-2 h-4 w-4" />
+          Import PDF
         </Button>
 
         <AddCivilRegistryFormDialog />
