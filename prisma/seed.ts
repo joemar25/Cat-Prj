@@ -1,4 +1,5 @@
 // prisma/seed.ts
+
 import { ROLE_PERMISSIONS } from '@/types/auth';
 import { PrismaClient, UserRole } from '@prisma/client';
 import { hash } from 'bcrypt';
