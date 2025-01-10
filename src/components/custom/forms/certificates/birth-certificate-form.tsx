@@ -26,140 +26,49 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { createBirthCertificate } from '@/hooks/form-certificate-actions';
+import {
+  BirthCertificateFormProps,
+  BirthCertificateFormValues,
+  birthCertificateSchema,
+  defaultBirthCertificateValues,
+} from '@/lib/types/zod-form-certificate/formSchemaCertificate';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2, Save } from 'lucide-react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-
-// Define the Zod schema
-const birthCertificateSchema = z.object({
-  registryNo: z.string(),
-  province: z.string(),
-  cityMunicipality: z.string(),
-  childInfo: z.object({
-    firstName: z.string(),
-    middleName: z.string().optional(),
-    lastName: z.string(),
-    sex: z.enum(['Male', 'Female']),
-    dateOfBirth: z.object({
-      day: z.string(),
-      month: z.string(),
-      year: z.string(),
-    }),
-    placeOfBirth: z.object({
-      hospital: z.string(),
-      cityMunicipality: z.string(),
-      province: z.string(),
-    }),
-    typeOfBirth: z.string(),
-    multipleBirth: z.string().optional(),
-    birthOrder: z.string(),
-    weight: z.string(),
-  }),
-  motherInfo: z.object({
-    firstName: z.string(),
-    middleName: z.string().optional(),
-    lastName: z.string(),
-    citizenship: z.string(),
-    religion: z.string(),
-    totalChildren: z.string(),
-    livingChildren: z.string(),
-    childrenDead: z.string(),
-    occupation: z.string(),
-    age: z.string(),
-    residence: z.object({
-      address: z.string(),
-      cityMunicipality: z.string(),
-      province: z.string(),
-      country: z.string(),
-    }),
-  }),
-  fatherInfo: z.object({
-    firstName: z.string(),
-    middleName: z.string().optional(),
-    lastName: z.string(),
-    citizenship: z.string(),
-    religion: z.string(),
-    occupation: z.string(),
-    age: z.string(),
-    residence: z.object({
-      address: z.string(),
-      cityMunicipality: z.string(),
-      province: z.string(),
-      country: z.string(),
-    }),
-  }),
-  marriageOfParents: z.object({
-    date: z.object({
-      month: z.string(),
-      day: z.string(),
-      year: z.string(),
-    }),
-    place: z.object({
-      cityMunicipality: z.string(),
-      province: z.string(),
-      country: z.string(),
-    }),
-  }),
-  attendant: z.object({
-    type: z.enum(['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others']),
-    certification: z.object({
-      time: z.string(),
-      signature: z.string(),
-      name: z.string(),
-      title: z.string(),
-      address: z.string(),
-      date: z.string(),
-    }),
-  }),
-  informant: z.object({
-    signature: z.string(),
-    name: z.string(),
-    relationship: z.string(),
-    address: z.string(),
-    date: z.string(),
-  }),
-  preparedBy: z.object({
-    signature: z.string(),
-    name: z.string(),
-    title: z.string(),
-    date: z.string(),
-  }),
-  receivedBy: z.object({
-    signature: z.string(),
-    name: z.string(),
-    title: z.string(),
-    date: z.string(),
-  }),
-  registeredBy: z.object({
-    signature: z.string(),
-    name: z.string(),
-    title: z.string(),
-    date: z.string(),
-  }),
-  remarks: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof birthCertificateSchema>;
-
-// Define the props interface
-interface BirthCertificateFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
-}
+import { toast } from 'sonner';
 
 export default function BirthCertificateForm({
   open,
   onOpenChange,
   onCancel,
 }: BirthCertificateFormProps) {
-  const form = useForm<FormValues>({
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const form = useForm<BirthCertificateFormValues>({
     resolver: zodResolver(birthCertificateSchema),
+    defaultValues: defaultBirthCertificateValues,
   });
 
-  function onSubmit(data: FormValues) {
-    console.log(data);
-  }
+  const onSubmit = async (values: BirthCertificateFormValues) => {
+    try {
+      setIsSubmitting(true);
+      const result = await createBirthCertificate(values);
+
+      if (result.success) {
+        toast.success('Birth certificate has been registered successfully');
+        onOpenChange(false); // Close the dialog
+        form.reset(); // Reset the form
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast.error('Failed to register birth certificate. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -1404,7 +1313,23 @@ export default function BirthCertificateForm({
                   <Button type='button' variant='outline' onClick={onCancel}>
                     Cancel
                   </Button>
-                  <Button type='submit'>Submit Form</Button>
+                  <Button
+                    type='submit'
+                    className='h-10 ml-2'
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className='mr-2 h-4 w-4' />
+                        Save Registration
+                      </>
+                    )}
+                  </Button>
                 </div>
               </CardContent>
             </Card>

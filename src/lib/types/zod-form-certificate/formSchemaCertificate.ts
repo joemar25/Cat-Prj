@@ -539,3 +539,246 @@ export interface DeathCertificateFormProps {
   onCancel: () => void;
   onSubmit?: (data: DeathCertificateFormValues) => void;
 }
+
+// --------------------------------- Birth Certificate Schema --------------------------//
+// Define the Zod schema for the birth certificate form
+export const birthCertificateSchema = z.object({
+  registryNo: z.string().min(1, 'Registry number is required'),
+  province: z.string().min(1, 'Province is required'),
+  cityMunicipality: z.string().min(1, 'City/Municipality is required'),
+
+  childInfo: z.object({
+    firstName: z.string().min(1, 'First name is required'),
+    middleName: z.string().optional(),
+    lastName: z.string().min(1, 'Last name is required'),
+    sex: z.enum(['Male', 'Female']),
+    dateOfBirth: z.object({
+      day: z.string().min(1, 'Day is required'),
+      month: z.string().min(1, 'Month is required'),
+      year: z.string().min(1, 'Year is required'),
+    }),
+    placeOfBirth: z.object({
+      hospital: z.string().min(1, 'Hospital is required'),
+      cityMunicipality: z.string().min(1, 'City/Municipality is required'),
+      province: z.string().min(1, 'Province is required'),
+    }),
+    typeOfBirth: z.string().min(1, 'Type of birth is required'),
+    multipleBirth: z.string().optional(),
+    birthOrder: z.string().min(1, 'Birth order is required'),
+    weight: z.string().min(1, 'Weight is required'),
+  }),
+
+  motherInfo: z.object({
+    firstName: z.string().min(1, 'First name is required'),
+    middleName: z.string().optional(),
+    lastName: z.string().min(1, 'Last name is required'),
+    citizenship: z.string().min(1, 'Citizenship is required'),
+    religion: z.string().min(1, 'Religion is required'),
+    totalChildren: z.string().min(1, 'Total children is required'),
+    livingChildren: z.string().min(1, 'Living children is required'),
+    childrenDead: z.string().min(1, 'Children dead is required'),
+    occupation: z.string().min(1, 'Occupation is required'),
+    age: z.string().min(1, 'Age is required'),
+    residence: z.object({
+      address: z.string().min(1, 'Address is required'),
+      cityMunicipality: z.string().min(1, 'City/Municipality is required'),
+      province: z.string().min(1, 'Province is required'),
+      country: z.string().min(1, 'Country is required'),
+    }),
+  }),
+
+  fatherInfo: z.object({
+    firstName: z.string().min(1, 'First name is required'),
+    middleName: z.string().optional(),
+    lastName: z.string().min(1, 'Last name is required'),
+    citizenship: z.string().min(1, 'Citizenship is required'),
+    religion: z.string().min(1, 'Religion is required'),
+    occupation: z.string().min(1, 'Occupation is required'),
+    age: z.string().min(1, 'Age is required'),
+    residence: z.object({
+      address: z.string().min(1, 'Address is required'),
+      cityMunicipality: z.string().min(1, 'City/Municipality is required'),
+      province: z.string().min(1, 'Province is required'),
+      country: z.string().min(1, 'Country is required'),
+    }),
+  }),
+
+  marriageOfParents: z.object({
+    date: z.object({
+      month: z.string().min(1, 'Month is required'),
+      day: z.string().min(1, 'Day is required'),
+      year: z.string().min(1, 'Year is required'),
+    }),
+    place: z.object({
+      cityMunicipality: z.string().min(1, 'City/Municipality is required'),
+      province: z.string().min(1, 'Province is required'),
+      country: z.string().min(1, 'Country is required'),
+    }),
+  }),
+
+  attendant: z.object({
+    type: z.enum(['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others']),
+    certification: z.object({
+      time: z.string().min(1, 'Time is required'),
+      signature: z.string().optional(),
+      name: z.string().min(1, 'Name is required'),
+      title: z.string().min(1, 'Title is required'),
+      address: z.string().min(1, 'Address is required'),
+      date: z.string().min(1, 'Date is required'),
+    }),
+  }),
+
+  informant: z.object({
+    signature: z.string().optional(),
+    name: z.string().min(1, 'Name is required'),
+    relationship: z.string().min(1, 'Relationship is required'),
+    address: z.string().min(1, 'Address is required'),
+    date: z.string().min(1, 'Date is required'),
+  }),
+
+  preparedBy: z.object({
+    signature: z.string().optional(),
+    name: z.string().min(1, 'Name is required'),
+    title: z.string().min(1, 'Title is required'),
+    date: z.string().min(1, 'Date is required'),
+  }),
+
+  receivedBy: z.object({
+    signature: z.string().optional(),
+    name: z.string().min(1, 'Name is required'),
+    title: z.string().min(1, 'Title is required'),
+    date: z.string().min(1, 'Date is required'),
+  }),
+
+  registeredBy: z.object({
+    signature: z.string().optional(),
+    name: z.string().min(1, 'Name is required'),
+    title: z.string().min(1, 'Title is required'),
+    date: z.string().min(1, 'Date is required'),
+  }),
+
+  remarks: z.string().optional(),
+});
+
+// Type inference
+export type BirthCertificateFormValues = z.infer<typeof birthCertificateSchema>;
+
+// Default data for the birth certificate form
+export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> =
+  {
+    registryNo: '2024-0003',
+    province: 'Bulacan',
+    cityMunicipality: 'Malolos',
+
+    childInfo: {
+      firstName: 'Juan',
+      middleName: 'Santos',
+      lastName: 'Dela Cruz',
+      sex: 'Male',
+      dateOfBirth: {
+        day: '15',
+        month: '6',
+        year: '2024',
+      },
+      placeOfBirth: {
+        hospital: 'Bulacan Medical Center',
+        cityMunicipality: 'Malolos',
+        province: 'Bulacan',
+      },
+      typeOfBirth: 'Single',
+      birthOrder: '1',
+      weight: '3.2',
+    },
+
+    motherInfo: {
+      firstName: 'Maria',
+      middleName: 'Garcia',
+      lastName: 'Santos',
+      citizenship: 'Filipino',
+      religion: 'Roman Catholic',
+      totalChildren: '2',
+      livingChildren: '2',
+      childrenDead: '0',
+      occupation: 'Teacher',
+      age: '28',
+      residence: {
+        address: '123 Main St., Brgy. Mojon',
+        cityMunicipality: 'Malolos',
+        province: 'Bulacan',
+        country: 'Philippines',
+      },
+    },
+
+    fatherInfo: {
+      firstName: 'Juan',
+      middleName: 'Reyes',
+      lastName: 'Dela Cruz',
+      citizenship: 'Filipino',
+      religion: 'Roman Catholic',
+      occupation: 'Engineer',
+      age: '30',
+      residence: {
+        address: '123 Main St., Brgy. Mojon',
+        cityMunicipality: 'Malolos',
+        province: 'Bulacan',
+        country: 'Philippines',
+      },
+    },
+
+    marriageOfParents: {
+      date: {
+        month: '12',
+        day: '25',
+        year: '2020',
+      },
+      place: {
+        cityMunicipality: 'Malolos',
+        province: 'Bulacan',
+        country: 'Philippines',
+      },
+    },
+
+    attendant: {
+      type: 'Physician',
+      certification: {
+        time: '10:30',
+        name: 'Dr. John Smith',
+        title: 'Obstetrician',
+        address: 'Bulacan Medical Center',
+        date: '2024-06-15',
+      },
+    },
+
+    informant: {
+      name: 'Maria Santos Dela Cruz',
+      relationship: 'Mother',
+      address: '123 Main St., Brgy. Mojon, Malolos, Bulacan',
+      date: '2024-06-15',
+    },
+
+    preparedBy: {
+      name: 'Jane Doe',
+      title: 'Clerk',
+      date: '2024-06-15',
+    },
+
+    receivedBy: {
+      name: 'John Doe',
+      title: 'Registrar',
+      date: '2024-06-15',
+    },
+
+    registeredBy: {
+      name: 'Mary Smith',
+      title: 'Civil Registrar',
+      date: '2024-06-15',
+    },
+
+    remarks: '',
+  };
+
+export interface BirthCertificateFormProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCancel: () => void;
+}

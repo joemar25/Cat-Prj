@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import {
+  BirthCertificateFormValues,
   DeathCertificateFormValues,
   MarriageCertificateFormValues,
 } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
@@ -232,5 +233,107 @@ export async function createDeathCertificate(data: DeathCertificateFormValues) {
   } catch (error) {
     console.error('Error creating death certificate:', error);
     return { success: false, error: 'Failed to create death certificate' };
+  }
+}
+
+// ------------------------------- Birth Certificate Server Action -------------------------------//
+export async function createBirthCertificate(data: BirthCertificateFormValues) {
+  try {
+    const baseForm = await prisma.baseRegistryForm.create({
+      data: {
+        formNumber: '102', // Form 102 for Birth Certificate
+        formType: 'BIRTH',
+        registryNumber: data.registryNo,
+        province: data.province,
+        cityMunicipality: data.cityMunicipality,
+        pageNumber: '1', // Add the pageNumber field
+        bookNumber: '1', // Add the bookNumber field
+
+        birthCertificateForm: {
+          create: {
+            // Child Information
+            childName: {
+              first: data.childInfo.firstName,
+              middle: data.childInfo.middleName,
+              last: data.childInfo.lastName,
+            },
+            sex: data.childInfo.sex,
+            dateOfBirth: new Date(
+              `${data.childInfo.dateOfBirth.year}-${data.childInfo.dateOfBirth.month}-${data.childInfo.dateOfBirth.day}`
+            ),
+            placeOfBirth: data.childInfo.placeOfBirth,
+            typeOfBirth: data.childInfo.typeOfBirth,
+            multipleBirthOrder: data.childInfo.multipleBirth,
+            birthOrder: data.childInfo.birthOrder,
+            weightAtBirth: parseFloat(data.childInfo.weight),
+
+            // Mother Information
+            motherMaidenName: {
+              first: data.motherInfo.firstName,
+              middle: data.motherInfo.middleName,
+              last: data.motherInfo.lastName,
+            },
+            motherCitizenship: data.motherInfo.citizenship,
+            motherReligion: data.motherInfo.religion,
+            motherOccupation: data.motherInfo.occupation,
+            motherAge: parseInt(data.motherInfo.age),
+            motherResidence: data.motherInfo.residence,
+            totalChildrenBornAlive: parseInt(data.motherInfo.totalChildren),
+            childrenStillLiving: parseInt(data.motherInfo.livingChildren),
+            childrenNowDead: parseInt(data.motherInfo.childrenDead),
+
+            // Father Information
+            fatherName: {
+              first: data.fatherInfo.firstName,
+              middle: data.fatherInfo.middleName,
+              last: data.fatherInfo.lastName,
+            },
+            fatherCitizenship: data.fatherInfo.citizenship,
+            fatherReligion: data.fatherInfo.religion,
+            fatherOccupation: data.fatherInfo.occupation,
+            fatherAge: parseInt(data.fatherInfo.age),
+            fatherResidence: data.fatherInfo.residence,
+
+            // Marriage Information
+            parentMarriage: {
+              date: new Date(
+                `${data.marriageOfParents.date.year}-${data.marriageOfParents.date.month}-${data.marriageOfParents.date.day}`
+              ),
+              place: data.marriageOfParents.place,
+            },
+
+            // Certification Details
+            attendant: data.attendant,
+            informant: data.informant,
+            preparer: data.preparedBy,
+
+            // Additional Legal Details
+            hasAffidavitOfPaternity: false, // Default to false for now
+          },
+        },
+
+        // Received By Information
+        receivedBy: data.receivedBy.name,
+        receivedByPosition: data.receivedBy.title,
+        receivedDate: new Date(data.receivedBy.date),
+
+        // Registered At Information
+        registeredBy: data.registeredBy.name,
+        registeredByPosition: data.registeredBy.title,
+        registrationDate: new Date(data.registeredBy.date),
+
+        // Document Management
+        remarks: data.remarks,
+
+        // Set dateOfRegistration to current date
+        dateOfRegistration: new Date(),
+      },
+    });
+
+    revalidatePath('/birth-certificates');
+    return { success: true, data: baseForm };
+  } catch (error) {
+    console.error('Error creating birth certificate:', error);
+    return { success: false, error: 'Failed to create birth certificate' };
   }
 }
