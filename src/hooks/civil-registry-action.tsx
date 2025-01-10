@@ -2,13 +2,59 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { BaseRegistryForm, FormType } from '@prisma/client';
+import {
+  BaseRegistryForm,
+  BirthCertificateForm,
+  DeathCertificateForm,
+  FormType,
+  MarriageCertificateForm,
+} from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 export type BaseRegistryFormWithRelations = BaseRegistryForm & {
   preparedBy: { name: string } | null;
   verifiedBy: { name: string } | null;
+  marriageCertificateForm?: MarriageCertificateForm | null;
+  birthCertificateForm?: BirthCertificateForm | null;
+  deathCertificateForm?: DeathCertificateForm | null;
 };
+
+export async function getBaseRegistryForms(): Promise<
+  BaseRegistryFormWithRelations[]
+> {
+  return await prisma.baseRegistryForm.findMany({
+    include: {
+      preparedBy: {
+        select: { name: true },
+      },
+      verifiedBy: {
+        select: { name: true },
+      },
+      marriageCertificateForm: true,
+      birthCertificateForm: true,
+      deathCertificateForm: true,
+    },
+  });
+}
+
+export async function getBaseRegistryForm(
+  formId: string
+): Promise<BaseRegistryFormWithRelations | null> {
+  return await prisma.baseRegistryForm.findUnique({
+    where: { id: formId },
+    include: {
+      preparedBy: {
+        select: { name: true },
+      },
+      verifiedBy: {
+        select: { name: true },
+      },
+      marriageCertificateForm: true,
+      birthCertificateForm: true,
+      deathCertificateForm: true,
+    },
+  });
+}
 
 export async function deleteBaseRegistryForm(formId: string) {
   try {
@@ -43,6 +89,9 @@ export async function updateBaseRegistryForm(
         verifiedBy: {
           select: { name: true },
         },
+        marriageCertificateForm: true,
+        birthCertificateForm: true,
+        deathCertificateForm: true,
       },
     });
 
@@ -58,27 +107,28 @@ export async function updateBaseRegistryForm(
   }
 }
 
-export async function addBaseRegistryForm(data: {
+export async function createBaseRegistryForm(data: {
   formType: FormType;
+  formNumber: string;
   registryNumber: string;
   province: string;
   cityMunicipality: string;
   pageNumber: string;
   bookNumber: string;
   dateOfRegistration: Date;
-  formNumber: string;
-}) {
+  preparedById?: string;
+  verifiedById?: string;
+  remarks?: string;
+  lcroNotations?: string;
+}): Promise<{
+  success: boolean;
+  message: string;
+  data?: BaseRegistryFormWithRelations;
+}> {
   try {
-    const baseForm = await prisma.baseRegistryForm.create({
+    const createdForm = await prisma.baseRegistryForm.create({
       data: {
-        formType: data.formType,
-        formNumber: data.formNumber,
-        registryNumber: data.registryNumber,
-        province: data.province,
-        cityMunicipality: data.cityMunicipality,
-        pageNumber: data.pageNumber,
-        bookNumber: data.bookNumber,
-        dateOfRegistration: data.dateOfRegistration,
+        ...data,
         status: 'PENDING',
       },
       include: {
@@ -88,6 +138,9 @@ export async function addBaseRegistryForm(data: {
         verifiedBy: {
           select: { name: true },
         },
+        marriageCertificateForm: true,
+        birthCertificateForm: true,
+        deathCertificateForm: true,
       },
     });
 
@@ -95,7 +148,7 @@ export async function addBaseRegistryForm(data: {
     return {
       success: true,
       message: 'Form created successfully',
-      data: baseForm as BaseRegistryFormWithRelations,
+      data: createdForm as BaseRegistryFormWithRelations,
     };
   } catch (error) {
     console.error('Error creating civil registry form:', error);
