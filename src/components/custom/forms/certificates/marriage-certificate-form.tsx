@@ -46,6 +46,8 @@ import DatePickerField from '../../datepickerfield/date-picker-field'
 import MarriageCertificatePreview from './preview/marriage-certificate-preview'
 import { format } from 'date-fns'
 import { MarriageFormData } from '@/types/marriage-certificate'
+import { PDFViewer } from '@react-pdf/renderer'
+import MarriageCertificatePDF from './preview/MarriageCertificatePDF'
 
 export function MarriageCertificateForm({
   open,
@@ -1871,9 +1873,9 @@ export function MarriageCertificateForm({
             {/* Right Side - Preview - 50% width */}
             <div className='w-1/2 '>
               <div className='h-[calc(95vh-120px)] p-6'>
-                <MarriageCertificatePreview
-                  data={transformFormDataForPreview(form.watch())}
-                />
+                <PDFViewer width="100%" height="100%">
+                  <MarriageCertificatePDF data={transformFormDataForPreview(form.watch())} />
+                </PDFViewer>
               </div>
             </div>
           </div>
