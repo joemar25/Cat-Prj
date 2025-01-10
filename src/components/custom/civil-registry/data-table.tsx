@@ -16,7 +16,7 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table'
-import type { CivilRegistryForm } from '@prisma/client'
+import type { BaseRegistryForm } from '@prisma/client'
 
 import {
     Table,
@@ -36,7 +36,7 @@ import { Icons } from '@/components/ui/icons'
 type CivilRegistryFormValue = string | number | boolean | Date | null | undefined
 
 // Define strict types for the DataTable props
-interface DataTableProps<TData extends CivilRegistryForm> {
+interface DataTableProps<TData extends BaseRegistryForm> {
     columns: ColumnDef<TData, CivilRegistryFormValue>[]
     data: TData[]
     searchKey?: string
@@ -44,7 +44,7 @@ interface DataTableProps<TData extends CivilRegistryForm> {
 }
 
 // Update the DataTable component to use the constrained generic type
-export function DataTable<TData extends CivilRegistryForm>({
+export function DataTable<TData extends BaseRegistryForm>({
     columns,
     data,
     selection = true,

@@ -15,7 +15,7 @@ import { Suspense } from 'react'
 
 async function getCivilRegistryForms() {
   try {
-    const forms = await prisma.civilRegistryForm.findMany({
+    const forms = await prisma.baseRegistryForm.findMany({
       orderBy: {
         createdAt: 'desc',
       },
@@ -23,11 +23,11 @@ async function getCivilRegistryForms() {
         preparedBy: true,
         verifiedBy: true,
       },
-    })
-    return forms
+    });
+    return forms;
   } catch (error) {
-    console.error('Error fetching civil registry forms:', error)
-    return []
+    console.error('Error fetching civil registry forms:', error);
+    return [];
   }
 }
 

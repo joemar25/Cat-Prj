@@ -1,7 +1,7 @@
 // src\components\custom\users\actions\add-user-dialog.tsx
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -17,29 +17,29 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Icons } from '@/components/ui/icons';
-import { Input } from '@/components/ui/input';
+} from '@/components/ui/form'
+import { Icons } from '@/components/ui/icons'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { handleCreateUser } from '@/hooks/users-action';
-import { registrationForm, RegistrationForm } from '@/lib/zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as React from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+} from '@/components/ui/select'
+import { handleCreateUser } from '@/hooks/users-action'
+import { registrationForm, RegistrationForm } from '@/lib/zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as React from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 interface AddUserDialogProps {
-  onSuccess?: () => void;
+  onSuccess?: () => void
 }
 
 export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false)
 
   const form = useForm<RegistrationForm>({
     resolver: zodResolver(registrationForm),
@@ -58,31 +58,31 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
       gender: undefined,
       nationality: '',
     },
-  });
+  })
 
   async function onSubmit(data: RegistrationForm) {
     try {
-      const formData = new FormData();
+      const formData = new FormData()
       // Add all form fields to formData
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined) {
-          formData.append(key, value);
+          formData.append(key, value)
         }
-      });
+      })
 
-      const result = await handleCreateUser(formData);
+      const result = await handleCreateUser(formData)
 
       if (result.success) {
-        toast.success(result.message);
-        form.reset();
-        setOpen(false);
-        onSuccess?.();
+        toast.success(result.message)
+        form.reset()
+        setOpen(false)
+        onSuccess?.()
       } else {
-        toast.error(result.message);
+        toast.error(result.message)
       }
     } catch (error) {
-      console.error('Error creating user:', error);
-      toast.error('An unexpected error occurred');
+      console.error('Error creating user:', error)
+      toast.error('An unexpected error occurred')
     }
   }
 
@@ -332,7 +332,7 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 // ---------- Marriage Available ----------------//
