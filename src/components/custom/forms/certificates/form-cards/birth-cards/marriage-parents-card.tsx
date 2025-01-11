@@ -15,11 +15,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
-import React from 'react';
+import {
+  getAllProvinces,
+  getCitiesMunicipalities,
+} from '@/lib/utils/location-helpers';
+import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 const MarriageOfParentsCard: React.FC = () => {
   const { control } = useFormContext<BirthCertificateFormValues>();
+  const [selectedProvince, setSelectedProvince] = useState('');
+
+  const allProvinces = getAllProvinces();
+  const citiesMunicipalities = getCitiesMunicipalities(selectedProvince);
 
   return (
     <Card>
@@ -102,28 +110,68 @@ const MarriageOfParentsCard: React.FC = () => {
 
         {/* Marriage Place */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-          <FormField
-            control={control}
-            name='marriageOfParents.place.cityMunicipality'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>City/Municipality</FormLabel>
-                <FormControl>
-                  <Input placeholder='Enter city' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Province - First */}
           <FormField
             control={control}
             name='marriageOfParents.place.province'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Province</FormLabel>
-                <FormControl>
-                  <Input placeholder='Enter province' {...field} />
-                </FormControl>
+                <Select
+                  onValueChange={(value) => {
+                    const provinceObj = allProvinces.find(
+                      (p) => p.id === value
+                    );
+                    field.onChange(provinceObj?.name || '');
+                    setSelectedProvince(value);
+                  }}
+                  value={
+                    allProvinces.find((p) => p.name === field.value)?.id || ''
+                  }
+                >
+                  <FormControl>
+                    <SelectTrigger className='h-10'>
+                      <SelectValue placeholder='Select province' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {allProvinces.map((province) => (
+                      <SelectItem key={province.id} value={province.id}>
+                        {province.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* City/Municipality - Second */}
+          <FormField
+            control={control}
+            name='marriageOfParents.place.cityMunicipality'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City/Municipality</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || ''}
+                  disabled={!selectedProvince}
+                >
+                  <FormControl>
+                    <SelectTrigger className='h-10'>
+                      <SelectValue placeholder='Select city/municipality' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {citiesMunicipalities.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
