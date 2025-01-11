@@ -9,12 +9,27 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
-import React from 'react';
+import {
+  getAllProvinces,
+  getCitiesMunicipalities,
+} from '@/lib/utils/location-helpers';
+import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 const RegistryInformationCard: React.FC = () => {
   const { control } = useFormContext<DeathCertificateFormValues>();
+  const [selectedProvince, setSelectedProvince] = useState('');
+
+  const allProvinces = getAllProvinces();
+  const citiesMunicipalities = getCitiesMunicipalities(selectedProvince);
 
   return (
     <Card>
@@ -30,34 +45,77 @@ const RegistryInformationCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Registry Number</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter registry number' {...field} />
+                  <Input
+                    className='h-10'
+                    placeholder='Enter registry number'
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={control}
             name='province'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Province</FormLabel>
-                <FormControl>
-                  <Input placeholder='Enter province' {...field} />
-                </FormControl>
+                <Select
+                  onValueChange={(value) => {
+                    const provinceObj = allProvinces.find(
+                      (p) => p.id === value
+                    );
+                    field.onChange(provinceObj?.name || '');
+                    setSelectedProvince(value);
+                  }}
+                  value={
+                    allProvinces.find((p) => p.name === field.value)?.id || ''
+                  }
+                >
+                  <FormControl>
+                    <SelectTrigger className='h-10'>
+                      <SelectValue placeholder='Select province' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {allProvinces.map((province) => (
+                      <SelectItem key={province.id} value={province.id}>
+                        {province.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={control}
             name='cityMunicipality'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>City/Municipality</FormLabel>
-                <FormControl>
-                  <Input placeholder='Enter city/municipality' {...field} />
-                </FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || ''}
+                  disabled={!selectedProvince}
+                >
+                  <FormControl>
+                    <SelectTrigger className='h-10'>
+                      <SelectValue placeholder='Select city/municipality' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {citiesMunicipalities.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
