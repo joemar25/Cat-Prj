@@ -20,13 +20,13 @@ import React, { useState } from 'react';
 
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { useFormContext } from 'react-hook-form';
 import {
   getCitiesByProvince,
   getProvincesByRegion,
-  REGIONS,
-} from '@/lib/constants/locations';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
-import { useFormContext } from 'react-hook-form';
+} from '@/lib/utils/location-helpers';
+import { REGIONS } from '@/lib/constants/locations';
 
 const HusbandInfoCard: React.FC = () => {
   const { control } = useFormContext<MarriageCertificateFormValues>();

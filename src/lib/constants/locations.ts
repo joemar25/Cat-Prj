@@ -2220,20 +2220,3 @@ export const REGIONS = [
     ],
   },
 ];
-
-// Helper functions
-
-export function getProvincesByRegion(regionId: string) {
-  const region = REGIONS.find((region) => region.id === regionId);
-  return region ? region.provinces : [];
-}
-
-export function getCitiesByProvince(regionId: string, provinceId: string) {
-  const region = REGIONS.find((region) => region.id === regionId);
-  if (!region) return [];
-
-  const province = region.provinces.find(
-    (province) => province.id === provinceId
-  );
-  return province ? province.citiesMunicipalities : [];
-}

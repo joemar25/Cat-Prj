@@ -19,12 +19,12 @@ import {
 import React, { useState } from 'react';
 
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
+import { REGIONS } from '@/lib/constants/locations';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
 import {
   getCitiesByProvince,
   getProvincesByRegion,
-  REGIONS,
-} from '@/lib/constants/locations';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+} from '@/lib/utils/location-helpers';
 import { useFormContext } from 'react-hook-form';
 
 const WifeInfoCard: React.FC = () => {
