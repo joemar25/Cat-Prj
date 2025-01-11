@@ -119,3 +119,10 @@ Feature Checklist for Development
 
 8. Citizen Portal
    - [ ] BLANK
+
+## Docker + PGSQL
+
+1. Download Docker Desktop
+2. Download [Postgres](https://hub.docker.com/_/postgres) image from the hub.
+![alt text](./public//documentation//pg-dl.png)
+3. [Documentation](https://www.docker.com/blog/how-to-use-the-postgres-docker-official-image/)

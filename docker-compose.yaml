@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_PORT}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - "./docker-data/db:var/lib/postgresql/data"
