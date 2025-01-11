@@ -24,15 +24,16 @@ import { toast } from 'sonner';
 
 // Import our new card components
 import { PDFViewer } from '@react-pdf/renderer';
+import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
+import CertificationOfDeathCard from './form-cards/death-cards/certification-of-death-card';
 import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
+import FamilyInformationCard from './form-cards/death-cards/family-information-card';
+import InformantInformationCard from './form-cards/death-cards/informant-information-card';
 import MedicalCertificateCard from './form-cards/death-cards/medical-certificate-card';
 import PersonalInformationCard from './form-cards/death-cards/personal-information-card';
 import RegistryInformationCard from './form-cards/death-cards/regsitry-information-card';
-import FamilyInformationCard from './form-cards/death-cards/family-information-card';
-import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
-import CertificationOfDeathCard from './form-cards/death-cards/certification-of-death-card';
-import InformantInformationCard from './form-cards/death-cards/informant-information-card';
 import RemarksCard from './form-cards/death-cards/remarks-card';
+import DeathCertificatePDF from './preview/death-certificate/death-certificate-preview';
 
 export default function DeathCertificateForm({
   open,
@@ -65,6 +66,62 @@ export default function DeathCertificateForm({
       setIsSubmitting(false);
     }
   }
+
+  // Add this function in your DeathCertificateForm component
+  const transformFormDataForPreview = (
+    data: Partial<DeathCertificateFormValues> | null
+  ): Partial<DeathCertificateFormValues> => {
+    if (!data) return {};
+
+    return {
+      // Registry Information
+      registryNumber: data.registryNumber,
+      province: data.province,
+      cityMunicipality: data.cityMunicipality,
+
+      // Personal Information
+      name: data.name,
+      sex: data.sex,
+      civilStatus: data.civilStatus,
+      dateOfDeath: data.dateOfDeath,
+      dateOfBirth: data.dateOfBirth,
+      ageAtDeath: data.ageAtDeath,
+      placeOfDeath: data.placeOfDeath,
+      religion: data.religion,
+      citizenship: data.citizenship,
+      residence: data.residence,
+      occupation: data.occupation,
+
+      // Family Information
+      fatherName: data.fatherName,
+      motherMaidenName: data.motherMaidenName,
+
+      // Medical Certificate
+      causesOfDeath: data.causesOfDeath,
+      maternalCondition: data.maternalCondition,
+      deathByExternalCauses: data.deathByExternalCauses,
+
+      // Attendant Information
+      attendant: data.attendant,
+
+      // Certification
+      certification: data.certification,
+
+      // Disposal Information
+      disposal: data.disposal,
+      cemeteryAddress: data.cemeteryAddress,
+
+      // Informant
+      informant: data.informant,
+
+      // Civil Registry
+      receivedBy: data.receivedBy,
+      registeredAtCivilRegistrar: data.registeredAtCivilRegistrar,
+
+      // Remarks
+      remarks: data.remarks,
+    };
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
