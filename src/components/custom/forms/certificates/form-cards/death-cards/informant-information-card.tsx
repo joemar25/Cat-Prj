@@ -10,58 +10,23 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
-const CertificationOfDeathCard: React.FC = () => {
+const InformantInformationCard: React.FC = () => {
   const { control } = useFormContext<DeathCertificateFormValues>();
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Certification of Death</CardTitle>
+        <CardTitle>Certification of Informant</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
-        <FormField
-          control={control}
-          name='certification.hasAttended'
-          render={({ field }) => (
-            <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
-              <div className='space-y-0.5'>
-                <FormLabel className='text-base'>
-                  Have you attended the deceased?
-                </FormLabel>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name='certification.deathDateTime'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date and Time of Death</FormLabel>
-              <FormControl>
-                <Input {...field} type='datetime-local' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={control}
-            name='certification.signature'
+            name='informant.signature'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Signature</FormLabel>
@@ -74,7 +39,7 @@ const CertificationOfDeathCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='certification.nameInPrint'
+            name='informant.nameInPrint'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
@@ -89,10 +54,10 @@ const CertificationOfDeathCard: React.FC = () => {
 
         <FormField
           control={control}
-          name='certification.titleOfPosition'
+          name='informant.relationshipToDeceased'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title or Position</FormLabel>
+              <FormLabel>Relationship to the Deceased</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -103,7 +68,7 @@ const CertificationOfDeathCard: React.FC = () => {
 
         <FormField
           control={control}
-          name='certification.address'
+          name='informant.address'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Address</FormLabel>
@@ -117,7 +82,7 @@ const CertificationOfDeathCard: React.FC = () => {
 
         <FormField
           control={control}
-          name='certification.date'
+          name='informant.date'
           render={({ field }) => (
             <FormItem>
               <DatePickerField field={field} label='Date' />
@@ -130,4 +95,4 @@ const CertificationOfDeathCard: React.FC = () => {
   );
 };
 
-export default CertificationOfDeathCard;
+export default InformantInformationCard;
