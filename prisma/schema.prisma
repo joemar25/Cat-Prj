@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -18,31 +16,30 @@ datasource db {
 /// * - One-to-one with Profile
 /// * - Many-to-many with Permissions
 model User {
-  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email         String       @unique
+  id            String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String             @unique
   name          String
   emailVerified Boolean
   image         String?
-  username      String?      @unique
-  role          UserRole     @default(ADMIN)
+  username      String?            @unique
+  role          UserRole           @default(ADMIN)
   permissions   Permission[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
   lastLoginAt   DateTime?
-  language      String?      @default("en")
-  active        Boolean      @default(true)
-
+  language      String?            @default("en")
+  active        Boolean            @default(true)
   accounts      Account[]
   attachments   Attachment[]
   auditLogs     AuditLog[]
+  preparedForms BaseRegistryForm[] @relation("PreparedBy")
+  verifiedForms BaseRegistryForm[] @relation("VerifiedBy")
+  feedback      Feedback[]
   notifications Notification[]
   profile       Profile?
   queues        Queue[]
   sessions      Session[]
   workflows     Workflow[]
-  feedback      Feedback[]
-  preparedForms BaseRegistryForm[] @relation("PreparedBy")
-  verifiedForms BaseRegistryForm[] @relation("VerifiedBy")
 
   @@map("user")
 }
@@ -57,56 +54,33 @@ model User {
 /// * - Document tracking and management
 /// * - Administrative processing details
 model BaseRegistryForm {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  formNumber String   @db.VarChar(3) // Since it's always "97", "102", or "103"
-  formType   FormType // MARRIAGE, BIRTH, DEATH
-
-  // Common Registry Information
-  registryNumber   String // Required in all forms (top right)
-  province         String // Required in all forms
-  cityMunicipality String // Required in all forms
-
-  // Document Filing Info
-  pageNumber String // Required in all forms (bottom filing)
-  bookNumber String // Required in all forms (bottom filing)
-
-  // Administrative Processing
-  preparedById String? @db.Uuid
-  preparedBy   User?   @relation("PreparedBy", fields: [preparedById], references: [id])
-  verifiedById String? @db.Uuid
-  verifiedBy   User?   @relation("VerifiedBy", fields: [verifiedById], references: [id])
-
-  // RECEIVED BY Section (common in all forms)
-  receivedBy         String? // Name in Print
-  receivedByPosition String? // Title or Position
-  receivedDate       DateTime?
-
-  // REGISTERED Section (common in all forms)
-  registeredBy         String? // Name in Print
-  registeredByPosition String? // Title or Position
-  registrationDate     DateTime? // Date of Registration
-  dateOfRegistration   DateTime // Required date when event was registered
-
-  // Document Management
-  remarks String? // REMARKS/ANNOTATIONS (For LCRO/OCRG Use Only) - present in all forms
-
-  // For LCRO/OCRG Use Only (bottom coding present in all forms)
-  // Form 97: 4bH-7W
-  // Form 102: 8-19
-  // Form 103: 10-11
-  lcroNotations String?
-
-  // Status Tracking
-  status DocumentStatus @default(PENDING)
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations to specific form types
-  marriageCertificateForm MarriageCertificateForm?
+  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  formNumber              String                   @db.VarChar(3)
+  formType                FormType
+  registryNumber          String
+  province                String
+  cityMunicipality        String
+  pageNumber              String
+  bookNumber              String
+  preparedById            String?                  @db.Uuid
+  verifiedById            String?                  @db.Uuid
+  receivedBy              String?
+  receivedByPosition      String?
+  receivedDate            DateTime?
+  registeredBy            String?
+  registeredByPosition    String?
+  registrationDate        DateTime?
+  dateOfRegistration      DateTime
+  remarks                 String?
+  lcroNotations           String?
+  status                  DocumentStatus           @default(PENDING)
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  preparedBy              User?                    @relation("PreparedBy", fields: [preparedById], references: [id])
+  verifiedBy              User?                    @relation("VerifiedBy", fields: [verifiedById], references: [id])
   birthCertificateForm    BirthCertificateForm?
   deathCertificateForm    DeathCertificateForm?
+  marriageCertificateForm MarriageCertificateForm?
 
   @@index([registryNumber])
   @@index([formNumber])
@@ -118,73 +92,53 @@ model BaseRegistryForm {
 /// * MarriageCertificateForm Model (Form 97)
 /// * @model
 model MarriageCertificateForm {
-  id         String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseFormId String           @unique @db.Uuid
-  baseForm   BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
-
-  // 1. Contracting Parties: Husband
-  husbandFirstName    String
-  husbandMiddleName   String?
-  husbandLastName     String
-  husbandDateOfBirth  DateTime // 2a
-  husbandAge          Int // 2b
-  husbandPlaceOfBirth Json // 3 {cityMunicipality, province, country}
-  husbandSex          String // 4a
-  husbandCitizenship  String // 4b
-  husbandResidence    String // 5
-  husbandReligion     String? // 6
-  husbandCivilStatus  String // 7
-
-  // Husband's Parents (8-11)
-  husbandFatherName        Json // 8 {first, middle, last}
-  husbandFatherCitizenship String // 9
-  husbandMotherMaidenName  Json // 10 {first, middle, last}
-  husbandMotherCitizenship String // 11
-
-  // Wife Details (Same structure as husband)
-  wifeFirstName    String
-  wifeMiddleName   String?
-  wifeLastName     String
-  wifeDateOfBirth  DateTime
-  wifeAge          Int
-  wifePlaceOfBirth Json // {cityMunicipality, province, country}
-  wifeSex          String // 4a
-  wifeCitizenship  String
-  wifeResidence    String
-  wifeReligion     String?
-  wifeCivilStatus  String
-
-  // Wife's Parents
-  wifeFatherName        Json // {first, middle, last}
-  wifeFatherCitizenship String
-  wifeMotherMaidenName  Json // {first, middle, last}
-  wifeMotherCitizenship String
-
-  // 12-14 Person Who Gave Consent
-  husbandConsentPerson Json? // {name: {first, middle, last}, relationship, residence}
-  wifeConsentPerson    Json? // {name: {first, middle, last}, relationship, residence}
-
-  // 15-17 Marriage Event Details
-  placeOfMarriage Json // {office, cityMunicipality, province}
-  dateOfMarriage  DateTime
-  timeOfMarriage  String   @db.VarChar(8) // For "HH:mm AM/PM" format
-
-  // 18-19 Certification Details
-  marriageSettlement          Boolean @default(false)
-  contractingPartiesSignature Json? // {husband: string, wife: string}
-
-  // Marriage License Details
-  marriageLicenseDetails    Json? // {number, dateIssued, placeIssued}
-  noMarriageLicense         Boolean @default(false)
-  executiveOrderApplied     Boolean @default(false)
-  presidentialDecreeApplied Boolean @default(false)
-
-  // Solemnizing Details
-  solemnizingOfficer          Json // {name, position, religion, registryNoExpiryDate}
+  id                          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId                  String           @unique @db.Uuid
+  husbandFirstName            String
+  husbandMiddleName           String?
+  husbandLastName             String
+  husbandDateOfBirth          DateTime
+  husbandAge                  Int
+  husbandPlaceOfBirth         Json
+  husbandSex                  String
+  husbandCitizenship          String
+  husbandResidence            String
+  husbandReligion             String?
+  husbandCivilStatus          String
+  husbandFatherName           Json
+  husbandFatherCitizenship    String
+  husbandMotherMaidenName     Json
+  husbandMotherCitizenship    String
+  wifeFirstName               String
+  wifeMiddleName              String?
+  wifeLastName                String
+  wifeDateOfBirth             DateTime
+  wifeAge                     Int
+  wifePlaceOfBirth            Json
+  wifeSex                     String
+  wifeCitizenship             String
+  wifeResidence               String
+  wifeReligion                String?
+  wifeCivilStatus             String
+  wifeFatherName              Json
+  wifeFatherCitizenship       String
+  wifeMotherMaidenName        Json
+  wifeMotherCitizenship       String
+  husbandConsentPerson        Json?
+  wifeConsentPerson           Json?
+  placeOfMarriage             Json
+  dateOfMarriage              DateTime
+  timeOfMarriage              String           @db.VarChar(8)
+  marriageSettlement          Boolean          @default(false)
+  contractingPartiesSignature Json?
+  marriageLicenseDetails      Json?
+  noMarriageLicense           Boolean          @default(false)
+  executiveOrderApplied       Boolean          @default(false)
+  presidentialDecreeApplied   Boolean          @default(false)
+  solemnizingOfficer          Json
   solemnizingOfficerSignature String?
-
-  // 20a Witnesses
-  witnesses Json[] // Array of { name: string, signature: string }
+  witnesses                   Json[]
+  baseForm                    BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
 
   @@index([husbandLastName, husbandFirstName])
   @@index([wifeLastName, wifeFirstName])
@@ -196,51 +150,37 @@ model MarriageCertificateForm {
 /// * BirthCertificateForm Model (Form 102)
 /// * @model
 model BirthCertificateForm {
-  id         String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseFormId String           @unique @db.Uuid
-  baseForm   BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
-
-  // Child Information (1-6)
-  childName          Json // {first, middle, last}
-  sex                String // (Male/Female)
-  dateOfBirth        DateTime
-  placeOfBirth       Json // {hospital, houseNo, barangay, cityMunicipality, province}
-  typeOfBirth        String // 5a (Single, Twin, Triplet, etc.)
-  multipleBirthOrder String? // 5b (First, Second, Third, etc.)
-  birthOrder         String? // 5c
-  weightAtBirth      Float // 6 (in grams)
-
-  // Mother Information (7-13)
-  motherMaidenName  Json // 7 {first, middle, last}
-  motherCitizenship String // 8
-  motherReligion    String? // 9
-  motherOccupation  String? // 11
-  motherAge         Int // 12
-  motherResidence   Json // 13 {houseNo, barangay, cityMunicipality, province, country}
-
-  // Birth Order Statistics
-  totalChildrenBornAlive Int? // 10a
-  childrenStillLiving    Int? // 10b
-  childrenNowDead        Int? // 10c
-
-  // Father Information (14-19)
-  fatherName        Json // 14 {first, middle, last}
-  fatherCitizenship String // 15
-  fatherReligion    String? // 16
-  fatherOccupation  String? // 17
-  fatherAge         Int // 18
-  fatherResidence   Json // 19 {houseNo, barangay, cityMunicipality, province, country}
-
-  // Marriage of Parents
-  parentMarriage Json? // 20 {date, place: {cityMunicipality, province, country}}
-
-  // Certification Details (21-23)
-  attendant Json // 21a {type: ENUM, name, title, address, signature, date}
-  informant Json // 22 {name, signature, relationship, address, date}
-  preparer  Json // 23 {name, signature, title, date}
-
-  // Additional Legal Details
-  hasAffidavitOfPaternity Boolean @default(false)
+  id                      String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId              String           @unique @db.Uuid
+  childName               Json
+  sex                     String
+  dateOfBirth             DateTime
+  placeOfBirth            Json
+  typeOfBirth             String
+  multipleBirthOrder      String?
+  birthOrder              String?
+  weightAtBirth           Float
+  motherMaidenName        Json
+  motherCitizenship       String
+  motherReligion          String?
+  motherOccupation        String?
+  motherAge               Int
+  motherResidence         Json
+  totalChildrenBornAlive  Int?
+  childrenStillLiving     Int?
+  childrenNowDead         Int?
+  fatherName              Json
+  fatherCitizenship       String
+  fatherReligion          String?
+  fatherOccupation        String?
+  fatherAge               Int
+  fatherResidence         Json
+  parentMarriage          Json?
+  attendant               Json
+  informant               Json
+  preparer                Json
+  hasAffidavitOfPaternity Boolean          @default(false)
+  baseForm                BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
 
   @@index([dateOfBirth])
   @@map("birth_certificate_form")
@@ -250,80 +190,39 @@ model BirthCertificateForm {
 /// * DeathCertificateForm Model (Form 103)
 /// * @model
 model DeathCertificateForm {
-  id         String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseFormId String           @unique @db.Uuid
-  baseForm   BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
-
-  // Deceased Information (1-7)
-  deceasedName Json // 1 {first, middle, last}
-  sex          String // 2
-  dateOfDeath  DateTime // 3
-  placeOfDeath Json // 4 {houseNo, barangay, cityMunicipality, province}
-  dateOfBirth  DateTime? // 5
-  placeOfBirth Json // 6 {cityMunicipality, province}
-  civilStatus  String // 7
-
-  // Additional Personal Info (8-13)
-  religion     String? // 8
-  citizenship  String // 9
-  residence    Json // 10 {houseNo, barangay, cityMunicipality, province}
-  occupation   String? // 11
-  nameOfFather Json // 12 {first, middle, last}
-  nameOfMother Json // 13 {first, middle, last}
-
-  // Medical Certificate (14-19)
-  causesOfDeath       Json // {
-  //   immediate: string,
-  //   antecedent: string,
-  //   underlying: string,
-  //   otherSignificant: string
-  // }
-  deathInterval       Json // Interval between onset and death
-  pregnancy           Boolean? // If female, pregnancy-related
+  id                  String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId          String           @unique @db.Uuid
+  deceasedName        Json
+  sex                 String
+  dateOfDeath         DateTime
+  placeOfDeath        Json
+  dateOfBirth         DateTime?
+  placeOfBirth        Json
+  civilStatus         String
+  religion            String?
+  citizenship         String
+  residence           Json
+  occupation          String?
+  nameOfFather        Json
+  nameOfMother        Json
+  causesOfDeath       Json
+  deathInterval       Json
+  pregnancy           Boolean?
   attendedByPhysician Boolean
-  mannerOfDeath       String? // Natural, Accident, Suicide, Homicide
+  mannerOfDeath       String?
   autopsyPerformed    Boolean?
   externalCause       String?
   placeOfOccurrence   String?
-
-  // Medical Certification (20-23)
-  certificationType String // Hospital Authority, Private, Public, Other
-  certifier         Json // {name, title, address, signature, date}
-  disposalDetails   Json? // {method, place, date}
-
-  // Certification Details
-  informant Json // {name, signature, relationship, address, date}
-  preparer  Json // {name, signature, title, date}
-
-  // Additional Details
-  burialPermit Json? // {number, date, cemetery}
+  certificationType   String
+  certifier           Json
+  disposalDetails     Json?
+  informant           Json
+  preparer            Json
+  burialPermit        Json?
+  baseForm            BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
 
   @@index([dateOfDeath])
   @@map("death_certificate_form")
-}
-
-// Supporting ENUMs
-enum AttendantType {
-  PHYSICIAN
-  NURSE
-  MIDWIFE
-  HILOT
-  OTHERS
-}
-
-enum CauseOfDeathType {
-  IMMEDIATE
-  ANTECEDENT
-  UNDERLYING
-  OTHER_SIGNIFICANT
-}
-
-enum MannerOfDeath {
-  NATURAL
-  ACCIDENT
-  SUICIDE
-  HOMICIDE
-  UNDETERMINED
 }
 
 /// *
@@ -342,32 +241,23 @@ model CertifiedCopy {
   searchedBy          String?
   contactNo           String?
   date                DateTime?
-  attachment          Attachment @relation(fields: [attachmentId], references: [id])
   attachmentId        String     @db.Uuid
-  requesterName       String
-  relationshipToOwner String
   address             String
-  purpose             String
-  remarks             String?
-  signature           String?
   amountPaid          Float?
-  orNumber            String?
-  datePaid            DateTime?
-  registeredDate      DateTime?
-  isRegistered        Boolean    @default(false)
   createdAt           DateTime   @default(now())
+  datePaid            DateTime?
+  isRegistered        Boolean    @default(false)
+  orNumber            String?
+  purpose             String
+  registeredDate      DateTime?
+  relationshipToOwner String
+  remarks             String?
+  requesterName       String
+  signature           String?
   updatedAt           DateTime   @updatedAt
+  attachment          Attachment @relation(fields: [attachmentId], references: [id])
 
   @@map("certified_copy")
-}
-
-/// *
-/// * Defines the types of civil registry forms
-/// * @enum {string}
-enum FormType {
-  MARRIAGE
-  BIRTH
-  DEATH
 }
 
 /// *
@@ -653,10 +543,41 @@ model Feedback {
   submittedBy String?  @db.Uuid
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  user User? @relation(fields: [submittedBy], references: [id])
+  user        User?    @relation(fields: [submittedBy], references: [id])
 
   @@map("feedback")
+}
+
+enum AttendantType {
+  PHYSICIAN
+  NURSE
+  MIDWIFE
+  HILOT
+  OTHERS
+}
+
+enum CauseOfDeathType {
+  IMMEDIATE
+  ANTECEDENT
+  UNDERLYING
+  OTHER_SIGNIFICANT
+}
+
+enum MannerOfDeath {
+  NATURAL
+  ACCIDENT
+  SUICIDE
+  HOMICIDE
+  UNDETERMINED
+}
+
+/// *
+/// * Defines the types of civil registry forms
+/// * @enum {string}
+enum FormType {
+  MARRIAGE
+  BIRTH
+  DEATH
 }
 
 /// *
@@ -746,17 +667,3 @@ enum AttachmentType {
   DEATH_CERTIFICATE
   MARRIAGE_CERTIFICATE
 }
-
-// For later use
-// enum CivilStatus {
-//   SINGLE
-//   MARRIED
-//   WIDOWED
-//   DIVORCED
-//   SEPARATED
-// }
-
-// enum Sex {
-//   MALE
-//   FEMALE
-// }
