@@ -129,11 +129,7 @@ export default function DeathCertificateForm({
         <div className='h-full flex flex-col'>
           <DialogHeader>
             <DialogTitle className='text-2xl font-bold text-center py-4'>
-              Republic of the Philippines
-              <br />
-              OFFICE OF THE CIVIL REGISTRAR GENERAL
-              <br />
-              CERTIFICATE OF DEATH
+              Certificate of Death
             </DialogTitle>
           </DialogHeader>
 
