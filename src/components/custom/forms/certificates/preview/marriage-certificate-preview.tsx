@@ -1,6 +1,8 @@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConsentPerson, MarriageFormData, PersonName, Place, SolemnizingOfficer } from '@/types/marriage-certificate';
+import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+
 
 interface MarriageCertificatePreviewProps {
     data: Partial<MarriageFormData>;
