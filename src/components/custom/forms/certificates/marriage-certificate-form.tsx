@@ -33,8 +33,9 @@ import RegistryInfoCard from './form-cards/marriage-cards/registry-info-card';
 import WifeConsentInfoCard from './form-cards/marriage-cards/wife-consent-info-card';
 import WifeInfoCard from './form-cards/marriage-cards/wife-info-card';
 import WifeParentsInfoCard from './form-cards/marriage-cards/wife-parent-info-card';
-import MarriageCertificatePDF from './preview/MarriageCertificatePDF';
+
 import MarriageDetailsCard from './form-cards/marriage-cards/marriage-details-card';
+import MarriageCertificatePDF from './preview/marriage-certificate/MarriageCertificatePDF';
 
 export function MarriageCertificateForm({
   open,

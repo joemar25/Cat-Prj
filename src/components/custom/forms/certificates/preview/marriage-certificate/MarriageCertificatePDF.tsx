@@ -1,6 +1,10 @@
+import {
+  MarriageFormData,
+  PersonName,
+  Place,
+} from '@/types/marriage-certificate'; // Adjust the import path as needed
+import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import { MarriageFormData, PersonName, Place, ConsentPerson, SolemnizingOfficer } from '@/types/marriage-certificate'; // Adjust the import path as needed
 
 // Define styles for the PDF
 const styles = StyleSheet.create({
@@ -55,11 +59,13 @@ interface MarriageCertificatePDFProps {
   data: Partial<MarriageFormData>;
 }
 
-const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({ data }) => {
+const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
+  data,
+}) => {
   if (!Object.entries(data).length) {
     return (
       <Document>
-        <Page size="A4" style={styles.page}>
+        <Page size='A4' style={styles.page}>
           <View style={styles.section}>
             <Text>No data available for preview.</Text>
           </View>
@@ -70,14 +76,20 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({ data })
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size='A4' style={styles.page}>
         {/* Husband's Information */}
         <View style={styles.section}>
-          <Text style={styles.title}>Husband's Information</Text>
+          <Text style={styles.title}>Husband&apos;s Information</Text>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Full Name:</Text>
             <Text style={styles.value}>
-              {[data.husbandFirstName, data.husbandMiddleName, data.husbandLastName].filter(Boolean).join(' ')}
+              {[
+                data.husbandFirstName,
+                data.husbandMiddleName,
+                data.husbandLastName,
+              ]
+                .filter(Boolean)
+                .join(' ')}
             </Text>
           </View>
           <View style={styles.fieldContainer}>
@@ -90,7 +102,9 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({ data })
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Place of Birth:</Text>
-            <Text style={styles.value}>{formatPlace(data.husbandPlaceOfBirth)}</Text>
+            <Text style={styles.value}>
+              {formatPlace(data.husbandPlaceOfBirth)}
+            </Text>
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Sex:</Text>
@@ -116,32 +130,42 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({ data })
 
         {/* Husband's Family */}
         <View style={styles.section}>
-          <Text style={styles.title}>Husband's Family</Text>
+          <Text style={styles.title}>Husband&apos;s Family</Text>
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Father's Name:</Text>
-            <Text style={styles.value}>{formatName(data.husbandFatherName)}</Text>
+            <Text style={styles.label}>Father&apos;s Name:</Text>
+            <Text style={styles.value}>
+              {formatName(data.husbandFatherName)}
+            </Text>
           </View>
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Father's Citizenship:</Text>
-            <Text style={styles.value}>{data.husbandFatherCitizenship || 'N/A'}</Text>
+            <Text style={styles.label}>Father&apos;s Citizenship:</Text>
+            <Text style={styles.value}>
+              {data.husbandFatherCitizenship || 'N/A'}
+            </Text>
           </View>
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Mother's Maiden Name:</Text>
-            <Text style={styles.value}>{formatName(data.husbandMotherMaidenName)}</Text>
+            <Text style={styles.label}>Mother&apos;s Maiden Name:</Text>
+            <Text style={styles.value}>
+              {formatName(data.husbandMotherMaidenName)}
+            </Text>
           </View>
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Mother's Citizenship:</Text>
-            <Text style={styles.value}>{data.husbandMotherCitizenship || 'N/A'}</Text>
+            <Text style={styles.label}>Mother&apos;s Citizenship:</Text>
+            <Text style={styles.value}>
+              {data.husbandMotherCitizenship || 'N/A'}
+            </Text>
           </View>
         </View>
 
         {/* Wife's Information */}
         <View style={styles.section}>
-          <Text style={styles.title}>Wife's Information</Text>
+          <Text style={styles.title}>Wife&apos;s Information</Text>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Full Name:</Text>
             <Text style={styles.value}>
-              {[data.wifeFirstName, data.wifeMiddleName, data.wifeLastName].filter(Boolean).join(' ')}
+              {[data.wifeFirstName, data.wifeMiddleName, data.wifeLastName]
+                .filter(Boolean)
+                .join(' ')}
             </Text>
           </View>
           <View style={styles.fieldContainer}>
@@ -154,7 +178,9 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({ data })
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Place of Birth:</Text>
-            <Text style={styles.value}>{formatPlace(data.wifePlaceOfBirth)}</Text>
+            <Text style={styles.value}>
+              {formatPlace(data.wifePlaceOfBirth)}
+            </Text>
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Sex:</Text>
@@ -180,22 +206,28 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({ data })
 
         {/* Wife's Family */}
         <View style={styles.section}>
-          <Text style={styles.title}>Wife's Family</Text>
+          <Text style={styles.title}>Wife&apos;s Family</Text>
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Father's Name:</Text>
+            <Text style={styles.label}>Father&apos;s Name:</Text>
             <Text style={styles.value}>{formatName(data.wifeFatherName)}</Text>
           </View>
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Father's Citizenship:</Text>
-            <Text style={styles.value}>{data.wifeFatherCitizenship || 'N/A'}</Text>
+            <Text style={styles.label}>Father&apos;s Citizenship:</Text>
+            <Text style={styles.value}>
+              {data.wifeFatherCitizenship || 'N/A'}
+            </Text>
           </View>
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Mother's Maiden Name:</Text>
-            <Text style={styles.value}>{formatName(data.wifeMotherMaidenName)}</Text>
+            <Text style={styles.label}>Mother&apos;s Maiden Name:</Text>
+            <Text style={styles.value}>
+              {formatName(data.wifeMotherMaidenName)}
+            </Text>
           </View>
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Mother's Citizenship:</Text>
-            <Text style={styles.value}>{data.wifeMotherCitizenship || 'N/A'}</Text>
+            <Text style={styles.label}>Mother&apos;s Citizenship:</Text>
+            <Text style={styles.value}>
+              {data.wifeMotherCitizenship || 'N/A'}
+            </Text>
           </View>
         </View>
 
@@ -206,7 +238,9 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({ data })
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Place of Marriage:</Text>
               <Text style={styles.value}>
-                {`${data.placeOfMarriage.office}, ${formatPlace(data.placeOfMarriage)}`}
+                {`${data.placeOfMarriage.office}, ${formatPlace(
+                  data.placeOfMarriage
+                )}`}
               </Text>
             </View>
           )}
@@ -226,19 +260,27 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({ data })
             <Text style={styles.title}>Solemnizing Officer</Text>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Name:</Text>
-              <Text style={styles.value}>{data.solemnizingOfficer.name || 'N/A'}</Text>
+              <Text style={styles.value}>
+                {data.solemnizingOfficer.name || 'N/A'}
+              </Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Position:</Text>
-              <Text style={styles.value}>{data.solemnizingOfficer.position || 'N/A'}</Text>
+              <Text style={styles.value}>
+                {data.solemnizingOfficer.position || 'N/A'}
+              </Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Religion:</Text>
-              <Text style={styles.value}>{data.solemnizingOfficer.religion || 'N/A'}</Text>
+              <Text style={styles.value}>
+                {data.solemnizingOfficer.religion || 'N/A'}
+              </Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Registry Expiry Date:</Text>
-              <Text style={styles.value}>{data.solemnizingOfficer.registryNoExpiryDate || 'N/A'}</Text>
+              <Text style={styles.value}>
+                {data.solemnizingOfficer.registryNoExpiryDate || 'N/A'}
+              </Text>
             </View>
           </View>
         )}
@@ -249,35 +291,55 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({ data })
             <Text style={styles.title}>Consent Information</Text>
             {data.husbandConsentPerson && (
               <View>
-                <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 5 }}>Husband's Consent Person</Text>
+                <Text
+                  style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 5 }}
+                >
+                  Husband&apos;s Consent Person
+                </Text>
                 <View style={styles.fieldContainer}>
                   <Text style={styles.label}>Name:</Text>
-                  <Text style={styles.value}>{formatName(data.husbandConsentPerson.name)}</Text>
+                  <Text style={styles.value}>
+                    {formatName(data.husbandConsentPerson.name)}
+                  </Text>
                 </View>
                 <View style={styles.fieldContainer}>
                   <Text style={styles.label}>Relationship:</Text>
-                  <Text style={styles.value}>{data.husbandConsentPerson.relationship || 'N/A'}</Text>
+                  <Text style={styles.value}>
+                    {data.husbandConsentPerson.relationship || 'N/A'}
+                  </Text>
                 </View>
                 <View style={styles.fieldContainer}>
                   <Text style={styles.label}>Residence:</Text>
-                  <Text style={styles.value}>{data.husbandConsentPerson.residence || 'N/A'}</Text>
+                  <Text style={styles.value}>
+                    {data.husbandConsentPerson.residence || 'N/A'}
+                  </Text>
                 </View>
               </View>
             )}
             {data.wifeConsentPerson && (
               <View style={{ marginTop: 10 }}>
-                <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 5 }}>Wife's Consent Person</Text>
+                <Text
+                  style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 5 }}
+                >
+                  Wife&apos;s Consent Person
+                </Text>
                 <View style={styles.fieldContainer}>
                   <Text style={styles.label}>Name:</Text>
-                  <Text style={styles.value}>{formatName(data.wifeConsentPerson.name)}</Text>
+                  <Text style={styles.value}>
+                    {formatName(data.wifeConsentPerson.name)}
+                  </Text>
                 </View>
                 <View style={styles.fieldContainer}>
                   <Text style={styles.label}>Relationship:</Text>
-                  <Text style={styles.value}>{data.wifeConsentPerson.relationship || 'N/A'}</Text>
+                  <Text style={styles.value}>
+                    {data.wifeConsentPerson.relationship || 'N/A'}
+                  </Text>
                 </View>
                 <View style={styles.fieldContainer}>
                   <Text style={styles.label}>Residence:</Text>
-                  <Text style={styles.value}>{data.wifeConsentPerson.residence || 'N/A'}</Text>
+                  <Text style={styles.value}>
+                    {data.wifeConsentPerson.residence || 'N/A'}
+                  </Text>
                 </View>
               </View>
             )}
