@@ -70,6 +70,7 @@ import {
     View,
     Baby,
     Skull,
+    Save,
 
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
@@ -85,6 +86,7 @@ import {
     InfoCircledIcon,
     StopwatchIcon,
     HeartFilledIcon,
+
 } from '@radix-ui/react-icons'
 
 export type Icon = typeof X
@@ -175,6 +177,7 @@ export const Icons = {
     heart: HeartFilledIcon,
     baby: Baby,
     skull: Skull,
+    save: Save,
     /**
      * Custom Icons below  
      */

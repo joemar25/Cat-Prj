@@ -1,14 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import Link from 'next/link'
+
 import { toast } from 'sonner'
+import { useState } from 'react'
 import { Icons } from '@/components/ui/icons'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { handleSignOut } from '@/hooks/auth-actions'
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { UserHeaderNavProps } from '@/types/dashboard'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 
 export function UserHeaderNav({ user }: UserHeaderNavProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -56,7 +58,9 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Profile</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/profile">Profile</Link>
+          </DropdownMenuItem>
           <DropdownMenuItem>Settings</DropdownMenuItem>
           <DropdownMenuItem
             className="text-destructive"

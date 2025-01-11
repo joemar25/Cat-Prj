@@ -1,24 +1,24 @@
 // src/hooks/users-action.tsx
-'use server';
+'use server'
 
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'
 import {
   CertifiedCopyFormData,
   getEmailSchema,
   getNameSchema,
   getPasswordSchema,
-} from '@/lib/zod';
-import { ROLE_PERMISSIONS } from '@/types/auth';
+} from '@/lib/zod'
+import { ROLE_PERMISSIONS } from '@/types/auth'
 import {
   AttachmentType,
   DocumentStatus,
   Profile,
   User,
   UserRole,
-} from '@prisma/client';
-import { hash } from 'bcryptjs';
-import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
+} from '@prisma/client'
+import { hash } from 'bcryptjs'
+import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 
 // Schema for creating a user in the admin panel
 const createUserSchema = z.object({
@@ -26,7 +26,7 @@ const createUserSchema = z.object({
   password: getPasswordSchema('password'),
   name: getNameSchema(),
   role: z.enum(['ADMIN', 'STAFF', 'USER']).default('USER'),
-});
+})
 
 export async function handleCreateUser(data: FormData) {
   try {
@@ -35,18 +35,18 @@ export async function handleCreateUser(data: FormData) {
       email: data.get('email'),
       password: data.get('password'),
       role: data.get('role'),
-    });
+    })
 
     const existingUser = await prisma.user.findUnique({
       where: { email: parsedData.email },
-    });
+    })
 
     if (existingUser) {
-      return { success: false, message: 'Email already exists' };
+      return { success: false, message: 'Email already exists' }
     }
 
-    const hashedPassword = await hash(parsedData.password, 10);
-    const now = new Date();
+    const hashedPassword = await hash(parsedData.password, 10)
+    const now = new Date()
 
     const result = await prisma.$transaction(async (tx) => {
       // Create user
@@ -60,7 +60,7 @@ export async function handleCreateUser(data: FormData) {
           createdAt: now,
           updatedAt: now,
         },
-      });
+      })
 
       // Create account
       await tx.account.create({
@@ -72,7 +72,7 @@ export async function handleCreateUser(data: FormData) {
           createdAt: now,
           updatedAt: now,
         },
-      });
+      })
 
       // Create empty profile
       await tx.profile.create({
@@ -84,23 +84,23 @@ export async function handleCreateUser(data: FormData) {
           state: '',
           country: '',
         },
-      });
+      })
 
-      return createdUser;
-    });
+      return createdUser
+    })
 
-    revalidatePath('/manage-users');
+    revalidatePath('/manage-users')
     return {
       success: true,
       message: 'User created successfully',
       user: result,
-    };
-  } catch (error) {
-    console.error('Create user error:', error);
-    if (error instanceof z.ZodError) {
-      return { success: false, message: error.errors[0].message };
     }
-    return { success: false, message: 'Failed to create user' };
+  } catch (error) {
+    console.error('Create user error:', error)
+    if (error instanceof z.ZodError) {
+      return { success: false, message: error.errors[0].message }
+    }
+    return { success: false, message: 'Failed to create user' }
   }
 }
 
@@ -119,16 +119,16 @@ export async function handleGetUser(userId: string) {
           },
         },
       },
-    });
+    })
 
     if (!user) {
-      return { success: false, message: 'User not found' };
+      return { success: false, message: 'User not found' }
     }
 
-    return { success: true, user };
+    return { success: true, user }
   } catch (error) {
-    console.error('Get user error:', error);
-    return { success: false, message: 'Failed to fetch user' };
+    console.error('Get user error:', error)
+    return { success: false, message: 'Failed to fetch user' }
   }
 }
 
@@ -143,18 +143,18 @@ export async function deleteUser(userId: string) {
         entityId: userId,
         details: { reason: 'User deleted through admin interface' },
       },
-    });
+    })
 
     // Delete the user - Prisma will handle cascading deletes based on schema
     await prisma.user.delete({
       where: { id: userId },
-    });
+    })
 
-    revalidatePath('/users');
-    return { success: true, message: 'User deleted successfully' };
+    revalidatePath('/users')
+    return { success: true, message: 'User deleted successfully' }
   } catch (error) {
-    console.error('Error deleting user:', error);
-    return { success: false, message: 'Failed to delete user', error };
+    console.error('Error deleting user:', error)
+    return { success: false, message: 'Failed to delete user', error }
   }
 }
 
@@ -166,13 +166,13 @@ export async function handleUpdateUser(userId: string, data: Partial<User>) {
         ...data,
         updatedAt: new Date(),
       },
-    });
+    })
 
-    revalidatePath('/users');
-    return { success: true, message: 'User updated successfully', data: user };
+    revalidatePath('/users')
+    return { success: true, message: 'User updated successfully', data: user }
   } catch (error) {
-    console.error('Error updating user:', error);
-    return { success: false, message: 'Failed to update user', error };
+    console.error('Error updating user:', error)
+    return { success: false, message: 'Failed to update user', error }
   }
 }
 
@@ -191,17 +191,17 @@ export async function handleUpdateUserProfile(
         userId,
         ...data,
       },
-    });
+    })
 
-    revalidatePath('/users');
+    revalidatePath('/profile')
     return {
       success: true,
-      message: 'User profile updated successfully',
+      message: 'Profile updated successfully',
       data: profile,
-    };
+    }
   } catch (error) {
-    console.error('Error updating user profile:', error);
-    return { success: false, message: 'Failed to update user profile', error };
+    console.error('Error updating profile:', error)
+    return { success: false, message: 'Failed to update profile', error }
   }
 }
 
@@ -210,15 +210,15 @@ export async function activateUser(userId: string) {
     const user = await prisma.user.update({
       where: { id: userId },
       data: { emailVerified: true, updatedAt: new Date() },
-    });
+    })
     return {
       success: true,
       message: 'User activated successfully',
       data: user,
-    };
+    }
   } catch (error) {
-    console.error('Error activating user:', error);
-    return { success: false, message: 'Failed to activate user' };
+    console.error('Error activating user:', error)
+    return { success: false, message: 'Failed to activate user' }
   }
 }
 
@@ -227,15 +227,15 @@ export async function deactivateUser(userId: string) {
     const user = await prisma.user.update({
       where: { id: userId },
       data: { emailVerified: false, updatedAt: new Date() },
-    });
+    })
     return {
       success: true,
       message: 'User deactivated successfully',
       data: user,
-    };
+    }
   } catch (error) {
-    console.error('Error deactivating user:', error);
-    return { success: false, message: 'Failed to deactivate user' };
+    console.error('Error deactivating user:', error)
+    return { success: false, message: 'Failed to deactivate user' }
   }
 }
 export async function createCertifiedCopy(
@@ -254,7 +254,7 @@ export async function createCertifiedCopy(
           version: 1,
           isLatest: true,
         },
-      });
+      })
 
       // 2. Create Attachment
       const attachment = await tx.attachment.create({
@@ -268,7 +268,7 @@ export async function createCertifiedCopy(
           mimeType: 'application/pdf', // placeholder
           status: DocumentStatus.PENDING,
         },
-      });
+      })
 
       // 3. Create CertifiedCopy
       const certifiedCopy = await tx.certifiedCopy.create({
@@ -285,19 +285,19 @@ export async function createCertifiedCopy(
           address: data.address,
           purpose: data.purpose,
         },
-      });
+      })
 
-      return { certifiedCopy, attachment, document };
-    });
+      return { certifiedCopy, attachment, document }
+    })
 
-    revalidatePath('/users');
+    revalidatePath('/users')
     return {
       success: true,
       message: 'Certified copy created successfully',
       data: result,
-    };
+    }
   } catch (error) {
-    console.error('Error creating certified copy:', error);
-    return { success: false, message: 'Failed to create certified copy' };
+    console.error('Error creating certified copy:', error)
+    return { success: false, message: 'Failed to create certified copy' }
   }
 }

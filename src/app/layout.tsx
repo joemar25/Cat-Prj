@@ -45,7 +45,7 @@ export default function RootLayout({
           </SessionProvider>
 
           <Toaster
-            position='top-right'
+            position='bottom-right'
             richColors
             closeButton
             theme='system'
