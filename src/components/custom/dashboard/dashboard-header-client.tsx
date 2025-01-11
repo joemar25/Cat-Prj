@@ -1,3 +1,4 @@
+// src/components/dashboard/dashboard-header-client.tsx
 'use client'
 
 import { formatDateTime } from '@/utils/date'
@@ -100,7 +101,7 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                     </div>
                 )}
                 <ThemeChange />
-                <NotificationBell />
+                {user && <NotificationBell userId={user.id} />}
                 <UserHeaderNav user={user} />
             </div>
         </header>
