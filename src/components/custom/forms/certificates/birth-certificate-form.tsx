@@ -23,6 +23,10 @@ import { Loader2, Save } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import {
+  ConfirmationDialog,
+  shouldSkipAlert,
+} from '../../confirmation-dialog/confirmation-dialog';
 import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
 import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
 import ChildInformationCard from './form-cards/birth-cards/child-information-card';
@@ -42,6 +46,10 @@ export default function BirthCertificateForm({
   onCancel,
 }: BirthCertificateFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [pendingSubmission, setPendingSubmission] =
+    useState<BirthCertificateFormValues | null>(null);
+
   const form = useForm<BirthCertificateFormValues>({
     resolver: zodResolver(birthCertificateSchema),
     defaultValues: defaultBirthCertificateValues,
@@ -195,6 +203,23 @@ export default function BirthCertificateForm({
     };
   };
 
+  const handleSubmit = (values: BirthCertificateFormValues) => {
+    if (shouldSkipAlert('skipBirthCertificateAlert')) {
+      onSubmit(values);
+    } else {
+      setPendingSubmission(values);
+      setShowAlert(true);
+    }
+  };
+
+  const confirmSubmit = () => {
+    if (pendingSubmission) {
+      onSubmit(pendingSubmission);
+      setShowAlert(false);
+      setPendingSubmission(null);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0'>
@@ -212,7 +237,7 @@ export default function BirthCertificateForm({
                 <div className='p-6'>
                   <Form {...form}>
                     <form
-                      onSubmit={form.handleSubmit(onSubmit)}
+                      onSubmit={form.handleSubmit(handleSubmit)}
                       className='space-y-6'
                     >
                       <RegistryInformationCard />
@@ -257,6 +282,19 @@ export default function BirthCertificateForm({
                       </DialogFooter>
                     </form>
                   </Form>
+
+                  <ConfirmationDialog
+                    open={showAlert}
+                    onOpenChange={setShowAlert}
+                    onConfirm={confirmSubmit}
+                    isSubmitting={isSubmitting}
+                    localStorageKey='skipBirthCertificateAlert'
+                    // Optionally override default texts
+                    // title="Custom Title"
+                    // description="Custom Description"
+                    // confirmButtonText="Custom Confirm Text"
+                    // cancelButtonText="Custom Cancel Text"
+                  />
                 </div>
               </ScrollArea>
             </div>
