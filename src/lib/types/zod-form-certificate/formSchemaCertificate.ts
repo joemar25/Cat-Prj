@@ -657,7 +657,8 @@ export const birthCertificateSchema = z.object({
     date: z.string().min(1, 'Date is required'),
   }),
 
-  registeredBy: z.object({
+  registeredByOffice: z.object({
+    // New name to match component
     signature: z.string().optional(),
     name: z.string().min(1, 'Name is required'),
     title: z.string().min(1, 'Title is required'),
@@ -674,8 +675,8 @@ export type BirthCertificateFormValues = z.infer<typeof birthCertificateSchema>;
 export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> =
   {
     registryNo: '2024-0003',
-    province: 'Bulacan',
-    cityMunicipality: 'Malolos',
+    province: '',
+    cityMunicipality: '',
 
     childInfo: {
       firstName: 'Juan',
@@ -689,8 +690,8 @@ export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> 
       },
       placeOfBirth: {
         hospital: 'Bulacan Medical Center',
-        cityMunicipality: 'Malolos',
-        province: 'Bulacan',
+        cityMunicipality: '',
+        province: '',
       },
       typeOfBirth: 'Single',
       birthOrder: '1',
@@ -710,8 +711,8 @@ export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> 
       age: '28',
       residence: {
         address: '123 Main St., Brgy. Mojon',
-        cityMunicipality: 'Malolos',
-        province: 'Bulacan',
+        cityMunicipality: '',
+        province: '',
         country: 'Philippines',
       },
     },
@@ -726,8 +727,8 @@ export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> 
       age: '30',
       residence: {
         address: '123 Main St., Brgy. Mojon',
-        cityMunicipality: 'Malolos',
-        province: 'Bulacan',
+        cityMunicipality: '',
+        province: '',
         country: 'Philippines',
       },
     },
@@ -739,8 +740,8 @@ export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> 
         year: '2020',
       },
       place: {
-        cityMunicipality: 'Malolos',
-        province: 'Bulacan',
+        cityMunicipality: '',
+        province: '',
         country: 'Philippines',
       },
     },
@@ -764,21 +765,22 @@ export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> 
     },
 
     preparedBy: {
-      name: 'Jane Doe',
-      title: 'Clerk',
-      date: '2024-06-15',
+      name: '',
+      title: '',
+      date: '',
     },
 
     receivedBy: {
-      name: 'John Doe',
-      title: 'Registrar',
-      date: '2024-06-15',
+      name: '',
+      title: '',
+      date: '',
     },
 
-    registeredBy: {
-      name: 'Mary Smith',
-      title: 'Civil Registrar',
-      date: '2024-06-15',
+    registeredByOffice: {
+      // New name to match component
+      name: '',
+      title: '',
+      date: '',
     },
 
     remarks: '',

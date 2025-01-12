@@ -20,10 +20,10 @@ import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/for
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-const ReceivedByCard: React.FC = () => {
+const PreparedByCard: React.FC = () => {
   const { control, watch, setValue } =
     useFormContext<BirthCertificateFormValues>();
-  const selectedName = watch('receivedBy.name');
+  const selectedName = watch('preparedBy.name');
 
   // Auto-fill title when name is selected
   useEffect(() => {
@@ -31,27 +31,27 @@ const ReceivedByCard: React.FC = () => {
       (staff) => staff.name === selectedName
     );
     if (staff) {
-      setValue('receivedBy.title', staff.title);
+      setValue('preparedBy.title', staff.title);
     }
   }, [selectedName, setValue]);
 
   // Set default date to today when component mounts
   useEffect(() => {
-    if (!watch('receivedBy.date')) {
-      setValue('receivedBy.date', new Date().toISOString());
+    if (!watch('preparedBy.date')) {
+      setValue('preparedBy.date', new Date().toISOString());
     }
   }, [setValue, watch]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Received By</CardTitle>
+        <CardTitle>Prepared By</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
         {/* Signature */}
         <FormField
           control={control}
-          name='receivedBy.signature'
+          name='preparedBy.signature'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Signature</FormLabel>
@@ -67,7 +67,7 @@ const ReceivedByCard: React.FC = () => {
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <FormField
             control={control}
-            name='receivedBy.name'
+            name='preparedBy.name'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
@@ -91,7 +91,7 @@ const ReceivedByCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='receivedBy.title'
+            name='preparedBy.title'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title or Position</FormLabel>
@@ -112,7 +112,7 @@ const ReceivedByCard: React.FC = () => {
         {/* Date */}
         <FormField
           control={control}
-          name='receivedBy.date'
+          name='preparedBy.date'
           render={({ field }) => {
             const dateValue = field.value ? new Date(field.value) : new Date();
 
@@ -139,4 +139,4 @@ const ReceivedByCard: React.FC = () => {
   );
 };
 
-export default ReceivedByCard;
+export default PreparedByCard;

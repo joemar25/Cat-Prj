@@ -1,3 +1,4 @@
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
@@ -7,7 +8,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Select,
   SelectContent,
@@ -20,7 +20,6 @@ import {
   getAllProvinces,
   getCitiesMunicipalities,
 } from '@/lib/utils/location-helpers';
-import { yearOptions } from '@/lib/utils/year-options-helper';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -147,90 +146,46 @@ const ChildInformationCard: React.FC = () => {
             <h3 className='text-sm font-semibold'>Birth Date</h3>
           </CardHeader>
           <CardContent>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-              <FormField
-                control={control}
-                name='childInfo.dateOfBirth.month'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Month of Birth</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Select month' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.from({ length: 12 }, (_, i) => (
-                          <SelectItem key={i + 1} value={String(i + 1)}>
-                            {new Date(0, i).toLocaleString('default', {
-                              month: 'long',
-                            })}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={control}
-                name='childInfo.dateOfBirth.day'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Day of Birth</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Select day' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.from({ length: 31 }, (_, i) => (
-                          <SelectItem key={i + 1} value={String(i + 1)}>
-                            {i + 1}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={control}
-                name='childInfo.dateOfBirth.year'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Year of Birth</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className='h-10'>
-                          <SelectValue placeholder='Select year of birth' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <ScrollArea className='h-[200px]'>
-                          {yearOptions.map((year) => (
-                            <SelectItem key={year.value} value={year.value}>
-                              {year.label}
-                            </SelectItem>
-                          ))}
-                        </ScrollArea>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={control}
+              name='childInfo.dateOfBirth'
+              render={({ field }) => {
+                // Convert the separate date fields to a Date object
+                const dateValue = field.value
+                  ? new Date(
+                      parseInt(field.value.year),
+                      parseInt(field.value.month) - 1, // Months are 0-based in JavaScript
+                      parseInt(field.value.day)
+                    )
+                  : undefined;
+
+                return (
+                  <DatePickerField
+                    field={{
+                      value: dateValue,
+                      onChange: (date) => {
+                        if (date) {
+                          // Convert back to your form's expected format
+                          field.onChange({
+                            year: date.getFullYear().toString(),
+                            month: (date.getMonth() + 1).toString(), // Add 1 because months are 0-based
+                            day: date.getDate().toString(),
+                          });
+                        } else {
+                          field.onChange({
+                            year: '',
+                            month: '',
+                            day: '',
+                          });
+                        }
+                      },
+                    }}
+                    label='Birth Date'
+                    placeholder='Select birth date'
+                  />
+                );
+              }}
+            />
           </CardContent>
         </Card>
 

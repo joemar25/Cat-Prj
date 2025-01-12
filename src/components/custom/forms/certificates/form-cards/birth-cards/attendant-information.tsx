@@ -1,3 +1,4 @@
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
@@ -20,114 +21,146 @@ const AttendantInformationCard: React.FC = () => {
       <CardHeader>
         <CardTitle>Attendant Information</CardTitle>
       </CardHeader>
-      <CardContent className='space-y-4'>
-        {/* Type of Attendant */}
-        <FormField
-          control={control}
-          name='attendant.type'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Type of Attendant</FormLabel>
-              <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className='grid grid-cols-2 md:grid-cols-5 gap-4'
-                >
-                  {['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others'].map(
-                    (type) => (
-                      <FormItem
-                        key={type}
-                        className='flex items-center space-x-3 space-y-0'
-                      >
-                        <FormControl>
-                          <RadioGroupItem value={type} />
-                        </FormControl>
-                        <FormLabel className='font-normal'>{type}</FormLabel>
-                      </FormItem>
-                    )
-                  )}
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <CardContent className='space-y-6'>
+        {/* Type of Attendant Card */}
+        <Card>
+          <CardHeader className='pb-3'>
+            <h3 className='text-sm font-semibold'>Type of Attendant</h3>
+          </CardHeader>
+          <CardContent>
+            <FormField
+              control={control}
+              name='attendant.type'
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className='grid grid-cols-2 md:grid-cols-5 gap-4'
+                    >
+                      {['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others'].map(
+                        (type) => (
+                          <FormItem
+                            key={type}
+                            className='flex items-center space-x-3 space-y-0'
+                          >
+                            <FormControl>
+                              <RadioGroupItem value={type} />
+                            </FormControl>
+                            <FormLabel className='font-normal'>
+                              {type}
+                            </FormLabel>
+                          </FormItem>
+                        )
+                      )}
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
 
-        {/* Time and Date of Certification */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          <FormField
-            control={control}
-            name='attendant.certification.time'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Time of Birth</FormLabel>
-                <FormControl>
-                  <Input type='time' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name='attendant.certification.date'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date</FormLabel>
-                <FormControl>
-                  <Input type='date' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        {/* Birth Certification Card */}
+        <Card>
+          <CardHeader className='pb-3'>
+            <h3 className='text-sm font-semibold'>
+              Birth Certification of Attendant
+            </h3>
+          </CardHeader>
+          <CardContent className='space-y-4'>
+            {/* Time and Date of Certification */}
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <FormField
+                control={control}
+                name='attendant.certification.time'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Time of Birth</FormLabel>
+                    <FormControl>
+                      <Input type='time' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name='attendant.certification.date'
+                render={({ field }) => {
+                  // Convert the separate date fields to a Date object
+                  const dateValue = field.value
+                    ? new Date(field.value)
+                    : undefined;
 
-        {/* Name and Title of Attendant */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          <FormField
-            control={control}
-            name='attendant.certification.name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name in Print</FormLabel>
-                <FormControl>
-                  <Input placeholder='Enter name' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name='attendant.certification.title'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title or Position</FormLabel>
-                <FormControl>
-                  <Input placeholder='Enter title' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+                  return (
+                    <DatePickerField
+                      field={{
+                        value: dateValue,
+                        onChange: (date) => {
+                          if (date) {
+                            field.onChange(date.toISOString());
+                          } else {
+                            field.onChange('');
+                          }
+                        },
+                      }}
+                      label='Date'
+                      placeholder='Select date'
+                    />
+                  );
+                }}
+              />
+            </div>
 
-        {/* Address of Attendant */}
-        <FormField
-          control={control}
-          name='attendant.certification.address'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Address</FormLabel>
-              <FormControl>
-                <Input placeholder='Enter complete address' {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            {/* Name and Title of Attendant */}
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <FormField
+                control={control}
+                name='attendant.certification.name'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name in Print</FormLabel>
+                    <FormControl>
+                      <Input placeholder='Enter name' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name='attendant.certification.title'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title or Position</FormLabel>
+                    <FormControl>
+                      <Input placeholder='Enter title' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Address of Attendant */}
+            <FormField
+              control={control}
+              name='attendant.certification.address'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Enter complete address' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
       </CardContent>
     </Card>
   );

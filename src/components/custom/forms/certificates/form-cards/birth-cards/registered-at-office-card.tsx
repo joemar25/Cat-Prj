@@ -1,5 +1,6 @@
 'use client';
 
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
@@ -16,19 +17,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  CIVIL_REGISTRAR_STAFF,
-  COMMON_DATES,
-} from '@/lib/constants/civil-registrar-staff';
+import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-const RegisteredByCard: React.FC = () => {
+const RegisteredAtOfficeCard: React.FC = () => {
   const { control, watch, setValue } =
     useFormContext<BirthCertificateFormValues>();
-  const [showCustomDate, setShowCustomDate] = useState(false);
-  const selectedName = watch('registeredBy.name');
+  const selectedName = watch('registeredByOffice.name');
 
   // Auto-fill title when name is selected
   useEffect(() => {
@@ -36,29 +33,16 @@ const RegisteredByCard: React.FC = () => {
       (staff) => staff.name === selectedName
     );
     if (staff) {
-      setValue('registeredBy.title', staff.title);
+      setValue('registeredByOffice.title', staff.title);
     }
   }, [selectedName, setValue]);
 
-  // Handle date selection
-  const handleDateSelection = (value: string) => {
-    let dateToSet = '';
-
-    if (value === 'today') {
-      dateToSet = new Date().toISOString().split('T')[0];
-      setShowCustomDate(false);
-    } else if (value === 'yesterday') {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      dateToSet = yesterday.toISOString().split('T')[0];
-      setShowCustomDate(false);
-    } else {
-      setShowCustomDate(true);
-      return;
+  // Set default date to today when component mounts
+  useEffect(() => {
+    if (!watch('registeredByOffice.date')) {
+      setValue('registeredByOffice.date', new Date().toISOString());
     }
-
-    setValue('registeredBy.date', dateToSet);
-  };
+  }, [setValue, watch]);
 
   return (
     <Card>
@@ -69,7 +53,7 @@ const RegisteredByCard: React.FC = () => {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           <FormField
             control={control}
-            name='registeredBy.name'
+            name='registeredByOffice.name'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
@@ -94,7 +78,7 @@ const RegisteredByCard: React.FC = () => {
 
           <FormField
             control={control}
-            name='registeredBy.title'
+            name='registeredByOffice.title'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title or Position</FormLabel>
@@ -111,42 +95,36 @@ const RegisteredByCard: React.FC = () => {
             )}
           />
 
-          <div>
-            <FormField
-              control={control}
-              name='registeredBy.date'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date</FormLabel>
-                  <Select
-                    onValueChange={handleDateSelection}
-                    defaultValue='today'
-                  >
-                    <FormControl>
-                      <SelectTrigger className='h-10'>
-                        <SelectValue placeholder='Select date' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {COMMON_DATES.map((date) => (
-                        <SelectItem key={date.value} value={date.value}>
-                          {date.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {showCustomDate && (
-                    <Input className='h-10 mt-2' type='date' {...field} />
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={control}
+            name='registeredByOffice.date'
+            render={({ field }) => {
+              const dateValue = field.value
+                ? new Date(field.value)
+                : new Date();
+
+              return (
+                <DatePickerField
+                  field={{
+                    value: dateValue,
+                    onChange: (date) => {
+                      if (date) {
+                        field.onChange(date.toISOString());
+                      } else {
+                        field.onChange(new Date().toISOString());
+                      }
+                    },
+                  }}
+                  label='Date'
+                  placeholder='Select date'
+                />
+              );
+            }}
+          />
         </div>
       </CardContent>
     </Card>
   );
 };
 
-export default RegisteredByCard;
+export default RegisteredAtOfficeCard;

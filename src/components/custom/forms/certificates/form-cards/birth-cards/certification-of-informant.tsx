@@ -1,3 +1,4 @@
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
@@ -20,6 +21,21 @@ const CertificationOfInformantCard: React.FC = () => {
         <CardTitle>Certification of Informant</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
+        {/* Signature */}
+        <FormField
+          control={control}
+          name='informant.signature'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Signature</FormLabel>
+              <FormControl>
+                <Input placeholder='Signature' {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {/* Name and Relationship */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <FormField
@@ -69,15 +85,26 @@ const CertificationOfInformantCard: React.FC = () => {
         <FormField
           control={control}
           name='informant.date'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date</FormLabel>
-              <FormControl>
-                <Input type='date' {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={({ field }) => {
+            const dateValue = field.value ? new Date(field.value) : undefined;
+
+            return (
+              <DatePickerField
+                field={{
+                  value: dateValue,
+                  onChange: (date) => {
+                    if (date) {
+                      field.onChange(date.toISOString());
+                    } else {
+                      field.onChange('');
+                    }
+                  },
+                }}
+                label='Date'
+                placeholder='Select date'
+              />
+            );
+          }}
         />
       </CardContent>
     </Card>

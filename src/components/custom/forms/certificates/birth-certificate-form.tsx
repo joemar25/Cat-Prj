@@ -29,8 +29,9 @@ import ChildInformationCard from './form-cards/birth-cards/child-information-car
 import FatherInformationCard from './form-cards/birth-cards/father-information-card';
 import MarriageOfParentsCard from './form-cards/birth-cards/marriage-parents-card';
 import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
+import PreparedByCard from './form-cards/birth-cards/prepared-by-card';
 import ReceivedByCard from './form-cards/birth-cards/received-by';
-import RegisteredByCard from './form-cards/birth-cards/registered-by';
+import RegisteredAtOfficeCard from './form-cards/birth-cards/registered-at-office-card';
 import RegistryInformationCard from './form-cards/birth-cards/registry-information-card';
 import RemarksCard from './form-cards/birth-cards/remarks';
 import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
@@ -184,12 +185,12 @@ export default function BirthCertificateForm({
         signature: formData.receivedBy.signature,
       },
 
-      // Transform registeredBy - ensure required fields are present
-      registeredBy: formData.registeredBy && {
-        name: formData.registeredBy.name,
-        title: formData.registeredBy.title,
-        date: formData.registeredBy.date,
-        signature: formData.registeredBy.signature,
+      // Transform registeredByOffice - ensure required fields are present
+      registeredByOffice: formData.registeredByOffice && {
+        name: formData.registeredByOffice.name,
+        title: formData.registeredByOffice.title,
+        date: formData.registeredByOffice.date,
+        signature: formData.registeredByOffice.signature,
       },
     };
   };
@@ -221,8 +222,9 @@ export default function BirthCertificateForm({
                       <MarriageOfParentsCard />
                       <AttendantInformationCard />
                       <CertificationOfInformantCard />
+                      <PreparedByCard />
                       <ReceivedByCard />
-                      <RegisteredByCard />
+                      <RegisteredAtOfficeCard />
                       <RemarksCard />
 
                       <DialogFooter>
