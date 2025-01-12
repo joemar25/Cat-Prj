@@ -1,15 +1,15 @@
 // src/app/_actions/civil-registry.ts
-'use server';
+"use server";
 
-import { prisma } from '@/lib/prisma';
+import { prisma } from "@/lib/prisma";
 import {
   BaseRegistryForm,
   BirthCertificateForm,
   DeathCertificateForm,
   FormType,
   MarriageCertificateForm,
-} from '@prisma/client';
-import { revalidatePath } from 'next/cache';
+} from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 export type BaseRegistryFormWithRelations = BaseRegistryForm & {
   preparedBy: { name: string } | null;
@@ -62,11 +62,11 @@ export async function deleteBaseRegistryForm(formId: string) {
       where: { id: formId },
     });
 
-    revalidatePath('/civil-registry');
-    return { success: true, message: 'Form deleted successfully' };
+    revalidatePath("/civil-registry");
+    return { success: true, message: "Form deleted successfully" };
   } catch (error) {
-    console.error('Error deleting civil registry form:', error);
-    return { success: false, message: 'Failed to delete form' };
+    console.error("Error deleting civil registry form:", error);
+    return { success: false, message: "Failed to delete form" };
   }
 }
 
@@ -95,15 +95,15 @@ export async function updateBaseRegistryForm(
       },
     });
 
-    revalidatePath('/civil-registry');
+    revalidatePath("/civil-registry");
     return {
       success: true,
-      message: 'Form updated successfully',
+      message: "Form updated successfully",
       data: updatedForm as BaseRegistryFormWithRelations,
     };
   } catch (error) {
-    console.error('Error updating civil registry form:', error);
-    return { success: false, message: 'Failed to update form' };
+    console.error("Error updating civil registry form:", error);
+    return { success: false, message: "Failed to update form" };
   }
 }
 
@@ -129,7 +129,7 @@ export async function createBaseRegistryForm(data: {
     const createdForm = await prisma.baseRegistryForm.create({
       data: {
         ...data,
-        status: 'PENDING',
+        status: "PENDING",
       },
       include: {
         preparedBy: {
@@ -144,14 +144,16 @@ export async function createBaseRegistryForm(data: {
       },
     });
 
-    revalidatePath('/civil-registry');
+    revalidatePath("/civil-registry");
     return {
       success: true,
-      message: 'Form created successfully',
+      message: "Form created successfully",
       data: createdForm as BaseRegistryFormWithRelations,
     };
   } catch (error) {
-    console.error('Error creating civil registry form:', error);
-    return { success: false, message: 'Failed to create form' };
+    console.error("Error creating civil registry form:", error);
+    return { success: false, message: "Failed to create form" };
   }
 }
+
+
