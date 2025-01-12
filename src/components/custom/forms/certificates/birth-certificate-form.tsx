@@ -212,6 +212,13 @@ export default function BirthCertificateForm({
     }
   };
 
+  // Add this separate error handler
+  const handleError = () => {
+    toast.warning('Please fill in all required fields', {
+      description: 'Some required information is missing or incorrect.',
+    });
+  };
+
   const confirmSubmit = () => {
     if (pendingSubmission) {
       onSubmit(pendingSubmission);
@@ -237,7 +244,7 @@ export default function BirthCertificateForm({
                 <div className='p-6'>
                   <Form {...form}>
                     <form
-                      onSubmit={form.handleSubmit(handleSubmit)}
+                      onSubmit={form.handleSubmit(handleSubmit, handleError)}
                       className='space-y-6'
                     >
                       <RegistryInformationCard />
