@@ -26,15 +26,18 @@ import { Loader2, Save } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import {
+  ConfirmationDialog,
+  shouldSkipAlert,
+} from '../../confirmation-dialog/confirmation-dialog';
 import HusbandConsentInfoCard from './form-cards/marriage-cards/husband-consent-info-card';
 import HusbandInfoCard from './form-cards/marriage-cards/husband-info-card';
 import HusbandParentsInfoCard from './form-cards/marriage-cards/husband-parent-info-card';
+import MarriageDetailsCard from './form-cards/marriage-cards/marriage-details-card';
 import RegistryInfoCard from './form-cards/marriage-cards/registry-info-card';
 import WifeConsentInfoCard from './form-cards/marriage-cards/wife-consent-info-card';
 import WifeInfoCard from './form-cards/marriage-cards/wife-info-card';
 import WifeParentsInfoCard from './form-cards/marriage-cards/wife-parent-info-card';
-
-import MarriageDetailsCard from './form-cards/marriage-cards/marriage-details-card';
 import MarriageCertificatePDF from './preview/marriage-certificate/MarriageCertificatePDF';
 
 export function MarriageCertificateForm({
@@ -43,6 +46,10 @@ export function MarriageCertificateForm({
   onCancel,
 }: MarriageCertificateFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [pendingSubmission, setPendingSubmission] =
+    useState<MarriageCertificateFormValues | null>(null);
+
   const form = useForm<MarriageCertificateFormValues>({
     resolver: zodResolver(marriageCertificateSchema),
     defaultValues: defaultMarriageCertificateValues,
@@ -65,6 +72,23 @@ export function MarriageCertificateForm({
       toast.error('Failed to register marriage certificate. Please try again.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmit = (values: MarriageCertificateFormValues) => {
+    if (shouldSkipAlert('skipMarriageCertificateAlert')) {
+      onSubmit(values);
+    } else {
+      setPendingSubmission(values);
+      setShowAlert(true);
+    }
+  };
+
+  const confirmSubmit = () => {
+    if (pendingSubmission) {
+      onSubmit(pendingSubmission);
+      setShowAlert(false);
+      setPendingSubmission(null);
     }
   };
 
@@ -169,6 +193,12 @@ export function MarriageCertificateForm({
     return data;
   };
 
+  const handleError = () => {
+    toast.warning('Please fill in all required fields', {
+      description: 'Some required information is missing or incorrect.',
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0'>
@@ -181,29 +211,20 @@ export function MarriageCertificateForm({
 
           <div className='flex flex-1 overflow-hidden'>
             <div className='w-1/2 border-r'>
-              {/* Left Side - Form */}
               <ScrollArea className='h-[calc(95vh-120px)]'>
                 <div className='p-6'>
                   <Form {...form}>
                     <form
-                      onSubmit={form.handleSubmit(onSubmit)}
+                      onSubmit={form.handleSubmit(handleSubmit, handleError)}
                       className='space-y-6'
                     >
-                      {/* Registry Information */}
                       <RegistryInfoCard />
-                      {/* Husband's Information */}
                       <HusbandInfoCard />
-                      {/* Wife's Information */}
                       <WifeInfoCard />
-                      {/* Husband's Parents Information */}
                       <HusbandParentsInfoCard />
-                      {/* Wife's Parents Information */}
                       <WifeParentsInfoCard />
-                      {/* Consent Information for Husband */}
                       <HusbandConsentInfoCard />
-                      {/* Consent Information for Wife */}
                       <WifeConsentInfoCard />
-                      {/* Marriage Details */}
                       <MarriageDetailsCard />
 
                       <DialogFooter>
@@ -236,12 +257,19 @@ export function MarriageCertificateForm({
                       </DialogFooter>
                     </form>
                   </Form>
+
+                  <ConfirmationDialog
+                    open={showAlert}
+                    onOpenChange={setShowAlert}
+                    onConfirm={confirmSubmit}
+                    isSubmitting={isSubmitting}
+                    localStorageKey='skipMarriageCertificateAlert'
+                  />
                 </div>
               </ScrollArea>
             </div>
 
-            {/* Right Side - Preview - 50% width */}
-            <div className='w-1/2 '>
+            <div className='w-1/2'>
               <div className='h-[calc(95vh-120px)] p-6'>
                 <PDFViewer width='100%' height='100%'>
                   <MarriageCertificatePDF

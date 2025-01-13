@@ -144,8 +144,8 @@ export type MarriageCertificateFormValues = z.infer<
 export const defaultMarriageCertificateValues: Partial<MarriageCertificateFormValues> =
   {
     registryNo: '2024-0001',
-    province: 'Bulacan',
-    cityMunicipality: 'Malolos',
+    province: '',
+    cityMunicipality: '',
 
     husbandFirstName: 'Juan Miguel',
     husbandMiddleName: 'Santos',
