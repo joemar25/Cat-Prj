@@ -7,34 +7,34 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#E4E4E4',
-    padding: 20,
+    padding: 10, // Reduced padding
   },
   section: {
-    margin: 10,
-    padding: 10,
+    margin: 5, // Reduced margin
+    padding: 5, // Reduced padding
     flexGrow: 1,
     border: '1px solid #000',
     borderRadius: 5,
   },
   title: {
-    fontSize: 16,
+    fontSize: 14, // Reduced font size
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 5, // Reduced margin
     borderBottom: '1px solid #000',
-    paddingBottom: 5,
+    paddingBottom: 3, // Reduced padding
   },
   fieldContainer: {
     flexDirection: 'row',
-    marginBottom: 5,
+    marginBottom: 3, // Reduced margin
   },
   label: {
     width: '30%',
-    fontSize: 12,
+    fontSize: 10, // Reduced font size
     color: '#666',
   },
   value: {
     width: '70%',
-    fontSize: 12,
+    fontSize: 10, // Reduced font size
   },
 });
 
