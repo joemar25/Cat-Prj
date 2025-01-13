@@ -27,7 +27,6 @@ import { PDFViewer } from '@react-pdf/renderer';
 import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
 import CertificationOfDeathCard from './form-cards/death-cards/certification-of-death-card';
 import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
-import FamilyInformationCard from './form-cards/death-cards/family-information-card';
 import InformantInformationCard from './form-cards/death-cards/informant-information-card';
 import MedicalCertificateCard from './form-cards/death-cards/medical-certificate-card';
 import PersonalInformationCard from './form-cards/death-cards/personal-information-card';
@@ -146,9 +145,6 @@ export default function DeathCertificateForm({
 
                     {/* Personal Information - Deceased person's basic details */}
                     <PersonalInformationCard />
-
-                    {/* Family Information - Parents' details */}
-                    <FamilyInformationCard />
 
                     {/* Medical Certificate Section - Cause of death and related medical info */}
                     <MedicalCertificateCard />
