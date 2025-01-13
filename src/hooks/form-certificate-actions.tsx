@@ -17,7 +17,7 @@ export async function createMarriageCertificate(
       data: {
         formNumber: '97',
         formType: 'MARRIAGE',
-        registryNumber: data.registryNo,
+        registryNumber: data.registryNumber,
         province: data.province,
         cityMunicipality: data.cityMunicipality,
         pageNumber: '1',
@@ -111,7 +111,7 @@ export async function createMarriageCertificate(
       },
     });
 
-    revalidatePath('/marriage-certificates');
+    revalidatePath('/civil-registry');
     return { success: true, data: baseForm };
   } catch (error) {
     console.error('Error creating marriage certificate:', error);
@@ -210,9 +210,9 @@ export async function createDeathCertificate(data: DeathCertificateFormValues) {
 
             // Preparer
             preparer: {
-              name: data.preparedBy.nameInPrint,
+              name: data.preparedBy.name, // Update 'nameInPrint' to 'name'
               signature: data.preparedBy.signature,
-              title: data.preparedBy.titleOrPosition,
+              title: data.preparedBy.title, // Update 'titleOrPosition' to 'title'
               date: data.preparedBy.date,
             },
 
@@ -229,7 +229,7 @@ export async function createDeathCertificate(data: DeathCertificateFormValues) {
       },
     });
 
-    revalidatePath('/users/admin'); // Adjust based on your route
+    revalidatePath('/civil-registry'); // Adjust based on your route
     return { success: true, data: baseForm };
   } catch (error) {
     console.error('Error creating death certificate:', error);
