@@ -133,6 +133,24 @@ export async function createDeathCertificate(data: DeathCertificateFormValues) {
         bookNumber: '1', // Default for testing
         dateOfRegistration: new Date(),
         status: 'PENDING',
+        preparedBy: {
+          connectOrCreate: {
+            where: {
+              email: `${data.preparedBy.name
+                .toLowerCase()
+                .replace(/\s+/g, '.')}@example.com`,
+            },
+            create: {
+              id: crypto.randomUUID(),
+              name: data.preparedBy.name,
+              email: `${data.preparedBy.name
+                .toLowerCase()
+                .replace(/\s+/g, '.')}@example.com`,
+              username: data.preparedBy.name.toLowerCase().replace(/\s+/g, '.'),
+              emailVerified: true,
+            },
+          },
+        },
 
         deathCertificateForm: {
           create: {
@@ -249,6 +267,25 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
         cityMunicipality: data.cityMunicipality,
         pageNumber: '1',
         bookNumber: '1',
+        preparedBy: {
+          connectOrCreate: {
+            where: {
+              // Use email as the unique identifier since username is optional
+              email: `${data.preparedBy.name
+                .toLowerCase()
+                .replace(/\s+/g, '.')}@example.com`,
+            },
+            create: {
+              id: crypto.randomUUID(), // Generate a UUID for the new user
+              name: data.preparedBy.name,
+              email: `${data.preparedBy.name
+                .toLowerCase()
+                .replace(/\s+/g, '.')}@example.com`,
+              username: data.preparedBy.name.toLowerCase().replace(/\s+/g, '.'),
+              emailVerified: true,
+            },
+          },
+        },
 
         birthCertificateForm: {
           create: {
