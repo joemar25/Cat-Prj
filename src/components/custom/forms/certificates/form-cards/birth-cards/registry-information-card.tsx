@@ -40,10 +40,10 @@ const RegistryInformationCard: React.FC = () => {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           <FormField
             control={control}
-            name='registryNo'
+            name='registryNumber' // Changed to match Prisma model field name
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Registry No.</FormLabel>
+                <FormLabel>Registry Number</FormLabel>
                 <FormControl>
                   <Input
                     className='h-10'

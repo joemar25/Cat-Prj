@@ -82,7 +82,7 @@ export default function BirthCertificateForm({
 
     return {
       ...formData,
-      // Transform childInfo - ensure required fields are present
+      // Transform childInfo - No changes needed here as it's already correct
       childInfo: formData.childInfo && {
         firstName: formData.childInfo.firstName,
         middleName: formData.childInfo.middleName,
@@ -100,39 +100,19 @@ export default function BirthCertificateForm({
         },
         typeOfBirth: formData.childInfo.typeOfBirth,
         birthOrder: formData.childInfo.birthOrder,
-        weight: formData.childInfo.weight,
-        multipleBirth: formData.childInfo.multipleBirth,
+        weightAtBirth: formData.childInfo.weightAtBirth,
+        multipleBirthOrder: formData.childInfo.multipleBirthOrder,
       },
 
-      // Transform motherInfo - ensure required fields are present
-      motherInfo: formData.motherInfo && {
-        firstName: formData.motherInfo.firstName,
-        middleName: formData.motherInfo.middleName,
-        lastName: formData.motherInfo.lastName,
-        citizenship: formData.motherInfo.citizenship,
-        religion: formData.motherInfo.religion,
-        totalChildren: formData.motherInfo.totalChildren,
-        livingChildren: formData.motherInfo.livingChildren,
-        childrenDead: formData.motherInfo.childrenDead,
-        occupation: formData.motherInfo.occupation,
-        age: formData.motherInfo.age,
-        residence: {
-          address: formData.motherInfo.residence.address,
-          cityMunicipality: formData.motherInfo.residence.cityMunicipality,
-          province: formData.motherInfo.residence.province,
-          country: formData.motherInfo.residence.country,
-        },
-      },
-
-      // Transform fatherInfo - ensure required fields are present
+      // Transform fatherInfo - Update field names to match Prisma model
       fatherInfo: formData.fatherInfo && {
         firstName: formData.fatherInfo.firstName,
         middleName: formData.fatherInfo.middleName,
         lastName: formData.fatherInfo.lastName,
-        citizenship: formData.fatherInfo.citizenship,
-        religion: formData.fatherInfo.religion,
-        occupation: formData.fatherInfo.occupation,
-        age: formData.fatherInfo.age,
+        fatherCitizenship: formData.fatherInfo.fatherCitizenship, // Updated
+        fatherReligion: formData.fatherInfo.fatherReligion, // Updated
+        fatherOccupation: formData.fatherInfo.fatherOccupation, // Updated
+        fatherAge: formData.fatherInfo.fatherAge, // Updated
         residence: {
           address: formData.fatherInfo.residence.address,
           cityMunicipality: formData.fatherInfo.residence.cityMunicipality,
@@ -141,21 +121,42 @@ export default function BirthCertificateForm({
         },
       },
 
-      // Transform marriageOfParents - ensure required fields are present
-      marriageOfParents: formData.marriageOfParents && {
-        date: {
-          day: formData.marriageOfParents.date.day,
-          month: formData.marriageOfParents.date.month,
-          year: formData.marriageOfParents.date.year,
-        },
-        place: {
-          cityMunicipality: formData.marriageOfParents.place.cityMunicipality,
-          province: formData.marriageOfParents.place.province,
-          country: formData.marriageOfParents.place.country,
+      // Transform motherInfo - No changes needed as it's already updated
+      motherInfo: formData.motherInfo && {
+        firstName: formData.motherInfo.firstName,
+        middleName: formData.motherInfo.middleName,
+        lastName: formData.motherInfo.lastName,
+        motherCitizenship: formData.motherInfo.motherCitizenship,
+        motherReligion: formData.motherInfo.motherReligion,
+        motherOccupation: formData.motherInfo.motherOccupation,
+        motherAge: formData.motherInfo.motherAge,
+        totalChildrenBornAlive: formData.motherInfo.totalChildrenBornAlive,
+        childrenStillLiving: formData.motherInfo.childrenStillLiving,
+        childrenNowDead: formData.motherInfo.childrenNowDead,
+        residence: {
+          address: formData.motherInfo.residence.address,
+          cityMunicipality: formData.motherInfo.residence.cityMunicipality,
+          province: formData.motherInfo.residence.province,
+          country: formData.motherInfo.residence.country,
         },
       },
 
-      // Transform attendant - ensure required fields are present
+      // Transform parentMarriage (renamed from marriageOfParents)
+      parentMarriage: formData.parentMarriage && {
+        // Updated
+        date: {
+          day: formData.parentMarriage.date.day, // Updated
+          month: formData.parentMarriage.date.month, // Updated
+          year: formData.parentMarriage.date.year, // Updated
+        },
+        place: {
+          cityMunicipality: formData.parentMarriage.place.cityMunicipality, // Updated
+          province: formData.parentMarriage.place.province, // Updated
+          country: formData.parentMarriage.place.country, // Updated
+        },
+      },
+
+      // The rest remains the same as they're already correct
       attendant: formData.attendant && {
         type: formData.attendant.type,
         certification: {
@@ -168,7 +169,6 @@ export default function BirthCertificateForm({
         },
       },
 
-      // Transform informant - ensure required fields are present
       informant: formData.informant && {
         name: formData.informant.name,
         relationship: formData.informant.relationship,
@@ -177,7 +177,6 @@ export default function BirthCertificateForm({
         signature: formData.informant.signature,
       },
 
-      // Transform preparedBy - ensure required fields are present
       preparedBy: formData.preparedBy && {
         name: formData.preparedBy.name,
         title: formData.preparedBy.title,
@@ -185,7 +184,6 @@ export default function BirthCertificateForm({
         signature: formData.preparedBy.signature,
       },
 
-      // Transform receivedBy - ensure required fields are present
       receivedBy: formData.receivedBy && {
         name: formData.receivedBy.name,
         title: formData.receivedBy.title,
@@ -193,7 +191,6 @@ export default function BirthCertificateForm({
         signature: formData.receivedBy.signature,
       },
 
-      // Transform registeredByOffice - ensure required fields are present
       registeredByOffice: formData.registeredByOffice && {
         name: formData.registeredByOffice.name,
         title: formData.registeredByOffice.title,

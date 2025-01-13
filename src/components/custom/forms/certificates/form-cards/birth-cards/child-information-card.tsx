@@ -121,7 +121,7 @@ const ChildInformationCard: React.FC = () => {
               />
               <FormField
                 control={control}
-                name='childInfo.weight'
+                name='childInfo.weightAtBirth'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Weight at Birth (grams)</FormLabel>
@@ -312,7 +312,7 @@ const ChildInformationCard: React.FC = () => {
               />
               <FormField
                 control={control}
-                name='childInfo.multipleBirth'
+                name='childInfo.multipleBirthOrder'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>If Multiple Birth</FormLabel>
@@ -338,7 +338,7 @@ const ChildInformationCard: React.FC = () => {
               />
               <FormField
                 control={control}
-                name='childInfo.birthOrder'
+                name='childInfo.multipleBirthOrder'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Birth Order</FormLabel>

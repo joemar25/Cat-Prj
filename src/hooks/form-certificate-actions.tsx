@@ -244,94 +244,130 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
       data: {
         formNumber: '102', // Form 102 for Birth Certificate
         formType: 'BIRTH',
-        registryNumber: data.registryNo,
+        registryNumber: data.registryNumber,
         province: data.province,
         cityMunicipality: data.cityMunicipality,
-        pageNumber: '1', // Add the pageNumber field
-        bookNumber: '1', // Add the bookNumber field
+        pageNumber: '1',
+        bookNumber: '1',
 
         birthCertificateForm: {
           create: {
             // Child Information
             childName: {
-              first: data.childInfo.firstName,
-              middle: data.childInfo.middleName,
-              last: data.childInfo.lastName,
+              firstName: data.childInfo.firstName,
+              middleName: data.childInfo.middleName,
+              lastName: data.childInfo.lastName,
             },
             sex: data.childInfo.sex,
             dateOfBirth: new Date(
               `${data.childInfo.dateOfBirth.year}-${data.childInfo.dateOfBirth.month}-${data.childInfo.dateOfBirth.day}`
             ),
-            placeOfBirth: data.childInfo.placeOfBirth,
+            placeOfBirth: {
+              hospital: data.childInfo.placeOfBirth.hospital,
+              province: data.childInfo.placeOfBirth.province,
+              cityMunicipality: data.childInfo.placeOfBirth.cityMunicipality,
+            },
             typeOfBirth: data.childInfo.typeOfBirth,
-            multipleBirthOrder: data.childInfo.multipleBirth,
+            multipleBirthOrder: data.childInfo.multipleBirthOrder,
             birthOrder: data.childInfo.birthOrder,
-            weightAtBirth: parseFloat(data.childInfo.weight),
+            weightAtBirth: parseFloat(data.childInfo.weightAtBirth),
 
             // Mother Information
             motherMaidenName: {
-              first: data.motherInfo.firstName,
-              middle: data.motherInfo.middleName,
-              last: data.motherInfo.lastName,
+              firstName: data.motherInfo.firstName,
+              middleName: data.motherInfo.middleName,
+              lastName: data.motherInfo.lastName,
             },
-            motherCitizenship: data.motherInfo.citizenship,
-            motherReligion: data.motherInfo.religion,
-            motherOccupation: data.motherInfo.occupation,
-            motherAge: parseInt(data.motherInfo.age),
-            motherResidence: data.motherInfo.residence,
-            totalChildrenBornAlive: parseInt(data.motherInfo.totalChildren),
-            childrenStillLiving: parseInt(data.motherInfo.livingChildren),
-            childrenNowDead: parseInt(data.motherInfo.childrenDead),
+            motherCitizenship: data.motherInfo.motherCitizenship, // Updated field name
+            motherReligion: data.motherInfo.motherReligion, // Updated field name
+            motherOccupation: data.motherInfo.motherOccupation, // Updated field name
+            motherAge: parseInt(data.motherInfo.motherAge), // Updated field name
+            motherResidence: {
+              address: data.motherInfo.residence.address,
+              province: data.motherInfo.residence.province,
+              cityMunicipality: data.motherInfo.residence.cityMunicipality,
+              country: data.motherInfo.residence.country,
+            },
+            totalChildrenBornAlive: parseInt(
+              data.motherInfo.totalChildrenBornAlive
+            ), // Updated field name
+            childrenStillLiving: parseInt(data.motherInfo.childrenStillLiving), // Updated field name
+            childrenNowDead: parseInt(data.motherInfo.childrenNowDead), // Updated field name
 
             // Father Information
             fatherName: {
-              first: data.fatherInfo.firstName,
-              middle: data.fatherInfo.middleName,
-              last: data.fatherInfo.lastName,
+              firstName: data.fatherInfo.firstName,
+              middleName: data.fatherInfo.middleName,
+              lastName: data.fatherInfo.lastName,
             },
-            fatherCitizenship: data.fatherInfo.citizenship,
-            fatherReligion: data.fatherInfo.religion,
-            fatherOccupation: data.fatherInfo.occupation,
-            fatherAge: parseInt(data.fatherInfo.age),
-            fatherResidence: data.fatherInfo.residence,
+            fatherCitizenship: data.fatherInfo.fatherCitizenship, // Should match the pattern
+            fatherReligion: data.fatherInfo.fatherReligion, // Should match the pattern
+            fatherOccupation: data.fatherInfo.fatherOccupation, // Should match the pattern
+            fatherAge: parseInt(data.fatherInfo.fatherAge), // Should match the pattern
+            fatherResidence: {
+              address: data.fatherInfo.residence.address,
+              province: data.fatherInfo.residence.province,
+              cityMunicipality: data.fatherInfo.residence.cityMunicipality,
+              country: data.fatherInfo.residence.country,
+            },
 
             // Marriage Information
             parentMarriage: {
               date: new Date(
-                `${data.marriageOfParents.date.year}-${data.marriageOfParents.date.month}-${data.marriageOfParents.date.day}`
+                `${data.parentMarriage.date.year}-${data.parentMarriage.date.month}-${data.parentMarriage.date.day}`
               ),
-              place: data.marriageOfParents.place,
+              place: {
+                cityMunicipality: data.parentMarriage.place.cityMunicipality,
+                province: data.parentMarriage.place.province,
+                country: data.parentMarriage.place.country,
+              },
             },
 
             // Certification Details
-            attendant: data.attendant,
-            informant: data.informant,
-            preparer: data.preparedBy,
+            attendant: {
+              type: data.attendant.type,
+              certification: {
+                time: data.attendant.certification.time,
+                signature: data.attendant.certification.signature,
+                name: data.attendant.certification.name,
+                title: data.attendant.certification.title,
+                address: data.attendant.certification.address,
+                date: data.attendant.certification.date,
+              },
+            },
+            informant: {
+              signature: data.informant.signature,
+              name: data.informant.name,
+              relationship: data.informant.relationship,
+              address: data.informant.address,
+              date: data.informant.date,
+            },
+            preparer: {
+              signature: data.preparedBy.signature,
+              name: data.preparedBy.name,
+              title: data.preparedBy.title,
+              date: data.preparedBy.date,
+            },
 
-            // Additional Legal Details
-            hasAffidavitOfPaternity: false, // Default to false for now
+            hasAffidavitOfPaternity: false,
           },
         },
 
-        // Received By Information
+        // Registry Form Fields
         receivedBy: data.receivedBy.name,
         receivedByPosition: data.receivedBy.title,
         receivedDate: new Date(data.receivedBy.date),
 
-        // Registered At Information
         registeredBy: data.registeredByOffice.name,
         registeredByPosition: data.registeredByOffice.title,
         registrationDate: new Date(data.registeredByOffice.date),
 
-        // Document Management
-        remarks: data.remarks,
-
-        // Set dateOfRegistration to current date
         dateOfRegistration: new Date(),
+        remarks: data.remarks,
       },
     });
 
-    revalidatePath('/birth-certificates');
+    revalidatePath('/civil-registry');
     return { success: true, data: baseForm };
   } catch (error) {
     console.error('Error creating birth certificate:', error);

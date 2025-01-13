@@ -97,7 +97,7 @@ const MotherInformationCard: React.FC = () => {
               <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 <FormField
                   control={control}
-                  name='motherInfo.citizenship'
+                  name='motherInfo.motherCitizenship' // Changed from citizenship
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Citizenship</FormLabel>
@@ -110,7 +110,7 @@ const MotherInformationCard: React.FC = () => {
                 />
                 <FormField
                   control={control}
-                  name='motherInfo.religion'
+                  name='motherInfo.motherReligion'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Religion</FormLabel>
@@ -126,7 +126,7 @@ const MotherInformationCard: React.FC = () => {
                 />
                 <FormField
                   control={control}
-                  name='motherInfo.occupation'
+                  name='motherInfo.motherOccupation' // Changed from occupation
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Occupation</FormLabel>
@@ -143,7 +143,7 @@ const MotherInformationCard: React.FC = () => {
               <div>
                 <FormField
                   control={control}
-                  name='motherInfo.age'
+                  name='motherInfo.motherAge' // Changed from age
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -174,7 +174,7 @@ const MotherInformationCard: React.FC = () => {
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <FormField
                 control={control}
-                name='motherInfo.totalChildren'
+                name='motherInfo.totalChildrenBornAlive' // Changed from totalChildren
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Total Children Born Alive</FormLabel>
@@ -187,7 +187,7 @@ const MotherInformationCard: React.FC = () => {
               />
               <FormField
                 control={control}
-                name='motherInfo.livingChildren'
+                name='motherInfo.childrenStillLiving' // Changed from livingChildren
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
@@ -202,7 +202,7 @@ const MotherInformationCard: React.FC = () => {
               />
               <FormField
                 control={control}
-                name='motherInfo.childrenDead'
+                name='motherInfo.childrenNowDead' // Changed from childrenDead
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>No. Children Born Alive But now Dead</FormLabel>

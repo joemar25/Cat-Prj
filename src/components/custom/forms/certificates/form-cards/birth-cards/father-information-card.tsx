@@ -89,7 +89,7 @@ const FatherInformationCard: React.FC = () => {
               <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 <FormField
                   control={control}
-                  name='fatherInfo.citizenship'
+                  name='fatherInfo.fatherCitizenship' // Changed from citizenship
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Citizenship</FormLabel>
@@ -102,7 +102,7 @@ const FatherInformationCard: React.FC = () => {
                 />
                 <FormField
                   control={control}
-                  name='fatherInfo.religion'
+                  name='fatherInfo.fatherReligion' // Changed from religion
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Religion</FormLabel>
@@ -115,7 +115,7 @@ const FatherInformationCard: React.FC = () => {
                 />
                 <FormField
                   control={control}
-                  name='fatherInfo.occupation'
+                  name='fatherInfo.fatherOccupation' // Changed from occupation
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Occupation</FormLabel>
@@ -131,7 +131,7 @@ const FatherInformationCard: React.FC = () => {
               <div>
                 <FormField
                   control={control}
-                  name='fatherInfo.age'
+                  name='fatherInfo.fatherAge' // Changed from age
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>

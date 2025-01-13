@@ -44,7 +44,7 @@ const MarriageOfParentsCard: React.FC = () => {
           <CardContent>
             <FormField
               control={control}
-              name='marriageOfParents.date'
+              name='parentMarriage.date'
               render={({ field }) => {
                 // Convert the separate date fields to a Date object
                 const dateValue = field.value
@@ -94,7 +94,7 @@ const MarriageOfParentsCard: React.FC = () => {
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <FormField
                 control={control}
-                name='marriageOfParents.place.province'
+                name='parentMarriage.place.province'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Province</FormLabel>
@@ -131,7 +131,7 @@ const MarriageOfParentsCard: React.FC = () => {
 
               <FormField
                 control={control}
-                name='marriageOfParents.place.cityMunicipality'
+                name='parentMarriage.place.cityMunicipality'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>City/Municipality</FormLabel>
@@ -159,7 +159,7 @@ const MarriageOfParentsCard: React.FC = () => {
               />
               <FormField
                 control={control}
-                name='marriageOfParents.place.country'
+                name='parentMarriage.place.country'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Country</FormLabel>
