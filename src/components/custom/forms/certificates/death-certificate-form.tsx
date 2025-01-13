@@ -17,19 +17,29 @@ import {
   defaultDeathCertificateValues,
 } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { PDFViewer } from '@react-pdf/renderer';
 import { Loader2, Save } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import {
+  ConfirmationDialog,
+  shouldSkipAlert,
+} from '../../confirmation-dialog/confirmation-dialog';
 
-// Import our new card components
-import { PDFViewer } from '@react-pdf/renderer';
+// Import all the card components
 import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
+import CausesOfDeathCard from './form-cards/death-cards/causes-of-death';
 import CertificationOfDeathCard from './form-cards/death-cards/certification-of-death-card';
+import CertificationInformantCard from './form-cards/death-cards/certification-of-informant-card';
+import DeathByExternalCausesCard from './form-cards/death-cards/death-by-external-causes';
 import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
-import InformantInformationCard from './form-cards/death-cards/informant-information-card';
+import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
 import MedicalCertificateCard from './form-cards/death-cards/medical-certificate-card';
 import PersonalInformationCard from './form-cards/death-cards/personal-information-card';
+import PreparedByCard from './form-cards/death-cards/prepared-by-card';
+import ReceivedByCard from './form-cards/death-cards/received-by-card';
+import RegisteredAtOfficeCard from './form-cards/death-cards/registered-at-office-card';
 import RegistryInformationCard from './form-cards/death-cards/regsitry-information-card';
 import RemarksCard from './form-cards/death-cards/remarks-card';
 import DeathCertificatePDF from './preview/death-certificate/death-certificate-preview';
@@ -40,16 +50,19 @@ export default function DeathCertificateForm({
   onCancel,
 }: DeathCertificateFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [pendingSubmission, setPendingSubmission] =
+    useState<DeathCertificateFormValues | null>(null);
 
   const form = useForm<DeathCertificateFormValues>({
     resolver: zodResolver(deathCertificateSchema),
     defaultValues: defaultDeathCertificateValues,
   });
 
-  async function onSubmit(data: DeathCertificateFormValues) {
+  const onSubmit = async (values: DeathCertificateFormValues) => {
     try {
       setIsSubmitting(true);
-      const result = await createDeathCertificate(data);
+      const result = await createDeathCertificate(values);
 
       if (result.success) {
         toast.success('Death certificate has been registered successfully');
@@ -64,7 +77,24 @@ export default function DeathCertificateForm({
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
+
+  const handleSubmit = (values: DeathCertificateFormValues) => {
+    if (shouldSkipAlert('skipDeathCertificateAlert')) {
+      onSubmit(values);
+    } else {
+      setPendingSubmission(values);
+      setShowAlert(true);
+    }
+  };
+
+  const confirmSubmit = () => {
+    if (pendingSubmission) {
+      onSubmit(pendingSubmission);
+      setShowAlert(false);
+      setPendingSubmission(null);
+    }
+  };
 
   // Add this function in your DeathCertificateForm component
   const transformFormDataForPreview = (
@@ -122,6 +152,12 @@ export default function DeathCertificateForm({
     };
   };
 
+  const handleError = () => {
+    toast.warning('Please fill in all required fields', {
+      description: 'Some required information is missing or incorrect.',
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0'>
@@ -133,38 +169,56 @@ export default function DeathCertificateForm({
           </DialogHeader>
 
           <div className='flex flex-1 overflow-hidden'>
+            {/* Left Side - Form */}
             <div className='w-1/2 border-r'>
               <div className='h-[calc(95vh-120px)] overflow-y-auto p-6'>
                 <Form {...form}>
                   <form
-                    onSubmit={form.handleSubmit(onSubmit)}
+                    onSubmit={form.handleSubmit(handleSubmit, handleError)}
                     className='space-y-6'
                   >
-                    {/* Registry Information - Basic details about the certificate registration */}
+                    {/* Registry Information */}
                     <RegistryInformationCard />
 
-                    {/* Personal Information - Deceased person's basic details */}
+                    {/* Personal Information */}
                     <PersonalInformationCard />
 
-                    {/* Medical Certificate Section - Cause of death and related medical info */}
+                    {/* Medical Certificate */}
                     <MedicalCertificateCard />
 
-                    {/* Attendant Information - Medical professional or attendant details */}
+                    {/* Causes of Death */}
+                    <CausesOfDeathCard />
+
+                    {/* Maternal Condition */}
+                    <MaternalConditionCard />
+
+                    {/* Death by External Causes */}
+                    <DeathByExternalCausesCard />
+
+                    {/* Attendant Information */}
                     <AttendantInformationCard />
 
-                    {/* Certification of Death - Official death certification details */}
+                    {/* Certification of Death */}
                     <CertificationOfDeathCard />
 
-                    {/* Disposal Information - Burial/cremation details and permits */}
+                    {/* Disposal Information */}
                     <DisposalInformationCard />
 
-                    {/* Informant Information - Details of the person reporting the death */}
-                    <InformantInformationCard />
+                    {/* Informant Information */}
+                    <CertificationInformantCard />
 
-                    {/* Remarks - Additional notes or annotations */}
+                    {/* Prepared By */}
+                    <PreparedByCard />
+
+                    {/* Received By */}
+                    <ReceivedByCard />
+
+                    {/* Registered at Civil Registrar */}
+                    <RegisteredAtOfficeCard />
+
+                    {/* Remarks */}
                     <RemarksCard />
 
-                    {/* Form Actions */}
                     <DialogFooter>
                       <Button
                         type='button'
@@ -195,6 +249,14 @@ export default function DeathCertificateForm({
                     </DialogFooter>
                   </form>
                 </Form>
+
+                <ConfirmationDialog
+                  open={showAlert}
+                  onOpenChange={setShowAlert}
+                  onConfirm={confirmSubmit}
+                  isSubmitting={isSubmitting}
+                  localStorageKey='skipDeathCertificateAlert'
+                />
               </div>
             </div>
 

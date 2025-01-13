@@ -354,6 +354,7 @@ export const deathCertificateSchema = z.object({
   }),
 
   // Certification
+
   certification: z.object({
     hasAttended: z.boolean(),
     deathDateTime: z.string().min(1, 'Date and time of death is required'),
@@ -362,6 +363,12 @@ export const deathCertificateSchema = z.object({
     titleOfPosition: z.string().min(1, 'Title/Position is required'),
     address: z.string().min(1, 'Address is required'),
     date: z.date(),
+    reviewedBy: z.object({
+      name: z.string().min(1, 'Name is required'), // Staff name
+      title: z.string().min(1, 'Title is required'), // Auto-filled title
+      position: z.string().min(1, 'Position is required'), // Auto-filled position
+      date: z.date(), // Review date
+    }),
   }),
 
   // Disposal Information
@@ -389,24 +396,23 @@ export const deathCertificateSchema = z.object({
 
   // Administrative Information
   preparedBy: z.object({
-    signature: z.string().optional(),
-    nameInPrint: z.string().min(1, 'Name is required'),
-    titleOrPosition: z.string().min(1, 'Title/Position is required'),
-    date: z.date(),
+    signature: z.string().optional(), // Signature field
+    name: z.string().min(1, 'Name is required'), // Name in Print field
+    title: z.string().min(1, 'Title/Position is required'), // Title or Position field
+    date: z.date(), // Date field
   }),
 
   receivedBy: z.object({
-    signature: z.string().optional(),
-    nameInPrint: z.string().min(1, 'Name is required'),
-    titleOrPosition: z.string().min(1, 'Title/Position is required'),
-    date: z.date(),
+    signature: z.string().optional(), // Signature field
+    name: z.string().min(1, 'Name is required'), // Name field
+    title: z.string().min(1, 'Title/Position is required'), // Title field
+    date: z.date(), // Date field
   }),
 
   registeredAtCivilRegistrar: z.object({
-    signature: z.string().optional(),
-    nameInPrint: z.string().min(1, 'Name is required'),
-    titleOrPosition: z.string().min(1, 'Title/Position is required'),
-    date: z.date(),
+    name: z.string().min(1, 'Name is required'), // Name in Print field
+    title: z.string().min(1, 'Title/Position is required'), // Title field
+    date: z.date(), // Date field
   }),
 
   remarks: z.string().optional(),
@@ -488,6 +494,12 @@ export const defaultDeathCertificateValues: Partial<DeathCertificateFormValues> 
       titleOfPosition: 'Attending Physician',
       address: 'Bulacan Medical Center, Malolos City',
       date: new Date('2024-01-15'),
+      reviewedBy: {
+        name: '',
+        title: '',
+        position: '',
+        date: new Date(), // Default to current date
+      },
     },
 
     // Disposal Information
@@ -516,25 +528,24 @@ export const defaultDeathCertificateValues: Partial<DeathCertificateFormValues> 
     // Administrative Details
     preparedBy: {
       signature: '',
-      nameInPrint: 'Ana Santos',
-      titleOrPosition: 'Civil Registry Staff',
-      date: new Date('2024-01-15'),
+      name: 'Ana Santos', // Default staff name
+      title: 'Civil Registry Staff', // Auto-filled title
+      date: new Date(), // Default to today's date
     },
 
     // Received By
     receivedBy: {
       signature: '',
-      nameInPrint: 'Pedro Reyes',
-      titleOrPosition: 'Registration Officer',
-      date: new Date('2024-01-15'),
+      name: 'Pedro Reyes', // Default staff name
+      title: 'Registration Officer', // Auto-filled title
+      date: new Date(), // Default to today's date
     },
 
     // Civil Registrar Details
     registeredAtCivilRegistrar: {
-      signature: '',
-      nameInPrint: 'Maria Clara Torres',
-      titleOrPosition: 'Civil Registrar',
-      date: new Date('2024-01-15'),
+      name: 'Maria Clara Torres', // Default staff name
+      title: 'Civil Registrar', // Default title
+      date: new Date(), // Default to today's date
     },
 
     remarks: '',

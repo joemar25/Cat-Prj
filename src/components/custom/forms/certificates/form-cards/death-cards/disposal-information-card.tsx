@@ -1,4 +1,5 @@
-// DisposalInformationCard.tsx
+'use client';
+
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -38,8 +39,8 @@ const DisposalInformationCard: React.FC = () => {
           )}
         />
 
+        {/* Burial/Cremation Permit Section */}
         <div className='grid grid-cols-2 gap-4'>
-          {/* Burial/Cremation Permit Section */}
           <div className='space-y-4'>
             <h4 className='text-sm font-medium'>Burial/Cremation Permit</h4>
             <FormField
@@ -49,7 +50,7 @@ const DisposalInformationCard: React.FC = () => {
                 <FormItem>
                   <FormLabel>Permit Number</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} placeholder='Enter permit number' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -77,7 +78,7 @@ const DisposalInformationCard: React.FC = () => {
                 <FormItem>
                   <FormLabel>Permit Number</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} placeholder='Enter permit number' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -96,7 +97,7 @@ const DisposalInformationCard: React.FC = () => {
           </div>
         </div>
 
-        {/* Cemetery Information */}
+        {/* Cemetery or Crematory Information */}
         <FormField
           control={control}
           name='cemeteryAddress'
@@ -104,7 +105,7 @@ const DisposalInformationCard: React.FC = () => {
             <FormItem>
               <FormLabel>Name and Address of Cemetery or Crematory</FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea {...field} placeholder='Enter name and address' />
               </FormControl>
               <FormMessage />
             </FormItem>

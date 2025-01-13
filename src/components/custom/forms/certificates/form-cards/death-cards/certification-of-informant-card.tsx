@@ -14,7 +14,7 @@ import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/for
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
-const InformantInformationCard: React.FC = () => {
+const CertificationInformantCard: React.FC = () => {
   const { control } = useFormContext<DeathCertificateFormValues>();
 
   return (
@@ -95,4 +95,4 @@ const InformantInformationCard: React.FC = () => {
   );
 };
 
-export default InformantInformationCard;
+export default CertificationInformantCard;
