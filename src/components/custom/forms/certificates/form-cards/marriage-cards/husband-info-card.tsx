@@ -16,28 +16,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 
+import { COUNTRY } from '@/lib/constants/locations';
 import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
-import { useFormContext } from 'react-hook-form';
 import {
-  getCitiesByProvince,
-  getProvincesByRegion,
+  getAllProvinces,
+  getCitiesMunicipalities,
 } from '@/lib/utils/location-helpers';
-import { REGIONS } from '@/lib/constants/locations';
+import { useFormContext } from 'react-hook-form';
 
 const HusbandInfoCard: React.FC = () => {
   const { control } = useFormContext<MarriageCertificateFormValues>();
-
-  const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
 
-  const provinces = selectedRegion ? getProvincesByRegion(selectedRegion) : [];
-  const citiesMunicipalities = selectedProvince
-    ? getCitiesByProvince(selectedRegion, selectedProvince)
-    : [];
+  const allProvinces = getAllProvinces();
+  const citiesMunicipalities = useMemo(
+    () => getCitiesMunicipalities(selectedProvince),
+    [selectedProvince]
+  );
   return (
     <Card className='border dark:border-border'>
       <CardHeader>
@@ -99,6 +98,15 @@ const HusbandInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
+
+          {/* Date of Birth */}
+          <FormField
+            control={control}
+            name='husbandDateOfBirth'
+            render={({ field }) => (
+              <DatePickerField field={field} label='Date of Birth' />
+            )}
+          />
           {/* Age */}
           <FormField
             control={control}
@@ -118,49 +126,6 @@ const HusbandInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
-          {/* Date of Birth */}
-          <FormField
-            control={control}
-            name='husbandDateOfBirth'
-            render={({ field }) => (
-              <DatePickerField field={field} label='Date of Birth' />
-            )}
-          />
-          {/* Place of Birth (Region) */}
-          <FormField
-            control={control}
-            name='husbandPlaceOfBirth.region'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Place of Birth (Region)</FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    const selectedRegionObj = REGIONS.find(
-                      (r) => r.id === value
-                    );
-                    field.onChange(selectedRegionObj?.name || '');
-                    setSelectedRegion(value);
-                    setSelectedProvince('');
-                  }}
-                  value={selectedRegion}
-                >
-                  <FormControl>
-                    <SelectTrigger className='h-10'>
-                      <SelectValue placeholder='Select region' />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {REGIONS.map((region) => (
-                      <SelectItem key={region.id} value={region.id}>
-                        {region.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           {/* Place of Birth (Province) */}
           <FormField
@@ -171,12 +136,15 @@ const HusbandInfoCard: React.FC = () => {
                 <FormLabel>Place of Birth (Province)</FormLabel>
                 <Select
                   onValueChange={(value) => {
-                    const provinceObj = provinces.find((p) => p.id === value);
+                    const provinceObj = allProvinces.find(
+                      (p) => p.id === value
+                    );
                     field.onChange(provinceObj?.name || '');
                     setSelectedProvince(value);
                   }}
-                  value={selectedProvince}
-                  disabled={!selectedRegion}
+                  value={
+                    allProvinces.find((p) => p.name === field.value)?.id || ''
+                  }
                 >
                   <FormControl>
                     <SelectTrigger className='h-10'>
@@ -184,7 +152,7 @@ const HusbandInfoCard: React.FC = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {provinces.map((province) => (
+                    {allProvinces.map((province) => (
                       <SelectItem key={province.id} value={province.id}>
                         {province.name}
                       </SelectItem>
@@ -221,6 +189,26 @@ const HusbandInfoCard: React.FC = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Place of Birth (Country) */}
+          <FormField
+            control={control}
+            name='husbandPlaceOfBirth.country'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Place of Birth (Country)</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    value={field.value || COUNTRY}
+                    readOnly
+                    className='h-10 bg-muted'
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

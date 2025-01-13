@@ -23,7 +23,7 @@ const HusbandParentsInfoCard: React.FC = () => {
       </CardHeader>
       <CardContent className='p-6'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-          {/* Father's Name */}
+          {/* Father's First Name */}
           <FormField
             control={control}
             name='husbandFatherName.first'
@@ -41,6 +41,7 @@ const HusbandParentsInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
+          {/* Father's Middle Name */}
           <FormField
             control={control}
             name='husbandFatherName.middle'
@@ -58,6 +59,7 @@ const HusbandParentsInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
+          {/* Father's Last Name */}
           <FormField
             control={control}
             name='husbandFatherName.last'
@@ -93,7 +95,7 @@ const HusbandParentsInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
-          {/* Mother's Name */}
+          {/* Maiden Mother's First Name */}
           <FormField
             control={control}
             name='husbandMotherMaidenName.first'
@@ -111,6 +113,7 @@ const HusbandParentsInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
+          {/* Maiden Mother's Middle Name */}
           <FormField
             control={control}
             name='husbandMotherMaidenName.middle'
@@ -128,6 +131,7 @@ const HusbandParentsInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
+          {/* Maiden Mother's last Name */}
           <FormField
             control={control}
             name='husbandMotherMaidenName.last'
@@ -163,6 +167,104 @@ const HusbandParentsInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
+
+          {/* Nature of Property */}
+          <div className='col-span-full mt-6'>
+            <h3 className='font-medium mb-4'>Nature of Property</h3>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+              <FormField
+                control={control}
+                name='husbandParentsNatureOfProperty.first'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nature of Property (First)</FormLabel>
+                    <FormControl>
+                      <Input
+                        className='h-10'
+                        placeholder='Enter nature of property (first)'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name='husbandParentsNatureOfProperty.middle'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nature of Property (Middle)</FormLabel>
+                    <FormControl>
+                      <Input
+                        className='h-10'
+                        placeholder='Enter nature of property (middle)'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name='husbandParentsNatureOfProperty.last'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nature of Property (Last)</FormLabel>
+                    <FormControl>
+                      <Input
+                        className='h-10'
+                        placeholder='Enter nature of property (last)'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Parents Relationship */}
+          <FormField
+            control={control}
+            name='husbandParentsRelationship'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Relationship</FormLabel>
+                <FormControl>
+                  <Input
+                    className='h-10'
+                    placeholder='Enter relationship'
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Parents Residence */}
+          <div className='col-span-2'>
+            <FormField
+              control={control}
+              name='husbandParentsResidence'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Residence</FormLabel>
+                  <FormControl>
+                    <Input
+                      className='h-10'
+                      placeholder='House No., St., Barangay, City/Municipality, Province, Country'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
       </CardContent>
     </Card>

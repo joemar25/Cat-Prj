@@ -163,6 +163,104 @@ const WifeParentsInfoCard: React.FC = () => {
               </FormItem>
             )}
           />
+
+          {/* Nature of Property */}
+          <div className='col-span-full mt-6'>
+            <h3 className='font-medium mb-4'>Nature of Property</h3>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+              <FormField
+                control={control}
+                name='wifeParentsNatureOfProperty.first'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nature of Property (First)</FormLabel>
+                    <FormControl>
+                      <Input
+                        className='h-10'
+                        placeholder='Enter nature of property (first)'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name='wifeParentsNatureOfProperty.middle'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nature of Property (Middle)</FormLabel>
+                    <FormControl>
+                      <Input
+                        className='h-10'
+                        placeholder='Enter nature of property (middle)'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name='wifeParentsNatureOfProperty.last'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nature of Property (Last)</FormLabel>
+                    <FormControl>
+                      <Input
+                        className='h-10'
+                        placeholder='Enter nature of property (last)'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Parents Relationship */}
+          <FormField
+            control={control}
+            name='wifeParentsRelationship'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Relationship</FormLabel>
+                <FormControl>
+                  <Input
+                    className='h-10'
+                    placeholder='Enter relationship'
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Parents Residence */}
+          <div className='col-span-2'>
+            <FormField
+              control={control}
+              name='wifeParentsResidence'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Residence</FormLabel>
+                  <FormControl>
+                    <Input
+                      className='h-10'
+                      placeholder='House No., St., Barangay, City/Municipality, Province, Country'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -134,6 +134,38 @@ export const marriageCertificateSchema = z.object({
       placeIssued: z.string().min(1, 'Place issued is required'),
     })
     .optional(),
+
+  husbandParentsNatureOfProperty: z.object({
+    first: z.string().optional(),
+    middle: z.string().optional(),
+    last: z.string().optional(),
+  }),
+  husbandParentsRelationship: z.string().optional(),
+  husbandParentsResidence: z.string().optional(),
+
+  // Wife's Parents Nature of Property, Relationship, and Residence
+  wifeParentsNatureOfProperty: z.object({
+    first: z.string().optional(),
+    middle: z.string().optional(),
+    last: z.string().optional(),
+  }),
+  wifeParentsRelationship: z.string().optional(),
+  wifeParentsResidence: z.string().optional(),
+
+  receivedBy: z.object({
+    signature: z.string().optional(),
+    name: z.string().min(1, 'Name is required'),
+    title: z.string().min(1, 'Title is required'),
+    date: z.date(),
+  }),
+
+  // Add this to marriageCertificateSchema
+  registeredAtCivilRegistrar: z.object({
+    signature: z.string().optional(),
+    name: z.string().min(1, 'Name is required'),
+    title: z.string().min(1, 'Title is required'),
+    date: z.date(),
+  }),
 });
 // Type inference
 export type MarriageCertificateFormValues = z.infer<
@@ -176,6 +208,16 @@ export const defaultMarriageCertificateValues: Partial<MarriageCertificateFormVa
       last: 'Santos',
     },
     husbandMotherCitizenship: 'Filipino',
+
+    // New husband's parents fields
+    husbandParentsNatureOfProperty: {
+      first: 'Personal',
+      middle: 'and',
+      last: 'Properties',
+    },
+    husbandParentsRelationship: 'Parents',
+    husbandParentsResidence:
+      '123 Sampaguita Street, Brgy. San Jose, Malolos, Bulacan',
 
     wifeFirstName: 'Maria Clara',
     wifeMiddleName: 'Rodriguez',
@@ -267,6 +309,31 @@ export const defaultMarriageCertificateValues: Partial<MarriageCertificateFormVa
       number: '2024-001',
       dateIssued: new Date('2024-01-14').toISOString(), // 30 days before marriage
       placeIssued: 'Malolos City Civil Registry',
+    },
+
+    wifeParentsNatureOfProperty: {
+      first: 'Personal',
+      middle: 'and',
+      last: 'Properties',
+    },
+    wifeParentsRelationship: 'Parents',
+    wifeParentsResidence:
+      '456 Ilang-Ilang Street, Brgy. Santa Isabel, Malolos, Bulacan',
+
+    // Add to defaultMarriageCertificateValues
+    receivedBy: {
+      signature: '',
+      name: '',
+      title: '',
+      date: new Date(),
+    },
+
+    // Add to defaultMarriageCertificateValues
+    registeredAtCivilRegistrar: {
+      signature: '',
+      name: '',
+      title: '',
+      date: new Date(),
     },
   };
 

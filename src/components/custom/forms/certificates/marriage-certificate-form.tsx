@@ -30,14 +30,17 @@ import {
   ConfirmationDialog,
   shouldSkipAlert,
 } from '../../confirmation-dialog/confirmation-dialog';
-import HusbandConsentInfoCard from './form-cards/marriage-cards/husband-consent-info-card';
+import ContractingPartiesCertificationCard from './form-cards/marriage-cards/contracting-parties-certification.-card';
 import HusbandInfoCard from './form-cards/marriage-cards/husband-info-card';
 import HusbandParentsInfoCard from './form-cards/marriage-cards/husband-parent-info-card';
 import MarriageDetailsCard from './form-cards/marriage-cards/marriage-details-card';
+import ReceivedByCard from './form-cards/marriage-cards/received-by-card';
+import RegisteredAtOfficeCard from './form-cards/marriage-cards/registered-at-office-card';
 import RegistryInfoCard from './form-cards/marriage-cards/registry-info-card';
-import WifeConsentInfoCard from './form-cards/marriage-cards/wife-consent-info-card';
+import SolemnizingOfficerCertification from './form-cards/marriage-cards/solemnizing-officer-certification-card';
 import WifeInfoCard from './form-cards/marriage-cards/wife-info-card';
 import WifeParentsInfoCard from './form-cards/marriage-cards/wife-parent-info-card';
+import WitnessesCard from './form-cards/marriage-cards/witnesses-section-card';
 import MarriageCertificatePDF from './preview/marriage-certificate/MarriageCertificatePDF';
 
 export function MarriageCertificateForm({
@@ -223,9 +226,14 @@ export function MarriageCertificateForm({
                       <WifeInfoCard />
                       <HusbandParentsInfoCard />
                       <WifeParentsInfoCard />
-                      <HusbandConsentInfoCard />
-                      <WifeConsentInfoCard />
                       <MarriageDetailsCard />
+                      <ContractingPartiesCertificationCard />
+                      <SolemnizingOfficerCertification />
+                      <WitnessesCard />
+                      <ReceivedByCard />
+                      <RegisteredAtOfficeCard />
+                      {/* <HusbandConsentInfoCard />
+                      <WifeConsentInfoCard /> */}
 
                       <DialogFooter>
                         <Button
