@@ -101,7 +101,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
           <Text style={styles.title}>Registry Information</Text>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Registry Number:</Text>
-            <Text style={styles.value}>{data.registryNo || 'N/A'}</Text>
+            <Text style={styles.value}>{data.registryNumber || 'N/A'}</Text>
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Province:</Text>
@@ -159,7 +159,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Weight:</Text>
-            <Text style={styles.value}>{data.childInfo?.weight || 'N/A'}</Text>
+            <Text style={styles.value}>
+              {data.childInfo?.weightAtBirth || 'N/A'}
+            </Text>
           </View>
         </View>
 
@@ -180,24 +182,24 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Citizenship:</Text>
             <Text style={styles.value}>
-              {data.motherInfo?.citizenship || 'N/A'}
+              {data.motherInfo?.motherCitizenship || 'N/A'}
             </Text>
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Religion:</Text>
             <Text style={styles.value}>
-              {data.motherInfo?.religion || 'N/A'}
+              {data.motherInfo?.motherReligion || 'N/A'}
             </Text>
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Occupation:</Text>
             <Text style={styles.value}>
-              {data.motherInfo?.occupation || 'N/A'}
+              {data.motherInfo?.motherOccupation || 'N/A'}
             </Text>
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Age:</Text>
-            <Text style={styles.value}>{data.motherInfo?.age || 'N/A'}</Text>
+            <Text style={styles.value}>{data.motherInfo?.motherAge || 'N/A'}</Text>
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Residence:</Text>
@@ -225,24 +227,24 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Citizenship:</Text>
             <Text style={styles.value}>
-              {data.fatherInfo?.citizenship || 'N/A'}
+              {data.fatherInfo?.fatherCitizenship || 'N/A'}
             </Text>
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Religion:</Text>
             <Text style={styles.value}>
-              {data.fatherInfo?.religion || 'N/A'}
+              {data.fatherInfo?.fatherReligion || 'N/A'}
             </Text>
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Occupation:</Text>
             <Text style={styles.value}>
-              {data.fatherInfo?.occupation || 'N/A'}
+              {data.fatherInfo?.fatherOccupation || 'N/A'}
             </Text>
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Age:</Text>
-            <Text style={styles.value}>{data.fatherInfo?.age || 'N/A'}</Text>
+            <Text style={styles.value}>{data.fatherInfo?.fatherAge || 'N/A'}</Text>
           </View>
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Residence:</Text>
@@ -259,10 +261,10 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Marriage of Parents:</Text>
             <Text style={styles.value}>
-              {data.marriageOfParents?.date &&
-                formatDate(data.marriageOfParents.date)}
-              {data.marriageOfParents?.place &&
-                ` at ${formatAddress(data.marriageOfParents.place)}`}
+              {data.parentMarriage?.date &&
+                formatDate(data.parentMarriage.date)}
+              {data.parentMarriage?.place &&
+                ` at ${formatAddress(data.parentMarriage.place)}`}
             </Text>
           </View>
           <View style={styles.fieldContainer}>
