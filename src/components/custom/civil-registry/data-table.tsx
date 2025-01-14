@@ -1,4 +1,3 @@
-// src/components/custom/civil-registry/data-table.tsx
 'use client'
 
 import React from 'react'
@@ -16,7 +15,6 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table'
-import type { BaseRegistryForm } from '@prisma/client'
 
 import {
     Table,
@@ -31,24 +29,20 @@ import { DataTablePagination } from '@/components/custom/table/data-table-pagina
 import { DataTableToolbar } from './data-table-toolbar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Icons } from '@/components/ui/icons'
+import { ExtendedBaseRegistryForm } from './columns'
 
-// Define possible value types that can appear in the columns
-type CivilRegistryFormValue = string | number | boolean | Date | null | undefined
-
-// Define strict types for the DataTable props
-interface DataTableProps<TData extends BaseRegistryForm> {
-    columns: ColumnDef<TData, CivilRegistryFormValue>[]
-    data: TData[]
+interface DataTableProps {
+    columns: ColumnDef<ExtendedBaseRegistryForm>[]
+    data: ExtendedBaseRegistryForm[]
     searchKey?: string
     selection?: boolean
 }
 
-// Update the DataTable component to use the constrained generic type
-export function DataTable<TData extends BaseRegistryForm>({
+export function DataTable({
     columns,
     data,
     selection = true,
-}: DataTableProps<TData>) {
+}: DataTableProps) {
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
