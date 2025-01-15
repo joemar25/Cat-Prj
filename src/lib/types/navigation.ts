@@ -35,6 +35,7 @@ export interface NavMainItem {
     }>
     notViewedCount?: number,
     click?: () => void
+    hidden?: boolean
 }
 
 export interface NavSecondaryItem {

@@ -1,10 +1,13 @@
-// src\lib\zod.ts
+// src/lib/zod.ts
 import { object, string, z } from 'zod'
 
 export const getPasswordSchema = (type: 'password' | 'confirmPassword') =>
   string({ required_error: `${type} is required` })
-    .min(8, 'Password must be at least 8 characters long')
     .max(32, 'Password must be less than 32 characters')
+    .refine(
+      (value) => !value || value.length >= 8,
+      'Password must be at least 8 characters long'
+    );
 
 export const getEmailSchema = () =>
   string({ required_error: `Email is required` })
@@ -212,7 +215,30 @@ export const changePasswordSchema = z
 
 
 // Combined schema for the edit form
-export const editUserFormSchema = editUserSchema.merge(editProfileSchema)
+export const editUserFormSchema = editUserSchema
+  .merge(editProfileSchema)
+  .extend({
+    newPassword: z
+      .string()
+      .refine(
+        (value) => !value || value.length >= 8, // Only validate if the value is not empty
+        'Password must be at least 8 characters long'
+      )
+      .optional(),
+    confirmNewPassword: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.newPassword || data.confirmNewPassword) {
+        return data.newPassword === data.confirmNewPassword;
+      }
+      return true;
+    },
+    {
+      message: 'Passwords do not match',
+      path: ['confirmNewPassword'],
+    }
+  )
 
 // Export types
 export type EditUserSchema = z.infer<typeof editUserSchema>

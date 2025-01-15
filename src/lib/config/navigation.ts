@@ -34,6 +34,11 @@ export function transformToMainNavItem(item: NavConfig, role: UserRole): NavMain
         }
     }
 
+    // Only show "Manage Users" for admins
+    if (item.id === 'users' && role !== 'ADMIN') {
+        return { ...baseItem, hidden: true } // Hide the item for non-admins
+    }
+
     if (hasSubItems(item)) {
         baseItem.items = item.items
             .filter(subItem => {

@@ -1,3 +1,4 @@
+// src\components\custom\users\actions\edit-user-dialog.tsx
 'use client'
 
 import { Button } from '@/components/ui/button'
@@ -26,13 +27,14 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {
+  handleChangePasswordForEditUser,
   handleUpdateUser,
   handleUpdateUserProfile,
 } from '@/hooks/users-action'
 import { EditUserFormData, editUserFormSchema } from '@/lib/zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { User } from '@prisma/client'
-import { useEffect, useTransition } from 'react'
+import { useEffect, useTransition, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -64,36 +66,38 @@ export function EditUserDialog({
   onSave,
 }: EditUserDialogProps) {
   const [isPending, startTransition] = useTransition()
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const form = useForm<EditUserFormData>({
     resolver: zodResolver(editUserFormSchema),
     defaultValues: {
       name: '',
       email: '',
-      dateOfBirth: undefined,
-      phoneNumber: undefined,
-      address: undefined,
-      city: undefined,
-      state: undefined,
-      country: undefined,
-      postalCode: undefined,
-      bio: undefined,
-      occupation: undefined,
-      gender: undefined,
-      nationality: undefined,
+      dateOfBirth: '',
+      phoneNumber: '',
+      address: '',
+      city: '',
+      state: '',
+      country: '',
+      postalCode: '',
+      bio: '',
+      occupation: '',
+      gender: null,
+      nationality: '',
+      newPassword: '',
+      confirmNewPassword: '',
     },
   })
 
   // Reset form values when `user` changes or dialog is opened
   useEffect(() => {
     if (open && user) {
-      console.log('User data: ssssssssssssssssssssssssss', user)
-
       form.reset({
         name: user.name || '',
         email: user.email || '',
         dateOfBirth:
-          user.profile?.dateOfBirth?.toISOString().split('T')[0] || undefined,
+          user.profile?.dateOfBirth?.toISOString().split('T')[0] || '',
         phoneNumber: user.profile?.phoneNumber || '',
         address: user.profile?.address || '',
         city: user.profile?.city || '',
@@ -104,6 +108,8 @@ export function EditUserDialog({
         occupation: user.profile?.occupation || '',
         gender: user.profile?.gender || null,
         nationality: user.profile?.nationality || '',
+        newPassword: '',
+        confirmNewPassword: '',
       })
     }
   }, [user, open, form])
@@ -111,12 +117,12 @@ export function EditUserDialog({
   const onSubmit = async (data: EditUserFormData) => {
     startTransition(async () => {
       try {
+        // Update user details
         const userData = {
           name: data.name,
           email: data.email,
         }
 
-        console.log('Submitting user data:', userData) // Debug user data
         const userResult = await handleUpdateUser(user.id, userData)
 
         if (!userResult.success || !userResult.data) {
@@ -124,6 +130,7 @@ export function EditUserDialog({
           return
         }
 
+        // Update profile details
         const profileData = {
           dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
           phoneNumber: data.phoneNumber || null,
@@ -138,19 +145,29 @@ export function EditUserDialog({
           nationality: data.nationality || null,
         }
 
-        console.log('Submitting profile data:', profileData) // Debug profile data
-        const profileResult = await handleUpdateUserProfile(
-          user.id,
-          profileData
-        )
+        const profileResult = await handleUpdateUserProfile(user.id, profileData)
 
         if (!profileResult.success) {
           toast.error(profileResult.message || 'Failed to update profile')
           return
         }
 
+        // Update password if new password is provided
+        if (data.newPassword && data.confirmNewPassword) {
+          const passwordResult = await handleChangePasswordForEditUser(user.id, {
+            newPassword: data.newPassword,
+            confirmNewPassword: data.confirmNewPassword,
+          })
+
+          if (!passwordResult.success) {
+            toast.error(passwordResult.message || 'Failed to update password')
+            return
+          }
+        }
+
         onOpenChangeAction(false)
         onSave?.(userResult.data)
+        toast.success('User updated successfully')
       } catch (error) {
         console.error('Error updating user:', error)
         toast.error('An unexpected error occurred')
@@ -160,13 +177,14 @@ export function EditUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
-      <DialogContent className='sm:max-w-[600px] max-h-[90vh] overflow-y-auto'>
+      <DialogContent className='sm:max-w-[800px] max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
           <DialogTitle>Edit User</DialogTitle>
           <DialogDescription>
             Update user details with the form below.
           </DialogDescription>
         </DialogHeader>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
             {/* Basic Information */}
@@ -260,7 +278,7 @@ export function EditUserDialog({
                       <FormLabel>Gender</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        value={field.value || undefined}
+                        value={field.value || ''}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -422,6 +440,78 @@ export function EditUserDialog({
                           value={field.value || ''}
                           placeholder='Enter postal code'
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Password Change Section */}
+            <div className='space-y-4'>
+              <h2 className='text-lg font-medium'>Change Password</h2>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='newPassword'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>New Password</FormLabel>
+                      <FormControl>
+                        <div className='relative'>
+                          <Input
+                            {...field}
+                            type={showNewPassword ? 'text' : 'password'}
+                            placeholder='Enter new password'
+                          />
+                          <Button
+                            type='button'
+                            variant='ghost'
+                            size='sm'
+                            className='absolute right-0 top-0 h-full px-3'
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                          >
+                            {showNewPassword ? (
+                              <Icons.eyeOff className='h-4 w-4' />
+                            ) : (
+                              <Icons.eye className='h-4 w-4' />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name='confirmNewPassword'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm New Password</FormLabel>
+                      <FormControl>
+                        <div className='relative'>
+                          <Input
+                            {...field}
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            placeholder='Confirm new password'
+                          />
+                          <Button
+                            type='button'
+                            variant='ghost'
+                            size='sm'
+                            className='absolute right-0 top-0 h-full px-3'
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          >
+                            {showConfirmPassword ? (
+                              <Icons.eyeOff className='h-4 w-4' />
+                            ) : (
+                              <Icons.eye className='h-4 w-4' />
+                            )}
+                          </Button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

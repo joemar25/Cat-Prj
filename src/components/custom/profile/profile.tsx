@@ -17,8 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { profileFormSchema, changePasswordSchema, ProfileFormValues, ChangePasswordFormValues } from '@/lib/zod'
 
 export default function Profile({ userId, profile }: { userId: string; profile: ProfileWithUser }) {
-    const [isEditing, setIsEditing] = useState(false)
-    const [isChangingPassword, setIsChangingPassword] = useState(false)
+    const [isEditing, setIsEditing] = useState(false) // Toggle for editing profile or changing password
+    const [isPasswordMode, setIsPasswordMode] = useState(false) // Toggle between profile and password forms
     const [showCurrentPassword, setShowCurrentPassword] = useState(false)
     const [showNewPassword, setShowNewPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -72,7 +72,8 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
             const result = await handleChangePassword(userId, data)
             if (result.success) {
                 toast.success('Password changed successfully')
-                setIsChangingPassword(false)
+                setIsEditing(false)
+                setIsPasswordMode(false)
                 passwordForm.reset()
             } else {
                 toast.error(result.message)
@@ -80,6 +81,19 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
         } catch (error) {
             console.error('Failed to change password:', error)
             toast.error('Failed to change password')
+        }
+    }
+
+    // Toggle between profile and password forms
+    const toggleEditMode = () => {
+        if (isEditing && isPasswordMode) {
+            setIsEditing(false)
+            setIsPasswordMode(false)
+        } else if (isEditing) {
+            setIsPasswordMode(true)
+        } else {
+            setIsEditing(true)
+            setIsPasswordMode(false)
         }
     }
 
@@ -98,213 +112,215 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
             </div>
 
             {/* Profile Form */}
-            <Form {...profileForm}>
-                <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6 mb-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Profile fields */}
-                        {Object.entries(profileFormSchema.shape).map(([key]) => (
-                            <FormField
-                                key={key}
-                                control={profileForm.control}
-                                name={key as keyof ProfileFormValues}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{key.charAt(0).toUpperCase() + key.slice(1)}</FormLabel>
-                                        <FormControl>
-                                            {key === 'gender' ? (
-                                                <Select
-                                                    onValueChange={field.onChange}
-                                                    value={field.value}
-                                                    disabled={!isEditing}
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select gender" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="male">Male</SelectItem>
-                                                        <SelectItem value="female">Female</SelectItem>
-                                                        <SelectItem value="other">Other</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            ) : (
-                                                <Input {...field} disabled={!isEditing} />
-                                            )}
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        ))}
-                    </div>
-
-                    {/* Bio Field */}
-                    <FormField
-                        control={profileForm.control}
-                        name="bio"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Bio</FormLabel>
-                                <FormControl>
-                                    <Textarea {...field} disabled={!isEditing} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* Action Buttons */}
-                    <div className="flex justify-start gap-2">
-                        {isEditing ? (
-                            <>
-                                <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                                    Cancel
-                                </Button>
-                                <Button type="submit">
-                                    <Icons.save className="mr-2 h-4 w-4" />
-                                    Save
-                                </Button>
-                            </>
-                        ) : (
-                            <Button type="button" onClick={() => setIsEditing(true)}>
-                                <Icons.edit className="mr-2 h-4 w-4" />
-                                Edit Profile
-                            </Button>
-                        )}
-                    </div>
-                </form>
-            </Form>
-
-            {/* Password Change Section */}
-            <div className="mt-8">
-                <h2 className="text-xl font-bold mb-4">Change Password</h2>
-                <Form {...passwordForm}>
-                    <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-6">
+            {!isPasswordMode && (
+                <Form {...profileForm}>
+                    <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6 mb-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Current Password */}
-                            <FormField
-                                control={passwordForm.control}
-                                name="currentPassword"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Current Password</FormLabel>
-                                        <FormControl>
-                                            <div className="relative">
-                                                <Input
-                                                    {...field}
-                                                    type={showCurrentPassword ? 'text' : 'password'}
-                                                    disabled={!isChangingPassword}
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="absolute right-0 top-0 h-full px-3"
-                                                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                                >
-                                                    {showCurrentPassword ? (
-                                                        <Icons.eyeOff className="h-4 w-4" />
-                                                    ) : (
-                                                        <Icons.eye className="h-4 w-4" />
-                                                    )}
-                                                </Button>
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* New Password */}
-                            <FormField
-                                control={passwordForm.control}
-                                name="newPassword"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>New Password</FormLabel>
-                                        <FormControl>
-                                            <div className="relative">
-                                                <Input
-                                                    {...field}
-                                                    type={showNewPassword ? 'text' : 'password'}
-                                                    disabled={!isChangingPassword}
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="absolute right-0 top-0 h-full px-3"
-                                                    onClick={() => setShowNewPassword(!showNewPassword)}
-                                                >
-                                                    {showNewPassword ? (
-                                                        <Icons.eyeOff className="h-4 w-4" />
-                                                    ) : (
-                                                        <Icons.eye className="h-4 w-4" />
-                                                    )}
-                                                </Button>
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {/* Confirm New Password */}
-                            <FormField
-                                control={passwordForm.control}
-                                name="confirmNewPassword"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Confirm New Password</FormLabel>
-                                        <FormControl>
-                                            <div className="relative">
-                                                <Input
-                                                    {...field}
-                                                    type={showConfirmPassword ? 'text' : 'password'}
-                                                    disabled={!isChangingPassword}
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="absolute right-0 top-0 h-full px-3"
-                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                >
-                                                    {showConfirmPassword ? (
-                                                        <Icons.eyeOff className="h-4 w-4" />
-                                                    ) : (
-                                                        <Icons.eye className="h-4 w-4" />
-                                                    )}
-                                                </Button>
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            {/* Profile fields */}
+                            {Object.entries(profileFormSchema.shape).map(([key]) => (
+                                <FormField
+                                    key={key}
+                                    control={profileForm.control}
+                                    name={key as keyof ProfileFormValues}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{key.charAt(0).toUpperCase() + key.slice(1)}</FormLabel>
+                                            <FormControl>
+                                                {key === 'gender' ? (
+                                                    <Select
+                                                        onValueChange={field.onChange}
+                                                        value={field.value}
+                                                        disabled={!isEditing}
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select gender" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="male">Male</SelectItem>
+                                                            <SelectItem value="female">Female</SelectItem>
+                                                            <SelectItem value="other">Other</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                ) : (
+                                                    <Input {...field} disabled={!isEditing} />
+                                                )}
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            ))}
                         </div>
+
+                        {/* Bio Field */}
+                        <FormField
+                            control={profileForm.control}
+                            name="bio"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Bio</FormLabel>
+                                    <FormControl>
+                                        <Textarea {...field} disabled={!isEditing} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
                         {/* Action Buttons */}
                         <div className="flex justify-start gap-2">
-                            {isChangingPassword ? (
+                            {isEditing ? (
                                 <>
-                                    <Button type="button" variant="outline" onClick={() => setIsChangingPassword(false)}>
+                                    <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
                                         Cancel
                                     </Button>
                                     <Button type="submit">
                                         <Icons.save className="mr-2 h-4 w-4" />
-                                        Save Password
+                                        Save
                                     </Button>
                                 </>
                             ) : (
-                                <Button type="button" onClick={() => setIsChangingPassword(true)}>
+                                <Button type="button" onClick={toggleEditMode}>
                                     <Icons.edit className="mr-2 h-4 w-4" />
-                                    Change Password
+                                    Edit Profile
                                 </Button>
                             )}
                         </div>
                     </form>
                 </Form>
-            </div>
+            )}
+
+            {/* Password Change Section */}
+            {isPasswordMode && (
+                <div className="mt-8">
+                    <h2 className="text-xl font-bold mb-4">Change Password</h2>
+                    <Form {...passwordForm}>
+                        <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Current Password */}
+                                <FormField
+                                    control={passwordForm.control}
+                                    name="currentPassword"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Current Password</FormLabel>
+                                            <FormControl>
+                                                <div className="relative">
+                                                    <Input
+                                                        {...field}
+                                                        type={showCurrentPassword ? 'text' : 'password'}
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="absolute right-0 top-0 h-full px-3"
+                                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                                    >
+                                                        {showCurrentPassword ? (
+                                                            <Icons.eyeOff className="h-4 w-4" />
+                                                        ) : (
+                                                            <Icons.eye className="h-4 w-4" />
+                                                        )}
+                                                    </Button>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* New Password */}
+                                <FormField
+                                    control={passwordForm.control}
+                                    name="newPassword"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>New Password</FormLabel>
+                                            <FormControl>
+                                                <div className="relative">
+                                                    <Input
+                                                        {...field}
+                                                        type={showNewPassword ? 'text' : 'password'}
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="absolute right-0 top-0 h-full px-3"
+                                                        onClick={() => setShowNewPassword(!showNewPassword)}
+                                                    >
+                                                        {showNewPassword ? (
+                                                            <Icons.eyeOff className="h-4 w-4" />
+                                                        ) : (
+                                                            <Icons.eye className="h-4 w-4" />
+                                                        )}
+                                                    </Button>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {/* Confirm New Password */}
+                                <FormField
+                                    control={passwordForm.control}
+                                    name="confirmNewPassword"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Confirm New Password</FormLabel>
+                                            <FormControl>
+                                                <div className="relative">
+                                                    <Input
+                                                        {...field}
+                                                        type={showConfirmPassword ? 'text' : 'password'}
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="absolute right-0 top-0 h-full px-3"
+                                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                    >
+                                                        {showConfirmPassword ? (
+                                                            <Icons.eyeOff className="h-4 w-4" />
+                                                        ) : (
+                                                            <Icons.eye className="h-4 w-4" />
+                                                        )}
+                                                    </Button>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex justify-start gap-2">
+                                <Button type="button" variant="outline" onClick={toggleEditMode}>
+                                    Cancel
+                                </Button>
+                                <Button type="submit">
+                                    <Icons.save className="mr-2 h-4 w-4" />
+                                    Save Password
+                                </Button>
+                            </div>
+                        </form>
+                    </Form>
+                </div>
+            )}
+
+            {/* Toggle Button for Password Mode */}
+            {isEditing && !isPasswordMode && (
+                <div className="mt-4">
+                    <Button type="button" variant="outline" onClick={() => setIsPasswordMode(true)}>
+                        <Icons.key className="mr-2 h-4 w-4" />
+                        Change Password
+                    </Button>
+                </div>
+            )}
         </div>
     )
 }

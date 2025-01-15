@@ -1,7 +1,6 @@
 'use client'
 
 import Image from 'next/image'
-
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { NavMain } from './nav-main'
@@ -36,16 +35,18 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
 
+  // Transform and filter navigation items
   const visibleMainNav = useMemo(() => {
     return navigationConfig.mainNav
-      .filter(item => visibleMainItems.includes(item.id))
-      .map(item => transformToMainNavItem(item, role))
+      .filter(item => visibleMainItems.includes(item.id)) // Filter by visible items
+      .map(item => transformToMainNavItem(item, role)) // Transform to NavMainItem
+      .filter(item => !item.hidden); // Filter out hidden items
   }, [visibleMainItems, role])
 
   const visibleSecondaryNav = useMemo(() => {
     return navigationConfig.secondaryNav
-      .filter(item => visibleSecondaryItems.includes(item.id))
-      .map(transformToSecondaryNavItem)
+      .filter(item => visibleSecondaryItems.includes(item.id)) // Filter by visible items
+      .map(transformToSecondaryNavItem); // Transform to NavSecondaryItem
   }, [visibleSecondaryItems])
 
   const closeLogout = () => setIsLogoutOpen(false)
@@ -72,9 +73,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <div className="flex items-center gap-3">
-
                 {/* Logo */}
-                {/* <Icons.logo className="h-10 w-10 rounded-full" /> */}
                 <Image
                   src={"/images/lgu-legazpi.png"}
                   alt="Logo"
@@ -164,5 +163,3 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
     </Sidebar>
   )
 }
-
-// working

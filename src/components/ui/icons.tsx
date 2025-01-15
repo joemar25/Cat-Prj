@@ -73,6 +73,7 @@ import {
     Save,
     Eye,
     EyeOff,
+    Key,
 
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
@@ -182,6 +183,7 @@ export const Icons = {
     save: Save,
     eye: Eye,
     eyeOff: EyeOff,
+    key: Key,
     /**
      * Custom Icons below  
      */

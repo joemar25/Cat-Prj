@@ -354,3 +354,41 @@ export async function createCertifiedCopy(
     return { success: false, message: 'Failed to create certified copy' }
   }
 }
+
+export async function handleChangePasswordForEditUser(
+  userId: string,
+  data: { newPassword: string; confirmNewPassword: string }
+) {
+  try {
+    // Validate input data
+    if (data.newPassword !== data.confirmNewPassword) {
+      return { success: false, message: 'Passwords do not match' }
+    }
+
+    // Fetch the user's account
+    const userAccount = await prisma.account.findFirst({
+      where: { userId },
+    })
+
+    if (!userAccount) {
+      return { success: false, message: 'User account not found' }
+    }
+
+    // Hash the new password
+    const hashedNewPassword = await hash(data.newPassword, 10)
+
+    // Update the password in the database
+    await prisma.account.update({
+      where: { id: userAccount.id },
+      data: { password: hashedNewPassword },
+    })
+
+    // Revalidate paths if necessary
+    revalidatePath('/profile')
+
+    return { success: true, message: 'Password changed successfully' }
+  } catch (error) {
+    console.error('Error changing password:', error)
+    return { success: false, message: 'Failed to change password' }
+  }
+}
