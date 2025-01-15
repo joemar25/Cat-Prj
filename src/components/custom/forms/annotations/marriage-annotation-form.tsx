@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
 import { createMarriageAnnotation } from '@/hooks/form-annotations-actions';
 import {
   MarriageAnnotationFormValues,
@@ -18,7 +19,6 @@ import {
 } from '@/lib/types/zod-form-annotations/formSchemaAnnotation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Save } from 'lucide-react';
-import React from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -28,65 +28,87 @@ interface MarriageAnnotationFormProps {
   onCancel: () => void;
 }
 
-const MarriageAnnotationForm: React.FC<MarriageAnnotationFormProps> = ({
+// Realistic default values
+const defaultValues: MarriageAnnotationFormValues = {
+  pageNumber: '156',
+  bookNumber: 'MRCB-2024-142',
+  registryNumber: 'MR-2024-1567',
+  dateOfRegistration: new Date('2024-01-15'),
+  issuedTo: 'Michael Andrew Santos',
+  purpose: 'Immigration Requirements / Legal Purposes',
+  preparedByName: 'Catherine P. Rodriguez',
+  preparedByPosition: 'Civil Registry Officer III',
+  verifiedByName: 'Atty. Manuel G. Fernandez',
+  verifiedByPosition: 'Civil Registry Department Head',
+  civilRegistrar: 'PRISCILLA L. GALICIA',
+  civilRegistrarPosition: 'OIC - City Civil Registrar',
+  amountPaid: 250.0,
+  orNumber: 'OR-2024-89754',
+  datePaid: new Date('2024-01-15'),
+
+  // Husband's Information
+  husbandName: 'Michael Andrew Santos',
+  husbandDateOfBirthAge: '1992-03-15 / 31',
+  husbandCitizenship: 'Filipino',
+  husbandCivilStatus: 'Single',
+  husbandMother: 'Maria Elena Perez Santos',
+  husbandFather: 'Roberto Carlos Santos',
+
+  // Wife's Information
+  wifeName: 'Jennifer Marie Garcia',
+  wifeDateOfBirthAge: '1994-07-22 / 29',
+  wifeCitizenship: 'Filipino',
+  wifeCivilStatus: 'Single',
+  wifeMother: 'Ana Victoria Martinez Garcia',
+  wifeFather: 'Jose Miguel Garcia',
+
+  dateOfMarriage: new Date('2024-02-14'),
+  placeOfMarriage: 'Manila Cathedral, Intramuros, Manila City',
+};
+
+const MarriageAnnotationForm = ({
   open,
   onOpenChange,
   onCancel,
-}) => {
+}: MarriageAnnotationFormProps) => {
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<MarriageAnnotationFormValues>({
     resolver: zodResolver(marriageAnnotationSchema),
-    defaultValues: {
-      pageNumber: '12',
-      bookNumber: '3',
-      registryNumber: 'REG-2025-001',
-      dateOfRegistration: new Date('2025-01-01'),
-      husbandName: 'John Doe',
-      wifeName: 'Jane Smith',
-      husbandDateOfBirthAge: '1980-06-15 / 45',
-      wifeDateOfBirthAge: '1985-09-10 / 40',
-      husbandCitizenship: 'Filipino',
-      wifeCitizenship: 'Filipino',
-      husbandCivilStatus: 'Single',
-      wifeCivilStatus: 'Single',
-      husbandMother: 'Maria Doe',
-      wifeMother: 'Anna Smith',
-      husbandFather: 'Joseph Doe',
-      wifeFather: 'Robert Smith',
-      dateOfMarriage: new Date('2025-01-10'),
-      placeOfMarriage: 'City Hall, Manila',
-      issuedTo: 'John and Jane',
-      purpose: 'Legal requirement',
-      preparedByName: 'Clerk Juan',
-      preparedByPosition: 'Clerk II',
-      verifiedByName: 'Verifier Ana',
-      verifiedByPosition: 'Verifier I',
-      civilRegistrar: 'Priscilla Galicia',
-      civilRegistrarPosition: 'OIC - City Civil Registrar',
-      amountPaid: 500.0,
-      orNumber: 'OR-2025-001',
-      datePaid: new Date('2025-01-05'),
-    },
+    defaultValues,
   });
 
   const onSubmit = async (data: MarriageAnnotationFormValues) => {
     try {
       const response = await createMarriageAnnotation(data);
       if (response.success) {
-        toast.success('Marriage annotation created successfully');
+        toast.success('Marriage annotation created successfully', {
+          duration: 3000,
+        });
         onOpenChange(false);
         reset();
       } else {
-        toast.error('Failed to create marriage annotation');
+        toast.error('Failed to create marriage annotation', {
+          duration: 3000,
+        });
       }
     } catch (error) {
-      console.error('Error creating marriage annotation:', error);
-      toast.error('An error occurred while creating the annotation');
+      console.error('Error:', error);
+      toast.error('An unexpected error occurred', {
+        duration: 3000,
+        description:
+          'Please try again or contact support if the issue persists.',
+      });
     }
+  };
+
+  const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    reset();
+    onCancel();
   };
 
   return (
@@ -114,147 +136,174 @@ const MarriageAnnotationForm: React.FC<MarriageAnnotationFormProps> = ({
                     <div className='space-y-1'>
                       <Label>On page</Label>
                       <Input {...register('pageNumber')} />
-                      {errors.pageNumber && (
-                        <span className='text-red-500'>
-                          {errors.pageNumber.message}
-                        </span>
-                      )}
                     </div>
                     <div className='space-y-1'>
                       <Label>Book number</Label>
                       <Input {...register('bookNumber')} />
-                      {errors.bookNumber && (
-                        <span className='text-red-500'>
-                          {errors.bookNumber.message}
-                        </span>
-                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Form Fields */}
+                {/* Main Form */}
                 <div className='space-y-4'>
+                  {/* Column Headers */}
                   <div className='grid grid-cols-2 gap-4'>
                     <h3 className='font-medium text-center'>HUSBAND</h3>
                     <h3 className='font-medium text-center'>WIFE</h3>
                   </div>
-                  {[
-                    {
-                      label: 'Name',
-                      name: ['husbandName', 'wifeName'] as const,
-                    },
-                    {
-                      label: 'Date of Birth/Age',
-                      name: [
-                        'husbandDateOfBirthAge',
-                        'wifeDateOfBirthAge',
-                      ] as const,
-                    },
-                    {
-                      label: 'Citizenship',
-                      name: ['husbandCitizenship', 'wifeCitizenship'] as const,
-                    },
-                    {
-                      label: 'Civil Status',
-                      name: ['husbandCivilStatus', 'wifeCivilStatus'] as const,
-                    },
-                    {
-                      label: 'Mother',
-                      name: ['husbandMother', 'wifeMother'] as const,
-                    },
-                    {
-                      label: 'Father',
-                      name: ['husbandFather', 'wifeFather'] as const,
-                    },
-                  ].map((field, index) => (
-                    <div
-                      key={index}
-                      className='grid grid-cols-[150px_1fr_1fr] gap-4 items-center'
-                    >
-                      <Label className='font-medium'>{field.label}</Label>
-                      <Input {...register(field.name[0])} />
-                      {errors[field.name[0]] && (
-                        <span className='text-red-500'>
-                          {errors[field.name[0]]?.message}
-                        </span>
-                      )}
-                      <Input {...register(field.name[1])} />
-                      {errors[field.name[1]] && (
-                        <span className='text-red-500'>
-                          {errors[field.name[1]]?.message}
-                        </span>
-                      )}
-                    </div>
-                  ))}
+
+                  {/* Form Fields */}
+                  <div className='grid grid-cols-[120px_1fr_1fr] gap-4 items-center'>
+                    <Label className='font-medium'>Name</Label>
+                    <Input {...register('husbandName')} />
+                    <Input {...register('wifeName')} />
+                  </div>
+
+                  <div className='grid grid-cols-[120px_1fr_1fr] gap-4 items-center'>
+                    <Label className='font-medium'>Date of Birth/Age</Label>
+                    <Input {...register('husbandDateOfBirthAge')} />
+                    <Input {...register('wifeDateOfBirthAge')} />
+                  </div>
+
+                  <div className='grid grid-cols-[120px_1fr_1fr] gap-4 items-center'>
+                    <Label className='font-medium'>Citizenship</Label>
+                    <Input {...register('husbandCitizenship')} />
+                    <Input {...register('wifeCitizenship')} />
+                  </div>
+
+                  <div className='grid grid-cols-[120px_1fr_1fr] gap-4 items-center'>
+                    <Label className='font-medium'>Civil Status</Label>
+                    <Input {...register('husbandCivilStatus')} />
+                    <Input {...register('wifeCivilStatus')} />
+                  </div>
+
+                  <div className='grid grid-cols-[120px_1fr_1fr] gap-4 items-center'>
+                    <Label className='font-medium'>Mother</Label>
+                    <Input {...register('husbandMother')} />
+                    <Input {...register('wifeMother')} />
+                  </div>
+
+                  <div className='grid grid-cols-[120px_1fr_1fr] gap-4 items-center'>
+                    <Label className='font-medium'>Father</Label>
+                    <Input {...register('husbandFather')} />
+                    <Input {...register('wifeFather')} />
+                  </div>
+
                   {/* Single Column Fields */}
-                  {[
-                    {
-                      label: 'Registry number',
-                      name: 'registryNumber',
-                      type: 'text',
-                    },
-                    {
-                      label: 'Date of registration',
-                      name: 'dateOfRegistration',
-                      type: 'date',
-                    },
-                    {
-                      label: 'Date of marriage',
-                      name: 'dateOfMarriage',
-                      type: 'date',
-                    },
-                    {
-                      label: 'Place of marriage',
-                      name: 'placeOfMarriage',
-                      type: 'text',
-                    },
-                  ].map((field, index) => (
-                    <div
-                      key={index}
-                      className='grid grid-cols-[150px_1fr] gap-4 items-center'
-                    >
-                      <Label className='font-medium'>{field.label}</Label>
-                      <Input
-                        type={field.type}
-                        {...register(
-                          field.name as keyof MarriageAnnotationFormValues
-                        )}
-                      />
-                      {errors[
-                        field.name as keyof MarriageAnnotationFormValues
-                      ] && (
-                        <span className='text-red-500'>
-                          {
-                            errors[
-                              field.name as keyof MarriageAnnotationFormValues
-                            ]?.message
-                          }
-                        </span>
-                      )}
+                  <div className='space-y-4 pt-4'>
+                    <div className='grid grid-cols-[120px_1fr] gap-4 items-center'>
+                      <Label className='font-medium'>Registry number</Label>
+                      <Input {...register('registryNumber')} />
                     </div>
-                  ))}
+                    <div className='grid grid-cols-[120px_1fr] gap-4 items-center'>
+                      <Label className='font-medium'>
+                        Date of registration
+                      </Label>
+                      <Input type='date' {...register('dateOfRegistration')} />
+                    </div>
+                    <div className='grid grid-cols-[120px_1fr] gap-4 items-center'>
+                      <Label className='font-medium'>Date of marriage</Label>
+                      <Input type='date' {...register('dateOfMarriage')} />
+                    </div>
+                    <div className='grid grid-cols-[120px_1fr] gap-4 items-center'>
+                      <Label className='font-medium'>Place of marriage</Label>
+                      <Input {...register('placeOfMarriage')} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Certification Section */}
+                <div className='space-y-4 pt-4'>
+                  <div className='grid grid-cols-[auto_1fr] gap-2 items-center'>
+                    <p>This certification is issued to</p>
+                    <Input {...register('issuedTo')} />
+                  </div>
+                  <div className='grid grid-cols-[auto_1fr] gap-2 items-center'>
+                    <p>Upon his/her request for</p>
+                    <Input {...register('purpose')} />
+                  </div>
+                </div>
+
+                {/* Signature Section */}
+                <div className='grid grid-cols-2 gap-8 pt-8'>
+                  <div className='space-y-8'>
+                    <div className='space-y-4'>
+                      <p className='font-medium'>Prepared by:</p>
+                      <div className='space-y-1'>
+                        <Input
+                          className='text-center'
+                          placeholder='Name and Signature'
+                          {...register('preparedByName')}
+                        />
+                        <Input
+                          className='text-center'
+                          placeholder='Position'
+                          {...register('preparedByPosition')}
+                        />
+                      </div>
+                    </div>
+                    <div className='space-y-4'>
+                      <p className='font-medium'>Verified by:</p>
+                      <div className='space-y-1'>
+                        <Input
+                          className='text-center'
+                          placeholder='Name and Signature'
+                          {...register('verifiedByName')}
+                        />
+                        <Input
+                          className='text-center'
+                          placeholder='Position'
+                          {...register('verifiedByPosition')}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className='flex flex-col items-center justify-end'>
+                    <p className='font-medium text-center'>
+                      PRISCILLA L. GALICIA
+                    </p>
+                    <p className='text-sm text-center'>
+                      OIC - City Civil Registrar
+                    </p>
+                  </div>
+                </div>
+
+                {/* Payment Section */}
+                <div className='space-y-2 pt-4'>
+                  <div className='grid grid-cols-[120px_1fr] gap-4 items-center'>
+                    <Label className='font-medium'>Amount paid</Label>
+                    <Input
+                      type='number'
+                      step='0.01'
+                      {...register('amountPaid')}
+                    />
+                  </div>
+                  <div className='grid grid-cols-[120px_1fr] gap-4 items-center'>
+                    <Label className='font-medium'>O.R. Number</Label>
+                    <Input {...register('orNumber')} />
+                  </div>
+                  <div className='grid grid-cols-[120px_1fr] gap-4 items-center'>
+                    <Label className='font-medium'>Date Paid</Label>
+                    <Input type='date' {...register('datePaid')} />
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
           <DialogFooter>
-            <Button
-              variant='outline'
-              onClick={onCancel}
-              disabled={isSubmitting}
-            >
+            <Button type='button' variant='outline' onClick={handleCancel}>
               Cancel
             </Button>
-            <Button type='submit' disabled={isSubmitting}>
+            <Button type='submit' disabled={isSubmitting} className='h-10 ml-2'>
               {isSubmitting ? (
                 <>
                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                  Submitting...
+                  <span>Submitting...</span>
                 </>
               ) : (
                 <>
                   <Save className='mr-2 h-4 w-4' />
-                  Submit
+                  <span>Submit Form</span>
                 </>
               )}
             </Button>
