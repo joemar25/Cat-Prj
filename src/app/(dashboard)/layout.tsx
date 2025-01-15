@@ -1,3 +1,4 @@
+// src\app\(dashboard)\layout.tsx
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { AppSidebar } from '@/components/custom/sidebar/app-sidebar'

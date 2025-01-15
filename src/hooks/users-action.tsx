@@ -392,3 +392,20 @@ export async function handleChangePasswordForEditUser(
     return { success: false, message: 'Failed to change password' }
   }
 }
+
+export async function enableUser(userId: string) {
+  try {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { emailVerified: true, updatedAt: new Date() },
+    })
+    return {
+      success: true,
+      message: 'User enabled successfully',
+      data: user,
+    }
+  } catch (error) {
+    console.error('Error enabling user:', error)
+    return { success: false, message: 'Failed to enable user' }
+  }
+}
