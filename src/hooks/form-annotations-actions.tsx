@@ -3,6 +3,7 @@
 
 import { prisma } from '@/lib/prisma';
 import {
+  BirthAnnotationFormValues,
   DeathAnnotationFormValues,
   MarriageAnnotationFormValues,
 } from '@/lib/types/zod-form-annotations/formSchemaAnnotation';
@@ -103,5 +104,53 @@ export async function createMarriageAnnotation(
   } catch (error) {
     console.error('Error creating marriage annotation:', error);
     return { success: false, error: 'Failed to create marriage annotation' };
+  }
+}
+export async function createBirthAnnotation(data: BirthAnnotationFormValues) {
+  try {
+    const baseForm = await prisma.civilRegistryFormBase.create({
+      data: {
+        formType: 'FORM_1A',
+        pageNumber: data.pageNumber,
+        bookNumber: data.bookNumber,
+        registryNumber: data.registryNumber,
+        dateOfRegistration: new Date(data.dateOfRegistration),
+        issuedTo: `${data.childFirstName} ${data.childLastName}`,
+        purpose: 'Birth Certification',
+        remarks: data.remarks,
+        preparedByName: data.preparedBy,
+        preparedByPosition: data.preparedByPosition,
+        verifiedByName: data.verifiedBy,
+        verifiedByPosition: data.verifiedByPosition,
+        civilRegistrar: 'Priscilla L. Galicia',
+        civilRegistrarPosition: 'OIC - City Civil Registrar',
+
+        birthForm: {
+          create: {
+            nameOfChild: `${data.childFirstName} ${
+              data.childMiddleName || ''
+            } ${data.childLastName}`.trim(),
+            sex: data.sex,
+            dateOfBirth: new Date(data.dateOfBirth),
+            placeOfBirth: data.placeOfBirth,
+            nameOfMother: data.motherName,
+            citizenshipMother: data.motherCitizenship,
+            nameOfFather: data.fatherName,
+            citizenshipFather: data.fatherCitizenship,
+            dateMarriageParents: data.parentsMarriageDate
+              ? new Date(data.parentsMarriageDate)
+              : null,
+            placeMarriageParents: data.parentsMarriagePlace || null,
+          },
+        },
+      },
+    });
+
+    // Revalidate any paths that depend on this data
+    revalidatePath('/civil-registry');
+    return { success: true, data: baseForm };
+  } catch (error) {
+    console.error('Error creating birth annotation:', error);
+    return { success: false, error: 'Failed to create birth annotation' };
   }
 }

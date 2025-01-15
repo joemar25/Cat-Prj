@@ -31,7 +31,9 @@ export const birthAnnotationSchema = z.object({
   parentsMarriagePlace: z.string().min(1, 'Marriage place is required'),
   remarks: z.string().optional(),
   preparedBy: z.string().min(1, 'Prepared by is required'),
+  preparedByPosition: z.string().min(1, 'Prepared by position is required'),
   verifiedBy: z.string().min(1, 'Verified by is required'),
+  verifiedByPosition: z.string().min(1, 'Verified by position is required'),
 });
 
 export type BirthAnnotationFormValues = z.infer<typeof birthAnnotationSchema>;
