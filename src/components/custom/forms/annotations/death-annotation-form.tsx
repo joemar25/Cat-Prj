@@ -66,6 +66,12 @@ const DeathAnnotationForm: React.FC<DeathAnnotationFormProps> = ({
     }
   };
 
+  const handleCancel = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent form submission
+    onCancel();
+    reset(); // Reset form when canceling
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[900px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[90vh] overflow-y-auto'>
@@ -297,8 +303,9 @@ const DeathAnnotationForm: React.FC<DeathAnnotationFormProps> = ({
           </div>
           <DialogFooter>
             <Button
+              type='button'
               variant='outline'
-              onClick={onCancel}
+              onClick={handleCancel}
               disabled={isSubmitting}
             >
               Cancel
