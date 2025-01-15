@@ -71,6 +71,8 @@ import {
     Baby,
     Skull,
     Save,
+    Eye,
+    EyeOff,
 
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
@@ -178,6 +180,8 @@ export const Icons = {
     baby: Baby,
     skull: Skull,
     save: Save,
+    eye: Eye,
+    eyeOff: EyeOff,
     /**
      * Custom Icons below  
      */

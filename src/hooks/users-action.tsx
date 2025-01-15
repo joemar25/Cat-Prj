@@ -7,6 +7,7 @@ import {
   getEmailSchema,
   getNameSchema,
   getPasswordSchema,
+  changePasswordSchema,
 } from '@/lib/zod'
 import { ROLE_PERMISSIONS } from '@/types/auth'
 import {
@@ -16,7 +17,7 @@ import {
   User,
   UserRole,
 } from '@prisma/client'
-import { hash } from 'bcryptjs'
+import { hash, compare } from 'bcryptjs'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
@@ -28,6 +29,57 @@ const createUserSchema = z.object({
   role: z.enum(['ADMIN', 'STAFF', 'USER']).default('USER'),
 })
 
+// Password change action
+export async function handleChangePassword(
+  userId: string,
+  data: z.infer<typeof changePasswordSchema>
+) {
+  try {
+    // Validate input data
+    const validatedData = changePasswordSchema.parse(data)
+
+    // Fetch the user's account
+    const userAccount = await prisma.account.findFirst({
+      where: { userId },
+    })
+
+    if (!userAccount || !userAccount.password) {
+      return { success: false, message: 'User account not found' }
+    }
+
+    // Verify the current password
+    const isCurrentPasswordValid = await compare(
+      validatedData.currentPassword,
+      userAccount.password
+    )
+
+    if (!isCurrentPasswordValid) {
+      return { success: false, message: 'Current password is incorrect' }
+    }
+
+    // Hash the new password
+    const hashedNewPassword = await hash(validatedData.newPassword, 10)
+
+    // Update the password in the database
+    await prisma.account.update({
+      where: { id: userAccount.id },
+      data: { password: hashedNewPassword },
+    })
+
+    // Revalidate paths if necessary
+    revalidatePath('/profile')
+
+    return { success: true, message: 'Password changed successfully' }
+  } catch (error) {
+    console.error('Error changing password:', error)
+    if (error instanceof z.ZodError) {
+      return { success: false, message: error.errors[0].message }
+    }
+    return { success: false, message: 'Failed to change password' }
+  }
+}
+
+// Existing functions (createUser, handleGetUser, deleteUser, etc.) remain unchanged
 export async function handleCreateUser(data: FormData) {
   try {
     const parsedData = createUserSchema.parse({
@@ -238,6 +290,7 @@ export async function deactivateUser(userId: string) {
     return { success: false, message: 'Failed to deactivate user' }
   }
 }
+
 export async function createCertifiedCopy(
   data: CertifiedCopyFormData,
   userId: string

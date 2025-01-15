@@ -1,6 +1,6 @@
+// src/components/custom/profile/profile.tsx
 'use client'
 
-import { z } from 'zod'
 import { toast } from 'sonner'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -10,30 +10,21 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ProfileWithUser } from '@/types/user-profile'
-import { handleUpdateUserProfile } from '@/hooks/users-action'
+import { handleUpdateUserProfile, handleChangePassword } from '@/hooks/users-action'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-
-// Define the schema for the profile form
-const profileFormSchema = z.object({
-    phoneNumber: z.string().optional(),
-    address: z.string().optional(),
-    city: z.string().optional(),
-    state: z.string().optional(),
-    country: z.string().optional(),
-    postalCode: z.string().optional(),
-    bio: z.string().optional(),
-    occupation: z.string().optional(),
-    gender: z.string().optional(),
-    nationality: z.string().optional(),
-})
-
-type ProfileFormValues = z.infer<typeof profileFormSchema>
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { profileFormSchema, changePasswordSchema, ProfileFormValues, ChangePasswordFormValues } from '@/lib/zod'
 
 export default function Profile({ userId, profile }: { userId: string; profile: ProfileWithUser }) {
     const [isEditing, setIsEditing] = useState(false)
+    const [isChangingPassword, setIsChangingPassword] = useState(false)
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+    const [showNewPassword, setShowNewPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-    const form = useForm<ProfileFormValues>({
+    // Profile form
+    const profileForm = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
             phoneNumber: profile?.phoneNumber || '',
@@ -44,12 +35,23 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
             postalCode: profile?.postalCode || '',
             bio: profile?.bio || '',
             occupation: profile?.occupation || '',
-            gender: profile?.gender || '',
+            gender: (profile?.gender as 'male' | 'female' | 'other') || undefined,
             nationality: profile?.nationality || '',
         },
     })
 
-    const onSubmit = async (data: ProfileFormValues) => {
+    // Password change form
+    const passwordForm = useForm<ChangePasswordFormValues>({
+        resolver: zodResolver(changePasswordSchema),
+        defaultValues: {
+            currentPassword: '',
+            newPassword: '',
+            confirmNewPassword: '',
+        },
+    })
+
+    // Handle profile update
+    const onProfileSubmit = async (data: ProfileFormValues) => {
         try {
             const result = await handleUpdateUserProfile(userId, data)
             if (result.success) {
@@ -61,6 +63,23 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
         } catch (error) {
             console.error('Failed to update profile:', error)
             toast.error('Failed to update profile')
+        }
+    }
+
+    // Handle password change
+    const onPasswordSubmit = async (data: ChangePasswordFormValues) => {
+        try {
+            const result = await handleChangePassword(userId, data)
+            if (result.success) {
+                toast.success('Password changed successfully')
+                setIsChangingPassword(false)
+                passwordForm.reset()
+            } else {
+                toast.error(result.message)
+            }
+        } catch (error) {
+            console.error('Failed to change password:', error)
+            toast.error('Failed to change password')
         }
     }
 
@@ -79,132 +98,48 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
             </div>
 
             {/* Profile Form */}
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    {/* Grid Layout for Form Fields */}
+            <Form {...profileForm}>
+                <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6 mb-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="phoneNumber"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Phone Number</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} disabled={!isEditing} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="address"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Address</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} disabled={!isEditing} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="city"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>City</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} disabled={!isEditing} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="state"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>State</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} disabled={!isEditing} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="country"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Country</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} disabled={!isEditing} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="postalCode"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Postal Code</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} disabled={!isEditing} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="occupation"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Occupation</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} disabled={!isEditing} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="gender"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Gender</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} disabled={!isEditing} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="nationality"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Nationality</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} disabled={!isEditing} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        {/* Profile fields */}
+                        {Object.entries(profileFormSchema.shape).map(([key]) => (
+                            <FormField
+                                key={key}
+                                control={profileForm.control}
+                                name={key as keyof ProfileFormValues}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{key.charAt(0).toUpperCase() + key.slice(1)}</FormLabel>
+                                        <FormControl>
+                                            {key === 'gender' ? (
+                                                <Select
+                                                    onValueChange={field.onChange}
+                                                    value={field.value}
+                                                    disabled={!isEditing}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select gender" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="male">Male</SelectItem>
+                                                        <SelectItem value="female">Female</SelectItem>
+                                                        <SelectItem value="other">Other</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            ) : (
+                                                <Input {...field} disabled={!isEditing} />
+                                            )}
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        ))}
                     </div>
 
                     {/* Bio Field */}
                     <FormField
-                        control={form.control}
+                        control={profileForm.control}
                         name="bio"
                         render={({ field }) => (
                             <FormItem>
@@ -221,11 +156,7 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                     <div className="flex justify-start gap-2">
                         {isEditing ? (
                             <>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => setIsEditing(false)}
-                                >
+                                <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
                                     Cancel
                                 </Button>
                                 <Button type="submit">
@@ -234,10 +165,7 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                                 </Button>
                             </>
                         ) : (
-                            <Button
-                                type="button"
-                                onClick={() => setIsEditing(true)}
-                            >
+                            <Button type="button" onClick={() => setIsEditing(true)}>
                                 <Icons.edit className="mr-2 h-4 w-4" />
                                 Edit Profile
                             </Button>
@@ -245,6 +173,138 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                     </div>
                 </form>
             </Form>
+
+            {/* Password Change Section */}
+            <div className="mt-8">
+                <h2 className="text-xl font-bold mb-4">Change Password</h2>
+                <Form {...passwordForm}>
+                    <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Current Password */}
+                            <FormField
+                                control={passwordForm.control}
+                                name="currentPassword"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Current Password</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Input
+                                                    {...field}
+                                                    type={showCurrentPassword ? 'text' : 'password'}
+                                                    disabled={!isChangingPassword}
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="absolute right-0 top-0 h-full px-3"
+                                                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                                >
+                                                    {showCurrentPassword ? (
+                                                        <Icons.eyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Icons.eye className="h-4 w-4" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* New Password */}
+                            <FormField
+                                control={passwordForm.control}
+                                name="newPassword"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>New Password</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Input
+                                                    {...field}
+                                                    type={showNewPassword ? 'text' : 'password'}
+                                                    disabled={!isChangingPassword}
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="absolute right-0 top-0 h-full px-3"
+                                                    onClick={() => setShowNewPassword(!showNewPassword)}
+                                                >
+                                                    {showNewPassword ? (
+                                                        <Icons.eyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Icons.eye className="h-4 w-4" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Confirm New Password */}
+                            <FormField
+                                control={passwordForm.control}
+                                name="confirmNewPassword"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Confirm New Password</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Input
+                                                    {...field}
+                                                    type={showConfirmPassword ? 'text' : 'password'}
+                                                    disabled={!isChangingPassword}
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="absolute right-0 top-0 h-full px-3"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                >
+                                                    {showConfirmPassword ? (
+                                                        <Icons.eyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Icons.eye className="h-4 w-4" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex justify-start gap-2">
+                            {isChangingPassword ? (
+                                <>
+                                    <Button type="button" variant="outline" onClick={() => setIsChangingPassword(false)}>
+                                        Cancel
+                                    </Button>
+                                    <Button type="submit">
+                                        <Icons.save className="mr-2 h-4 w-4" />
+                                        Save Password
+                                    </Button>
+                                </>
+                            ) : (
+                                <Button type="button" onClick={() => setIsChangingPassword(true)}>
+                                    <Icons.edit className="mr-2 h-4 w-4" />
+                                    Change Password
+                                </Button>
+                            )}
+                        </div>
+                    </form>
+                </Form>
+            </div>
         </div>
     )
 }

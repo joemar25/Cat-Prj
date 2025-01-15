@@ -1,21 +1,21 @@
 // src\lib\zod.ts
-import { object, string, z } from 'zod';
+import { object, string, z } from 'zod'
 
 export const getPasswordSchema = (type: 'password' | 'confirmPassword') =>
   string({ required_error: `${type} is required` })
     .min(8, 'Password must be at least 8 characters long')
-    .max(32, 'Password must be less than 32 characters');
+    .max(32, 'Password must be less than 32 characters')
 
 export const getEmailSchema = () =>
   string({ required_error: `Email is required` })
     .email('Invalid email address')
     .min(1, 'Email must be at least 1 character long')
-    .max(32, 'Email must be less than 32 characters');
+    .max(32, 'Email must be less than 32 characters')
 
 export const getNameSchema = () =>
   string({ required_error: `Name is required` })
     .min(1, 'Name must be at least 1 character long')
-    .max(32, 'Name must be less than 32 characters');
+    .max(32, 'Name must be less than 32 characters')
 
 // Sign-up schema using literal types for role
 export const signUpSchema = object({
@@ -27,12 +27,12 @@ export const signUpSchema = object({
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],
-});
+})
 
 export const signInSchema = object({
   email: getEmailSchema(),
   password: getPasswordSchema('password'),
-});
+})
 
 // Registration schema with profile and attachment
 export const registrationForm = z
@@ -55,7 +55,7 @@ export const registrationForm = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ['confirmPassword'],
-  });
+  })
 
 export const certifiedCopySchema = z.object({
   lcrNo: z.string().min(1, 'LCR number is required'),
@@ -68,12 +68,12 @@ export const certifiedCopySchema = z.object({
   relationshipToOwner: z.string().min(1, 'Relationship to owner is required'),
   address: z.string().min(1, 'Address is required'),
   purpose: z.string().min(1, 'Purpose is required'),
-});
+})
 
-export type SignUpForm = z.infer<typeof signUpSchema>;
-export type SignInForm = z.infer<typeof signInSchema>;
-export type RegistrationForm = z.infer<typeof registrationForm>;
-export type CertifiedCopyFormData = z.infer<typeof certifiedCopySchema>;
+export type SignUpForm = z.infer<typeof signUpSchema>
+export type SignInForm = z.infer<typeof signInSchema>
+export type RegistrationForm = z.infer<typeof registrationForm>
+export type CertifiedCopyFormData = z.infer<typeof certifiedCopySchema>
 
 // ------------- Update/Edit -----------//
 // Basic schema for user edit
@@ -89,7 +89,7 @@ export const editUserSchema = z.object({
     .min(5, 'Email is too short')
     .max(50, 'Email must not exceed 50 characters')
     .transform((val) => val.toLowerCase()),
-});
+})
 
 // Schema for profile edit
 export const editProfileSchema = z.object({
@@ -165,12 +165,58 @@ export const editProfileSchema = z.object({
     .optional()
     .nullable()
     .transform((val) => val?.trim()),
-});
+})
+
+// Profile schema
+export const profileFormSchema = z.object({
+  phoneNumber: z
+    .string()
+    .optional()
+    .refine(
+      (phone) =>
+        !phone ||
+        /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im.test(phone),
+      'Please enter a valid phone number'
+    ),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
+  postalCode: z
+    .string()
+    .optional()
+    .refine(
+      (postal) => !postal || /^[0-9]{4}$/.test(postal),
+      'Please enter a valid Philippine postal code (4 digits).'
+    ),
+  bio: z
+    .string()
+    .optional()
+    .refine((bio) => !bio || bio.length <= 500, 'Bio must not exceed 500 characters'),
+  occupation: z.string().optional(),
+  gender: z.enum(['male', 'female', 'other']).optional(),
+  nationality: z.string().optional(),
+})
+
+// Password change schema
+export const changePasswordSchema = z
+  .object({
+    currentPassword: getPasswordSchema('password'),
+    newPassword: getPasswordSchema('password'),
+    confirmNewPassword: getPasswordSchema('confirmPassword'),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmNewPassword'],
+  })
+
 
 // Combined schema for the edit form
-export const editUserFormSchema = editUserSchema.merge(editProfileSchema);
+export const editUserFormSchema = editUserSchema.merge(editProfileSchema)
 
 // Export types
-export type EditUserSchema = z.infer<typeof editUserSchema>;
-export type EditProfileSchema = z.infer<typeof editProfileSchema>;
-export type EditUserFormData = z.infer<typeof editUserFormSchema>;
+export type EditUserSchema = z.infer<typeof editUserSchema>
+export type EditProfileSchema = z.infer<typeof editProfileSchema>
+export type EditUserFormData = z.infer<typeof editUserFormSchema>
+export type ProfileFormValues = z.infer<typeof profileFormSchema>
+export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>

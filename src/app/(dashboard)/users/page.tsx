@@ -13,11 +13,15 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { prisma } from '@/lib/prisma'
 import { Suspense } from 'react'
 
+// Environment variable
+const REGULAR_USER_ACC = process.env.NEXT_PUBLIC_REGULAR_USER_ACC === 'true'
+
 async function getUsers() {
   try {
     const users = await prisma.user.findMany({
       where: {
-        role: 'USER',
+        // Query 'STAFF' if REGULAR_USER_ACC is false, otherwise query 'USER'
+        role: REGULAR_USER_ACC ? 'USER' : 'STAFF',
       },
       orderBy: {
         createdAt: 'desc',
