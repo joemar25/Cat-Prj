@@ -11,7 +11,16 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { createMarriageAnnotation } from '@/hooks/form-annotations-actions';
+import {
+  MarriageAnnotationFormValues,
+  marriageAnnotationSchema,
+} from '@/lib/types/zod-form-annotations/formSchemaAnnotation';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2, Save } from 'lucide-react';
 import React from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 interface MarriageAnnotationFormProps {
   open: boolean;
@@ -24,11 +33,61 @@ const MarriageAnnotationForm: React.FC<MarriageAnnotationFormProps> = ({
   onOpenChange,
   onCancel,
 }) => {
-  // const currentDate = new Date().toLocaleDateString('en-US', {
-  //   year: 'numeric',
-  //   month: 'long',
-  //   day: 'numeric',
-  // });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<MarriageAnnotationFormValues>({
+    resolver: zodResolver(marriageAnnotationSchema),
+    defaultValues: {
+      pageNumber: '12',
+      bookNumber: '3',
+      registryNumber: 'REG-2025-001',
+      dateOfRegistration: new Date('2025-01-01'),
+      husbandName: 'John Doe',
+      wifeName: 'Jane Smith',
+      husbandDateOfBirthAge: '1980-06-15 / 45',
+      wifeDateOfBirthAge: '1985-09-10 / 40',
+      husbandCitizenship: 'Filipino',
+      wifeCitizenship: 'Filipino',
+      husbandCivilStatus: 'Single',
+      wifeCivilStatus: 'Single',
+      husbandMother: 'Maria Doe',
+      wifeMother: 'Anna Smith',
+      husbandFather: 'Joseph Doe',
+      wifeFather: 'Robert Smith',
+      dateOfMarriage: new Date('2025-01-10'),
+      placeOfMarriage: 'City Hall, Manila',
+      issuedTo: 'John and Jane',
+      purpose: 'Legal requirement',
+      preparedByName: 'Clerk Juan',
+      preparedByPosition: 'Clerk II',
+      verifiedByName: 'Verifier Ana',
+      verifiedByPosition: 'Verifier I',
+      civilRegistrar: 'Priscilla Galicia',
+      civilRegistrarPosition: 'OIC - City Civil Registrar',
+      amountPaid: 500.0,
+      orNumber: 'OR-2025-001',
+      datePaid: new Date('2025-01-05'),
+    },
+  });
+
+  const onSubmit = async (data: MarriageAnnotationFormValues) => {
+    try {
+      const response = await createMarriageAnnotation(data);
+      if (response.success) {
+        toast.success('Marriage annotation created successfully');
+        onOpenChange(false);
+        reset();
+      } else {
+        toast.error('Failed to create marriage annotation');
+      }
+    } catch (error) {
+      console.error('Error creating marriage annotation:', error);
+      toast.error('An error occurred while creating the annotation');
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -38,145 +97,169 @@ const MarriageAnnotationForm: React.FC<MarriageAnnotationFormProps> = ({
             Marriage Annotation Form (Form 3A)
           </DialogTitle>
         </DialogHeader>
-        <div className='container mx-auto p-4'>
-          <Card className='w-full max-w-3xl mx-auto bg-background text-foreground border dark:border-border'>
-            <CardContent className='p-6 space-y-6'>
-              {/* Header */}
-              <div className='space-y-2'>
-                <h2 className='text-lg font-medium'>TO WHOM IT MAY CONCERN:</h2>
-                <p>
-                  We certify that, among others, the following marriage appears
-                  in our Register of Marriages:
-                </p>
-                <div className='grid grid-cols-2 gap-4'>
-                  <div className='space-y-1'>
-                    <Label>On page</Label>
-                    <Input />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className='container mx-auto p-4'>
+            <Card className='w-full max-w-3xl mx-auto bg-background text-foreground border dark:border-border'>
+              <CardContent className='p-6 space-y-6'>
+                {/* Header */}
+                <div className='space-y-2'>
+                  <h2 className='text-lg font-medium'>
+                    TO WHOM IT MAY CONCERN:
+                  </h2>
+                  <p>
+                    We certify that, among others, the following marriage
+                    appears in our Register of Marriages:
+                  </p>
+                  <div className='grid grid-cols-2 gap-4'>
+                    <div className='space-y-1'>
+                      <Label>On page</Label>
+                      <Input {...register('pageNumber')} />
+                      {errors.pageNumber && (
+                        <span className='text-red-500'>
+                          {errors.pageNumber.message}
+                        </span>
+                      )}
+                    </div>
+                    <div className='space-y-1'>
+                      <Label>Book number</Label>
+                      <Input {...register('bookNumber')} />
+                      {errors.bookNumber && (
+                        <span className='text-red-500'>
+                          {errors.bookNumber.message}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className='space-y-1'>
-                    <Label>Book number</Label>
-                    <Input />
-                  </div>
-                </div>
-              </div>
-
-              {/* Main Form */}
-              <div className='space-y-4'>
-                {/* Column Headers */}
-                <div className='grid grid-cols-2 gap-4'>
-                  <h3 className='font-medium text-center'>HUSBAND</h3>
-                  <h3 className='font-medium text-center'>WIFE</h3>
                 </div>
 
                 {/* Form Fields */}
-                {[
-                  { label: 'Name', type: 'text' },
-                  { label: 'Date of Birth/Age', type: 'text' },
-                  { label: 'Citizenship', type: 'text' },
-                  { label: 'Civil Status', type: 'text' },
-                  { label: 'Mother', type: 'text' },
-                  { label: 'Father', type: 'text' },
-                ].map((field, index) => (
-                  <div
-                    key={index}
-                    className='grid grid-cols-[120px_1fr_1fr] gap-4 items-center'
-                  >
-                    <Label className='font-medium'>{field.label}</Label>
-                    <Input type={field.type} />
-                    <Input type={field.type} />
+                <div className='space-y-4'>
+                  <div className='grid grid-cols-2 gap-4'>
+                    <h3 className='font-medium text-center'>HUSBAND</h3>
+                    <h3 className='font-medium text-center'>WIFE</h3>
                   </div>
-                ))}
-
-                {/* Single Column Fields */}
-                <div className='space-y-4 pt-4'>
                   {[
-                    { label: 'Registry number', type: 'text' },
-                    { label: 'Date of registration', type: 'date' },
-                    { label: 'Date of marriage', type: 'date' },
-                    { label: 'Place of marriage', type: 'text' },
+                    {
+                      label: 'Name',
+                      name: ['husbandName', 'wifeName'] as const,
+                    },
+                    {
+                      label: 'Date of Birth/Age',
+                      name: [
+                        'husbandDateOfBirthAge',
+                        'wifeDateOfBirthAge',
+                      ] as const,
+                    },
+                    {
+                      label: 'Citizenship',
+                      name: ['husbandCitizenship', 'wifeCitizenship'] as const,
+                    },
+                    {
+                      label: 'Civil Status',
+                      name: ['husbandCivilStatus', 'wifeCivilStatus'] as const,
+                    },
+                    {
+                      label: 'Mother',
+                      name: ['husbandMother', 'wifeMother'] as const,
+                    },
+                    {
+                      label: 'Father',
+                      name: ['husbandFather', 'wifeFather'] as const,
+                    },
                   ].map((field, index) => (
                     <div
                       key={index}
-                      className='grid grid-cols-[120px_1fr] gap-4 items-center'
+                      className='grid grid-cols-[150px_1fr_1fr] gap-4 items-center'
                     >
                       <Label className='font-medium'>{field.label}</Label>
-                      <Input type={field.type} />
+                      <Input {...register(field.name[0])} />
+                      {errors[field.name[0]] && (
+                        <span className='text-red-500'>
+                          {errors[field.name[0]]?.message}
+                        </span>
+                      )}
+                      <Input {...register(field.name[1])} />
+                      {errors[field.name[1]] && (
+                        <span className='text-red-500'>
+                          {errors[field.name[1]]?.message}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                  {/* Single Column Fields */}
+                  {[
+                    {
+                      label: 'Registry number',
+                      name: 'registryNumber',
+                      type: 'text',
+                    },
+                    {
+                      label: 'Date of registration',
+                      name: 'dateOfRegistration',
+                      type: 'date',
+                    },
+                    {
+                      label: 'Date of marriage',
+                      name: 'dateOfMarriage',
+                      type: 'date',
+                    },
+                    {
+                      label: 'Place of marriage',
+                      name: 'placeOfMarriage',
+                      type: 'text',
+                    },
+                  ].map((field, index) => (
+                    <div
+                      key={index}
+                      className='grid grid-cols-[150px_1fr] gap-4 items-center'
+                    >
+                      <Label className='font-medium'>{field.label}</Label>
+                      <Input
+                        type={field.type}
+                        {...register(
+                          field.name as keyof MarriageAnnotationFormValues
+                        )}
+                      />
+                      {errors[
+                        field.name as keyof MarriageAnnotationFormValues
+                      ] && (
+                        <span className='text-red-500'>
+                          {
+                            errors[
+                              field.name as keyof MarriageAnnotationFormValues
+                            ]?.message
+                          }
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
-              </div>
-
-              {/* Certification Section */}
-              <div className='space-y-4 pt-4'>
-                <div className='grid grid-cols-[auto_1fr] gap-2 items-center'>
-                  <p>This certification is issued to</p>
-                  <Input />
-                </div>
-                <div className='grid grid-cols-[auto_1fr] gap-2 items-center'>
-                  <p>Upon his/her request for</p>
-                  <Input />
-                </div>
-              </div>
-
-              {/* Signature Section */}
-              <div className='grid grid-cols-2 gap-8 pt-8'>
-                <div className='space-y-8'>
-                  <div className='space-y-4'>
-                    <p className='font-medium'>Prepared by:</p>
-                    <div className='space-y-1'>
-                      <Input
-                        className='text-center'
-                        placeholder='Name and Signature'
-                      />
-                      <Input className='text-center' placeholder='Position' />
-                    </div>
-                  </div>
-                  <div className='space-y-4'>
-                    <p className='font-medium'>Verified by:</p>
-                    <div className='space-y-1'>
-                      <Input
-                        className='text-center'
-                        placeholder='Name and Signature'
-                      />
-                      <Input className='text-center' placeholder='Position' />
-                    </div>
-                  </div>
-                </div>
-                <div className='flex flex-col items-center justify-end'>
-                  <p className='font-medium text-center'>
-                    PRISCILLA L. GALICIA
-                  </p>
-                  <p className='text-sm text-center'>
-                    OIC - City Civil Registrar
-                  </p>
-                </div>
-              </div>
-
-              {/* Payment Section */}
-              <div className='space-y-2 pt-4'>
-                {[
-                  { label: 'Amount paid', type: 'number' },
-                  { label: 'O.R. Number', type: 'text' },
-                  { label: 'Date Paid', type: 'date' },
-                ].map((field, index) => (
-                  <div
-                    key={index}
-                    className='grid grid-cols-[120px_1fr] gap-4 items-center'
-                  >
-                    <Label className='font-medium'>{field.label}</Label>
-                    <Input type={field.type} />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        <DialogFooter>
-          <Button variant='outline' onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type='submit'>Submit</Button>
-        </DialogFooter>
+              </CardContent>
+            </Card>
+          </div>
+          <DialogFooter>
+            <Button
+              variant='outline'
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button type='submit' disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Save className='mr-2 h-4 w-4' />
+                  Submit
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
