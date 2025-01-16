@@ -728,21 +728,42 @@ export const birthCertificateSchema = z.object({
   preparedBy: z.object({
     signature: z.string().optional(),
     name: z.string().min(1, 'Name is required'),
-    title: z.string().min(1, 'Title is required'),
+    title: z.string().superRefine((title, ctx) => {
+      if (!title && ctx.path.includes('preparedBy')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Title should be auto-filled. Please select a name first.',
+        });
+      }
+    }),
     date: z.string().min(1, 'Date is required'),
   }),
 
   receivedBy: z.object({
     signature: z.string().optional(),
     name: z.string().min(1, 'Name is required'),
-    title: z.string().min(1, 'Title is required'),
+    title: z.string().superRefine((title, ctx) => {
+      if (!title && ctx.path.includes('receivedBy')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Title should be auto-filled. Please select a name first.',
+        });
+      }
+    }),
     date: z.string().min(1, 'Date is required'),
   }),
 
   registeredByOffice: z.object({
     signature: z.string().optional(),
     name: z.string().min(1, 'Name is required'),
-    title: z.string().min(1, 'Title is required'),
+    title: z.string().superRefine((title, ctx) => {
+      if (!title && ctx.path.includes('registeredByOffice')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Title should be auto-filled. Please select a name first.',
+        });
+      }
+    }),
     date: z.string().min(1, 'Date is required'),
   }),
 
@@ -751,7 +772,6 @@ export const birthCertificateSchema = z.object({
 
 // Type inference
 export type BirthCertificateFormValues = z.infer<typeof birthCertificateSchema>;
-
 
 // Default data for the birth certificate form
 export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> =

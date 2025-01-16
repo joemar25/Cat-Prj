@@ -23,8 +23,12 @@ import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 const RegisteredAtOfficeCard: React.FC = () => {
-  const { control, watch, setValue } =
-    useFormContext<BirthCertificateFormValues>();
+  const {
+    control,
+    watch,
+    setValue,
+    formState: { isSubmitted },
+  } = useFormContext<BirthCertificateFormValues>();
   const selectedName = watch('registeredByOffice.name');
 
   // Auto-fill title when name is selected
@@ -33,14 +37,19 @@ const RegisteredAtOfficeCard: React.FC = () => {
       (staff) => staff.name === selectedName
     );
     if (staff) {
-      setValue('registeredByOffice.title', staff.title);
+      setValue('registeredByOffice.title', staff.title, {
+        shouldValidate: isSubmitted, // Only validate if form has been submitted
+        shouldDirty: true,
+      });
     }
-  }, [selectedName, setValue]);
+  }, [selectedName, setValue, isSubmitted]);
 
   // Set default date to today when component mounts
   useEffect(() => {
     if (!watch('registeredByOffice.date')) {
-      setValue('registeredByOffice.date', new Date().toISOString());
+      setValue('registeredByOffice.date', new Date().toISOString(), {
+        shouldValidate: false, // Don't validate on initial set
+      });
     }
   }, [setValue, watch]);
 
@@ -57,7 +66,12 @@ const RegisteredAtOfficeCard: React.FC = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                  }}
+                  value={field.value}
+                >
                   <FormControl>
                     <SelectTrigger className='h-10'>
                       <SelectValue placeholder='Select staff name' />
