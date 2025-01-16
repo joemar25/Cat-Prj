@@ -2,6 +2,86 @@
 
 import { prisma } from "@/lib/prisma";
 
+export async function getBirthGenderCount() {
+  const results = await prisma.birthCertificateForm.findMany({
+    select: {
+      sex: true,
+      baseForm: {
+        select: {
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  const groupedData: Record<string, { male: number; female: number }> = {};
+
+  results.forEach((record) => {
+    const date = record.baseForm?.createdAt.toISOString().split("T")[0];
+    const gender = record.sex.toLowerCase();
+
+    if (!date) return;
+
+    if (!groupedData[date]) {
+      groupedData[date] = { male: 0, female: 0 };
+    }
+
+    if (gender === "male" || gender === "female") {
+      groupedData[date][gender]++;
+    }
+  });
+
+  return Object.entries(groupedData)
+    .map(([date, counts]) => ({
+      name: date,
+      male: counts.male,
+      female: counts.female,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function getRecentRegistrations() {
+  const recentRegistrations = await prisma.birthCertificateForm.findMany({
+    select: {
+      childName: true,
+      sex: true,
+      dateOfBirth: true,
+      baseForm: {
+        select: {
+          createdAt: true,
+        },
+      },
+    },
+    orderBy: {
+      baseForm: {
+        createdAt: "desc", // Sort by createdAt descending
+      },
+    },
+    take: 100, // Limit to the top 100
+  });
+
+  return recentRegistrations.map((registration) => {
+    const childName = registration.childName as {
+      first: string;
+      middle?: string;
+      last: string;
+    };
+
+    return {
+      name: `${childName.last}, ${childName.first} ${childName.middle || ""}`.trim(),
+      sex: registration.sex,
+      dateOfBirth: registration.dateOfBirth.toISOString().split("T")[0],
+      registrationDate: registration.baseForm.createdAt.toISOString().split("T")[0],
+    };
+  });
+}
+  
+
+
+
+
+
+
 /**
  * Supported Prisma models for dynamic queries.
  */
@@ -106,4 +186,6 @@ export async function getPreviousMonthRegistrations(model: PrismaModels): Promis
     },
   });
 }
+
+
 

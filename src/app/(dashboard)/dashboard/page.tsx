@@ -2,8 +2,9 @@ import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header.
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DollarSign, Users, CreditCard, Activity } from 'lucide-react'
 import MetricsDashboard from "./components/metrics"
-import ChartsDashboard from "./components/charts"
 import StatisticsDashboard from "./components/statistics"
+import ChartsDashboard from "./components/charts"
+
 
 export default async function DashboardPage() {
 
