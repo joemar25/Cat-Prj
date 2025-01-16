@@ -12,6 +12,7 @@ import { useMemo } from 'react';
 import { toast } from 'sonner';
 import { AddCivilRegistryFormDialog } from './actions/add-form-dialog';
 import { ExtendedBaseRegistryForm } from './columns';
+import { ImportPDF } from '../modals/importPDF';
 
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>;
@@ -168,10 +169,8 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
           Scan Form
         </Button>
 
-        <Button variant='default' className='h-10' onClick={handleScanForm}>
-          <Icons.post className='mr-2 h-4 w-4' />
-          Import PDF
-        </Button>
+        {/* Replace the Import PDF button with the ImportPDF component */}
+        <ImportPDF />
 
         <AddCivilRegistryFormDialog />
 

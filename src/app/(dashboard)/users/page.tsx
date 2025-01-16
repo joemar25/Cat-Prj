@@ -1,7 +1,6 @@
-// src/app/(dashboard)/users/page.tsx
+// src\app\(dashboard)\users\page.tsx
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header.tsx'
-import { columns } from '@/components/custom/users/columns'
-import { DataTable } from '@/components/custom/users/data-table'
+import { UsersTableClient } from '@/components/custom/users/users-table-client'
 import {
   Card,
   CardContent,
@@ -13,11 +12,15 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { prisma } from '@/lib/prisma'
 import { Suspense } from 'react'
 
+// Environment variable
+const REGULAR_USER_ACC = process.env.NEXT_PUBLIC_REGULAR_USER_ACC === 'true'
+
 async function getUsers() {
   try {
     const users = await prisma.user.findMany({
       where: {
-        role: 'USER',
+        // Query 'STAFF' if REGULAR_USER_ACC is false, otherwise query 'USER'
+        role: REGULAR_USER_ACC ? 'USER' : 'STAFF',
       },
       orderBy: {
         createdAt: 'desc',
@@ -66,7 +69,7 @@ export default async function UsersPage() {
 
       <div className='flex flex-1 flex-col gap-4 p-4'>
         <Suspense fallback={<UsersTableSkeleton />}>
-          <DataTable data={users} columns={columns} selection={false} />
+          <UsersTableClient users={users} />
         </Suspense>
       </div>
     </>

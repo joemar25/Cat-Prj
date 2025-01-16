@@ -7,13 +7,16 @@ import { NavConfig, NavMainItem, NavSecondaryItem, NavigationConfiguration, hasS
 const DEBUG = process.env.NEXT_PUBLIC_NODE_ENV === 'development'
 const KIOSK = process.env.NEXT_PUBLIC_KIOSK === 'true'
 const SETTINGS = process.env.NEXT_PUBLIC_SETTINGS === 'true'
+const REGULAR_USER_ACC = process.env.NEXT_PUBLIC_REGULAR_USER_ACC === 'true'
 
 // Debug logs
 if (typeof window !== 'undefined' && DEBUG) {
     console.log('KIOSK env:', process.env.NEXT_PUBLIC_KIOSK)
     console.log('SETTINGS env:', process.env.NEXT_PUBLIC_SETTINGS)
+    console.log('REGULAR_USER_ACC env:', process.env.NEXT_PUBLIC_REGULAR_USER_ACC)
     console.log('KIOSK value:', KIOSK)
     console.log('SETTINGS value:', SETTINGS)
+    console.log('REGULAR_USER_ACC value:', REGULAR_USER_ACC)
 }
 
 // Transform functions
@@ -31,15 +34,20 @@ export function transformToMainNavItem(item: NavConfig, role: UserRole): NavMain
         }
     }
 
+    // Only show "Manage Users" for admins
+    if (item.id === 'users' && role !== 'ADMIN') {
+        return { ...baseItem, hidden: true } // Hide the item for non-admins
+    }
+
     if (hasSubItems(item)) {
         baseItem.items = item.items
             .filter(subItem => {
                 // Admin can see all sub-items
                 if (role === 'ADMIN') return true
 
-                // Staff can only see regular users
+                // Staff can only see regular users if REGULAR_USER_ACC is true
                 if (role === 'STAFF' && subItem.url === '/users') {
-                    return true
+                    return REGULAR_USER_ACC // Only show regular users if REGULAR_USER_ACC is true
                 }
 
                 // Regular users and other roles should not see any sub-items
@@ -114,11 +122,14 @@ export const navigationConfig: NavigationConfiguration = {
                     title: 'Staffs',
                     url: '/users/staffs',
                 },
-                {
-                    id: 'regular-users',
-                    title: 'Regular Users',
-                    url: '/users',
-                },
+                // Only include regular-users if REGULAR_USER_ACC is true
+                ...(REGULAR_USER_ACC ? [
+                    {
+                        id: 'regular-users',
+                        title: 'Regular Users',
+                        url: '/users',
+                    },
+                ] : []),
             ],
         },
         {

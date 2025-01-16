@@ -1,4 +1,3 @@
-// src\components\custom\users\columns.tsx
 'use client'
 
 import { Icons } from '@/components/ui/icons'
@@ -10,6 +9,7 @@ import { DataTableRowActions } from './data-table-row-actions'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Session } from "next-auth"
 
 const roleVariants: Record<UserRole, { label: string; variant: "default" | "secondary" | "destructive" }> = {
     ADMIN: { label: "Administrator", variant: "destructive" },
@@ -83,128 +83,135 @@ const EmailCell = ({ email }: EmailCellProps) => {
     )
 }
 
-export const columns: ColumnDef<User>[] = [
-    {
-        accessorKey: 'name',
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="User" />
-        ),
-        cell: ({ row }) => <UserCell row={row} />,
-    },
-    {
-        accessorKey: 'email',
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Contact" />
-        ),
-        cell: ({ row }) => <EmailCell email={row.getValue('email')} />,
-    },
-    {
-        accessorKey: 'role',
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Role" />
-        ),
-        cell: ({ row }) => {
-            const role = row.getValue('role') as UserRole
-            const roleInfo = roleVariants[role]
-            return (
-                <Badge variant={roleInfo.variant} className="font-medium">
-                    {roleInfo.label}
-                </Badge>
-            )
+export const createColumns = (
+    session: Session | null,
+    onUpdateUser?: (user: User) => void
+): ColumnDef<User>[] => [
+        {
+            accessorKey: 'name',
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title="User" />
+            ),
+            cell: ({ row }) => <UserCell row={row} />,
         },
-        filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
+        {
+            accessorKey: 'email',
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title="Contact" />
+            ),
+            cell: ({ row }) => <EmailCell email={row.getValue('email')} />,
         },
-    },
-    {
-        accessorKey: 'permissions',
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Permissions" />
-        ),
-        cell: ({ row }) => {
-            const permissions = row.getValue('permissions') as Permission[]
-            return (
-                <div className="flex flex-wrap gap-1">
-                    {permissions.slice(0, 2).map((permission) => (
-                        <Badge key={permission} variant="outline" className="text-xs">
-                            {permission.replace('_', ' ')}
-                        </Badge>
-                    ))}
-                    {permissions.length > 2 && (
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Badge variant="outline" className="text-xs">
-                                        +{permissions.length - 2} more
-                                    </Badge>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <div className="space-y-1">
-                                        {permissions.slice(2).map((permission) => (
-                                            <p key={permission}>{permission.replace('_', ' ')}</p>
-                                        ))}
-                                    </div>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    )}
-                </div>
-            )
+        {
+            accessorKey: 'role',
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title="Role" />
+            ),
+            cell: ({ row }) => {
+                const role = row.getValue('role') as UserRole
+                const roleInfo = roleVariants[role]
+                return (
+                    <Badge variant={roleInfo.variant} className="font-medium">
+                        {roleInfo.label}
+                    </Badge>
+                )
+            },
+            filterFn: (row, id, value) => {
+                return value.includes(row.getValue(id))
+            },
         },
-    },
-    {
-        accessorKey: 'emailVerified',
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Status" />
-        ),
-        cell: ({ row }) => {
-            const isVerified = row.getValue('emailVerified') as boolean
-            return (
-                <div className="flex items-center gap-1.5">
-                    <div className={`h-2 w-2 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-gray-300'}`} />
-                    <span className={`text-sm ${isVerified ? 'text-emerald-600' : 'text-muted-foreground'}`}>
-                        {isVerified ? 'Verified' : 'Unverified'}
-                    </span>
-                </div>
-            )
+        {
+            accessorKey: 'permissions',
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title="Permissions" />
+            ),
+            cell: ({ row }) => {
+                const permissions = row.getValue('permissions') as Permission[]
+                return (
+                    <div className="flex flex-wrap gap-1">
+                        {permissions.slice(0, 2).map((permission) => (
+                            <Badge key={permission} variant="outline" className="text-xs">
+                                {permission.replace('_', ' ')}
+                            </Badge>
+                        ))}
+                        {permissions.length > 2 && (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Badge variant="outline" className="text-xs">
+                                            +{permissions.length - 2} more
+                                        </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <div className="space-y-1">
+                                            {permissions.slice(2).map((permission) => (
+                                                <p key={permission}>{permission.replace('_', ' ')}</p>
+                                            ))}
+                                        </div>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        )}
+                    </div>
+                )
+            },
         },
-        filterFn: (row, id, value: string[]) => {
-            const rowValue = row.getValue(id) as boolean
-            const stringValue = String(rowValue)
-            return value.includes(stringValue)
-        },
-    },
-    {
-        id: 'dates',
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Activity" />
-        ),
-        cell: ({ row }) => {
-            const user = row.original
-            return (
-                <div className="flex flex-col gap-1.5 text-sm">
+        {
+            accessorKey: 'emailVerified',
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title="Status" />
+            ),
+            cell: ({ row }) => {
+                const isVerified = row.getValue('emailVerified') as boolean
+                return (
                     <div className="flex items-center gap-1.5">
-                        <Icons.calendar className="w-3 h-3 text-orange-500" />
-                        <span className="text-muted-foreground">
-                            Created {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
+                        <div className={`h-2 w-2 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                        <span className={`text-sm ${isVerified ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                            {isVerified ? 'Verified' : 'Unverified'}
                         </span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                        <Icons.refresh className="w-3 h-3 text-blue-500" />
-                        <span className="text-muted-foreground">
-                            Updated {formatDistanceToNow(new Date(user.updatedAt), { addSuffix: true })}
-                        </span>
+                )
+            },
+            filterFn: (row, id, value: string[]) => {
+                const rowValue = row.getValue(id) as boolean
+                const stringValue = String(rowValue)
+                return value.includes(stringValue)
+            },
+        },
+        {
+            id: 'dates',
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title="Activity" />
+            ),
+            cell: ({ row }) => {
+                const user = row.original
+                return (
+                    <div className="flex flex-col gap-1.5 text-sm">
+                        <div className="flex items-center gap-1.5">
+                            <Icons.calendar className="w-3 h-3 text-orange-500" />
+                            <span className="text-muted-foreground">
+                                Created {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <Icons.refresh className="w-3 h-3 text-blue-500" />
+                            <span className="text-muted-foreground">
+                                Updated {formatDistanceToNow(new Date(user.updatedAt), { addSuffix: true })}
+                            </span>
+                        </div>
                     </div>
-                </div>
-            )
+                )
+            },
         },
-    },
-    {
-        id: 'actions',
-        enableSorting: false,
-        enableHiding: false,
-        cell: ({ row }) => {
-            return <DataTableRowActions row={row} />
+        {
+            id: 'actions',
+            enableSorting: false,
+            enableHiding: false,
+            cell: ({ row }) => {
+                // Hide actions for current user's row
+                if (session?.user?.email === row.original.email) {
+                    return null;
+                }
+                return <DataTableRowActions row={row} onUpdateUser={onUpdateUser} />;
+            },
         },
-    },
-]
+    ]
