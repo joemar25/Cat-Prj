@@ -10,8 +10,12 @@ import {
 } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
 
-export function ImportPDF() {
-  const [open, setOpen] = useState(false);
+interface ImportPDFBirthProps {
+  open: boolean; // Add open prop
+  onOpenChange: (open: boolean) => void; // Add onOpenChange prop
+}
+
+export function ImportPDFDeath({ open, onOpenChange }: ImportPDFBirthProps) {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [previewPosition, setPreviewPosition] = useState({ x: 0, y: 0 });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -77,7 +81,7 @@ export function ImportPDF() {
     setPreviewUrl(null);
     setPreviewPosition({ x: 0, y: 0 });
     setIsDragging(false);
-    setOpen(false); // Close the dialog
+    onOpenChange(false); // Close the dialog using the onOpenChange prop
   };
 
   // Handle the import action
@@ -85,85 +89,77 @@ export function ImportPDF() {
     if (pdfFile) {
       // Perform the import action here (e.g., upload the file)
       console.log('Importing PDF:', pdfFile.name);
-      setOpen(false); // Close the dialog after import
+      onOpenChange(false); // Close the dialog after import
     } else {
       alert('Please select a PDF file to import.');
     }
   };
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button>
-            <Plus className='mr-2 h-4 w-4' />
-            Import PDF
-          </Button>
-        </DialogTrigger>
-        <DialogContent className='sm:max-w-4xl'>
-          <DialogHeader>
-            <DialogTitle className='text-center text-xl font-semibold'>
-              Upload PDF Certificate
-            </DialogTitle>
-          </DialogHeader>
-          <div className='flex flex-col items-center justify-center p-4'>
-            <div
-              ref={dropRef}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onDragLeave={() => setIsDragging(false)}
-              onClick={handleClick}
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '500px',
-                border: `2px dashed ${isDragging ? '#3b82f6' : '#ccc'}`,
-                backgroundColor: isDragging ? '#f0f9ff' : 'transparent',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                overflow: 'hidden', // Ensure the iframe doesn't overflow
-              }}
-            >
-              {previewUrl ? (
-                <iframe
-                  src={previewUrl}
-                  draggable
-                  onDragStart={handleDragStart}
-                  onDrag={handleDrag}
-                  style={{
-                    position: 'absolute',
-                    left: previewPosition.x,
-                    top: previewPosition.y,
-                    width: '100%', // Fit the iframe to the drop area width
-                    height: '100%', // Fit the iframe to the drop area height
-                    border: 'none',
-                    cursor: 'move',
-                  }}
-                />
-              ) : (
-                <p className='text-center text-gray-500'>
-                  Drag and drop a PDF file here or click to upload
-                </p>
-              )}
-              <input
-                type='file'
-                accept='application/pdf'
-                onChange={handleFileChange}
-                ref={fileInputRef}
-                style={{ display: 'none' }} // Hide the file input
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className='sm:max-w-4xl'>
+        <DialogHeader>
+          <DialogTitle className='text-center text-xl font-semibold'>
+            Upload PDF Certificate of Death
+          </DialogTitle>
+        </DialogHeader>
+        <div className='flex flex-col items-center justify-center p-4'>
+          <div
+            ref={dropRef}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onDragLeave={() => setIsDragging(false)}
+            onClick={handleClick}
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: '500px',
+              border: `2px dashed ${isDragging ? '#3b82f6' : '#ccc'}`,
+              backgroundColor: isDragging ? '#f0f9ff' : 'transparent',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              overflow: 'hidden', // Ensure the iframe doesn't overflow
+            }}
+          >
+            {previewUrl ? (
+              <iframe
+                src={previewUrl}
+                draggable
+                onDragStart={handleDragStart}
+                onDrag={handleDrag}
+                style={{
+                  position: 'absolute',
+                  left: previewPosition.x,
+                  top: previewPosition.y,
+                  width: '100%', // Fit the iframe to the drop area width
+                  height: '100%', // Fit the iframe to the drop area height
+                  border: 'none',
+                  cursor: 'move',
+                }}
               />
-            </div>
-            <div className='mt-4 flex justify-end gap-2'>
-              <Button variant='outline' onClick={handleCancel}>
-                Cancel
-              </Button>
-              <Button onClick={handleImport}>Import</Button>
-            </div>
+            ) : (
+              <p className='text-center text-gray-500'>
+                Drag and drop a PDF file here or click to upload
+              </p>
+            )}
+            <input
+              type='file'
+              accept='application/pdf'
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              style={{ display: 'none' }} // Hide the file input
+            />
           </div>
-        </DialogContent>
-      </Dialog>
-    </>
+          <div className='mt-4 flex justify-end gap-2'>
+            <Button variant='outline' onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button onClick={handleImport}>Import</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

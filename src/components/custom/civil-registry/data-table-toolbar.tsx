@@ -8,11 +8,13 @@ import { Input } from '@/components/ui/input';
 import { FormType } from '@prisma/client';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { Table } from '@tanstack/react-table';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { AddCivilRegistryFormDialog } from './actions/add-form-dialog';
 import { ExtendedBaseRegistryForm } from './columns';
-import { ImportPDF } from '../modals/importPDF';
+import { AddCivilRegistryFormDialogPdf } from './actions/upload-pdf-dialog';
+
+
 
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>;
@@ -26,6 +28,7 @@ const formTypes = [
 
 export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const isFiltered = table.getState().columnFilters.length > 0;
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false); // State to control the PDF modal
 
   const formTypeColumn = table.getColumn('formType');
   const preparedByColumn = table.getColumn('preparedBy');
@@ -169,13 +172,13 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
           Scan Form
         </Button>
 
-        {/* Replace the Import PDF button with the ImportPDF component */}
-        <ImportPDF />
+        <AddCivilRegistryFormDialogPdf/>
 
         <AddCivilRegistryFormDialog />
 
         <DataTableViewOptions table={table} />
       </div>
+  
     </div>
   );
 }
