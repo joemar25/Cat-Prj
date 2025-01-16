@@ -23,9 +23,13 @@ import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 const PreparedByCard: React.FC = () => {
-  const { control, watch, setValue } =
-    useFormContext<DeathCertificateFormValues>();
-  const selectedName = watch('preparedBy.name'); // Updated to match schema
+  const {
+    control,
+    watch,
+    setValue,
+    formState: { isSubmitted },
+  } = useFormContext<DeathCertificateFormValues>();
+  const selectedName = watch('preparedBy.name');
 
   // Auto-fill title when name is selected
   useEffect(() => {
@@ -33,14 +37,19 @@ const PreparedByCard: React.FC = () => {
       (staff) => staff.name === selectedName
     );
     if (staff) {
-      setValue('preparedBy.title', staff.title); // Updated to match schema
+      setValue('preparedBy.title', staff.title, {
+        shouldValidate: isSubmitted, // Only validate if form has been submitted
+        shouldDirty: true,
+      });
     }
-  }, [selectedName, setValue]);
+  }, [selectedName, setValue, isSubmitted]);
 
   // Set default date to today when component mounts
   useEffect(() => {
     if (!watch('preparedBy.date')) {
-      setValue('preparedBy.date', new Date()); // Use Date object as per schema
+      setValue('preparedBy.date', new Date(), {
+        shouldValidate: false, // Don't validate on initial set
+      });
     }
   }, [setValue, watch]);
 
@@ -73,7 +82,12 @@ const PreparedByCard: React.FC = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                  }}
+                  value={field.value}
+                >
                   <FormControl>
                     <SelectTrigger className='h-10'>
                       <SelectValue placeholder='Select staff name' />
@@ -116,18 +130,15 @@ const PreparedByCard: React.FC = () => {
           control={control}
           name='preparedBy.date'
           render={({ field }) => {
-            const dateValue = field.value ? new Date(field.value) : new Date();
+            const dateValue =
+              field.value instanceof Date ? field.value : new Date();
 
             return (
               <DatePickerField
                 field={{
                   value: dateValue,
                   onChange: (date) => {
-                    if (date) {
-                      field.onChange(date.toISOString());
-                    } else {
-                      field.onChange(new Date().toISOString());
-                    }
+                    field.onChange(date || new Date());
                   },
                 }}
                 label='Date'
