@@ -1,46 +1,46 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Cake, NotebookText, Gem } from "lucide-react"; // Import necessary icons
-import { getCurrentMonthRegistrations, getPreviousMonthRegistrations, PrismaModels } from "@/hooks/count-metrics";
+import { useEffect, useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Users, Cake, NotebookText, Gem } from "lucide-react"
+import { getCurrentMonthRegistrations, getPreviousMonthRegistrations, PrismaModels } from "@/hooks/count-metrics"
 
 type Metric = {
-  title: string;
-  currentCount: number;
-  percentageChange: number;
-  icon: JSX.Element; // Updated to store actual JSX elements for icons
-};
+  title: string
+  currentCount: number
+  percentageChange: number
+  icon: JSX.Element
+}
 
 export default function MetricsDashboard() {
-  const [metrics, setMetrics] = useState<Metric[]>([]);
+  const [metrics, setMetrics] = useState<Metric[]>([])
 
   useEffect(() => {
     async function fetchMetrics() {
       const models: { model: PrismaModels; title: string; icon: JSX.Element }[] = [
-        { model: "baseRegistryForm", title: "Registered Users", icon: <Users className="h-4 w-4 text-muted-foreground" /> },
+        { model: "baseRegistryForm", title: "Total", icon: <Users className="h-4 w-4 text-muted-foreground" /> },
         { model: "birthCertificateForm", title: "Birth Certificates", icon: <Cake className="h-4 w-4 text-muted-foreground" /> },
         { model: "deathCertificateForm", title: "Death Certificates", icon: <NotebookText className="h-4 w-4 text-muted-foreground" /> },
         { model: "marriageCertificateForm", title: "Marriage Certificates", icon: <Gem className="h-4 w-4 text-muted-foreground" /> },
-      ];
+      ]
 
       const data = await Promise.all(
         models.map(async ({ model, title, icon }) => {
-          const currentCount = await getCurrentMonthRegistrations(model);
-          const previousCount = await getPreviousMonthRegistrations(model);
+          const currentCount = await getCurrentMonthRegistrations(model)
+          const previousCount = await getPreviousMonthRegistrations(model)
 
           const percentageChange =
-            previousCount === 0 ? 100 : ((currentCount - previousCount) / previousCount) * 100;
+            previousCount === 0 ? 100 : ((currentCount - previousCount) / previousCount) * 100
 
-          return { title, currentCount, percentageChange, icon };
+          return { title, currentCount, percentageChange, icon }
         })
-      );
+      )
 
-      setMetrics(data);
+      setMetrics(data)
     }
 
-    fetchMetrics();
-  }, []);
+    fetchMetrics()
+  }, [])
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -60,5 +60,5 @@ export default function MetricsDashboard() {
         </Card>
       ))}
     </div>
-  );
+  )
 }

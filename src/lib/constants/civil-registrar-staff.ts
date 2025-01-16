@@ -1,11 +1,10 @@
 // src/lib/constants/civil-registrar-staff.tsx
-
 export type CivilRegistrarStaff = {
-  id: string;
-  name: string;
-  title: string;
-  position: string;
-};
+  id: string
+  name: string
+  title: string
+  position: string
+}
 
 export const CIVIL_REGISTRAR_STAFF: CivilRegistrarStaff[] = [
   {
@@ -50,10 +49,10 @@ export const CIVIL_REGISTRAR_STAFF: CivilRegistrarStaff[] = [
     title: 'Staff at the Civil Registry',
     position: 'Staff at the Civil Registry',
   },
-].sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically by name
+].sort((a, b) => a.name.localeCompare(b.name))
 
 export const COMMON_DATES = [
   { value: 'today', label: 'Today' },
   { value: 'yesterday', label: 'Yesterday' },
   { value: 'custom', label: 'Select Custom Date' },
-];
+]
