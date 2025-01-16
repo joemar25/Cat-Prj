@@ -2,6 +2,87 @@
 
 import { prisma } from "@/lib/prisma";
 
+export async function getRegistryMetrics() {
+  try {
+    const today = new Date()
+    const last6Months = Array.from({ length: 6 }, (_, i) => {
+      return new Date(today.getFullYear(), today.getMonth() - i, 1)
+    }).reverse()
+
+    const startDate = last6Months[0]
+    const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+
+    // Fetch all registry forms for the period
+    const registryForms = await prisma.baseRegistryForm.findMany({
+      where: {
+        dateOfRegistration: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+      select: {
+        formType: true,
+        dateOfRegistration: true
+      }
+    })
+
+    // Process the data into monthly counts
+    const monthlyData = last6Months.map(month => {
+      const monthStart = new Date(month.getFullYear(), month.getMonth(), 1)
+      const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0)
+
+      const monthCounts = {
+        month: month.toLocaleString('default', { month: 'long' }),
+        birth: 0,
+        death: 0,
+        marriage: 0
+      }
+
+      registryForms.forEach(form => {
+        if (form.dateOfRegistration >= monthStart && form.dateOfRegistration <= monthEnd) {
+          switch (form.formType) {
+            case 'BIRTH':
+              monthCounts.birth++
+              break
+            case 'DEATH':
+              monthCounts.death++
+              break
+            case 'MARRIAGE':
+              monthCounts.marriage++
+              break
+          }
+        }
+      })
+
+      return monthCounts
+    })
+
+    // Calculate trends
+    const currentMonth = monthlyData[monthlyData.length - 1]
+    const previousMonth = monthlyData[monthlyData.length - 2]
+    
+    const currentTotal = currentMonth.birth + currentMonth.death + currentMonth.marriage
+    const previousTotal = previousMonth.birth + previousMonth.death + previousMonth.marriage
+    
+    const percentageChange = previousTotal !== 0 
+      ? ((currentTotal - previousTotal) / previousTotal) * 100 
+      : 0
+
+    return {
+      monthlyData,
+      trend: {
+        percentage: Math.abs(percentageChange).toFixed(1),
+        isUp: percentageChange >= 0
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching registry metrics:', error)
+    throw new Error('Failed to fetch registry metrics')
+  }
+}
+
+
+
 export async function getBirthGenderCount() {
   const results = await prisma.birthCertificateForm.findMany({
     select: {
@@ -75,7 +156,7 @@ export async function getRecentRegistrations() {
     };
   });
 }
-  
+
 
 
 

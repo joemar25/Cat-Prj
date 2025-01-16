@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign } from "lucide-react";
+import { Users, Cake, NotebookText, Gem } from "lucide-react"; // Import necessary icons
 import { getCurrentMonthRegistrations, getPreviousMonthRegistrations, PrismaModels } from "@/hooks/count-metrics";
 
 type Metric = {
   title: string;
   currentCount: number;
   percentageChange: number;
+  icon: JSX.Element; // Updated to store actual JSX elements for icons
 };
 
 export default function MetricsDashboard() {
@@ -16,22 +17,22 @@ export default function MetricsDashboard() {
 
   useEffect(() => {
     async function fetchMetrics() {
-      const models: { model: PrismaModels; title: string }[] = [
-        { model: "baseRegistryForm", title: "Registered Users" },
-        { model: "birthCertificateForm", title: "Birth Certificates" },
-        { model: "deathCertificateForm", title: "Death Certificates" },
-        { model: "marriageCertificateForm", title: "Marriage Certificates" },
+      const models: { model: PrismaModels; title: string; icon: JSX.Element }[] = [
+        { model: "baseRegistryForm", title: "Registered Users", icon: <Users className="h-4 w-4 text-muted-foreground" /> },
+        { model: "birthCertificateForm", title: "Birth Certificates", icon: <Cake className="h-4 w-4 text-muted-foreground" /> },
+        { model: "deathCertificateForm", title: "Death Certificates", icon: <NotebookText className="h-4 w-4 text-muted-foreground" /> },
+        { model: "marriageCertificateForm", title: "Marriage Certificates", icon: <Gem className="h-4 w-4 text-muted-foreground" /> },
       ];
 
       const data = await Promise.all(
-        models.map(async ({ model, title }) => {
+        models.map(async ({ model, title, icon }) => {
           const currentCount = await getCurrentMonthRegistrations(model);
           const previousCount = await getPreviousMonthRegistrations(model);
 
           const percentageChange =
             previousCount === 0 ? 100 : ((currentCount - previousCount) / previousCount) * 100;
 
-          return { title, currentCount, percentageChange };
+          return { title, currentCount, percentageChange, icon };
         })
       );
 
@@ -47,7 +48,7 @@ export default function MetricsDashboard() {
         <Card key={metric.title}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{metric.title}</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            {metric.icon}
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metric.currentCount}</div>

@@ -1,18 +1,21 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { TrendingUp } from 'lucide-react'
+import * as React from "react";
+import {
+  TrendingUp,
+  TrendingDown,
+  PieChart as PieChartIcon,
+} from "lucide-react";
 import {
   Area,
   AreaChart,
   CartesianGrid,
+  XAxis,
+  ResponsiveContainer,
   Label,
   Pie,
   PieChart,
-  XAxis,
-  ResponsiveContainer,
-} from "recharts"
-
+} from "recharts";
 import {
   Card,
   CardContent,
@@ -20,131 +23,162 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
-
-const pieChartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 190, fill: "var(--color-other)" },
-]
-
-const pieChartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  chrome: {
-    label: "Chrome",
-    color: "hsl(var(--chart-1))",
-  },
-  safari: {
-    label: "Safari",
-    color: "hsl(var(--chart-2))",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "hsl(var(--chart-3))",
-  },
-  edge: {
-    label: "Edge",
-    color: "hsl(var(--chart-4))",
-  },
-  other: {
-    label: "Other",
-    color: "hsl(var(--chart-5))",
-  },
-} satisfies ChartConfig
+} from "@/components/ui/chart";
+import { getRegistryMetrics } from "@/hooks/count-metrics";
 
 const areaChartConfig = {
-  desktop: {
-    label: "Desktop",
+  birth: {
+    label: "Birth",
     color: "hsl(var(--chart-1))",
   },
-  mobile: {
-    label: "Mobile",
+  death: {
+    label: "Death",
     color: "hsl(var(--chart-2))",
   },
-} satisfies ChartConfig
+  marriage: {
+    label: "Marriage",
+    color: "hsl(var(--chart-3))",
+  },
+} satisfies ChartConfig;
 
-const areaChartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
+const pieChartConfig = {
+  marriage: {
+    label: "Marriages",
+    color: "hsl(var(--chart-3))",
+  },
+} satisfies ChartConfig;
 
-export default function StatisticsDashboard() {
-  const totalVisitors = React.useMemo(() => {
-    return pieChartData.reduce((acc, curr) => acc + curr.visitors, 0)
-  }, [])
+interface AreaChartProps {
+  data: { month: string; birth: number; death: number; marriage: number }[];
+}
+
+export default function RegistryStatisticsDashboard() {
+  const [chartData, setChartData] = React.useState<AreaChartProps["data"]>([]);
+  const [trend, setTrend] = React.useState({ percentage: "0", isUp: true });
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  // Calculate total marriages from the data
+  const totalMarriages = React.useMemo(() => {
+    return chartData.reduce((sum, item) => sum + item.marriage, 0);
+  }, [chartData]);
+
+  // Transform data for pie chart
+  const pieData = React.useMemo(() => {
+    return chartData.map((item) => ({
+      name: item.month,
+      value: item.marriage,
+      fill: `hsl(var(--chart-3) / ${
+        (item.marriage / Math.max(...chartData.map((d) => d.marriage))) * 0.9 +
+        0.1
+      })`,
+    }));
+  }, [chartData]);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { monthlyData, trend } = await getRegistryMetrics();
+        setChartData(monthlyData);
+        setTrend(trend);
+      } catch (error) {
+        console.error("Error fetching metrics:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading statistics...</div>;
+  }
 
   return (
     <div className="w-full grid gap-4 md:grid-cols-2 lg:grid-cols-7">
       <Card className="lg:col-span-4">
         <CardHeader>
-          <CardTitle>Area Chart - Stacked</CardTitle>
+          <CardTitle>Registry Statistics</CardTitle>
           <CardDescription>
-            Showing total visitors for the last 6 months
+            Monthly registration trends for the past 6 months
           </CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={areaChartConfig}>
-            <AreaChart
-              accessibilityLayer
-              data={areaChartData}
-              margin={{
-                left: 12,
-                right: 12,
-              }}
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => value.slice(0, 3)}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator="dot" />}
-              />
-              <Area
-                dataKey="mobile"
-                type="natural"
-                fill="var(--color-mobile)"
-                fillOpacity={0.4}
-                stroke="var(--color-mobile)"
-                stackId="a"
-              />
-              <Area
-                dataKey="desktop"
-                type="natural"
-                fill="var(--color-desktop)"
-                fillOpacity={0.4}
-                stroke="var(--color-desktop)"
-                stackId="a"
-              />
-            </AreaChart>
+            <ResponsiveContainer width="100%" height={400}>
+              <AreaChart
+                data={chartData}
+                margin={{
+                  top: 20,
+                  right: 20,
+                  left: 20,
+                  bottom: 20,
+                }}
+              >
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="dot" />}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="marriage"
+                  stackId="1"
+                  stroke={areaChartConfig.marriage.color}
+                  fill={areaChartConfig.marriage.color}
+                  fillOpacity={0.4}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="death"
+                  stackId="1"
+                  stroke={areaChartConfig.death.color}
+                  fill={areaChartConfig.death.color}
+                  fillOpacity={0.4}
+                />
+
+                <Area
+                  type="monotone"
+                  dataKey="birth"
+                  stackId="1"
+                  stroke={areaChartConfig.birth.color}
+                  fill={areaChartConfig.birth.color}
+                  fillOpacity={0.4}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </ChartContainer>
         </CardContent>
         <CardFooter>
           <div className="flex w-full items-start gap-2 text-sm">
             <div className="grid gap-2">
               <div className="flex items-center gap-2 font-medium leading-none">
-                Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+                {trend.isUp ? (
+                  <>
+                    Trending up by {trend.percentage}% this month
+                    <TrendingUp className="h-4 w-4" />
+                  </>
+                ) : (
+                  <>
+                    Trending down by {trend.percentage}% this month
+                    <TrendingDown className="h-4 w-4" />
+                  </>
+                )}
               </div>
               <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                January - June 2024
+                Showing registration data for the last 6 months
               </div>
             </div>
           </div>
@@ -153,8 +187,8 @@ export default function StatisticsDashboard() {
 
       <Card className="flex flex-col lg:col-span-3">
         <CardHeader className="text-center">
-          <CardTitle>Pie Chart - Donut with Text</CardTitle>
-          <CardDescription>January - June 2024</CardDescription>
+          <CardTitle>Marriage Distribution</CardTitle>
+          <CardDescription>Past 6 Months Marriage Statistics</CardDescription>
         </CardHeader>
         <CardContent className="flex-1">
           <ChartContainer
@@ -165,9 +199,9 @@ export default function StatisticsDashboard() {
               <PieChart>
                 <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                 <Pie
-                  data={pieChartData}
-                  dataKey="visitors"
-                  nameKey="browser"
+                  data={pieData}
+                  dataKey="value"
+                  nameKey="name"
                   innerRadius="60%"
                   outerRadius="90%"
                   strokeWidth={2}
@@ -188,14 +222,14 @@ export default function StatisticsDashboard() {
                               y={viewBox.cy}
                               className="fill-foreground text-2xl font-bold"
                             >
-                              {totalVisitors.toLocaleString()}
+                              {totalMarriages.toLocaleString()}
                             </tspan>
                             <tspan
                               x={viewBox.cx}
                               y={(viewBox.cy || 0) + 20}
                               className="fill-muted-foreground text-sm"
                             >
-                              Visitors
+                              Total Marriages
                             </tspan>
                           </text>
                         );
@@ -209,15 +243,14 @@ export default function StatisticsDashboard() {
         </CardContent>
         <CardFooter className="flex flex-col gap-2 text-sm">
           <div className="flex items-center gap-2 font-medium">
-            <TrendingUp className="h-4 w-4" />
-            Trending up by 5.2% this month
+            <PieChartIcon className="h-4 w-4" />
+            Marriage Registration Distribution
           </div>
           <span className="text-muted-foreground">
-            Showing total visitors for the last 6 months
+            Monthly breakdown of marriages for the past 6 months
           </span>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
-
