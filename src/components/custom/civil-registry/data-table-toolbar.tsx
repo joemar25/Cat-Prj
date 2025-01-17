@@ -14,13 +14,13 @@ import { ExtendedBaseRegistryForm } from './columns'
 import { AddCivilRegistryFormDialogPdf } from './actions/upload-pdf-dialog'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { CalendarIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { useState, useEffect } from 'react'
 import { DateRange } from 'react-day-picker'
 import { ComponentType } from 'react'
+import { ScanFormDialog } from './actions/scan-form-dialog'
 
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>
@@ -32,33 +32,14 @@ const formTypes = [
   { label: 'Death', value: FormType.DEATH },
 ]
 
-function ScanFormDialog() {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="default" className="h-10">
-          <Icons.post className="mr-2 h-4 w-4" />
-          Scan Form
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Scan Form</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="flex items-center justify-center h-40 border-2 border-dashed rounded-lg">
-            <p className="text-sm text-muted-foreground">Scanner functionality to be implemented</p>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
 export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const isFiltered = table.getState().columnFilters.length > 0
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
-  const [availableYears, setAvailableYears] = useState<Array<{ label: string; value: string; icon: ComponentType<{ className?: string }> }>>([])
+  const [availableYears, setAvailableYears] = useState<
+    Array<{ label: string; value: string; icon: ComponentType<{ className?: string }> }>
+  >([])
+  const [pageSearch, setPageSearch] = useState<string>('')
+  const [bookSearch, setBookSearch] = useState<string>('')
 
   const formTypeColumn = table.getColumn('formType')
   const preparedByColumn = table.getColumn('preparedBy')
@@ -66,6 +47,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const createdAtColumn = table.getColumn('createdAt')
   const statusColumn = table.getColumn('status')
   const yearColumn = table.getColumn('year')
+  const registryDetailsColumn = table.getColumn('registryDetails')
 
   // Generate available years from the data
   useEffect(() => {
@@ -73,7 +55,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     const uniqueYears = new Set<number>()
 
     // Extract years from all rows
-    rows.forEach(row => {
+    rows.forEach((row) => {
       if (row.original.createdAt) {
         const date = new Date(row.original.createdAt)
         uniqueYears.add(date.getFullYear())
@@ -83,10 +65,10 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     // Convert Set to array, sort in descending order, and format
     const years = Array.from(uniqueYears)
       .sort((a, b) => b - a)
-      .map(year => ({
+      .map((year) => ({
         label: year.toString(),
         value: year.toString(),
-        icon: Icons.calendar
+        icon: Icons.calendar,
       }))
 
     setAvailableYears(years)
@@ -95,7 +77,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   // Status options with proper typing matching the component interface
   const statusOptions = [
     { label: 'Pending', value: 'PENDING', icon: Icons.clock },
-    { label: 'Verified', value: 'VERIFIED', icon: Icons.check }
+    { label: 'Verified', value: 'VERIFIED', icon: Icons.check },
   ]
 
   // Get unique preparer options
@@ -124,10 +106,23 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     icon: Icons.user,
   }))
 
-  const handleSearch = (value: string) => {
-    table.setGlobalFilter(value)
+  // Handle page number search
+  const handlePageSearch = (value: string) => {
+    setPageSearch(value)
+    if (registryDetailsColumn) {
+      registryDetailsColumn.setFilterValue({ pageNumber: value, bookNumber: bookSearch })
+    }
   }
 
+  // Handle book number search
+  const handleBookSearch = (value: string) => {
+    setBookSearch(value)
+    if (registryDetailsColumn) {
+      registryDetailsColumn.setFilterValue({ pageNumber: pageSearch, bookNumber: value })
+    }
+  }
+
+  // Handle date range selection
   const handleDateRangeSelect = (range: DateRange | undefined) => {
     setDateRange(range)
     if (createdAtColumn) {
@@ -139,11 +134,15 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     }
   }
 
+  // Reset all filters
   const handleReset = () => {
     table.resetColumnFilters()
     setDateRange(undefined)
+    setPageSearch('')
+    setBookSearch('')
   }
 
+  // Handle data export
   const handleExport = () => {
     try {
       const tableData = table.getCoreRowModel().rows.map((row) => row.original)
@@ -179,15 +178,38 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     <div className="space-y-4">
       {/* Top row with search and action buttons */}
       <div className="flex flex-col sm:flex-row justify-between gap-4">
-        <div className="relative w-full sm:w-[300px]">
-          <Icons.search className="absolute h-4 w-4 left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <Input
-            placeholder="Search forms..."
-            onChange={(event) => handleSearch(event.target.value)}
-            className="w-full pl-9"
-          />
+        <div className="flex flex-wrap gap-2">
+          {/* Main Search */}
+          <div className="relative w-full sm:w-[300px]">
+            <Input
+              placeholder="Search forms..."
+              onChange={(event) => table.setGlobalFilter(event.target.value)}
+              className="w-full"
+            />
+          </div>
+
+          {/* Page Number Search */}
+          <div className="relative w-full sm:w-[200px]">
+            <Input
+              placeholder="Search page number..."
+              value={pageSearch}
+              onChange={(event) => handlePageSearch(event.target.value)}
+              className="w-full"
+            />
+          </div>
+
+          {/* Book Number Search */}
+          <div className="relative w-full sm:w-[200px]">
+            <Input
+              placeholder="Search book number..."
+              value={bookSearch}
+              onChange={(event) => handleBookSearch(event.target.value)}
+              className="w-full"
+            />
+          </div>
         </div>
-        <div className="flex flex-wrap items-center space-x-4">
+
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" className="h-10" onClick={handleExport}>
             <Icons.download className="mr-2 h-4 w-4" />
             Export
@@ -256,19 +278,19 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               <Button
                 variant="outline"
                 className={cn(
-                  "justify-start text-left font-normal",
-                  !dateRange && "text-muted-foreground"
+                  'justify-start text-left font-normal',
+                  !dateRange && 'text-muted-foreground'
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {dateRange?.from ? (
                   dateRange.to ? (
                     <>
-                      {format(dateRange.from, "LLL dd, y")} -{" "}
-                      {format(dateRange.to, "LLL dd, y")}
+                      {format(dateRange.from, 'LLL dd, y')} -{' '}
+                      {format(dateRange.to, 'LLL dd, y')}
                     </>
                   ) : (
-                    format(dateRange.from, "LLL dd, y")
+                    format(dateRange.from, 'LLL dd, y')
                   )
                 ) : (
                   <span>Pick a date range</span>
