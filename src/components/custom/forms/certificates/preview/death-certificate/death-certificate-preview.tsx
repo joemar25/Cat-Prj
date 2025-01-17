@@ -190,118 +190,137 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           </View>
         </View>
 
-        {/* Medical Certificate Section */}
+        {/* Medical Certificate */}
         <View style={styles.medicalCertificate}>
-          <View style={styles.sectionTitleContainer}>
+          <View style={styles.medicalHeader}>
             <Text style={styles.sectionTitle}>MEDICAL CERTIFICATE</Text>
-            <Text style={styles.subtitle}>
+            <Text style={styles.sectionTitle2}>
               (For ages 0 to 7 days, accomplish items 14-19a at the back)
             </Text>
           </View>
+          <View style={styles.fieldContainer9}>
+            {/* Grid Container */}
+            <View style={styles.gridContainer}>
+              {/* First Row: Title and Interval Label */}
+              <View style={styles.gridRow}>
+                <View style={[styles.gridColumn, { flex: 2 }]}>
+                  <Text style={styles.label}>
+                    19b. CAUSES OF DEATH (If the deceased is aged 8 days over)
+                  </Text>
+                </View>
+                <View style={[styles.gridColumn, { flex: 1 }]}>
+                  <Text style={styles.label1}>
+                    Interval between onset and death
+                  </Text>
+                </View>
+              </View>
 
-          {/* Causes of Death */}
-          <View style={styles.causesOfDeath}>
-            <Text style={styles.label}>
-              19 b. CAUSES OF DEATH (If the deceased is aged 8 days and over)
-            </Text>
-            <View style={styles.causeRow}>
-              <Text style={styles.causeLabel}>I. Immediate cause:</Text>
-              <Text style={styles.causeValue}>
-                a. {data.causesOfDeath?.immediate || "N/A"}
-              </Text>
-            </View>
-            <View style={styles.causeRow}>
-              <Text style={styles.causeLabel}>Antecedent cause:</Text>
-              <Text style={styles.causeValue}>
-                b. {data.causesOfDeath?.antecedent || "N/A"}
-              </Text>
-            </View>
-            <View style={styles.causeRow}>
-              <Text style={styles.causeLabel}>Underlying cause:</Text>
-              <Text style={styles.causeValue}>
-                c. {data.causesOfDeath?.underlying || "N/A"}
-              </Text>
-            </View>
-            <View style={styles.causeRow}>
-              <Text style={styles.causeLabel}>
-                II. Other significant conditions contributing to death:
-              </Text>
-              <Text style={styles.causeValue}>
-                {data.causesOfDeath?.contributingConditions || "N/A"}
-              </Text>
-            </View>
-          </View>
+              {/* Second Row: Immediate, Antecedent, and Underlying Causes */}
+              <View style={styles.Other}>
+                <View style={styles.gridRow}>
+                  {/* Labels Column */}
+                  <View style={[styles.gridColumn, { flex: 1 }]}>
+                    <Text style={styles.label3}>I. Immediate Cause:</Text>
+                    <Text style={styles.label3}>Antecedent Cause:</Text>
+                    <Text style={styles.label3}>Underlying Cause:</Text>
+                  </View>
 
-          {/* Interval Between Onset and Death */}
-          <View style={styles.intervalSection}>
-            <Text style={styles.label}>Interval Between Onset and Death</Text>
-            <View style={styles.intervalRow}>
-              <Text style={styles.intervalValue}>
-                {data.deathByExternalCauses?.mannerOfDeath || "N/A"}
-              </Text>
-            </View>
-          </View>
+                  {/* Values Column */}
+                  <View style={[styles.gridColumn, { flex: 1 }]}>
+                    <Text style={styles.data2}>
+                      {data.causesOfDeath?.immediate || "N/A"}
+                    </Text>
+                    <Text style={styles.data2}>
+                      {data.causesOfDeath?.antecedent || "N/A"}
+                    </Text>
+                    <Text style={styles.data2}>
+                      {data.causesOfDeath?.underlying || "N/A"}
+                    </Text>
+                  </View>
 
-          {/* Maternal Condition */}
-          {data.sex === "Female" && (
-            <View style={styles.maternalCondition}>
-              <Text style={styles.label}>
-                19c. MATERNAL CONDITION (If the deceased is female aged 15-49
-                years old)
-              </Text>
-              <View style={styles.checkboxRow}>
-                <Text style={styles.checkboxLabel}>
-                  a. Pregnant, not in labour
-                </Text>
-                <Text style={styles.checkboxLabel}>b. Pregnant, in labour</Text>
-                <Text style={styles.checkboxLabel}>
-                  c. Less than 42 days after delivery
-                </Text>
-                <Text style={styles.checkboxLabel}>
-                  d. 42 days to 1 year after delivery
-                </Text>
-                <Text style={styles.checkboxLabel}>e. None of the choices</Text>
+                  {/* Interval Column */}
+                  <View style={[styles.gridColumn, { flex: 1 }]}>
+                    {/* <Text style={styles.data2}></Text>
+                    <Text style={styles.data2}></Text>
+                    <Text style={styles.data2}></Text> */}
+                  </View>
+                </View>
+                <View style={[styles.rowSpan, { flex: 2 }]}>
+                  <Text style={styles.label3}>
+                    II. Other significant conditions contributing to death:
+                  </Text>
+                  <Text style={styles.data3}></Text>
+                </View>
               </View>
             </View>
-          )}
+          </View>
+        </View>
 
-          {/* Death by External Causes */}
-          <View style={styles.externalCauses}>
-            <Text style={styles.label}>19d. DEATH BY EXTERNAL CAUSES</Text>
-            <View style={styles.externalCauseRow}>
-              <Text style={styles.externalCauseLabel}>a. Manner of death:</Text>
-              <Text style={styles.externalCauseValue}>
+        {/* Maternal Condition */}
+        <View style={styles.maternalConditionContainer}>
+          <Text style={styles.maternalConditionLabel}>
+            19c. Maternal Condition:
+          </Text>
+          <Text style={styles.maternalConditionValue}>
+            {data.maternalCondition || "N/A"}
+          </Text>
+        </View>
+
+        {/* Death by External Causes and Autopsy */}
+        <View style={styles.deathExternalCausesContainer}>
+          {/* Section 19: Death by External Causes */}
+          <View style={styles.section19Container}>
+            <View style={styles.deathExternalCausesTitleContainer}>
+              <Text style={styles.deathExternalCausesTitle}>
+                19d. DEATH BY EXTERNAL CAUSES
+              </Text>
+            </View>
+
+            {/* Manner of Death */}
+            <View style={styles.deathExternalCausesFieldContainer}>
+              <Text style={styles.deathExternalCausesLabel}>
+                Manner of Death:
+              </Text>
+              <Text style={styles.deathExternalCausesValue}>
                 {data.deathByExternalCauses?.mannerOfDeath || "N/A"}
               </Text>
             </View>
-            <View style={styles.externalCauseRow}>
-              <Text style={styles.externalCauseLabel}>
-                b. Place of Occurrence of External Cause:
+
+            {/* Place of Occurrence */}
+            <View style={styles.deathExternalCausesFieldContainer}>
+              <Text style={styles.deathExternalCausesLabel}>
+                Place of Occurrence:
               </Text>
-              <Text style={styles.externalCauseValue}>
+              <Text style={styles.deathExternalCausesValue}>
                 {data.deathByExternalCauses?.placeOfOccurrence || "N/A"}
               </Text>
             </View>
           </View>
 
-          {/* Attendant Information */}
-          <View style={styles.attendantSection}>
-            <Text style={styles.label}>21a. ATTENDANT</Text>
-            <View style={styles.attendantRow}>
-              <Text style={styles.attendantLabel}>1. Private Physician</Text>
-              <Text style={styles.attendantLabel}>
-                2. Public Health Officer
-              </Text>
-              <Text style={styles.attendantLabel}>3. Hospital Authority</Text>
-              <Text style={styles.attendantLabel}>4. None</Text>
-              <Text style={styles.attendantLabel}>5. Others Specify:</Text>
-            </View>
-            <View style={styles.attendantDuration}>
-              <Text style={styles.label}>
-                21b. If attended, state duration (mm/dd/yy)
-              </Text>
-              <View style={styles.durationRow}>
-                <Text style={styles.durationValue}>
+          {/* Section 20: Autopsy */}
+          <View style={styles.section20Container}>
+            <Text style={styles.autopsyTitle}>20. Autopsy (yes/no)</Text>
+            <Text style={styles.autopsyValue}>{"N/A"}</Text>
+          </View>
+        </View>
+
+        {/* Attendant Information */}
+        <View style={styles.attendantSection2}>
+          {/* 21a. Attendant Information */}
+          <View style={styles.attendantSection3}>
+            <Text style={styles.attendantSectionTitle}>
+              21a. ATTENDANT INFORMATION
+            </Text>
+            <View style={styles.attendantContainer}>
+              <View style={styles.attendantFieldContainer}>
+                <Text style={styles.attendantLabel2}>Type:</Text>
+                <Text style={styles.attendantValue}>
+                  {data.attendant?.type || "N/A"}
+                </Text>
+              </View>
+              <View style={styles.attendantFieldContainer}>
+                <Text style={styles.attendantLabel2}>Duration:</Text>
+                <Text style={styles.attendantValue}>
                   {data.attendant?.duration?.from &&
                   data.attendant?.duration?.to
                     ? `From: ${new Date(
@@ -315,71 +334,258 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             </View>
           </View>
 
-          {/* Certification of Death */}
-          <View style={styles.certificationSection}>
-            <Text style={styles.label}>22. CERTIFICATION OF DEATH</Text>
-            <Text style={styles.certificationText}>
-              I hereby certify that the foregoing particulars are correct as
-              near as same can be ascertained and I further certify that I
-              {data.certification?.hasAttended
-                ? " have attended"
-                : " have not attended"}{" "}
-              the deceased and that death occurred at{" "}
-              {data.certification?.deathDateTime || "N/A"} on the date of death
-              specified above.
+          {/* 21b. If attended, state duration */}
+          <View style={styles.attendantSection4}>
+            <Text style={styles.attendantSectionTitle}>
+              21b. If attended, state duration
             </Text>
-            <View style={styles.signatureSection}>
-              <View style={styles.signatureRow}>
-                <Text style={styles.signatureLabel}>Signature:</Text>
-                <Text style={styles.signatureValue}>
-                  {data.certification?.signature || "N/A"}
+            <View style={styles.attendantFieldContainerColumn}>
+              <Text style={styles.attendantValue}>
+                From:{" "}
+                {data.attendant?.duration?.from
+                  ? new Date(data.attendant.duration.from).toLocaleDateString()
+                  : "N/A"}
+              </Text>
+              <Text style={styles.attendantValue}>
+                To:{" "}
+                {data.attendant?.duration?.to
+                  ? new Date(data.attendant.duration.to).toLocaleDateString()
+                  : "N/A"}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Certification of Death */}
+        <View style={styles.certificationSection11}>
+          <Text style={styles.certificationTitle}>
+            22a. CERTIFICATION OF DEATH
+          </Text>
+
+          {/* Attended Deceased */}
+          <View style={styles.fieldContainer11}>
+            <Text style={styles.attendedLabel}>Attended Deceased:</Text>
+            <Text style={styles.attendedValue}>
+              {data.certification?.hasAttended ? "Yes" : "No"}
+            </Text>
+          </View>
+          <View style={styles.fieldContainer11}>
+            <Text style={styles.attendedLabel}>Death Date/Time:</Text>
+            <Text style={styles.attendedValue}>
+              {data.certification?.deathDateTime || "N/A"}
+            </Text>
+          </View>
+
+          {/* Name */}
+          <View style={styles.fieldContainer11}>
+            <Text style={styles.nameLabel}>Name:</Text>
+            <Text style={styles.nameValue}>
+              {data.certification?.nameInPrint || "N/A"}
+            </Text>
+          </View>
+
+          {/* Title/Position */}
+          <View style={styles.fieldContainer11}>
+            <Text style={styles.titleLabel}>Title/Position:</Text>
+            <Text style={styles.titleValue}>
+              {data.certification?.titleOfPosition || "N/A"}
+            </Text>
+          </View>
+        </View>
+
+        {/* Disposal Information */}
+        <View style={styles.gridContainer22}>
+          {/* Cell 1: Corpse Disposal */}
+          <View style={styles.corpseDisposalCell}>
+            <Text style={styles.corpseDisposalLabel}>23. Corpse Disposal</Text>
+            <Text style={styles.corpseDisposalValue}>
+              {data.disposal?.method || "N/A"}
+            </Text>
+          </View>
+
+          {/* Cell 2: Burial/Cremation Permit */}
+          <View style={styles.burialCremationCell}>
+            <Text style={styles.burialCremationLabel}>
+              24a. Burial/Cremation Permit
+            </Text>
+            <Text style={styles.burialCremationValue}>
+              Number: {data.disposal?.burialPermit?.number || "N/A"}
+            </Text>
+            <Text style={styles.burialCremationValue}>
+              {[
+                "Number: ",
+                data.disposal?.burialPermit?.number || "N/A",
+                ", Date Issued: ",
+                data.disposal?.burialPermit?.dateIssued || "N/A",
+              ].join("")}
+            </Text>
+          </View>
+
+          {/* Cell 3: Transfer Permit */}
+          <View style={styles.transferPermitCell}>
+            <Text style={styles.transferPermitLabel}>24b. Transfer Permit</Text>
+            <Text style={styles.transferPermitValue}>
+              Number: {data.disposal?.transferPermit?.number || "N/A"}
+            </Text>
+            <Text style={styles.transferPermitValue}>
+              Date Issued:{" "}
+              {formatDate(data.disposal?.transferPermit?.dateIssued) || "N/A"}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.section}>
+          <View style={styles.fieldContainer222}>
+            <Text style={styles.subtitle}>
+              25. Name and address of cemetery or crematory
+            </Text>
+            <Text style={styles.value}>{data.cemeteryAddress || "N/A"}</Text>
+          </View>
+        </View>
+
+        <View>
+          {/* First Row: Section 26 and 27 */}
+          <View
+            style={[styles.Last, { flexDirection: "row", justifyContent: "space-between" }]}
+          >
+            {/* Section 26: Certification of Informant */}
+            <View style={[styles.section12, {borderRight : "1px solid #000"}]}>
+              <Text style={styles.certificationOfInformantTitle}>
+                26. Certification of Informant
+              </Text>
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label12}>Signature:</Text>
+                <Text style={styles.value12}>
+                  {data.informant?.signature || "N/A"}
                 </Text>
               </View>
-              <View style={styles.signatureRow}>
-                <Text style={styles.signatureLabel}>Name in Print:</Text>
-                <Text style={styles.signatureValue}>
-                  {data.certification?.nameInPrint || "N/A"}
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label12}>Name:</Text>
+                <Text style={styles.value12}>
+                  {data.informant?.nameInPrint || "N/A"}
                 </Text>
               </View>
-              <View style={styles.signatureRow}>
-                <Text style={styles.signatureLabel}>Title of Position:</Text>
-                <Text style={styles.signatureValue}>
-                  {data.certification?.titleOfPosition || "N/A"}
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label12}>Relationship to Deceased:</Text>
+                <Text style={styles.value12}>
+                  {data.informant?.relationshipToDeceased || "N/A"}
                 </Text>
               </View>
-              <View style={styles.signatureRow}>
-                <Text style={styles.signatureLabel}>Address:</Text>
-                <Text style={styles.signatureValue}>
-                  {data.certification?.address || "N/A"}
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label12}>Address:</Text>
+                <Text style={styles.value12}>
+                  {data.informant?.address || "N/A"}
                 </Text>
               </View>
-              <View style={styles.signatureRow}>
-                <Text style={styles.signatureLabel}>Date:</Text>
-                <Text style={styles.signatureValue}>
-                  {data.certification?.hasAttended || "N/A"}
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label12}>Date:</Text>
+                <Text style={styles.value12}>
+                  {data.informant?.date
+                    ? formatDate(data.informant.date)
+                    : "N/A"}
+                </Text>
+              </View>
+            </View>
+
+            {/* Section 27: Prepared By */}
+            <View style={[styles.section12]}>
+              <Text style={styles.preparedByTitle}>27. Prepared By</Text>
+              <View style={styles.fieldContainer12}>
+                <Text style={styles.label12}>Signature:</Text>
+                <Text style={styles.value12}>
+                  {data.preparedBy?.signature || "N/A"}
+                </Text>
+              </View>
+              <View style={styles.fieldContainer12}>
+                <Text style={styles.label12}>Name:</Text>
+                <Text style={styles.value12}>
+                  {data.preparedBy?.name || "N/A"}
+                </Text>
+              </View>
+              <View style={styles.fieldContainer12}>
+                <Text style={styles.label12}>Title or Position:</Text>
+                <Text style={styles.value12}>
+                  {data.preparedBy?.title || "N/A"}
+                </Text>
+              </View>
+              <View style={styles.fieldContainer12}>
+                <Text style={styles.label12}>Date:</Text>
+                <Text style={styles.value12}>
+                  {data.preparedBy?.date
+                    ? formatDate(data.preparedBy.date)
+                    : "N/A"}
                 </Text>
               </View>
             </View>
           </View>
 
-          {/* Reviewed By Section */}
-          <View style={styles.reviewedBySection}>
-            <Text style={styles.label}>REVIEWED BY:</Text>
-            <View style={styles.reviewedByRow}>
-              <Text style={styles.reviewedByLabel}>
-                Signature Over Printed Name of Health Officer:
-              </Text>
-              <Text style={styles.reviewedByValue}>
-                {data.remarks || "N/A"}
-              </Text>
+          {/* Second Row: Section 28 and 29 */}
+          <View
+            style={[styles.Last, { flexDirection: "row", justifyContent: "space-between" }]}
+          >
+            {/* Section 28: Received By */}
+            <View style={[styles.section12, {borderRight : "1px solid #000"}]}>
+              <Text style={styles.receivedByTitle}>28. Received By</Text>
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label12}>Signature:</Text>
+                <Text style={styles.value12}>
+                  {data.receivedBy?.signature || "N/A"}
+                </Text>
+              </View>
+              <View style={styles.fieldContainer12}>
+                <Text style={styles.label12}>Name:</Text>
+                <Text style={styles.value12}>
+                  {data.receivedBy?.name || "N/A"}
+                </Text>
+              </View>
+              <View style={styles.fieldContainer12}>
+                <Text style={styles.label12}>Title or Position:</Text>
+                <Text style={styles.value12}>
+                  {data.receivedBy?.title || "N/A"}
+                </Text>
+              </View>
+              <View style={styles.fieldContainer12}>
+                <Text style={styles.label12}>Date:</Text>
+                <Text style={styles.value12}>
+                  {data.receivedBy?.date
+                    ? formatDate(data.receivedBy.date)
+                    : "N/A"}
+                </Text>
+              </View>
             </View>
-            <View style={styles.reviewedByRow}>
-              <Text style={styles.reviewedByLabel}>Date:</Text>
-              <Text style={styles.reviewedByValue}>
-                {data.remarks || "N/A"}
+
+            {/* Section 29: Registered at Civil Registrar */}
+            <View style={[styles.section12]}>
+              <Text style={styles.registeredAtCivilRegistrarTitle}>
+                29. Registered at Civil Registrar
               </Text>
+              <View style={styles.fieldContainer12}>
+                <Text style={styles.label12}>Name:</Text>
+                <Text style={styles.value12}>
+                  {data.registeredAtCivilRegistrar?.name || "N/A"}
+                </Text>
+              </View>
+              <View style={styles.fieldContainer12}>
+                <Text style={styles.label12}>Title or Position:</Text>
+                <Text style={styles.value12}>
+                  {data.registeredAtCivilRegistrar?.title || "N/A"}
+                </Text>
+              </View>
+              <View style={styles.fieldContainer12}>
+                <Text style={styles.label12}>Date:</Text>
+                <Text style={styles.value12}>
+                  {data.registeredAtCivilRegistrar?.date
+                    ? formatDate(data.registeredAtCivilRegistrar.date)
+                    : "N/A"}
+                </Text>
+              </View>
             </View>
           </View>
+        </View>
+        <View  style={{ flexDirection: "column", padding: 10, gap: 5, borderBottom: "1px solid #000", borderRight: "1px solid #000", borderLeft: "1px solid #000",  }}>
+          <Text style={{ textTransform: "uppercase", fontSize: "10px", fontWeight: "bold"  }}>
+            Remarks/annotations (for lcr/ocrg use only)
+          </Text>
+          <Text style={styles.data1}>{data.remarks || "N/A"}</Text>
         </View>
       </Page>
     </Document>
