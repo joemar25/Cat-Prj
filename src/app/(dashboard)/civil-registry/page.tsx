@@ -22,12 +22,15 @@ async function getCivilRegistryForms() {
       include: {
         preparedBy: true,
         verifiedBy: true,
+        birthCertificateForm: true,
+        deathCertificateForm: true,
+        marriageCertificateForm: true,
       },
-    });
-    return forms;
+    })
+    return forms
   } catch (error) {
-    console.error('Error fetching civil registry forms:', error);
-    return [];
+    console.error('Error fetching civil registry forms:', error)
+    return []
   }
 }
 
