@@ -31,6 +31,7 @@ import {
   BaseRegistryFormWithRelations,
   deleteBaseRegistryForm,
 } from '@/hooks/civil-registry-action';
+import { JsonValue } from '@prisma/client/runtime/library';
 import { Eye } from 'lucide-react';
 
 interface DataTableRowActionsProps {
@@ -98,6 +99,82 @@ export function DataTableRowActions({
     setEditDialogOpen(false); // Close the dialog
   };
 
+  interface FullNameFormat {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+  }
+
+  interface ShortNameFormat {
+    first?: string;
+    middle?: string;
+    last?: string;
+  }
+
+  type NameObject = FullNameFormat | ShortNameFormat;
+
+  const isNameObject = (value: unknown): value is NameObject => {
+    if (!value || typeof value !== 'object') return false;
+    const obj = value as Record<string, unknown>;
+    return (
+      (('firstName' in obj || 'first' in obj) &&
+        ('lastName' in obj || 'last' in obj)) ||
+      'middleName' in obj ||
+      'middle' in obj
+    );
+  };
+
+  const formatName = (nameObj: JsonValue | null): string => {
+    if (!nameObj) return '';
+
+    if (typeof nameObj === 'string') {
+      try {
+        const parsed = JSON.parse(nameObj);
+        if (!isNameObject(parsed)) return nameObj;
+
+        const firstName =
+          (parsed as FullNameFormat).firstName ||
+          (parsed as ShortNameFormat).first ||
+          '';
+        const middleName =
+          (parsed as FullNameFormat).middleName ||
+          (parsed as ShortNameFormat).middle ||
+          '';
+        const lastName =
+          (parsed as FullNameFormat).lastName ||
+          (parsed as ShortNameFormat).last ||
+          '';
+
+        return `${firstName} ${
+          middleName ? middleName + ' ' : ''
+        }${lastName}`.trim();
+      } catch {
+        return nameObj;
+      }
+    }
+
+    if (isNameObject(nameObj)) {
+      const firstName =
+        (nameObj as FullNameFormat).firstName ||
+        (nameObj as ShortNameFormat).first ||
+        '';
+      const middleName =
+        (nameObj as FullNameFormat).middleName ||
+        (nameObj as ShortNameFormat).middle ||
+        '';
+      const lastName =
+        (nameObj as FullNameFormat).lastName ||
+        (nameObj as ShortNameFormat).last ||
+        '';
+
+      return `${firstName} ${
+        middleName ? middleName + ' ' : ''
+      }${lastName}`.trim();
+    }
+
+    return String(nameObj);
+  };
+
   const getSpecificFormDetails = () => {
     if (form.marriageCertificateForm) {
       return (
@@ -125,15 +202,13 @@ export function DataTableRowActions({
         </>
       );
     } else if (form.birthCertificateForm) {
-      const childName =
-        typeof form.birthCertificateForm.childName === 'string'
-          ? form.birthCertificateForm.childName
-          : JSON.stringify(form.birthCertificateForm.childName);
       return (
         <>
           <div className='grid grid-cols-4 items-center gap-4'>
             <span className='font-medium'>Child Name</span>
-            <span className='col-span-3'>{childName}</span>
+            <span className='col-span-3'>
+              {formatName(form.birthCertificateForm.childName)}
+            </span>
           </div>
           <div className='grid grid-cols-4 items-center gap-4'>
             <span className='font-medium'>Date of Birth</span>
@@ -150,15 +225,13 @@ export function DataTableRowActions({
         </>
       );
     } else if (form.deathCertificateForm) {
-      const deceasedName =
-        typeof form.deathCertificateForm.deceasedName === 'string'
-          ? form.deathCertificateForm.deceasedName
-          : JSON.stringify(form.deathCertificateForm.deceasedName);
       return (
         <>
           <div className='grid grid-cols-4 items-center gap-4'>
             <span className='font-medium'>Deceased Name</span>
-            <span className='col-span-3'>{deceasedName}</span>
+            <span className='col-span-3'>
+              {formatName(form.deathCertificateForm.deceasedName)}
+            </span>
           </div>
           <div className='grid grid-cols-4 items-center gap-4'>
             <span className='font-medium'>Date of Death</span>
@@ -177,7 +250,6 @@ export function DataTableRowActions({
     }
     return null;
   };
-
   return (
     <>
       <DropdownMenu>
