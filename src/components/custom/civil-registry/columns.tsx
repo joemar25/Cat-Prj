@@ -1,3 +1,4 @@
+// columns.tsx
 'use client'
 
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
@@ -23,6 +24,19 @@ const formTypeVariants: Record<
 }
 
 export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
+  {
+    id: "year",
+    accessorFn: (row: ExtendedBaseRegistryForm) => {
+      if (!row.createdAt) return ""
+      return new Date(row.createdAt).getFullYear().toString()
+    },
+    filterFn: (row, id, filterValue: string[]) => {
+      const createdAt = row.getValue('createdAt') as Date
+      if (!createdAt) return false
+      const year = new Date(createdAt).getFullYear().toString()
+      return filterValue.includes(year)
+    },
+  },
   {
     accessorKey: 'formType',
     header: ({ column }) => (
@@ -89,7 +103,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     },
     filterFn: (row, id, value: string[]) => {
       const preparerName = row.original.preparedBy?.name
-      if (!value?.length) return true // If no filters selected, show all
+      if (!value?.length) return true
       return value.includes(preparerName || '')
     },
   },
@@ -105,7 +119,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     },
     filterFn: (row, id, value: string[]) => {
       const verifierName = row.original.verifiedBy?.name
-      if (!value?.length) return true // If no filters selected, show all
+      if (!value?.length) return true
       return value.includes(verifierName || '')
     },
   },
@@ -118,22 +132,38 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
       const createdAt = row.getValue('createdAt') as Date
       return <span>{format(createdAt, 'PPP')}</span>
     },
-    filterFn: (row, id, filterValue: DateRange) => {
-      if (!filterValue?.from) return true
+    filterFn: (row, id, filterValue) => {
+      // Handle date range filtering
+      if (typeof filterValue === 'object' && 'from' in filterValue) {
+        if (!filterValue) return true
+        const rowDate = new Date(row.getValue(id))
+        const range = filterValue as DateRange
 
-      const rowDate = new Date(row.getValue(id))
-      const start = new Date(filterValue.from)
-      start.setHours(0, 0, 0, 0)
+        if (!range.from) return true
 
-      if (!filterValue.to) {
-        return rowDate >= start
+        const start = new Date(range.from)
+        start.setHours(0, 0, 0, 0)
+
+        if (!range.to) {
+          return rowDate >= start
+        }
+
+        const end = new Date(range.to)
+        end.setHours(23, 59, 59, 999)
+
+        return rowDate >= start && rowDate <= end
       }
 
-      const end = new Date(filterValue.to)
-      end.setHours(23, 59, 59, 999)
+      // Handle year filtering
+      if (Array.isArray(filterValue)) {
+        if (!filterValue.length) return true
+        const date = new Date(row.getValue(id))
+        const year = date.getFullYear().toString()
+        return filterValue.includes(year)
+      }
 
-      return rowDate >= start && rowDate <= end
-    }
+      return true
+    },
   },
   {
     accessorKey: 'status',

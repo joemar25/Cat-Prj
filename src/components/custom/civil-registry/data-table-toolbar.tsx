@@ -18,8 +18,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { CalendarIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DateRange } from 'react-day-picker'
+import { ComponentType } from 'react'
 
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>
@@ -29,7 +30,7 @@ const formTypes = [
   { label: 'Marriage', value: FormType.MARRIAGE },
   { label: 'Birth', value: FormType.BIRTH },
   { label: 'Death', value: FormType.DEATH },
-] as const
+]
 
 function ScanFormDialog() {
   return (
@@ -57,37 +58,71 @@ function ScanFormDialog() {
 export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const isFiltered = table.getState().columnFilters.length > 0
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const [availableYears, setAvailableYears] = useState<Array<{ label: string; value: string; icon: ComponentType<{ className?: string }> }>>([])
 
   const formTypeColumn = table.getColumn('formType')
   const preparedByColumn = table.getColumn('preparedBy')
   const verifiedByColumn = table.getColumn('verifiedBy')
   const createdAtColumn = table.getColumn('createdAt')
+  const statusColumn = table.getColumn('status')
+  const yearColumn = table.getColumn('year')
+
+  // Generate available years from the data
+  useEffect(() => {
+    const rows = table.getFilteredRowModel().rows
+    const uniqueYears = new Set<number>()
+
+    // Extract years from all rows
+    rows.forEach(row => {
+      if (row.original.createdAt) {
+        const date = new Date(row.original.createdAt)
+        uniqueYears.add(date.getFullYear())
+      }
+    })
+
+    // Convert Set to array, sort in descending order, and format
+    const years = Array.from(uniqueYears)
+      .sort((a, b) => b - a)
+      .map(year => ({
+        label: year.toString(),
+        value: year.toString(),
+        icon: Icons.calendar
+      }))
+
+    setAvailableYears(years)
+  }, [table])
+
+  // Status options with proper typing matching the component interface
+  const statusOptions = [
+    { label: 'Pending', value: 'PENDING', icon: Icons.clock },
+    { label: 'Verified', value: 'VERIFIED', icon: Icons.check }
+  ]
 
   // Get unique preparer options
   const preparerOptions = Array.from(
     new Set(
-      table.getRowModel().rows.map((row) => row.original.preparedBy?.name)
+      table.getRowModel().rows
+        .map((row) => row.original.preparedBy?.name)
+        .filter((name): name is string => typeof name === 'string')
     )
-  )
-    .filter(Boolean)
-    .map((name) => ({
-      label: name as string,
-      value: name as string,
-      icon: Icons.user,
-    }))
+  ).map((name) => ({
+    label: name,
+    value: name,
+    icon: Icons.user,
+  }))
 
   // Get unique verifier options
   const verifierOptions = Array.from(
     new Set(
-      table.getRowModel().rows.map((row) => row.original.verifiedBy?.name)
+      table.getRowModel().rows
+        .map((row) => row.original.verifiedBy?.name)
+        .filter((name): name is string => typeof name === 'string')
     )
-  )
-    .filter(Boolean)
-    .map((name) => ({
-      label: name as string,
-      value: name as string,
-      icon: Icons.user,
-    }))
+  ).map((name) => ({
+    label: name,
+    value: name,
+    icon: Icons.user,
+  }))
 
   const handleSearch = (value: string) => {
     table.setGlobalFilter(value)
@@ -97,11 +132,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     setDateRange(range)
     if (createdAtColumn) {
       if (range?.from) {
-        const filterValue = {
-          from: range.from,
-          to: range.to || range.from
-        }
-        createdAtColumn.setFilterValue(filterValue)
+        createdAtColumn.setFilterValue(range)
       } else {
         createdAtColumn.setFilterValue(undefined)
       }
@@ -129,7 +160,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
         )
         .join('\n')
       const csvContent = `${headers}\n${rows}`
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const blob = new Blob([csvContent], { type: 'text/csvcharset=utf-8' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -170,7 +201,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 
       {/* Filters section */}
       <div className="flex flex-wrap gap-2">
-        {/* Existing filters */}
+        {/* Filters */}
         <div className="flex flex-wrap gap-2">
           {formTypeColumn && (
             <DataTableFacetedFilter
@@ -186,6 +217,20 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                       ? Icons.baby
                       : Icons.skull,
               }))}
+            />
+          )}
+          {statusColumn && (
+            <DataTableFacetedFilter
+              column={statusColumn}
+              title="Status"
+              options={statusOptions}
+            />
+          )}
+          {yearColumn && availableYears.length > 0 && (
+            <DataTableFacetedFilter
+              column={yearColumn}
+              title="Year"
+              options={availableYears}
             />
           )}
           {preparedByColumn && preparerOptions.length > 0 && (
@@ -204,7 +249,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
           )}
         </div>
 
-        {/* Date range picker and reset button */}
+        {/* Date range picker */}
         <div className="flex gap-2 items-start">
           <Popover>
             <PopoverTrigger asChild>

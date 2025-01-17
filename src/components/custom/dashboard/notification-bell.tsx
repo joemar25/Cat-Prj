@@ -14,8 +14,6 @@ export function NotificationBell({ userId }: { userId: string }) {
   const router = useRouter()
   const { notifications, isLoading, error, markAsRead } = useNotificationActions(userId)
 
-  console.log("NotificationBell userId:", userId) // Debugging
-
   const handleNotificationClick = async (notification: Notification) => {
     // Mark the notification as read
     await markAsRead({ id: notification.id, read: true })
