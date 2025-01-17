@@ -137,7 +137,7 @@ export const navigationConfig: NavigationConfiguration = {
             type: 'main',
             title: 'Civil Registry',
             url: '/civil-registry',
-            iconName: 'mail',
+            iconName: 'file',
         },
         {
             id: 'feedback',
