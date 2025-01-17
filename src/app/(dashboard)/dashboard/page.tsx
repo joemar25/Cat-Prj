@@ -1,10 +1,8 @@
-import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header.tsx"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { DollarSign, Users, CreditCard, Activity } from 'lucide-react'
+import ChartsDashboard from "./components/charts"
 import MetricsDashboard from "./components/metrics"
 import StatisticsDashboard from "./components/statistics"
-import ChartsDashboard from "./components/charts"
 
+import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header.tsx"
 
 export default async function DashboardPage() {
 

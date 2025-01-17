@@ -1,3 +1,5 @@
+'use client';
+
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -21,7 +23,7 @@ import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 const PreparedByCard: React.FC = () => {
-  const { control, watch, setValue } =
+  const { control, watch, setValue, formState: { isSubmitted } } =
     useFormContext<BirthCertificateFormValues>();
   const selectedName = watch('preparedBy.name');
 
@@ -31,14 +33,19 @@ const PreparedByCard: React.FC = () => {
       (staff) => staff.name === selectedName
     );
     if (staff) {
-      setValue('preparedBy.title', staff.title);
+      setValue('preparedBy.title', staff.title, {
+        shouldValidate: isSubmitted, // Only validate if form has been submitted
+        shouldDirty: true
+      });
     }
-  }, [selectedName, setValue]);
+  }, [selectedName, setValue, isSubmitted]);
 
   // Set default date to today when component mounts
   useEffect(() => {
     if (!watch('preparedBy.date')) {
-      setValue('preparedBy.date', new Date().toISOString());
+      setValue('preparedBy.date', new Date().toISOString(), {
+        shouldValidate: false // Don't validate on initial set
+      });
     }
   }, [setValue, watch]);
 
@@ -47,16 +54,16 @@ const PreparedByCard: React.FC = () => {
       <CardHeader>
         <CardTitle>Prepared By</CardTitle>
       </CardHeader>
-      <CardContent className='space-y-4'>
+      <CardContent className="space-y-4">
         {/* Signature */}
         <FormField
           control={control}
-          name='preparedBy.signature'
+          name="preparedBy.signature"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Signature</FormLabel>
               <FormControl>
-                <Input placeholder='Signature' {...field} />
+                <Input placeholder="Signature" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -64,17 +71,22 @@ const PreparedByCard: React.FC = () => {
         />
 
         {/* Name and Title */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={control}
-            name='preparedBy.name'
+            name="preparedBy.name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select 
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                  }} 
+                  value={field.value}
+                >
                   <FormControl>
-                    <SelectTrigger className='h-10'>
-                      <SelectValue placeholder='Select staff name' />
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Select staff name" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -91,14 +103,14 @@ const PreparedByCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='preparedBy.title'
+            name="preparedBy.title"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title or Position</FormLabel>
                 <FormControl>
                   <Input
-                    className='h-10'
-                    placeholder='Title will auto-fill'
+                    className="h-10"
+                    placeholder="Title will auto-fill"
                     {...field}
                     disabled
                   />
@@ -112,7 +124,7 @@ const PreparedByCard: React.FC = () => {
         {/* Date */}
         <FormField
           control={control}
-          name='preparedBy.date'
+          name="preparedBy.date"
           render={({ field }) => {
             const dateValue = field.value ? new Date(field.value) : new Date();
 
@@ -128,8 +140,8 @@ const PreparedByCard: React.FC = () => {
                     }
                   },
                 }}
-                label='Date'
-                placeholder='Select date'
+                label="Date"
+                placeholder="Select date"
               />
             );
           }}

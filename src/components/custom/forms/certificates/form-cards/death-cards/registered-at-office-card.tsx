@@ -23,9 +23,13 @@ import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 const RegisteredAtOfficeCard: React.FC = () => {
-  const { control, watch, setValue } =
-    useFormContext<DeathCertificateFormValues>();
-  const selectedName = watch('registeredAtCivilRegistrar.name'); // Updated for death certificate schema
+  const {
+    control,
+    watch,
+    setValue,
+    formState: { isSubmitted },
+  } = useFormContext<DeathCertificateFormValues>();
+  const selectedName = watch('registeredAtCivilRegistrar.name');
 
   // Auto-fill title when name is selected
   useEffect(() => {
@@ -33,14 +37,19 @@ const RegisteredAtOfficeCard: React.FC = () => {
       (staff) => staff.name === selectedName
     );
     if (staff) {
-      setValue('registeredAtCivilRegistrar.title', staff.title); // Align with Zod schema
+      setValue('registeredAtCivilRegistrar.title', staff.title, {
+        shouldValidate: isSubmitted, // Only validate if form has been submitted
+        shouldDirty: true,
+      });
     }
-  }, [selectedName, setValue]);
+  }, [selectedName, setValue, isSubmitted]);
 
   // Set default date to today when component mounts
   useEffect(() => {
     if (!watch('registeredAtCivilRegistrar.date')) {
-      setValue('registeredAtCivilRegistrar.date', new Date()); // Use Date object
+      setValue('registeredAtCivilRegistrar.date', new Date(), {
+        shouldValidate: false, // Don't validate on initial set
+      });
     }
   }, [setValue, watch]);
 
@@ -58,7 +67,12 @@ const RegisteredAtOfficeCard: React.FC = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                  }}
+                  value={field.value}
+                >
                   <FormControl>
                     <SelectTrigger className='h-10'>
                       <SelectValue placeholder='Select staff name' />
@@ -102,20 +116,15 @@ const RegisteredAtOfficeCard: React.FC = () => {
             control={control}
             name='registeredAtCivilRegistrar.date'
             render={({ field }) => {
-              const dateValue = field.value
-                ? new Date(field.value)
-                : new Date();
+              const dateValue =
+                field.value instanceof Date ? field.value : new Date();
 
               return (
                 <DatePickerField
                   field={{
                     value: dateValue,
                     onChange: (date) => {
-                      if (date) {
-                        field.onChange(date.toISOString());
-                      } else {
-                        field.onChange(new Date().toISOString());
-                      }
+                      field.onChange(date || new Date());
                     },
                   }}
                   label='Date'

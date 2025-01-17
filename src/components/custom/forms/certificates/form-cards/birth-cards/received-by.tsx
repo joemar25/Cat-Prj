@@ -1,3 +1,5 @@
+'use client';
+
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -21,8 +23,12 @@ import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 const ReceivedByCard: React.FC = () => {
-  const { control, watch, setValue } =
-    useFormContext<BirthCertificateFormValues>();
+  const {
+    control,
+    watch,
+    setValue,
+    formState: { isSubmitted },
+  } = useFormContext<BirthCertificateFormValues>();
   const selectedName = watch('receivedBy.name');
 
   // Auto-fill title when name is selected
@@ -31,14 +37,19 @@ const ReceivedByCard: React.FC = () => {
       (staff) => staff.name === selectedName
     );
     if (staff) {
-      setValue('receivedBy.title', staff.title);
+      setValue('receivedBy.title', staff.title, {
+        shouldValidate: isSubmitted, // Only validate if form has been submitted
+        shouldDirty: true,
+      });
     }
-  }, [selectedName, setValue]);
+  }, [selectedName, setValue, isSubmitted]);
 
   // Set default date to today when component mounts
   useEffect(() => {
     if (!watch('receivedBy.date')) {
-      setValue('receivedBy.date', new Date().toISOString());
+      setValue('receivedBy.date', new Date().toISOString(), {
+        shouldValidate: false, // Don't validate on initial set
+      });
     }
   }, [setValue, watch]);
 
@@ -71,7 +82,12 @@ const ReceivedByCard: React.FC = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                  }}
+                  value={field.value}
+                >
                   <FormControl>
                     <SelectTrigger className='h-10'>
                       <SelectValue placeholder='Select staff name' />

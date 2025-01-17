@@ -463,23 +463,44 @@ export const deathCertificateSchema = z.object({
 
   // Administrative Information
   preparedBy: z.object({
-    signature: z.string().optional(), // Signature field
-    name: z.string().min(1, 'Name is required'), // Name in Print field
-    title: z.string().min(1, 'Title/Position is required'), // Title or Position field
-    date: z.date(), // Date field
+    signature: z.string().optional(),
+    name: z.string().min(1, 'Name is required'),
+    title: z.string().superRefine((title, ctx) => {
+      if (!title && ctx.path.includes('preparedBy')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Title should be auto-filled. Please select a name first.',
+        });
+      }
+    }),
+    date: z.date(),
   }),
 
   receivedBy: z.object({
-    signature: z.string().optional(), // Signature field
-    name: z.string().min(1, 'Name is required'), // Name field
-    title: z.string().min(1, 'Title/Position is required'), // Title field
-    date: z.date(), // Date field
+    signature: z.string().optional(),
+    name: z.string().min(1, 'Name is required'),
+    title: z.string().superRefine((title, ctx) => {
+      if (!title && ctx.path.includes('receivedBy')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Title should be auto-filled. Please select a name first.',
+        });
+      }
+    }),
+    date: z.date(),
   }),
 
   registeredAtCivilRegistrar: z.object({
-    name: z.string().min(1, 'Name is required'), // Name in Print field
-    title: z.string().min(1, 'Title/Position is required'), // Title field
-    date: z.date(), // Date field
+    name: z.string().min(1, 'Name is required'),
+    title: z.string().superRefine((title, ctx) => {
+      if (!title && ctx.path.includes('registeredAtCivilRegistrar')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Title should be auto-filled. Please select a name first.',
+        });
+      }
+    }),
+    date: z.date(),
   }),
 
   remarks: z.string().optional(),
@@ -610,8 +631,8 @@ export const defaultDeathCertificateValues: Partial<DeathCertificateFormValues> 
 
     // Civil Registrar Details
     registeredAtCivilRegistrar: {
-      name: 'Maria Clara Torres', // Default staff name
-      title: 'Civil Registrar', // Default title
+      name: '', // Default staff name
+      title: '', // Default title
       date: new Date(), // Default to today's date
     },
 
@@ -728,21 +749,42 @@ export const birthCertificateSchema = z.object({
   preparedBy: z.object({
     signature: z.string().optional(),
     name: z.string().min(1, 'Name is required'),
-    title: z.string().min(1, 'Title is required'),
+    title: z.string().superRefine((title, ctx) => {
+      if (!title && ctx.path.includes('preparedBy')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Title should be auto-filled. Please select a name first.',
+        });
+      }
+    }),
     date: z.string().min(1, 'Date is required'),
   }),
 
   receivedBy: z.object({
     signature: z.string().optional(),
     name: z.string().min(1, 'Name is required'),
-    title: z.string().min(1, 'Title is required'),
+    title: z.string().superRefine((title, ctx) => {
+      if (!title && ctx.path.includes('receivedBy')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Title should be auto-filled. Please select a name first.',
+        });
+      }
+    }),
     date: z.string().min(1, 'Date is required'),
   }),
 
   registeredByOffice: z.object({
     signature: z.string().optional(),
     name: z.string().min(1, 'Name is required'),
-    title: z.string().min(1, 'Title is required'),
+    title: z.string().superRefine((title, ctx) => {
+      if (!title && ctx.path.includes('registeredByOffice')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Title should be auto-filled. Please select a name first.',
+        });
+      }
+    }),
     date: z.string().min(1, 'Date is required'),
   }),
 
@@ -751,7 +793,6 @@ export const birthCertificateSchema = z.object({
 
 // Type inference
 export type BirthCertificateFormValues = z.infer<typeof birthCertificateSchema>;
-
 
 // Default data for the birth certificate form
 export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> =
