@@ -19,6 +19,7 @@ import { CalendarIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { useState } from 'react'
+import { DateRange } from 'react-day-picker'
 
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>
@@ -55,7 +56,7 @@ function ScanFormDialog() {
 
 export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const isFiltered = table.getState().columnFilters.length > 0
-  const [date, setDate] = useState<Date>()
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
   const formTypeColumn = table.getColumn('formType')
   const preparedByColumn = table.getColumn('preparedBy')
@@ -92,18 +93,24 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     table.setGlobalFilter(value)
   }
 
-  const handleReset = () => {
-    table.resetColumnFilters()
-    setDate(undefined)
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
+    setDateRange(range)
+    if (createdAtColumn) {
+      if (range?.from) {
+        const filterValue = {
+          from: range.from,
+          to: range.to || range.from
+        }
+        createdAtColumn.setFilterValue(filterValue)
+      } else {
+        createdAtColumn.setFilterValue(undefined)
+      }
+    }
   }
 
-  const handleDateSelect = (date: Date | undefined) => {
-    setDate(date)
-    if (date && createdAtColumn) {
-      createdAtColumn.setFilterValue(date)
-    } else if (createdAtColumn) {
-      createdAtColumn.setFilterValue(undefined)
-    }
+  const handleReset = () => {
+    table.resetColumnFilters()
+    setDateRange(undefined)
   }
 
   const handleExport = () => {
@@ -163,7 +170,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 
       {/* Filters section */}
       <div className="flex flex-wrap gap-2">
-        {/* Filters */}
+        {/* Existing filters */}
         <div className="flex flex-wrap gap-2">
           {formTypeColumn && (
             <DataTableFacetedFilter
@@ -197,7 +204,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
           )}
         </div>
 
-        {/* Date filter and reset button */}
+        {/* Date range picker and reset button */}
         <div className="flex gap-2 items-start">
           <Popover>
             <PopoverTrigger asChild>
@@ -205,19 +212,32 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                 variant="outline"
                 className={cn(
                   "justify-start text-left font-normal",
-                  !date && "text-muted-foreground"
+                  !dateRange && "text-muted-foreground"
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, "PPP") : <span>Pick a date</span>}
+                {dateRange?.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, "LLL dd, y")} -{" "}
+                      {format(dateRange.to, "LLL dd, y")}
+                    </>
+                  ) : (
+                    format(dateRange.from, "LLL dd, y")
+                  )
+                ) : (
+                  <span>Pick a date range</span>
+                )}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
-                mode="single"
-                selected={date}
-                onSelect={handleDateSelect}
                 initialFocus
+                mode="range"
+                defaultMonth={dateRange?.from}
+                selected={dateRange}
+                onSelect={handleDateRangeSelect}
+                numberOfMonths={2}
               />
             </PopoverContent>
           </Popover>

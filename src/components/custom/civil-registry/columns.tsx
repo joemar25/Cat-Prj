@@ -6,6 +6,7 @@ import { BaseRegistryForm, DocumentStatus, FormType, User } from '@prisma/client
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { DataTableRowActions } from './data-table-row-actions'
+import { DateRange } from 'react-day-picker'
 
 export interface ExtendedBaseRegistryForm extends BaseRegistryForm {
   preparedBy: User | null
@@ -117,16 +118,22 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
       const createdAt = row.getValue('createdAt') as Date
       return <span>{format(createdAt, 'PPP')}</span>
     },
-    filterFn: (row, id, value) => {
-      if (!value) return true
+    filterFn: (row, id, filterValue: DateRange) => {
+      if (!filterValue?.from) return true
+
       const rowDate = new Date(row.getValue(id))
-      const filterDate = new Date(value)
-      return (
-        rowDate.getFullYear() === filterDate.getFullYear() &&
-        rowDate.getMonth() === filterDate.getMonth() &&
-        rowDate.getDate() === filterDate.getDate()
-      )
-    },
+      const start = new Date(filterValue.from)
+      start.setHours(0, 0, 0, 0)
+
+      if (!filterValue.to) {
+        return rowDate >= start
+      }
+
+      const end = new Date(filterValue.to)
+      end.setHours(23, 59, 59, 999)
+
+      return rowDate >= start && rowDate <= end
+    }
   },
   {
     accessorKey: 'status',
