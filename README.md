@@ -27,8 +27,8 @@
 Feature Checklist for Development
 
 1. Centralized Digital Repository
-   - [/] Create a database schema to store civil registry documents securely.
-   - [ ] Implement search functionality with filtering options for quick document retrieval.
+   - [x] Create a database schema to store civil registry documents securely.
+   - [x] Implement search functionality with filtering options for quick document retrieval.
    - [ ] Support multiple document formats (e.g., PDF, images, scanned files).
 
 2. Automated Document Classification
@@ -36,8 +36,8 @@ Feature Checklist for Development
    - [ ] Automate tagging and reduce reliance on manual data entry.
 
 3. Advanced Access Controls
-   - [/] Implement role-based permissions for structured access.
-   - [ ] Develop secure authentication mechanisms for accessing sensitive records.
+   - [x] Implement role-based permissions for structured access.
+   - [x] Develop secure authentication mechanisms for accessing sensitive records.
 
 4. Secure Backup and Recovery
    - [ ] Set up regular automated backups of the database.
@@ -48,7 +48,7 @@ Feature Checklist for Development
    - [ ] Add audit trail functionality for accountability and legal compliance.
 
 6. Intuitive and User-Friendly Design
-   - [ ] Design an easy-to-navigate interface requiring minimal training.
+   - [x] Design an easy-to-navigate interface requiring minimal training.
    - [ ] Add real-time dashboards for tracking document and system statuses.
 
 7. Online Document Request and Approval
@@ -65,7 +65,7 @@ Feature Checklist for Development
 
 10. Integration with Government Systems
     - [ ] Develop APIs for integration with LGU systems (e.g., payment gateways, citizen portals).
-    - [ ] Enable third-party system connectivity via secure APIs.
+    - [x] Enable third-party system connectivity via secure APIs.
 
 11. Reporting and Analytics
     - [ ] Create detailed reports for document requests, processing, and user activity.
@@ -76,6 +76,7 @@ Feature Checklist for Development
     - [ ] Design localization features for easy expansion.
 
 13. Notifications and Alerts
+    - [x] Notification Page
     - [ ] Enable email notifications for document status changes or deadlines.
     - [ ] Build a system for sending alerts for critical tasks.
 
@@ -111,18 +112,22 @@ Feature Checklist for Development
    - [x] Include filters to sort feedback by user.
 
 6. User Profile Customization in Settings
-   - [ ] BLANK
+   - [x] Profile Change
+   - [x] Password Change
 
 7. User Management
    - [ ] CRUD functionality
    - [ ] Distinguished Controls for Regular users and Admin can manage staff members
 
 8. Citizen Portal
-   - [ ] BLANK
+   - [ ] Request for the credentials needed
+   - [ ] The admin/staff can now go and grant that
 
 ## Docker + PGSQL
 
 1. Download Docker Desktop
 2. Download [Postgres](https://hub.docker.com/_/postgres) image from the hub.
-![alt text](./public//documentation//pg-dl.png)
+
+   ![alt text](./public//documentation//pg-dl.png)
+
 3. [Documentation](https://www.docker.com/blog/how-to-use-the-postgres-docker-official-image/)
