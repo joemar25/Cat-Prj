@@ -19,19 +19,23 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { generateRegistryNumber } from '@/hooks/form-certificate-actions';
+import {
+  checkRegistryNumberExists,
+  generateRegistryNumber,
+} from '@/hooks/form-certificate-actions';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
 import {
   getAllProvinces,
   getCitiesMunicipalities,
 } from '@/lib/utils/location-helpers';
 import { FormType } from '@prisma/client';
-import React, { useEffect, useState } from 'react';
+import debounce from 'lodash/debounce';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { checkRegistryNumberExists } from '@/hooks/form-certificate-actions';
-import debounce from 'lodash/debounce';
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
 
 const RegistryInformationCard: React.FC = () => {
   const { control, setValue, setError, clearErrors } =
@@ -40,36 +44,45 @@ const RegistryInformationCard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAutomatic, setIsAutomatic] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
+  const [lastCheckedValue, setLastCheckedValue] = useState('');
 
+  // We can remove this line since it's not being used
   const allProvinces = getAllProvinces();
   const citiesMunicipalities = getCitiesMunicipalities(selectedProvince);
 
-  // Automatic registry number generation
-  useEffect(() => {
-    if (isAutomatic) {
-      const fetchRegistryNumber = async () => {
-        try {
-          setIsLoading(true);
-          const number = await generateRegistryNumber(FormType.BIRTH);
-          setValue('registryNumber', number);
-          clearErrors('registryNumber');
-        } catch (error) {
+  // Enhanced registry number generation with retries
+  const fetchRegistryNumber = useCallback(async () => {
+    let retries = 0;
+    while (retries < MAX_RETRIES) {
+      try {
+        setIsLoading(true);
+        const number = await generateRegistryNumber(FormType.BIRTH);
+        setValue('registryNumber', number);
+        clearErrors('registryNumber');
+        return;
+      } catch (error) {
+        retries++;
+        if (retries === MAX_RETRIES) {
           if (error instanceof Error) {
             toast.error(error.message);
           } else {
             toast.error('Failed to generate registry number');
           }
-        } finally {
-          setIsLoading(false);
+          break;
         }
-      };
-
-      fetchRegistryNumber();
+        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
+      }
     }
-  }, [isAutomatic, setValue, clearErrors]);
+  }, [setValue, clearErrors]);
+
+  useEffect(() => {
+    if (isAutomatic) {
+      fetchRegistryNumber().finally(() => setIsLoading(false));
+    }
+  }, [isAutomatic, fetchRegistryNumber]);
 
   // Format manual input to match YYYY-##### pattern
-  const formatRegistryNumber = (value: string) => {
+  const formatRegistryNumber = useCallback((value: string) => {
     const cleaned = value.replace(/[^\d-]/g, '');
     const parts = cleaned.split('-');
     const year = parts[0]?.slice(0, 4) || '';
@@ -84,31 +97,10 @@ const RegistryInformationCard: React.FC = () => {
     }
 
     return cleaned;
-  };
+  }, []);
 
-  // Debounced registry number check
-  const checkRegistryNumberDebounced = debounce(async (value: string) => {
-    if (!value.match(/^\d{4}-\d{5}$/)) return;
-
-    setIsChecking(true);
-    try {
-      await checkRegistryNumberExists(value);
-      clearErrors('registryNumber');
-    } catch (error) {
-      if (error instanceof Error) {
-        setError('registryNumber', {
-          type: 'manual',
-          message: error.message,
-        });
-        toast.error(error.message);
-      }
-    } finally {
-      setIsChecking(false);
-    }
-  }, 500);
-
-  // Validate registry number format
-  const validateRegistryNumber = (value: string): string => {
+  // Enhanced validation with proper error handling
+  const validateRegistryNumber = useCallback((value: string): string => {
     if (!value) return '';
 
     if (!value.match(/^\d{4}-\d{5}$/)) {
@@ -128,7 +120,47 @@ const RegistryInformationCard: React.FC = () => {
     }
 
     return '';
-  };
+  }, []);
+
+  // Enhanced registry number check with proper state management
+  const checkRegistryNumberDebounced = useMemo(
+    () =>
+      debounce(async (value: string) => {
+        if (!value.match(/^\d{4}-\d{5}$/)) return;
+        if (value === lastCheckedValue) return;
+
+        setIsChecking(true);
+        try {
+          await checkRegistryNumberExists(value);
+          clearErrors('registryNumber');
+          setLastCheckedValue(value);
+        } catch (error) {
+          if (error instanceof Error) {
+            setError('registryNumber', {
+              type: 'manual',
+              message: error.message,
+            });
+            toast.error(error.message);
+          }
+        } finally {
+          setIsChecking(false);
+        }
+      }, 500),
+    [
+      lastCheckedValue,
+      setError,
+      clearErrors,
+      setIsChecking,
+      setLastCheckedValue,
+    ]
+  );
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      checkRegistryNumberDebounced.cancel();
+    };
+  }, [checkRegistryNumberDebounced]);
 
   return (
     <Card>
@@ -141,11 +173,13 @@ const RegistryInformationCard: React.FC = () => {
             <Switch
               id='auto-registry'
               checked={isAutomatic}
+              disabled={isLoading}
               onCheckedChange={(checked) => {
                 setIsAutomatic(checked);
                 if (!checked) {
                   setValue('registryNumber', '');
                   clearErrors('registryNumber');
+                  setLastCheckedValue('');
                 } else {
                   setIsLoading(true);
                 }
@@ -167,9 +201,10 @@ const RegistryInformationCard: React.FC = () => {
                     <Input
                       className='h-10'
                       placeholder={isAutomatic ? 'Loading...' : 'YYYY-#####'}
-                      disabled={isAutomatic && isLoading}
+                      disabled={isAutomatic || isLoading}
                       readOnly={isAutomatic}
                       maxLength={10}
+                      {...field}
                       onChange={(e) => {
                         if (!isAutomatic) {
                           const formatted = formatRegistryNumber(
@@ -234,6 +269,8 @@ const RegistryInformationCard: React.FC = () => {
                       );
                       field.onChange(provinceObj?.name || '');
                       setSelectedProvince(value);
+                      // Clear city when province changes
+                      setValue('cityMunicipality', '');
                     }}
                     value={
                       allProvinces.find((p) => p.name === field.value)?.id || ''

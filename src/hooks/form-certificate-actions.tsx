@@ -262,114 +262,125 @@ function isValidDate(year: string, month: string, day: string): boolean {
   const date = new Date(`${year}-${month}-${day}`);
   return date instanceof Date && !isNaN(date.getTime());
 }
-
-// Function to get the next available registry number
 export async function generateRegistryNumber(formType: FormType) {
   try {
     const currentYear = new Date().getFullYear();
 
-    // Get all registry numbers for the current year
-    const existingForms = await prisma.baseRegistryForm.findMany({
-      where: {
-        AND: [
-          {
-            dateOfRegistration: {
-              gte: new Date(currentYear, 0, 1),
-              lt: new Date(currentYear + 1, 0, 1),
-            },
+    // Use transaction to prevent race conditions
+    return await prisma.$transaction(async (tx) => {
+      const birthCertCount = await tx.birthCertificateForm.count({
+        where: {
+          baseForm: {
+            AND: [
+              {
+                dateOfRegistration: {
+                  gte: new Date(currentYear, 0, 1),
+                  lt: new Date(currentYear + 1, 0, 1),
+                },
+              },
+              { formType: formType },
+            ],
           },
-          { formType: formType },
-        ],
-      },
-      select: {
-        registryNumber: true,
-      },
-      orderBy: {
-        registryNumber: 'asc',
-      },
-    });
+        },
+      });
 
-    // Extract sequence numbers from existing registry numbers
-    const usedSequences = existingForms
-      .map((form) => {
-        const sequence = parseInt(form.registryNumber.split('-')[1]);
-        return isNaN(sequence) ? 0 : sequence;
-      })
-      .sort((a, b) => a - b);
+      const nextSequence = birthCertCount + 1;
 
-    // Find the first available sequence number
-    let nextSequence = 1;
-    for (const seq of usedSequences) {
-      if (seq !== nextSequence) {
-        break;
+      if (nextSequence > 99999) {
+        throw new Error(
+          'Maximum registry number sequence reached for the year'
+        );
       }
-      nextSequence++;
-    }
 
-    return `${currentYear}-${nextSequence.toString().padStart(5, '0')}`;
+      const registryNumber = `${currentYear}-${nextSequence
+        .toString()
+        .padStart(5, '0')}`;
+
+      // Verify within the same transaction
+      const existingRegistry = await tx.baseRegistryForm.findFirst({
+        where: {
+          registryNumber,
+          formType,
+          dateOfRegistration: {
+            gte: new Date(currentYear, 0, 1),
+            lt: new Date(currentYear + 1, 0, 1),
+          },
+        },
+      });
+
+      if (existingRegistry) {
+        throw new Error('Registry number already exists');
+      }
+
+      return registryNumber;
+    });
   } catch (error) {
     console.error('Error generating registry number:', error);
     throw new Error('Failed to generate registry number');
   }
 }
 
-// Enhanced registry number existence check
 export async function checkRegistryNumberExists(registryNumber: string) {
   try {
-    // Parse the registry number
     const [year, sequence] = registryNumber.split('-');
+    const yearNum = parseInt(year);
     const sequenceNum = parseInt(sequence);
 
-    // Get all registry numbers for that year
-    const existingForms = await prisma.baseRegistryForm.findMany({
-      where: {
-        AND: [
-          {
-            dateOfRegistration: {
-              gte: new Date(parseInt(year), 0, 1),
-              lt: new Date(parseInt(year) + 1, 0, 1),
-            },
-          },
-        ],
-      },
-      select: {
-        registryNumber: true,
-      },
-      orderBy: {
-        registryNumber: 'asc',
-      },
-    });
-
-    // Check if registry number exists
-    const exists = existingForms.some(
-      (form) => form.registryNumber === registryNumber
-    );
-
-    if (exists) {
-      return true;
+    if (yearNum < 1945 || yearNum > new Date().getFullYear()) {
+      throw new Error('Invalid registration year');
     }
 
-    // For manual input, check if all previous numbers exist
-    if (sequenceNum > 1) {
-      const sequences = existingForms
-        .map((form) => parseInt(form.registryNumber.split('-')[1]))
-        .filter((seq) => seq < sequenceNum);
+    if (sequenceNum <= 0 || sequenceNum > 99999) {
+      throw new Error('Invalid sequence number');
+    }
 
-      // If there are gaps in the sequence before this number
-      for (let i = 1; i < sequenceNum; i++) {
-        if (!sequences.includes(i)) {
+    // Use transaction to ensure consistency
+    return await prisma.$transaction(async (tx) => {
+      const existingForm = await tx.baseRegistryForm.findFirst({
+        where: {
+          registryNumber,
+          formType: FormType.BIRTH,
+          dateOfRegistration: {
+            gte: new Date(yearNum, 0, 1),
+            lt: new Date(yearNum + 1, 0, 1),
+          },
+        },
+      });
+
+      if (existingForm) {
+        throw new Error(`Registry number ${registryNumber} already exists`);
+      }
+
+      if (sequenceNum > 1) {
+        const previousCount = await tx.birthCertificateForm.count({
+          where: {
+            baseForm: {
+              AND: [
+                {
+                  dateOfRegistration: {
+                    gte: new Date(yearNum, 0, 1),
+                    lt: new Date(yearNum + 1, 0, 1),
+                  },
+                },
+                { formType: FormType.BIRTH },
+              ],
+            },
+          },
+        });
+
+        if (sequenceNum > previousCount + 1) {
           throw new Error(
-            `Cannot use registry number ${registryNumber}. Missing previous registry numbers. Please use number after ${year}-${sequences[
-              sequences.length - 1
-            ]
+            `Cannot use registry number ${registryNumber}. Please use number ${yearNum}-${(
+              previousCount + 1
+            )
               .toString()
               .padStart(5, '0')}`
           );
         }
       }
-    }
 
-    return false;
+      return false;
+    });
   } catch (error) {
     if (error instanceof Error) {
       throw error;
@@ -377,7 +388,6 @@ export async function checkRegistryNumberExists(registryNumber: string) {
     throw new Error('Failed to check registry number');
   }
 }
-
 // Complete birth certificate creation with validation
 export async function createBirthCertificate(data: BirthCertificateFormValues) {
   try {

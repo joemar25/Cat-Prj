@@ -1,4 +1,5 @@
 // src\lib\types\zod-form-certificate\formSchemaCertificate.ts
+import { checkRegistryNumberExists } from '@/hooks/form-certificate-actions';
 import { COUNTRY } from '@/lib/constants/locations';
 import { z } from 'zod';
 
@@ -670,7 +671,25 @@ export const birthCertificateSchema = z.object({
       {
         message: 'Sequence number must be between 1 and 99999',
       }
-    ),
+    )
+    .superRefine(async (value, ctx) => {
+      try {
+        const exists = await checkRegistryNumberExists(value);
+        if (exists) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Registry number ${value} already exists`,
+          });
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: error.message,
+          });
+        }
+      }
+    }),
   province: z
     .string()
     .min(1, 'Province is required')
