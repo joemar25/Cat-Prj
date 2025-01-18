@@ -4,7 +4,6 @@ import { DeathCertificateFormValues } from "@/lib/types/zod-form-certificate/for
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import React from "react";
 import { styles } from "./style";
-import { sty } from "./stylish";
 
 interface DeathCertificatePDFProps {
   data: Partial<DeathCertificateFormValues>;
@@ -54,29 +53,20 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
         </View>
 
         {/* Registry Information */}
-        <View>
-          <View style={sty.gridContainer}>
-            {/* Left Grid: Province and City/Municipality */}
-            <View style={sty.leftGrid}>
-              <View style={sty.fieldContainer}>
-                <Text style={sty.label}>Province:</Text>
-                <Text style={sty.value}>{data.province || "N/A"}</Text>
-              </View>
-              <View style={sty.fieldContainer}>
-                <Text style={sty.label}>City/Municipality:</Text>
-                <Text style={sty.value}>
-                  {data.cityMunicipality || "N/A"}
-                </Text>
-              </View>
+        <View style={styles.section1}>
+          <View style={styles.fieldContainer1}>
+            <View style={styles.fieldContainer2}>
+              <Text style={styles.label}>Province:</Text>
+              <Text style={styles.value}>{data.province || "N/A"}</Text>
             </View>
-
-            {/* Right Grid: Registry No. */}
-            <View style={sty.rightGrid}>
-              <View style={sty.registryNoContainer}>
-                <Text style={sty.label}>Registry No.:</Text>
-                <Text style={sty.value}>{data.registryNumber || "N/A"}</Text>
-              </View>
+            <View style={styles.fieldContainer2}>
+              <Text style={styles.label}>City/Municipality:</Text>
+              <Text style={styles.value}>{data.cityMunicipality || "N/A"}</Text>
             </View>
+          </View>
+          <View style={styles.registry}>
+            <Text style={styles.label}>Registry No.:</Text>
+            <Text style={styles.data1}>{data.registryNumber || "N/A"}</Text>
           </View>
         </View>
 
@@ -93,7 +83,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             <Text style={styles.label}>(Middle):</Text>
             <Text style={styles.data1}>{data.name?.middle || "N/A"}</Text>
           </View>
-          <View style={[styles.fieldContainer3, {borderRight: "1px solid #000"}]}>
+          <View style={styles.fieldContainer3}>
             <Text style={styles.label}>(Last):</Text>
             <Text style={styles.data1}>{data.name?.last || "N/A"}</Text>
           </View>
@@ -455,13 +445,10 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
         <View>
           {/* First Row: Section 26 and 27 */}
           <View
-            style={[
-              styles.Last,
-              { flexDirection: "row", justifyContent: "space-between" },
-            ]}
+            style={[styles.Last, { flexDirection: "row", justifyContent: "space-between" }]}
           >
             {/* Section 26: Certification of Informant */}
-            <View style={[styles.section12, { borderRight: "1px solid #000" }]}>
+            <View style={[styles.section12, {borderRight : "1px solid #000"}]}>
               <Text style={styles.certificationOfInformantTitle}>
                 26. Certification of Informant
               </Text>
@@ -533,13 +520,10 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
 
           {/* Second Row: Section 28 and 29 */}
           <View
-            style={[
-              styles.Last,
-              { flexDirection: "row", justifyContent: "space-between" },
-            ]}
+            style={[styles.Last, { flexDirection: "row", justifyContent: "space-between" }]}
           >
             {/* Section 28: Received By */}
-            <View style={[styles.section12, { borderRight: "1px solid #000" }]}>
+            <View style={[styles.section12, {borderRight : "1px solid #000"}]}>
               <Text style={styles.receivedByTitle}>28. Received By</Text>
               <View style={styles.fieldContainer}>
                 <Text style={styles.label12}>Signature:</Text>
@@ -597,23 +581,8 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             </View>
           </View>
         </View>
-        <View
-          style={{
-            flexDirection: "column",
-            padding: 10,
-            gap: 5,
-            borderBottom: "1px solid #000",
-            borderRight: "1px solid #000",
-            borderLeft: "1px solid #000",
-          }}
-        >
-          <Text
-            style={{
-              textTransform: "uppercase",
-              fontSize: "10px",
-              fontWeight: "bold",
-            }}
-          >
+        <View  style={{ flexDirection: "column", padding: 10, gap: 5, borderBottom: "1px solid #000", borderRight: "1px solid #000", borderLeft: "1px solid #000",  }}>
+          <Text style={{ textTransform: "uppercase", fontSize: "10px", fontWeight: "bold"  }}>
             Remarks/annotations (for lcr/ocrg use only)
           </Text>
           <Text style={styles.data1}>{data.remarks || "N/A"}</Text>

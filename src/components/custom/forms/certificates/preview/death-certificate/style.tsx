@@ -79,10 +79,10 @@ export const styles = StyleSheet.create({
     borderBottom: "1px solid #000",
     borderLeft: "1px solid #000",
     borderRight: "1px solid #000",
-    padding: 10,
   },
   fieldContainer3: {
     width: 250,
+    padding: 10,
   },
   data1: {
     fontSize: 10,
