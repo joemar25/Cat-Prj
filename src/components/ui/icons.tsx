@@ -74,6 +74,7 @@ import {
     EyeOff,
     Key,
     Clock,
+    Cross,
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
 } from 'lucide-react'
@@ -183,6 +184,7 @@ export const Icons = {
     eyeOff: EyeOff,
     key: Key,
     clock: Clock,
+    x: Cross,
 } as const
 
 export type IconsType = typeof Icons

@@ -317,6 +317,51 @@ export const generateDeathCertificate = (userIds: string[]) => {
   };
 };
 
+const generateCertifiedCopy = (userIds: string[], documentIds: string[]) => {
+  const createdAt = randomDate(new Date(2021, 0, 1), new Date());
+  const registeredDate = faker.helpers.maybe(() =>
+    randomDate(createdAt, new Date())
+  );
+
+  return {
+    lcrNo: faker.helpers.maybe(() => faker.string.numeric(8)),
+    bookNo: faker.helpers.maybe(() => faker.string.numeric(3)),
+    pageNo: faker.helpers.maybe(() => faker.string.numeric(3)),
+    searchedBy: faker.helpers.maybe(() => faker.person.fullName()),
+    contactNo: faker.helpers.maybe(() => faker.phone.number()),
+    date: faker.date.recent(),
+    attachmentId: faker.helpers.arrayElement(documentIds),
+    address: faker.location.streetAddress(),
+    amountPaid: faker.helpers.maybe(() => faker.number.float({ min: 100, max: 500, fractionDigits: 2 })),
+    createdAt,
+    datePaid: faker.helpers.maybe(() => randomDate(createdAt, new Date())),
+    isRegistered: faker.datatype.boolean(),
+    orNumber: faker.helpers.maybe(() => faker.string.numeric(7)),
+    purpose: faker.helpers.arrayElement([
+      'School Requirement',
+      'Employment',
+      'Passport Application',
+      'Marriage License',
+      'Legal Purposes',
+      'Travel',
+      'Insurance'
+    ]),
+    registeredDate,
+    relationshipToOwner: faker.helpers.arrayElement([
+      'Self',
+      'Parent',
+      'Child',
+      'Spouse',
+      'Sibling',
+      'Legal Representative'
+    ]),
+    remarks: faker.helpers.maybe(() => faker.lorem.sentence()),
+    requesterName: faker.person.fullName(),
+    signature: faker.helpers.maybe(() => faker.person.fullName()),
+    updatedAt: new Date()
+  };
+};
+
 export const generateBulkData = async (prisma: PrismaClient, userIds: string[], count = 1000): Promise<void> => {
   if (userIds.length === 0) {
     throw new Error('No user IDs available for preparedById');
@@ -475,6 +520,46 @@ export const generateAdditionalData = async (prisma: PrismaClient, userIds: stri
       },
     });
   }
+
+  // Generate Attachments
+  console.log('Generating attachments...');
+  const attachments = await Promise.all(
+    Array(20)
+      .fill(null)
+      .map(() =>
+        prisma.attachment.create({
+          data: {
+            userId: faker.helpers.arrayElement(userIds),
+            documentId: faker.helpers.arrayElement(documentIds),
+            type: faker.helpers.arrayElement(['BIRTH_CERTIFICATE', 'DEATH_CERTIFICATE', 'MARRIAGE_CERTIFICATE']),
+            fileUrl: faker.internet.url(),
+            fileName: faker.system.fileName(),
+            fileSize: faker.number.int({ min: 1000, max: 5000000 }),
+            mimeType: 'application/pdf',
+            status: faker.helpers.arrayElement(['PENDING', 'VERIFIED', 'REJECTED']),
+            uploadedAt: faker.date.past(),
+            updatedAt: faker.date.recent(),
+            verifiedAt: faker.helpers.maybe(() => faker.date.recent()),
+            notes: faker.helpers.maybe(() => faker.lorem.sentence()),
+            metadata: {},
+            hash: faker.string.alphanumeric(32)
+          },
+        })
+      )
+  );
+  const attachmentIds = attachments.map((att) => att.id);
+
+  // Generate CertifiedCopy
+  const certifiedCopyCount = 50;
+  console.log(`Generating ${certifiedCopyCount} certified copy requests...`);
+  const certifiedCopyData = Array(certifiedCopyCount)
+    .fill(null)
+    .map(() => ({
+      ...generateCertifiedCopy(userIds, documentIds),
+      attachmentId: faker.helpers.arrayElement(attachmentIds)
+    }));
+
+  await prisma.certifiedCopy.createMany({ data: certifiedCopyData });
 
   console.log('Additional test data generation completed!');
 };

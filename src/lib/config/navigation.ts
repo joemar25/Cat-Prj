@@ -140,6 +140,13 @@ export const navigationConfig: NavigationConfiguration = {
             iconName: 'file',
         },
         {
+            id: 'requests',
+            type: 'main',
+            title: 'Manage Requests',
+            url: '/requests',
+            iconName: 'user2',
+        },
+        {
             id: 'feedback',
             type: 'main',
             title: 'Feedback',

@@ -237,19 +237,20 @@ model DeathCertificateForm {
 /// * - Application metadata
 /// * - Relationship to the original attachment
 model CertifiedCopy {
-  id                  String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                  String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  status              CertifiedCopyStatus @default(PENDING)
   lcrNo               String?
   bookNo              String?
   pageNo              String?
   searchedBy          String?
   contactNo           String?
   date                DateTime?
-  attachmentId        String     @db.Uuid
+  attachmentId        String              @db.Uuid
   address             String
   amountPaid          Float?
-  createdAt           DateTime   @default(now())
+  createdAt           DateTime            @default(now())
   datePaid            DateTime?
-  isRegistered        Boolean    @default(false)
+  isRegistered        Boolean             @default(false)
   orNumber            String?
   purpose             String
   registeredDate      DateTime?
@@ -257,8 +258,8 @@ model CertifiedCopy {
   remarks             String?
   requesterName       String
   signature           String?
-  updatedAt           DateTime   @updatedAt
-  attachment          Attachment @relation(fields: [attachmentId], references: [id])
+  updatedAt           DateTime            @updatedAt
+  attachment          Attachment          @relation(fields: [attachmentId], references: [id])
 
   @@map("certified_copy")
 }
@@ -576,6 +577,13 @@ enum MannerOfDeath {
   SUICIDE
   HOMICIDE
   UNDETERMINED
+}
+
+enum CertifiedCopyStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
 }
 
 /// *
