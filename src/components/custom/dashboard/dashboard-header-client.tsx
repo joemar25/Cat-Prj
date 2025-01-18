@@ -12,6 +12,8 @@ import { Calendar as CalendarIcon } from 'lucide-react'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { DashboardHeaderProps } from '@/types/dashboard'
 import { ThemeChange } from '@/components/theme/theme-change'
+import { LanguageSelector } from '@/components/custom/language/language-selector'
+import { FullscreenToggle } from '@/components/custom/fullscreen/fullscreen-toggle'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 
 export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeaderProps) {
@@ -100,6 +102,8 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                         </Button>
                     </div>
                 )}
+                <LanguageSelector />
+                <FullscreenToggle />
                 <ThemeChange />
                 {user && <NotificationBell userId={user.id} />}
                 <UserHeaderNav user={user} />
