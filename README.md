@@ -24,104 +24,97 @@
 
 ## TODO
 
-Feature Checklist for Development
+### Feature Checklist for Development
 
-1. Centralized Digital Repository
-   - [x] Create a database schema to store civil registry documents securely.
-   - [x] Implement search functionality with filtering options for quick document retrieval.
-   - [ ] Support multiple document formats (e.g., PDF, images, scanned files).
+1. **Centralized Digital Repository**
+   - [x] Design and implement a database schema to securely store civil registry documents (e.g., birth, death, and marriage certificates).
+   - [x] Develop search functionality with advanced filtering options (e.g., document type, date, or request status) for efficient document retrieval.
+   - [ ] Add support for multiple document formats, including PDF, images, and scanned files.
 
-2. Automated Document Classification
-   - [ ] Develop logic to categorize documents by type, date, and unique identifiers.
-   - [ ] Automate tagging and reduce reliance on manual data entry.
+2. **Automated Document Classification**
+   - [ ] Implement logic for categorizing documents by type (e.g., birth, death, or marriage), issuance date, and unique identifiers.
+   - [ ] Automate tagging of documents to minimize manual input and streamline search processes.
 
-3. Advanced Access Controls
-   - [x] Implement role-based permissions for structured access.
-   - [x] Develop secure authentication mechanisms for accessing sensitive records.
+3. **Advanced Access Controls**
+   - [x] Implement role-based permissions to ensure secure and structured access to civil registry documents.
+   - [x] Set up secure authentication mechanisms for accessing sensitive records, ensuring compliance with privacy standards.
 
-4. Secure Backup and Recovery
-   - [ ] Set up regular automated backups of the database.
-   - [ ] Provide recovery mechanisms for uninterrupted service.
+4. **Secure Backup and Recovery**
+   - [ ] Configure automated and regular database backups for civil registry documents.
+   - [ ] Provide recovery mechanisms to ensure uninterrupted service in case of data loss or corruption.
 
-5. Compliance with Legal Standards
-   - [ ] Ensure data management complies with the Philippine Data Privacy Act (RA 10173).
-   - [ ] Add audit trail functionality for accountability and legal compliance.
+5. **Compliance with Legal Standards**
+   - [ ] Ensure data storage and management comply with the Philippine Data Privacy Act (RA 10173).
+   - [ ] Implement an audit trail to track changes, requests, and user actions for accountability and legal compliance.
 
-6. Intuitive and User-Friendly Design
-   - [x] Design an easy-to-navigate interface requiring minimal training.
-   - [ ] Add real-time dashboards for tracking document and system statuses.
+6. **Intuitive and User-Friendly Design**
+   - [x] Design an easy-to-navigate interface for administrators and staff to manage requests and records efficiently.
+   - [ ] Add real-time dashboards to monitor document requests, processing statuses, and other key system metrics.
 
-7. Online Document Request and Approval
-   - [ ] Build a request system for users to access virtual documents.
-   - [ ] Automate approval workflows and show real-time updates for users.
+7. **Civil Registry Document Request and Approval**
+   - [ ] Build a request system for users to request civil registry documents (e.g., birth, death, marriage certificates) through online forms.
+   - [ ] Include required fields for data submission, such as personal details, purpose of request, and document type.
+   - [ ] Automate approval workflows with status updates visible to users in real time.
 
-8. Document Verification and Authentication
-   - [ ] Implement digital signature and QR code functionality for document verification.
-   - [ ] Build an instant validation mechanism for document authenticity.
+8. **Document Verification and Authentication**
+   - [ ] Incorporate digital signatures and QR code functionality for verifying the authenticity of issued civil registry documents.
+   - [ ] Develop an instant validation system to confirm the legitimacy of documents via online scanning or code entry.
 
-9. Bulk Document Upload and Processing
-   - [ ] Add batch upload functionality for processing multiple documents at once.
-   - [ ] Automate metadata extraction and validation for uploaded files.
+9. **Bulk Document Upload and Processing**
+   - [ ] Add functionality for batch uploading of processed civil registry documents (e.g., bulk scanning or importing of files).
+   - [ ] Automate metadata extraction and validation to reduce manual effort and improve efficiency.
 
-10. Integration with Government Systems
-    - [ ] Develop APIs for integration with LGU systems (e.g., payment gateways, citizen portals).
-    - [x] Enable third-party system connectivity via secure APIs.
+10. **Integration with Government Systems**
+    - [ ] Develop APIs for integration with local government systems, such as payment gateways, citizen portals, or verification services.
+    - [x] Enable secure connectivity with third-party systems for interoperability.
 
-11. Reporting and Analytics
-    - [ ] Create detailed reports for document requests, processing, and user activity.
-    - [ ] Add visual dashboards for analytical insights and trends.
+11. **Reporting and Analytics**
+    - [ ] Create detailed reports on civil registry document requests, processing times, and user activity.
+    - [ ] Implement dashboards for insights into trends, such as frequently requested document types or peak request periods.
 
-12. Multi-Language Support
-    - [ ] Provide language options (e.g., English and Filipino) for the user interface.
-    - [ ] Design localization features for easy expansion.
+12. **Multi-Language Support**
+    - [ ] Provide user interface options in English and Filipino for wider accessibility.
+    - [ ] Incorporate localization features to support regional or future expansion needs.
 
-13. Notifications and Alerts
-    - [x] Notification Page
-    - [ ] Enable email notifications for document status changes or deadlines.
-    - [ ] Build a system for sending alerts for critical tasks.
+13. **Notifications and Alerts**
+    - [ ] Add a dedicated notification page to display updates on document request statuses.
+    - [x] Include a notification button for quick access to recent updates.
+    - [ ] Enable email notifications to inform users of status changes or additional requirements.
+    - [ ] Create an alert system for time-sensitive tasks or deadlines.
 
-14. Customizable Workflows
-    - [ ] Add functionality to configure workflows for different office processes.
-    - [ ] Implement a dynamic process editor for customization.
+14. **Customizable Workflows**
+    - [ ] Allow customization of workflows to accommodate unique office processes (e.g., manual reviews or escalations for special cases).
+    - [ ] Design a dynamic process editor to simplify workflow modifications.
 
-## Additional Features Checklist
+### Additional Features Checklist
 
-1. Content Management System (CMS) for the Kiosk
-   - [ ] Create a user-friendly interface for managing kiosk content.
-   - [ ] Enable uploading, updating, and deleting kiosk materials (e.g., videos, banners, announcements).
-   - [ ] Ensure real-time updates to kiosks with minimal downtime.
-   - [ ] Backup data manually base on ROLE (primarily admin).
+1. **Queued Ticket Document Showcase**
+   - [ ] Display detailed requirements for requested documents when a ticket is selected.
+   - [ ] Use an easy-to-read checklist format for required forms or supporting documents (e.g., IDs, affidavits).
+   - [ ] Allow dynamic updates to the checklist if additional documents are needed.
 
-2. Restrict User Role from Logging In
-   - [x] Prevent `USER` role from accessing the system through authentication.
-   - [x] Add proper error messages to inform unauthorized users of access denial.
+2. **Document Management**
+   - [ ] Provide CRUD functionality for managing civil registry documents.
+   - [ ] Enable metadata tagging for efficient organization and retrieval.
+   - [ ] Implement document versioning to maintain a history of updates and changes.
 
-3. Queued Ticket Document Showcase
-   - [ ] When a ticket is clicked, display a detailed view of required documents.
-   - [ ] Implement an easy-to-read checklist format for required documents.
-   - [ ] Enable dynamic updates if additional documents are required.
+3. **Feedback System**
+   - [x] Allow `STAFF` and `ADMIN` roles to submit feedback on system operations or document handling processes.
+   - [x] Display feedback in a structured table format for easy review and action.
+   - [x] Include filtering options to sort feedback by date, user, or topic.
 
-4. Document Management
-   - [ ] Add CRUD functionality for managing civil registry documents.
-   - [ ] Enable metadata tagging for easy categorization and search.
-   - [ ] Support document versioning to keep track of changes.
+4. **User Profile Customization in Settings**
+   - [x] Allow users to update their profiles with necessary information.
+   - [x] Provide functionality to change passwords securely.
 
-5. Feedback System
-   - [x] Allow `STAFF` and `ADMIN` roles to submit feedback through the system.
-   - [x] Display feedback in a table format for easy review.
-   - [x] Include filters to sort feedback by user.
+5. **User Management**
+   - [ ] Implement CRUD functionality for managing user accounts and roles.
+   - [ ] Allow `ADMIN` roles to manage staff accounts, including role assignment and access permissions.
 
-6. User Profile Customization in Settings
-   - [x] Profile Change
-   - [x] Password Change
-
-7. User Management
-   - [ ] CRUD functionality
-   - [ ] Distinguished Controls for Regular users and Admin can manage staff members
-
-8. Citizen Portal
-   - [ ] Request for the credentials needed
-   - [ ] The admin/staff can now go and grant that
+6. **Citizen Portal for Civil Registry Requests**
+   - [ ] Allow users to submit requests for civil registry documents through an online portal.
+   - [ ] Include interactive forms for users to fill out required details based on the requested document type (e.g., birth, death, or marriage certificate).
+   - [ ] Enable `ADMIN` or `STAFF` roles to review and approve or deny requests, with real-time updates visible to users.
 
 ## Docker + PGSQL
 
