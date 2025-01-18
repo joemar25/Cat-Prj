@@ -61,15 +61,41 @@ export default function BirthCertificateForm({
       const result = await createBirthCertificate(values);
 
       if (result.success) {
-        toast.success('Birth certificate has been registered successfully');
+        toast.success('Birth Certificate Registration', {
+          description: 'Birth certificate has been registered successfully',
+        });
         onOpenChange(false);
         form.reset();
       } else {
-        throw new Error(result.error);
+        // Handle specific error cases
+        if (result.error?.includes('registry number already exists')) {
+          toast.error('Registry Number Error', {
+            description:
+              'This registry number is already in use. Please use a different number.',
+          });
+        } else if (result.error?.includes('date')) {
+          toast.error('Date Validation Error', {
+            description: result.error,
+          });
+        } else {
+          toast.error('Registration Error', {
+            description: result.error || 'Failed to register birth certificate',
+          });
+        }
       }
     } catch (error) {
       console.error('Submission error:', error);
-      toast.error('Failed to register birth certificate. Please try again.');
+
+      // More specific error handling
+      if (error instanceof Error) {
+        toast.error('Registration Error', {
+          description: error.message,
+        });
+      } else {
+        toast.error('Registration Error', {
+          description: 'An unexpected error occurred. Please try again.',
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -211,9 +237,32 @@ export default function BirthCertificateForm({
 
   // Add this separate error handler
   const handleError = () => {
-    toast.warning('Please fill in all required fields', {
-      description: 'Some required information is missing or incorrect.',
-    });
+    // Get all form errors
+    const errors = form.formState.errors;
+
+    // Check for specific field errors and show appropriate messages
+    if (errors.registryNumber) {
+      toast.error(errors.registryNumber.message);
+      return;
+    }
+
+    if (errors.childInfo) {
+      toast.error("Please check the child's information section for errors");
+      return;
+    }
+
+    if (errors.motherInfo) {
+      toast.error("Please check the mother's information section for errors");
+      return;
+    }
+
+    if (errors.fatherInfo) {
+      toast.error("Please check the father's information section for errors");
+      return;
+    }
+
+    // Default error message if no specific error is found
+    toast.error('Please check all required fields and try again');
   };
 
   const confirmSubmit = () => {

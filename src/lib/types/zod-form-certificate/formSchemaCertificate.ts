@@ -1,4 +1,5 @@
 // src\lib\types\zod-form-certificate\formSchemaCertificate.ts
+import { checkRegistryNumberExists } from '@/hooks/form-certificate-actions';
 import { COUNTRY } from '@/lib/constants/locations';
 import { z } from 'zod';
 
@@ -649,9 +650,54 @@ export interface DeathCertificateFormProps {
 // --------------------------------- Birth Certificate Schema --------------------------//
 // Define the Zod schema for the birth certificate form
 export const birthCertificateSchema = z.object({
-  registryNumber: z.string().min(1, 'Registry number is required'),
-  province: z.string().min(1, 'Province is required'),
-  cityMunicipality: z.string().min(1, 'City/Municipality is required'),
+  registryNumber: z
+    .string()
+    .regex(/^\d{4}-\d{5}$/, 'Registry number must be in format: YYYY-#####')
+    .refine(
+      (value) => {
+        const year = parseInt(value.split('-')[0]);
+        const currentYear = new Date().getFullYear();
+        return year >= 1945 && year <= currentYear;
+      },
+      {
+        message: 'Registration year must be between 1945 and current year',
+      }
+    )
+    .refine(
+      (value) => {
+        const sequenceNumber = parseInt(value.split('-')[1]);
+        return sequenceNumber > 0 && sequenceNumber <= 99999;
+      },
+      {
+        message: 'Sequence number must be between 1 and 99999',
+      }
+    )
+    .superRefine(async (value, ctx) => {
+      try {
+        const exists = await checkRegistryNumberExists(value);
+        if (exists) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Registry number ${value} already exists`,
+          });
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: error.message,
+          });
+        }
+      }
+    }),
+  province: z
+    .string()
+    .min(1, 'Province is required')
+    .max(100, 'Province name is too long'),
+  cityMunicipality: z
+    .string()
+    .min(1, 'City/Municipality is required')
+    .max(100, 'City/Municipality name is too long'),
 
   childInfo: z.object({
     firstName: z.string().min(1, 'First name is required'),
@@ -797,14 +843,14 @@ export type BirthCertificateFormValues = z.infer<typeof birthCertificateSchema>;
 // Default data for the birth certificate form
 export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> =
   {
-    registryNumber: '2024-0003',
+    registryNumber: '',
     province: '',
     cityMunicipality: '',
 
     childInfo: {
-      firstName: 'Juan',
-      middleName: 'Santos',
-      lastName: 'Dela Cruz',
+      firstName: '',
+      middleName: '',
+      lastName: '',
       sex: 'Male',
       dateOfBirth: {
         day: '15',
