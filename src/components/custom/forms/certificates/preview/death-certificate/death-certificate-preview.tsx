@@ -64,9 +64,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
               </View>
               <View style={sty.fieldContainer}>
                 <Text style={sty.label}>City/Municipality:</Text>
-                <Text style={sty.value}>
-                  {data.cityMunicipality || "N/A"}
-                </Text>
+                <Text style={sty.value}>{data.cityMunicipality || "N/A"}</Text>
               </View>
             </View>
 
@@ -93,7 +91,9 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             <Text style={styles.label}>(Middle):</Text>
             <Text style={styles.data1}>{data.name?.middle || "N/A"}</Text>
           </View>
-          <View style={[styles.fieldContainer3, {borderRight: "1px solid #000"}]}>
+          <View
+            style={[styles.fieldContainer3, { borderRight: "1px solid #000" }]}
+          >
             <Text style={styles.label}>(Last):</Text>
             <Text style={styles.data1}>{data.name?.last || "N/A"}</Text>
           </View>
@@ -135,14 +135,14 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
         {/* Place of Death and Civil Status */}
         <View style={styles.fieldContainer5}>
           <View style={styles.PlaceOfDeathParent}>
+            <Text style={styles.label}>6. PLACE OF DEATH:</Text>
             <View style={styles.PlaceOfDeath}>
-              <Text style={styles.label}>6. PLACE OF DEATH:</Text>
               <Text style={styles.hospital}>
                 (Name of Hospital/Clinic/Institution/House No., St., Brgy,
                 City/Municipality, Province)
               </Text>
+              <Text style={styles.data1}>{data.placeOfDeath || "N/A"}</Text>
             </View>
-            <Text style={styles.data1}>{data.placeOfDeath || "N/A"}</Text>
           </View>
           <View style={styles.CivilStatus}>
             <Text style={styles.label}>7. CIVIL STATUS:</Text>
@@ -407,7 +407,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
         <View style={styles.gridContainer22}>
           {/* Cell 1: Corpse Disposal */}
           <View style={styles.corpseDisposalCell}>
-            <Text style={styles.corpseDisposalLabel}>23. Corpse Disposal</Text>
+            <Text style={styles.corpseDisposalLabel}>23. CORPSE DISPOSAL</Text>
             <Text style={styles.corpseDisposalValue}>
               {data.disposal?.method || "N/A"}
             </Text>
@@ -433,7 +433,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
 
           {/* Cell 3: Transfer Permit */}
           <View style={styles.transferPermitCell}>
-            <Text style={styles.transferPermitLabel}>24b. Transfer Permit</Text>
+            <Text style={styles.transferPermitLabel}>24b. TRANSFER PERMIT</Text>
             <Text style={styles.transferPermitValue}>
               Number: {data.disposal?.transferPermit?.number || "N/A"}
             </Text>
@@ -446,9 +446,9 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
         <View style={styles.section}>
           <View style={styles.fieldContainer222}>
             <Text style={styles.subtitle}>
-              25. Name and address of cemetery or crematory
+              25. NAME AND ADDRESS OF CEMETERY
             </Text>
-            <Text style={styles.value}>{data.cemeteryAddress || "N/A"}</Text>
+            <Text style={styles.data1}>{data.cemeteryAddress || "N/A"}</Text>
           </View>
         </View>
 
@@ -540,7 +540,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           >
             {/* Section 28: Received By */}
             <View style={[styles.section12, { borderRight: "1px solid #000" }]}>
-              <Text style={styles.receivedByTitle}>28. Received By</Text>
+              <Text style={styles.receivedByTitle}>28. RECIEVED BY</Text>
               <View style={styles.fieldContainer}>
                 <Text style={styles.label12}>Signature:</Text>
                 <Text style={styles.value12}>
@@ -572,7 +572,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             {/* Section 29: Registered at Civil Registrar */}
             <View style={[styles.section12]}>
               <Text style={styles.registeredAtCivilRegistrarTitle}>
-                29. Registered at Civil Registrar
+                29. REGISTERED AT CIVIL REGISTRAR
               </Text>
               <View style={styles.fieldContainer12}>
                 <Text style={styles.label12}>Name:</Text>
@@ -600,7 +600,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
         <View
           style={{
             flexDirection: "column",
-            padding: 10,
+            padding: 5,
             gap: 5,
             borderBottom: "1px solid #000",
             borderRight: "1px solid #000",
@@ -610,11 +610,11 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           <Text
             style={{
               textTransform: "uppercase",
-              fontSize: "10px",
+              fontSize: "8px",
               fontWeight: "bold",
             }}
           >
-            Remarks/annotations (for lcr/ocrg use only)
+            REMARKS / ANNOTATIONS (FOR LCRO/OCRG USE ONLY)
           </Text>
           <Text style={styles.data1}>{data.remarks || "N/A"}</Text>
         </View>

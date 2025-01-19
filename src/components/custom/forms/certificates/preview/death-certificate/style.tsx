@@ -10,12 +10,12 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     textAlign: "center",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 5,
   },
   municipal: {
     flexDirection: "column",
     alignItems: "flex-start",
-    fontSize: 10,
+    fontSize: 8,
     gap: 5,
   },
   republic: {
@@ -30,16 +30,16 @@ export const styles = StyleSheet.create({
     marginBottom: 5,
   },
   headerSubtitle: {
-    fontSize: 10,
+    fontSize: 8,
     marginBottom: 5,
   },
   headerNote1: {
-    fontSize: 10,
+    fontSize: 8,
     marginBottom: 5,
     color: "#666",
   },
   headerNote2: {
-    fontSize: 10,
+    fontSize: 8,
     marginBottom: 5,
     color: "#666",
     width: 100,
@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
   fieldContainer1: {
     flexDirection: "column",
     border: "1px solid #000",
-    padding: 10,
+    padding: 5,
     width: "100%",
   },
   fieldContainer2: {
@@ -60,7 +60,7 @@ export const styles = StyleSheet.create({
     borderRight: "1px solid #000",
     borderTop: "1px solid #000",
     borderBottom: "1px solid #000",
-    padding: 10,
+    padding: 5,
   },
   section1: {
     flexDirection: "row",
@@ -75,49 +75,49 @@ export const styles = StyleSheet.create({
   },
   personalInfo: {
     flexDirection: "row",
-    height: 50,
+    height: 30,
     borderBottom: "1px solid #000",
     borderLeft: "1px solid #000",
     borderRight: "1px solid #000",
   },
   fieldContainer3: {
     width: 250,
-    padding: 10,
+    padding: 5,
   },
   data1: {
-    fontSize: 10,
+    fontSize: 8,
     width: "100%",
     paddingTop: 4,
     paddingBottom: 4,
   },
   sectionTitle: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
     paddingTop: 5,
   },
   label: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
     marginBottom: 2,
   },
   value: {
-    fontSize: 10,
+    fontSize: 8,
     borderBottom: "1px solid #000",
     paddingBottom: 2,
     width: "100%",
     paddingLeft: 20,
   },
   subtitle: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
   },
   DateOfDeath: {
     flexDirection: "row",
-    height: 50,
+    height: 30,
     borderBottom: "1px solid #000",
     borderLeft: "1px solid #000",
     borderRight: "1px solid #000",
-    padding: 10,
+    padding: 5,
   },
   fieldContainer4: {
     width: "100%",
@@ -125,26 +125,26 @@ export const styles = StyleSheet.create({
   fieldContainer5: {
     flexDirection: "row",
     width: "100%",
-    height: 50,
+    height: 30,
     borderBottom: "1px solid #000",
     borderLeft: "1px solid #000",
     borderRight: "1px solid #000",
   },
   PlaceOfDeathParent: {
-    flexDirection: "column",
-    gap: 5,
-    width: "100%",
-    height: 50,
-    padding: 10,
-    borderRight: "1px solid #000",
-  },
-  PlaceOfDeath: {
     flexDirection: "row",
     gap: 25,
     width: "100%",
+    height: 30,
+    padding: 5,
+    borderRight: "1px solid #000",
+  },
+  PlaceOfDeath: {
+    flexDirection: "column",
+    gap: 5,
+    width: "100%",
   },
   CivilStatus: {
-    padding: 10,
+    padding: 5,
     width: 150,
   },
   hospital: {
@@ -155,7 +155,7 @@ export const styles = StyleSheet.create({
   fieldContainer6: {
     flexDirection: "row",
     width: "100%",
-    height: 50,
+    height: 30,
     borderBottom: "1px solid #000",
     borderLeft: "1px solid #000",
     borderRight: "1px solid #000",
@@ -163,16 +163,16 @@ export const styles = StyleSheet.create({
   religion: {
     width: 200,
     borderRight: "1px solid #000",
-    padding: 10,
+    padding: 5,
   },
   citizenship: {
     width: 200,
     borderRight: "1px solid #000",
-    padding: 10,
+    padding: 5,
   },
   residence: {
     width: "100%",
-    padding: 10,
+    padding: 5,
   },
   fatherName: {
     flexDirection: "row",
@@ -181,11 +181,11 @@ export const styles = StyleSheet.create({
   },
   fieldContainer7: {
     width: "100%",
-    padding: 10,
+    padding: 5,
   },
   fieldContainer8: {
     width: "100%",
-    padding: 10,
+    padding: 5,
   },
   motherMaidenName: {
     flexDirection: "row",
@@ -193,20 +193,20 @@ export const styles = StyleSheet.create({
     gap: 5,
   },
   label1: {
-    fontSize: 10,
+    fontSize: 8,
     color: "#666",
   },
   section2: {
     flexDirection: "row",
     width: "100%",
-    height: 50,
+    height: 30,
     borderBottom: "1px solid #000",
     borderLeft: "1px solid #000",
     borderRight: "1px solid #000",
   },
   occupation: {
     width: 250,
-    padding: 10,
+    padding: 5,
   },
   sectionTitleContainer: {
     width: "100%",
@@ -218,19 +218,19 @@ export const styles = StyleSheet.create({
   },
   causesOfDeath: {
     marginBottom: 10,
-    padding: 10,
+    padding: 5,
   },
   causeRow: {
     flexDirection: "row",
     marginBottom: 5,
   },
   causeLabel: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
     width: 150,
   },
   causeValue: {
-    fontSize: 10,
+    fontSize: 8,
     borderBottom: "1px solid #000",
     flex: 1,
   },
@@ -241,7 +241,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
   },
   intervalValue: {
-    fontSize: 10,
+    fontSize: 8,
     borderBottom: "1px solid #000",
     flex: 1,
   },
@@ -254,7 +254,7 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   checkboxLabel: {
-    fontSize: 10,
+    fontSize: 8,
   },
   externalCauses: {
     marginBottom: 10,
@@ -264,12 +264,12 @@ export const styles = StyleSheet.create({
     marginBottom: 5,
   },
   externalCauseLabel: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
     width: 150,
   },
   externalCauseValue: {
-    fontSize: 10,
+    fontSize: 8,
     borderBottom: "1px solid #000",
     flex: 1,
   },
@@ -277,7 +277,7 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
   autopsyValue: {
-    fontSize: 10,
+    fontSize: 8,
     borderBottom: "1px solid #000",
   },
   attendantSection: {
@@ -289,7 +289,7 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   attendantLabel: {
-    fontSize: 10,
+    fontSize: 8,
   },
   attendantDuration: {
     marginTop: 10,
@@ -299,17 +299,17 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   durationLabel: {
-    fontSize: 10,
+    fontSize: 8,
   },
   durationValue: {
-    fontSize: 10,
+    fontSize: 8,
     borderBottom: "1px solid #000",
   },
   certificationSection: {
     marginBottom: 10,
   },
   certificationText: {
-    fontSize: 10,
+    fontSize: 8,
     marginBottom: 10,
   },
   signatureSection: {
@@ -320,12 +320,12 @@ export const styles = StyleSheet.create({
     marginBottom: 5,
   },
   signatureLabel: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
     width: 100,
   },
   signatureValue: {
-    fontSize: 10,
+    fontSize: 8,
     borderBottom: "1px solid #000",
     flex: 1,
   },
@@ -337,20 +337,20 @@ export const styles = StyleSheet.create({
     marginBottom: 5,
   },
   reviewedByLabel: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
     width: 150,
   },
   reviewedByValue: {
-    fontSize: 10,
+    fontSize: 8,
     borderBottom: "1px solid #000",
     flex: 1,
   },
   medicalHeader: {
     flexDirection: "column",
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
-    paddingBottom: 10,
+    paddingBottom: 5,
     textAlign: "center",
     borderBottom: "1px solid #000",
     borderLeft: "1px solid #000",
@@ -360,14 +360,14 @@ export const styles = StyleSheet.create({
     width: "100%",
   },
   sectionTitle2: {
-    fontSize: 10,
+    fontSize: 8,
   },
   fieldContainer9: {
-    marginBottom: 10,
+    marginBottom: 5,
     borderRight: "1px solid #000",
     borderLeft: "1px solid #000",
     borderBottom: "1px solid #000",
-    padding: 10,
+    padding: 5,
   },
   gridContainer: {
     display: "flex",
@@ -384,20 +384,20 @@ export const styles = StyleSheet.create({
   },
   label3: {
     fontWeight: "bold",
-    fontSize: 10,
+    fontSize: 8,
     marginBottom: 5,
   },
   label4: {
-    fontSize: 10,
+    fontSize: 8,
     textAlign: "right",
   },
   data2: {
-    fontSize: 10,
+    fontSize: 8,
     marginBottom: 5,
     borderBottom: "1px solid #000",
   },
   data3: {
-    fontSize: 10,
+    fontSize: 8,
     borderBottom: "1px solid #000",
   },
   Other: {
@@ -416,15 +416,15 @@ export const styles = StyleSheet.create({
     borderLeft: "1px solid #000",
     borderRight: "1px solid #000",
     marginTop: -10,
-    padding: 10,
+    padding: 5,
   },
   maternalConditionLabel: {
     fontWeight: "bold",
-    fontSize: 10,
+    fontSize: 8,
     flex: 1,
   },
   maternalConditionValue: {
-    fontSize: 10,
+    fontSize: 8,
     flex: 2,
   },
   deathExternalCausesContainer: {
@@ -445,7 +445,7 @@ export const styles = StyleSheet.create({
   },
   deathExternalCausesTitle: {
     fontWeight: "bold",
-    fontSize: 10,
+    fontSize: 8,
   },
   deathExternalCausesFieldContainer: {
     flexDirection: "row",
@@ -456,11 +456,11 @@ export const styles = StyleSheet.create({
   deathExternalCausesLabel: {
     flex: 1,
     fontWeight: "bold",
-    fontSize: 10,
+    fontSize: 8,
   },
   deathExternalCausesValue: {
     flex: 2,
-    fontSize: 10,
+    fontSize: 8,
   },
   section20Container: {
     flex: 1,
@@ -468,7 +468,7 @@ export const styles = StyleSheet.create({
   },
   autopsyTitle: {
     fontWeight: "bold",
-    fontSize: 10,
+    fontSize: 8,
     marginBottom: 8,
   },
   attendantSection2: {
@@ -479,26 +479,26 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between", // Add space between 21a and 21b
   },
   attendantSection3: {
-    padding: 10,
+    padding: 5,
     borderRight: "1px solid #000", // Add a border to the container
     flex: 1, // Allow 21a to take up half the space
     marginRight: 10, // Add spacing between 21a and 21b
   },
   attendantSection4: {
-    padding: 10,
+    padding: 5,
     flex: 1, // Allow 21b to take up half the space
     marginLeft: 10, // Add spacing between 21a and 21b
   },
   attendantSectionTitle: {
-    fontSize: 12,
+    fontSize: 8,
     fontWeight: "bold",
     marginBottom: 10, // Add spacing below the title
   },
   attendantContainer: {
 
-    padding: 10, // Add padding inside the container
+    padding: 5, // Add padding inside the container
     flexDirection: "column", // Stack fields vertically
-    gap: 10, // Add spacing between fields
+    gap: 5, // Add spacing between fields
   },
   attendantFieldContainer: {
     flexDirection: "row", // Align label and value horizontally
@@ -510,17 +510,17 @@ export const styles = StyleSheet.create({
     gap: 5, // Add spacing between items
   },
   attendantLabel2: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
   },
   attendantValue: {
-    fontSize: 10,
+    fontSize: 8,
     borderBottom: "1px solid #000", // Add a bottom border to the value
     paddingBottom: 2, // Add spacing below the value
   },
 
   certificationSection11: {
-    padding: 10,
+    
     borderRight: "1px solid #000",
     borderLeft: "1px solid #000",
     borderBottom: "1px solid #000",
@@ -530,7 +530,7 @@ export const styles = StyleSheet.create({
   certificationTitle: {
     borderBottom: "1px solid #000",
     width: "100%",
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
     marginBottom: 10,
     textAlign: "left",
@@ -539,47 +539,48 @@ export const styles = StyleSheet.create({
   // Field container
   fieldContainer11: {
     flexDirection: "row",
-    marginBottom: 5,
+    marginBottom: 2,
+    padding: 5,
   },
 
   // Labels
   attendedLabel: {
     width: "40%",
-    fontSize: 12,
+    fontSize: 8,
     fontWeight: "bold",
   },
   deathDateTimeLabel: {
     width: "40%",
-    fontSize: 12,
+    fontSize: 8,
     fontWeight: "bold",
   },
   nameLabel: {
     width: "40%",
-    fontSize: 12,
+    fontSize: 8,
     fontWeight: "bold",
   },
   titleLabel: {
     width: "40%",
-    fontSize: 12,
+    fontSize: 8,
     fontWeight: "bold",
   },
 
   // Values
   attendedValue: {
     width: "60%",
-    fontSize: 12,
+    fontSize: 8,
   },
   deathDateTimeValue: {
     width: "60%",
-    fontSize: 12,
+    fontSize: 8,
   },
   nameValue: {
     width: "60%",
-    fontSize: 12,
+    fontSize: 8,
   },
   titleValue: {
     width: "60%",
-    fontSize: 12,
+    fontSize: 8,
   },
   gridContainer22: {
     flexDirection: "row",
@@ -592,48 +593,48 @@ export const styles = StyleSheet.create({
   corpseDisposalCell: {
     width: "32%",
     borderRight: "1px solid #000",
-    padding: 10,
+    padding: 5,
   },
   burialCremationCell: {
     width: "32%",
     borderRight: "1px solid #000",
-    padding: 10,
+    padding: 5,
   },
   transferPermitCell: {
     width: "32%",
-    padding: 10,
+    padding: 5,
   },
 
   // Labels
   corpseDisposalLabel: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
     marginBottom: 5,
   },
   burialCremationLabel: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
     marginBottom: 5,
   },
   transferPermitLabel: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
     marginBottom: 5,
   },
 
   // Values
   corpseDisposalValue: {
-    fontSize: 10,
+    fontSize: 8,
   },
   burialCremationValue: {
-    fontSize: 10,
+    fontSize: 8,
   },
   transferPermitValue: {
-    fontSize: 10,
+    fontSize: 8,
   },
   fieldContainer222: {
     flexDirection: "column",
-    padding: 10,
+    padding: 5,
     gap: 5,
     borderRight: "1px solid #000",
     borderLeft: "1px solid #000",
@@ -652,22 +653,22 @@ export const styles = StyleSheet.create({
 
   // Section titles
   certificationOfInformantTitle: {
-    fontSize: 12,
+    fontSize: 8,
     fontWeight: "bold",
     textAlign: "center",
   },
   preparedByTitle: {
-    fontSize: 12,
+    fontSize: 8,
     fontWeight: "bold",
     textAlign: "center",
   },
   receivedByTitle: {
-    fontSize: 12,
+    fontSize: 8,
     fontWeight: "bold",
     textAlign: "center",
   },
   registeredAtCivilRegistrarTitle: {
-    fontSize: 12,
+    fontSize: 8,
     fontWeight: "bold",
     textAlign: "center",
   },
@@ -679,14 +680,14 @@ export const styles = StyleSheet.create({
 
   // Labels
   label12: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: "bold",
     marginBottom: 2,
   },
 
   // Values
   value12: {
-    fontSize: 10,
+    fontSize: 8,
   },
   
 });
