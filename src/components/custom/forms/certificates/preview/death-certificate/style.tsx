@@ -3,7 +3,7 @@ import { StyleSheet } from "@react-pdf/renderer";
 export const styles = StyleSheet.create({
   page: {
     backgroundColor: "#FFFFFF",
-    padding: 20,
+    padding: 10,
     width: "100%",
   },
   header: {
@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
     marginBottom: 5,
   },
   headerSubtitle: {
-    fontSize: 8,
+    fontSize: 10,
     marginBottom: 5,
   },
   headerNote1: {
@@ -438,7 +438,7 @@ export const styles = StyleSheet.create({
     borderRightColor: "#000",
   },
   deathExternalCausesTitleContainer: {
-    padding: 8,
+    padding: 5,
     borderBottomWidth: 1,
     borderBottomColor: "#000",
     backgroundColor: "#f0f0f0",
@@ -449,7 +449,8 @@ export const styles = StyleSheet.create({
   },
   deathExternalCausesFieldContainer: {
     flexDirection: "row",
-    padding: 8,
+    paddingLeft: 5,
+    padding: 2,
     borderBottomWidth: 1,
     borderBottomColor: "#000",
   },
@@ -528,6 +529,7 @@ export const styles = StyleSheet.create({
 
   // Section title
   certificationTitle: {
+    padding: 5,
     borderBottom: "1px solid #000",
     width: "100%",
     fontSize: 8,
@@ -540,7 +542,7 @@ export const styles = StyleSheet.create({
   fieldContainer11: {
     flexDirection: "row",
     marginBottom: 2,
-    padding: 5,
+    padding: 2,
   },
 
   // Labels
@@ -633,9 +635,10 @@ export const styles = StyleSheet.create({
     fontSize: 8,
   },
   fieldContainer222: {
-    flexDirection: "column",
-    padding: 5,
-    gap: 5,
+    flexDirection: "row",
+    padding: 2,
+    paddingLeft: 5,
+    gap: 15,
     borderRight: "1px solid #000",
     borderLeft: "1px solid #000",
     borderBottom: "1px solid #000",
@@ -648,7 +651,7 @@ export const styles = StyleSheet.create({
   },
   section12: {
     padding: 5,
-    flex: 1, // Ensures equal height for sections in the same row
+    flex: 1,
   },
 
   // Section titles

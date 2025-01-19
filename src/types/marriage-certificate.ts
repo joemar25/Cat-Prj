@@ -92,10 +92,10 @@ export type MarriageFormData = {
     wifeConsentPerson?: ConsentPerson | null;
 
     // Witnesses
-    witnesses: Witness[];
+    witnesses?: Witness;
 
     // Officials
-    solemnizingOfficer: SolemnizingOfficer;
+    solemnizingOfficer?: SolemnizingOfficer;
     solemnizingOfficerSignature?: string;
 
     // Marriage License Details

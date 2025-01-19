@@ -446,9 +446,9 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
         <View style={styles.section}>
           <View style={styles.fieldContainer222}>
             <Text style={styles.subtitle}>
-              25. NAME AND ADDRESS OF CEMETERY
+              25. NAME AND ADDRESS OF CEMETERY:
             </Text>
-            <Text style={styles.data1}>{data.cemeteryAddress || "N/A"}</Text>
+            <Text style={styles.value12}>{data.cemeteryAddress || "N/A"}</Text>
           </View>
         </View>
 
