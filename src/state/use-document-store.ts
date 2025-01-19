@@ -5,7 +5,7 @@ import type {
     BirthRequestData,
     DeathRequestData,
     MarriageRequestData
-} from '@/lib/validation/request_form'
+} from '@/lib/validation/forms/request'
 
 interface DocumentStore {
     selectedFormType: FormType | null

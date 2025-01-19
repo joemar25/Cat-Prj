@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { handleCredentialsSignin } from "@/hooks/auth-actions"
-import { signInSchema, SignInForm as SignInData } from "@/lib/validation/zod"
+import { signInSchema, SignInForm as SignInData } from "@/lib/validation"
 import { PasswordInput } from "@/components/custom/general/password-input"
 import {
     Form,

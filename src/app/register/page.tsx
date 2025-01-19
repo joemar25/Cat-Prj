@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import RegisterForm from '@/components/custom/auth/registration-form';
-import { RegistrationForm, registrationForm } from '@/lib/validation/zod';
+import { RegistrationForm, registrationForm } from '@/lib/validation';
 
 const Page = () => {
   const [isLoading] = useState(false);

@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { handleCreateUser } from '@/hooks/users-action'
-import { registrationForm, RegistrationForm } from '@/lib/validation/zod'
+import { registrationForm, RegistrationForm } from '@/lib/validation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'

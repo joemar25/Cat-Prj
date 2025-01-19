@@ -1,7 +1,7 @@
 // src/app/api/public-requests/route.ts
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requestSchema } from '@/lib/validation/request_form'
+import { requestSchema } from '@/lib/validation/forms/request'
 import { CivilRegistryFormType, Prisma } from '@prisma/client'
 
 export async function POST(request: Request) {
