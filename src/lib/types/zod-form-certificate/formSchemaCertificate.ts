@@ -20,10 +20,54 @@ const placeOfBirthSchema = z.object({
 // Main schema
 export const marriageCertificateSchema = z.object({
   // Registry Information
-  registryNumber: z.string().min(1, 'Registry number is required'),
-
-  province: z.string().min(1, 'Province is required'),
-  cityMunicipality: z.string().min(1, 'City/Municipality is required'),
+  registryNumber: z
+    .string()
+    .regex(/^\d{4}-\d{5}$/, 'Registry number must be in format: YYYY-#####')
+    .refine(
+      (value) => {
+        const year = parseInt(value.split('-')[0]);
+        const currentYear = new Date().getFullYear();
+        return year >= 1945 && year <= currentYear;
+      },
+      {
+        message: 'Registration year must be between 1945 and current year',
+      }
+    )
+    .refine(
+      (value) => {
+        const sequenceNumber = parseInt(value.split('-')[1]);
+        return sequenceNumber > 0 && sequenceNumber <= 99999;
+      },
+      {
+        message: 'Sequence number must be between 1 and 99999',
+      }
+    )
+    .superRefine(async (value, ctx) => {
+      try {
+        const exists = await checkRegistryNumberExists(value);
+        if (exists) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Registry number ${value} already exists`,
+          });
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: error.message,
+          });
+        }
+      }
+    }),
+  province: z
+    .string()
+    .min(1, 'Province is required')
+    .max(100, 'Province name is too long'),
+  cityMunicipality: z
+    .string()
+    .min(1, 'City/Municipality is required')
+    .max(100, 'City/Municipality name is too long'),
 
   // Husband's Information
   husbandFirstName: z.string().min(1, 'First name is required'),
@@ -349,9 +393,55 @@ export interface MarriageCertificateFormProps {
 // Main Death Certificate Schema
 export const deathCertificateSchema = z.object({
   // Registry Information
-  registryNumber: z.string().min(1, 'Registry number is required'),
-  province: z.string().min(1, 'Province is required'),
-  cityMunicipality: z.string().min(1, 'City/Municipality is required'),
+
+  registryNumber: z
+    .string()
+    .regex(/^\d{4}-\d{5}$/, 'Registry number must be in format: YYYY-#####')
+    .refine(
+      (value) => {
+        const year = parseInt(value.split('-')[0]);
+        const currentYear = new Date().getFullYear();
+        return year >= 1945 && year <= currentYear;
+      },
+      {
+        message: 'Registration year must be between 1945 and current year',
+      }
+    )
+    .refine(
+      (value) => {
+        const sequenceNumber = parseInt(value.split('-')[1]);
+        return sequenceNumber > 0 && sequenceNumber <= 99999;
+      },
+      {
+        message: 'Sequence number must be between 1 and 99999',
+      }
+    )
+    .superRefine(async (value, ctx) => {
+      try {
+        const exists = await checkRegistryNumberExists(value);
+        if (exists) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Registry number ${value} already exists`,
+          });
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: error.message,
+          });
+        }
+      }
+    }),
+  province: z
+    .string()
+    .min(1, 'Province is required')
+    .max(100, 'Province name is too long'),
+  cityMunicipality: z
+    .string()
+    .min(1, 'City/Municipality is required')
+    .max(100, 'City/Municipality name is too long'),
 
   // Time of death format
   timeOfDeath: z.object({
