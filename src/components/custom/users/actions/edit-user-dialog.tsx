@@ -31,7 +31,7 @@ import {
   handleUpdateUser,
   handleUpdateUserProfile,
 } from '@/hooks/users-action'
-import { EditUserFormData, editUserFormSchema } from '@/lib/zod'
+import { EditUserFormData, editUserFormSchema } from '@/lib/validation/zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { User } from '@prisma/client'
 import { useEffect, useTransition, useState } from 'react'

@@ -8,7 +8,7 @@ import {
   getNameSchema,
   getPasswordSchema,
   changePasswordSchema,
-} from '@/lib/zod'
+} from '@/lib/validation/zod'
 import { ROLE_PERMISSIONS } from '@/types/auth'
 import {
   AttachmentType,

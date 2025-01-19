@@ -1,4 +1,4 @@
-// src/lib/zod.ts
+// src/lib/validation/zod.ts
 import { object, string, z } from 'zod'
 
 export const getPasswordSchema = (type: 'password' | 'confirmPassword') =>

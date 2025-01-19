@@ -1,4 +1,4 @@
-// src\app\(dashboard)\users\page.tsx
+// src\app\(dashboard)\requests\page.tsx
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header.tsx'
 import { RequestsTableClient } from '@/components/custom/requests/requests-table-client'
 import {

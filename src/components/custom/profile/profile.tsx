@@ -14,7 +14,7 @@ import { handleUpdateUserProfile, handleChangePassword } from '@/hooks/users-act
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { profileFormSchema, changePasswordSchema, ProfileFormValues, ChangePasswordFormValues } from '@/lib/zod'
+import { profileFormSchema, changePasswordSchema, ProfileFormValues, ChangePasswordFormValues } from '@/lib/validation/zod'
 
 export default function Profile({ userId, profile }: { userId: string; profile: ProfileWithUser }) {
     const [isEditing, setIsEditing] = useState(false) // Toggle for editing profile or changing password
