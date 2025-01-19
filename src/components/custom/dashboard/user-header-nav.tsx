@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-
 import { toast } from 'sonner'
 import { useState } from 'react'
 import { Icons } from '@/components/ui/icons'
@@ -11,10 +10,13 @@ import { UserHeaderNavProps } from '@/types/dashboard'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 
 export function UserHeaderNav({ user }: UserHeaderNavProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const getInitials = () => {
     const nameParts = user?.name?.split(' ') || []
@@ -33,7 +35,7 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-10 w-10 rounded-full border border-primary">
             <Avatar className="h-8 w-8">
@@ -61,7 +63,32 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
           <DropdownMenuItem asChild>
             <Link href="/profile">Profile</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+            <PopoverTrigger asChild className='cursor-pointer'>
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault()
+                  setIsSettingsOpen(true)
+                  setIsDropdownOpen(true) // Keep the dropdown open
+                }}
+              >
+                Settings
+              </DropdownMenuItem>
+            </PopoverTrigger>
+            <PopoverContent className="p-2" align="end" side="bottom">
+              <div className="flex flex-col space-y-2">
+                <p className="text-sm font-semibold">SELECT A LANGUAGE</p>
+                <div className="space-y-1">
+                  <Button variant="ghost" className="justify-start">
+                    Filipino
+                  </Button>
+                  <Button variant="ghost" className="justify-start">
+                    ENGLISH
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
           <DropdownMenuItem
             className="text-destructive"
             onSelect={(e) => {
