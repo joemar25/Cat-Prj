@@ -42,7 +42,21 @@ function isValidDate(date: unknown, formType: FormType): boolean {
       return false;
 
     case FormType.MARRIAGE:
-      // Marriage certificate validation can be added here
+      // Marriage certificate also expects Date object like death certificate
+      if (date instanceof Date) {
+        const currentDate = new Date();
+        // Additional marriage-specific validations:
+        // 1. Date should not be in the future
+        if (date > currentDate) {
+          return false;
+        }
+        // 2. Date should not be before 1945 (matching our registry number validation)
+        const minDate = new Date('1945-01-01');
+        if (date < minDate) {
+          return false;
+        }
+        return !isNaN(date.getTime());
+      }
       return false;
 
     default:
@@ -181,6 +195,39 @@ export async function createMarriageCertificate(
   data: MarriageCertificateFormValues
 ) {
   try {
+    // 1. Validate registry number
+    const exists = await checkRegistryNumberExists(data.registryNumber);
+    if (exists) {
+      return {
+        success: false,
+        error: 'Registry number already exists. Please use a different number.',
+      };
+    }
+
+    // 2. Validate dates
+    const marriageDate = new Date(data.dateOfMarriage);
+    const husbandBirthDate = new Date(data.husbandDateOfBirth);
+    const wifeBirthDate = new Date(data.wifeDateOfBirth);
+
+    if (
+      !isValidDate(marriageDate, FormType.MARRIAGE) ||
+      !isValidDate(husbandBirthDate, FormType.MARRIAGE) ||
+      !isValidDate(wifeBirthDate, FormType.MARRIAGE)
+    ) {
+      return {
+        success: false,
+        error:
+          'Invalid date format in marriage, husband birth, or wife birth date',
+      };
+    }
+
+    // 3. Validate marriage date is after both birth dates
+    if (marriageDate < husbandBirthDate || marriageDate < wifeBirthDate) {
+      return {
+        success: false,
+        error: 'Marriage date cannot be before birth dates',
+      };
+    }
     const baseForm = await prisma.baseRegistryForm.create({
       data: {
         formNumber: '97',
@@ -282,7 +329,12 @@ export async function createMarriageCertificate(
     revalidatePath('/civil-registry');
     return { success: true, data: baseForm };
   } catch (error) {
-    console.error('Error creating marriage certificate:', error);
+    if (error instanceof Error) {
+      return {
+        success: false,
+        error: `Failed to create marriage certificate: ${error.message}`,
+      };
+    }
     return { success: false, error: 'Failed to create marriage certificate' };
   }
 }
