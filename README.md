@@ -52,8 +52,8 @@
    - [ ] Add real-time dashboards to monitor document requests, processing statuses, and other key system metrics.
 
 7. **Civil Registry Document Request and Approval**
-   - [ ] Build a request system for users to request civil registry documents (e.g., birth, death, marriage certificates) through online forms.
-   - [ ] Include required fields for data submission, such as personal details, purpose of request, and document type.
+   - [x] Build a request system for users to request civil registry documents (e.g., birth, death, marriage certificates) through online forms.
+   - [x] Include required fields for data submission, such as personal details, purpose of request, and document type.
    - [ ] Automate approval workflows with status updates visible to users in real time.
 
 8. **Document Verification and Authentication**
@@ -124,3 +124,8 @@
    ![alt text](./public//documentation//pg-dl.png)
 
 3. [Documentation](https://www.docker.com/blog/how-to-use-the-postgres-docker-official-image/)
+4. Reset DB `pnpm prisma db push --force-reset` and `pnpm prisma db seed`
+
+## Mar Todo
+
+1. [ ] Add predetermined answers for guiding user answer the forms for request

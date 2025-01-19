@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { RegistrationForm } from '@/lib/zod';
+import { RegistrationForm } from '@/lib/validation';
 import { UseFormReturn } from 'react-hook-form';
 
 type RegisterFormProps = {

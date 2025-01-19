@@ -1,25 +1,21 @@
 // src/hooks/users-action.tsx
 'use server'
 
-import { prisma } from '@/lib/prisma'
-import {
-  CertifiedCopyFormData,
-  getEmailSchema,
-  getNameSchema,
-  getPasswordSchema,
-  changePasswordSchema,
-} from '@/lib/zod'
-import { ROLE_PERMISSIONS } from '@/types/auth'
+import { prisma } from '@/lib/prisma';
+import { CertifiedCopyFormData } from '@/lib/validation/forms/certified-copy';
+import { changePasswordSchema } from '@/lib/validation/auth/change-password';
+import { getEmailSchema, getPasswordSchema, getNameSchema } from '@/lib/validation/shared';
+import { ROLE_PERMISSIONS } from '@/types/auth';
 import {
   AttachmentType,
   DocumentStatus,
   Profile,
   User,
   UserRole,
-} from '@prisma/client'
-import { hash, compare } from 'bcryptjs'
-import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
+} from '@prisma/client';
+import { hash, compare } from 'bcryptjs';
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
 // Schema for creating a user in the admin panel
 const createUserSchema = z.object({
@@ -27,7 +23,7 @@ const createUserSchema = z.object({
   password: getPasswordSchema('password'),
   name: getNameSchema(),
   role: z.enum(['ADMIN', 'STAFF', 'USER']).default('USER'),
-})
+});
 
 // Password change action
 export async function handleChangePassword(
@@ -301,27 +297,27 @@ export async function createCertifiedCopy(
       // 1. Create Document first
       const document = await tx.document.create({
         data: {
-          type: AttachmentType.BIRTH_CERTIFICATE, // or appropriate type
+          type: AttachmentType.BIRTH_CERTIFICATE,
           title: `Certified Copy - ${data.lcrNo}`,
           status: DocumentStatus.PENDING,
           version: 1,
           isLatest: true,
         },
-      })
+      });
 
       // 2. Create Attachment
       const attachment = await tx.attachment.create({
         data: {
           userId: userId,
           documentId: document.id,
-          type: AttachmentType.BIRTH_CERTIFICATE, // or appropriate type
+          type: AttachmentType.BIRTH_CERTIFICATE,
           fileUrl: '', // placeholder
           fileName: `certified-copy-${data.lcrNo}`,
           fileSize: 0, // placeholder
           mimeType: 'application/pdf', // placeholder
           status: DocumentStatus.PENDING,
         },
-      })
+      });
 
       // 3. Create CertifiedCopy
       const certifiedCopy = await tx.certifiedCopy.create({
@@ -333,25 +329,26 @@ export async function createCertifiedCopy(
           contactNo: data.contactNo,
           date: data.date ? new Date(data.date) : null,
           attachmentId: attachment.id,
-          requesterName: data.requesterName, // Include required fields
+          requesterName: data.requesterName,
           relationshipToOwner: data.relationshipToOwner,
           address: data.address,
           purpose: data.purpose,
+          formId: data.formId,
         },
-      })
+      });
 
-      return { certifiedCopy, attachment, document }
-    })
+      return { certifiedCopy, attachment, document };
+    });
 
-    revalidatePath('/users')
+    revalidatePath('/users');
     return {
       success: true,
       message: 'Certified copy created successfully',
       data: result,
-    }
+    };
   } catch (error) {
-    console.error('Error creating certified copy:', error)
-    return { success: false, message: 'Failed to create certified copy' }
+    console.error('Error creating certified copy:', error);
+    return { success: false, message: 'Failed to create certified copy' };
   }
 }
 

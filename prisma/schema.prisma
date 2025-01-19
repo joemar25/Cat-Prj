@@ -234,19 +234,21 @@ model DeathCertificateForm {
 /// * - Application metadata
 /// * - Relationship to the original attachment
 model CertifiedCopy {
-  id                  String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  formId              String                @db.Uuid // mar --> Links to CivilRegistryFormBa
+  status              CertifiedCopyStatus   @default(PENDING)
   lcrNo               String?
   bookNo              String?
   pageNo              String?
   searchedBy          String?
   contactNo           String?
   date                DateTime?
-  attachmentId        String     @db.Uuid
+  attachmentId        String                @db.Uuid
   address             String
   amountPaid          Float?
-  createdAt           DateTime   @default(now())
+  createdAt           DateTime              @default(now())
   datePaid            DateTime?
-  isRegistered        Boolean    @default(false)
+  isRegistered        Boolean               @default(false)
   orNumber            String?
   purpose             String
   registeredDate      DateTime?
@@ -254,8 +256,9 @@ model CertifiedCopy {
   remarks             String?
   requesterName       String
   signature           String?
-  updatedAt           DateTime   @updatedAt
-  attachment          Attachment @relation(fields: [attachmentId], references: [id])
+  updatedAt           DateTime              @updatedAt
+  form                CivilRegistryFormBase @relation(fields: [formId], references: [id], onDelete: Cascade)
+  attachment          Attachment            @relation(fields: [attachmentId], references: [id])
 
   @@map("certified_copy")
 }
@@ -666,4 +669,135 @@ enum AttachmentType {
   BIRTH_CERTIFICATE
   DEATH_CERTIFICATE
   MARRIAGE_CERTIFICATE
+}
+
+/// *
+/// * Civil Registry Form Base Model
+model CivilRegistryFormBase {
+  id                 String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  formType           CivilRegistryFormType
+  pageNumber         String
+  bookNumber         String
+  registryNumber     String
+  dateOfRegistration DateTime
+  issuedTo           String
+  purpose            String
+  remarks            String?
+
+  // Officials
+  preparedByName         String?
+  preparedByPosition     String?
+  verifiedByName         String?
+  verifiedByPosition     String?
+  civilRegistrar         String
+  civilRegistrarPosition String
+
+  // Payment
+  amountPaid Float?
+  orNumber   String?
+  datePaid   DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  birthForm    CivilRegistryForm1A?
+  deathForm    CivilRegistryForm2A?
+  marriageForm CivilRegistryForm3A?
+
+  preparedByUserId String? @db.Uuid
+  verifiedByUserId String? @db.Uuid
+  preparedByUser   User?   @relation("PreparedCivilRegistryForms", fields: [preparedByUserId], references: [id])
+  verifiedByUser   User?   @relation("VerifiedCivilRegistryForms", fields: [verifiedByUserId], references: [id])
+
+  documentId String?   @db.Uuid
+  document   Document? @relation(fields: [documentId], references: [id])
+
+  auditLogs     AuditLog[]
+  CertifiedCopy CertifiedCopy[]
+
+  @@index([registryNumber])
+  @@index([bookNumber, pageNumber])
+  @@map("civil_registry_form_base")
+}
+
+/// *
+/// * Civil Registry Form No. 1A (Birth)
+model CivilRegistryForm1A {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId           String    @unique @db.Uuid
+  nameOfChild          String
+  sex                  String
+  dateOfBirth          DateTime
+  placeOfBirth         String
+  nameOfMother         String
+  citizenshipMother    String
+  nameOfFather         String
+  citizenshipFather    String
+  dateMarriageParents  DateTime?
+  placeMarriageParents String?
+
+  baseForm CivilRegistryFormBase @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
+
+  @@index([nameOfChild])
+  @@map("civil_registry_form_1a")
+}
+
+/// *
+/// * Civil Registry Form No. 2A (Death)
+model CivilRegistryForm2A {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId     String   @unique @db.Uuid
+  nameOfDeceased String
+  sex            String
+  age            Int
+  civilStatus    String
+  citizenship    String
+  dateOfDeath    DateTime
+  placeOfDeath   String
+  causeOfDeath   String
+
+  baseForm CivilRegistryFormBase @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
+
+  @@index([nameOfDeceased])
+  @@map("civil_registry_form_2a")
+}
+
+/// *
+/// * Civil Registry Form No. 3A (Marriage)
+model CivilRegistryForm3A {
+  id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId String @unique @db.Uuid
+
+  husbandName           String
+  husbandDateOfBirthAge String
+  husbandCitizenship    String
+  husbandCivilStatus    String
+  husbandMother         String
+  husbandFather         String
+
+  wifeName           String
+  wifeDateOfBirthAge String
+  wifeCitizenship    String
+  wifeCivilStatus    String
+  wifeMother         String
+  wifeFather         String
+
+  dateOfMarriage  DateTime
+  placeOfMarriage String
+
+  baseForm CivilRegistryFormBase @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
+
+  @@index([husbandName, wifeName])
+  @@map("civil_registry_form_3a")
+}
+
+/// *
+/// * Defines the types of civil registry forms
+/// * @enum {string}
+enum CivilRegistryFormType {
+  FORM_1A // Civil Registry Form No. 1A (Birth)
+  FORM_2A // Civil Registry Form No. 2A (Death)
+  FORM_3A // Civil Registry Form No. 3A (Marriage)
 }
