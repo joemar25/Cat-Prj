@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { signUpSchema, SignUpForm as SignUpData } from "@/lib/validation/zod"
+import { signUpSchema, SignUpForm as SignUpData } from "@/lib/validation"
 import { PasswordInput } from "@/components/custom/general/password-input"
 import { handleCredentialsSignin, handleSignUp } from "@/hooks/auth-actions"
 import {

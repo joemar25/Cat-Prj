@@ -1,6 +1,6 @@
 // src/lib/auth.config.ts
 import { prisma } from '@/lib/prisma'
-import { signInSchema } from '@/lib/validation/zod'
+import { signInSchema } from '@/lib/validation'
 import { Permission, UserRole } from '@prisma/client'
 import { compare } from 'bcryptjs'
 import { NextAuthConfig, Session } from 'next-auth'
