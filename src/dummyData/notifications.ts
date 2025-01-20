@@ -1,49 +1,77 @@
-import { Notification, NotificationStats } from "@/lib/types/notification"
+import { Notification, NotificationStats } from "@/lib/types/notification";
 
 export const notificationStats: NotificationStats = {
-  all: 20,
-  archive: 10,
-  favorite: 17,
-  unread: 3
-}
+  all: 6, // Total notifications
+  archive: 2, // Archived notifications
+  favorite: 1, // Favorite notifications
+  unread: 3, // Unread notifications
+};
 
 export const notifications: Notification[] = [
   {
-    id: '1',
-    message: "We're pleased to inform you that a new customer has registered! Please follow up promptly by contacting.",
-    timestamp: 'Just Now',
-    isRead: false,
-    type: 'customer',
-    email: {
-      subject: 'New Customer Registration',
-      body: 'Dear Sales Team,\n\nWe are excited to inform you that a new customer has just registered on our platform. This presents an excellent opportunity for us to make a great first impression and potentially secure a long-term client.\n\nCustomer Details:\nName: John Doe\nEmail: john.doe@example.com\nRegistration Date: [Current Date]\n\nPlease reach out to the customer within the next 24 hours to:\n1. Welcome them to our platform\n2. Offer assistance with any questions they might have\n3. Provide an overview of our products/services that might be relevant to their needs\n\nRemember, prompt and friendly follow-up can significantly increase customer engagement and satisfaction.\n\nBest regards,\nCustomer Support Team',
-      from: 'support@ourcompany.com'
-    }
+    id: "1",
+    userId: "user-123",
+    type: "EMAIL", // Keep the type as "EMAIL"
+    title: "Birth Certificate Request Received",
+    message:
+      "Your request for a birth certificate has been received. It will be processed within 5 business days.",
+    read: false,
+    createdAt: new Date().toISOString(), // Current time
+    readAt: null,
   },
   {
-    id: '2',
-    message: 'Hello Sales Marketing Team,We have a special offer for our customers! Enjoy a 20% discount on selected..',
-    timestamp: '30 mins ago',
-    isRead: false,
-    type: 'sales',
-    email: {
-      subject: 'New Special Offer: 20% Discount',
-      body: 'Dear Sales Marketing Team,\n\nWe are excited to announce a new special offer for our valued customers! We are offering a 20% discount on selected products for a limited time.\n\nOffer Details:\n- 20% discount on selected items\n- Valid from [Start Date] to [End Date]\n- Applicable to both new and existing customers\n\nPlease ensure that all team members are aware of this promotion and are ready to assist customers who inquire about it. This is a great opportunity to boost sales and customer satisfaction.\n\nIf you have any questions about the promotion or need any additional materials, please don\'t hesitate to reach out.\n\nLet\'s make this promotion a success!\n\nBest regards,\nMarketing Department',
-      from: 'marketing@ourcompany.com'
-    }
+    id: "2",
+    userId: "user-123",
+    type: "EMAIL", // Keep the type as "EMAIL"
+    title: "Death Certificate Request Approved",
+    message:
+      "Your request for a death certificate has been approved. You can download it from your dashboard.",
+    read: true,
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+    readAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
   },
   {
-    id: '3',
-    message: "Hello Sales Marketing Team, This is a reminder to achieve this month's sales target. Currently, we've...",
-    timestamp: '2 days ago',
-    isRead: false,
-    type: 'sales',
-    email: {
-      subject: "Monthly Sales Target Reminder",
-      body: "Dear Sales Marketing Team,\n\nI hope this email finds you well. As we approach the end of the month, I wanted to send a friendly reminder about our monthly sales target.\n\nCurrent Status:\n- Month-to-date sales: $X,XXX,XXX\n- Monthly target: $X,XXX,XXX\n- Remaining to achieve target: $XXX,XXX\n\nWe're currently at XX% of our goal, which is a great effort, but we still have some way to go. Here are some suggestions to help us reach our target:\n\n1. Follow up with potential clients who have shown interest but haven't made a purchase yet.\n2. Reach out to existing customers about our new products or services that complement their previous purchases.\n3. Utilize our current promotional offers in your pitches.\n\nRemember, every sale counts, no matter how small. Let's work together to finish the month strong!\n\nIf you need any support or have any questions, please don't hesitate to reach out to me or your team lead.\n\nBest regards,\nSales Manager",
-      from: "sales.manager@ourcompany.com"
-    }
+    id: "3",
+    userId: "user-123",
+    type: "EMAIL", // Keep the type as "EMAIL"
+    title: "Marriage Certificate Request Rejected",
+    message:
+      "Your request for a marriage certificate has been rejected due to incomplete documentation. Please resubmit.",
+    read: false,
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+    readAt: null,
   },
-  // Add more notifications as needed...
-]
-
+  {
+    id: "4",
+    userId: "user-123",
+    type: "EMAIL", // Keep the type as "EMAIL"
+    title: "Birth Certificate Ready for Pickup",
+    message:
+      "Your birth certificate is ready for pickup at the nearest government office. Bring your ID for verification.",
+    read: false,
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
+    readAt: null,
+  },
+  {
+    id: "5",
+    userId: "user-123",
+    type: "SYSTEM", // Keep the type as "EMAIL"
+    title: "Death Certificate Request Under Review",
+    message:
+      "Your request for a death certificate is under review. You will be notified once it is processed.",
+    read: true,
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+    readAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
+  },
+  {
+    id: "6",
+    userId: "user-123",
+    type: "SYSTEM", // Keep the type as "EMAIL"
+    title: "Marriage Certificate Request Received",
+    message:
+      "Your request for a marriage certificate has been received. It will be processed within 7 business days.",
+    read: false,
+    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), // 6 days ago
+    readAt: null,
+  },
+];

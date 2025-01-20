@@ -1,16 +1,25 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { NotificationItem } from './notification-item'
 import { NotificationModal } from './notification-modal'
-import { notifications, notificationStats } from '@/dummyData/notifications'
+import { notifications as initialNotifications, notificationStats } from '@/dummyData/notifications'
 import { Notification } from '@/lib/types/notification'
 
 export function NotificationList() {
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+
+  useEffect(() => {
+    // This will only run on the client side
+    setNotifications(initialNotifications.map(notification => ({
+      ...notification,
+      createdAt: new Date(notification.createdAt).toLocaleString() // Format date on the client
+    })))
+  }, [])
 
   const handleNotificationClick = (notification: Notification) => {
     setSelectedNotification(notification)
@@ -77,4 +86,3 @@ export function NotificationList() {
     </div>
   )
 }
-
