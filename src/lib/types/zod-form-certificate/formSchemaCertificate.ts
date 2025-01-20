@@ -356,8 +356,8 @@ export const defaultMarriageCertificateValues: Partial<MarriageCertificateFormVa
       registryNoExpiryDate: '2025-12-31',
     },
     contractingPartiesSignature: {
-      husband: '',
-      wife: '',
+      husband: 'To be decide later',
+      wife: 'To be decide later.',
     },
     solemnizingOfficerSignature: '',
     marriageLicenseDetails: {

@@ -103,6 +103,8 @@ export function MarriageCertificateForm({
 
     const data: Partial<MarriageFormData> = {
       ...formData,
+
+      registryNo: formData.registryNumber || 'N/A',
       // Transform dates to string format
       husbandDateOfBirth: formData.husbandDateOfBirth
         ? format(new Date(formData.husbandDateOfBirth), 'yyyy-MM-dd')
@@ -195,12 +197,10 @@ export function MarriageCertificateForm({
         : undefined,
 
       // Transform signatures
-      contractingPartiesSignature: formData.contractingPartiesSignature
-        ? {
-            husband: formData.contractingPartiesSignature.husband || '',
-            wife: formData.contractingPartiesSignature.wife || '',
-          }
-        : undefined,
+      contractingPartiesSignature: {
+        husband: formData.contractingPartiesSignature?.husband ?? '',
+        wife: formData.contractingPartiesSignature?.wife ?? '',
+      },
 
       receivedBy: formData.receivedBy
         ? {

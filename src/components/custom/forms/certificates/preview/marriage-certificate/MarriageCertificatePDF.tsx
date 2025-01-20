@@ -849,9 +849,15 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
       </View>
 
       {/* Eighteenth Section */}
-      <View style={[styles.gridContainer, { padding: 0 }]}>
-        {/* First Cell (fixed width: 200) */}
-        <View style={[styles.gridColumn, { width: 200, padding: 0 }]}>
+      {/* Contracting Parties Signature Section */}
+      <View style={styles.gridContainer}>
+        {/* First Column: Title (Certification) */}
+        <View
+          style={[
+            styles.gridColumn,
+            { width: 200, padding: 0, borderRight: '1px solid #000' },
+          ]}
+        >
           <View
             style={[
               styles.flexRow,
@@ -859,7 +865,6 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                 textAlign: 'left',
                 alignItems: 'flex-start',
                 justifyContent: 'flex-start',
-                borderRight: '1px solid #000',
               },
             ]}
           >
@@ -871,8 +876,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           </View>
         </View>
 
-        {/* Second Cell (flex: 1) */}
-        <View style={[styles.gridColumn, { flex: 1, padding: 0 }]}>
+        {/* Second Column: Husband's Signature */}
+        <View
+          style={[
+            styles.gridColumn,
+            { flex: 1, padding: 0, borderRight: '1px solid #000' },
+          ]}
+        >
           <View
             style={[
               styles.flexRow,
@@ -888,13 +898,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
             </View>
             <View style={styles.gridColumn}>
               <Text style={styles.value}>
-                {data.contractingPartiesSignature?.husband || 'N/A'}
+                {data.contractingPartiesSignature?.husband}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Third Cell (flex: 1) */}
+        {/* Third Column: Wife's Signature */}
         <View style={[styles.gridColumn, { flex: 1, padding: 0 }]}>
           <View
             style={[
@@ -911,7 +921,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
             </View>
             <View style={styles.gridColumn}>
               <Text style={styles.value}>
-                {data.contractingPartiesSignature?.wife || 'N/A'}
+                {data.contractingPartiesSignature?.wife}
               </Text>
             </View>
           </View>
