@@ -150,11 +150,20 @@ export function MarriageCertificateForm({
         : undefined,
 
       // Transform witnesses array
-      witnesses:
-        formData.witnesses?.map((witness) => ({
-          name: witness.name,
-          signature: witness.signature || '',
-        })) || [],
+      witnesses: {
+        husband: Array.isArray(formData.witnesses?.husband)
+          ? formData.witnesses.husband.map((witness) => ({
+              name: witness?.name || '',
+              signature: witness?.signature || '',
+            }))
+          : [{ name: '', signature: '' }],
+        wife: Array.isArray(formData.witnesses?.wife)
+          ? formData.witnesses.wife.map((witness) => ({
+              name: witness?.name || '',
+              signature: witness?.signature || '',
+            }))
+          : [{ name: '', signature: '' }],
+      },
 
       // Transform consent information
       husbandConsentPerson:

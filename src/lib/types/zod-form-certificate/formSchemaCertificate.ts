@@ -143,15 +143,25 @@ export const marriageCertificateSchema = z.object({
   executiveOrderApplied: z.boolean().default(false),
   presidentialDecreeApplied: z.boolean().default(false),
 
-  // Witnesses Array
-  witnesses: z
-    .array(
-      z.object({
-        name: z.string().min(1, 'Witness name is required'),
-        signature: z.string().optional(),
-      })
-    )
-    .min(2, 'At least two witnesses are required'),
+  // Witnesses for husband and wife
+  witnesses: z.object({
+    husband: z
+      .array(
+        z.object({
+          name: z.string().min(1, 'Witness name is required'),
+          signature: z.string().optional(),
+        })
+      )
+      .min(1, 'At least one witness for husband is required'),
+    wife: z
+      .array(
+        z.object({
+          name: z.string().min(1, 'Witness name is required'),
+          signature: z.string().optional(),
+        })
+      )
+      .min(1, 'At least one witness for wife is required'),
+  }),
 
   // Solemnizing Officer
   solemnizingOfficer: z.object({
@@ -329,16 +339,10 @@ export const defaultMarriageCertificateValues: Partial<MarriageCertificateFormVa
     noMarriageLicense: false,
     executiveOrderApplied: false,
     presidentialDecreeApplied: false,
-    witnesses: [
-      {
-        name: 'Juan dela Torre',
-        signature: '',
-      },
-      {
-        name: 'Maria Santos',
-        signature: '',
-      },
-    ],
+    witnesses: {
+      husband: [{ name: 'John Doe', signature: 'Signature' }],
+      wife: [{ name: 'Jane Doe', signature: 'Signature' }],
+    },
     solemnizingOfficer: {
       name: 'Rev. Fr. Jose Santos',
       position: 'Parish Priest',
