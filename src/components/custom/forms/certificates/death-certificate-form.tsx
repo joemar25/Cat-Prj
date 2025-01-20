@@ -147,6 +147,13 @@ export default function DeathCertificateForm({
       receivedBy: data.receivedBy,
       registeredAtCivilRegistrar: data.registeredAtCivilRegistrar,
 
+      preparedBy: data.preparedBy && {
+        signature: data.preparedBy.signature,
+        name: data.preparedBy.name,
+        title: data.preparedBy.title,
+        date: data.preparedBy.date,
+      },
+
       // Remarks
       remarks: data.remarks,
     };

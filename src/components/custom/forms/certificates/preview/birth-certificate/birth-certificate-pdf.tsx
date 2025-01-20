@@ -917,7 +917,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <View style={{ width: '50%' }}>
                 <Text style={[styles.label, { fontSize: 7 }]}>Date:</Text>
                 <Text style={[styles.value, { fontSize: 7 }]}>
-                  {data.attendant?.certification?.date || 'N/A'}
+                  {data.attendant?.certification?.date
+                    ? formatDateTime(data.attendant.certification.date, {
+                        monthFormat: 'numeric',
+                        dayFormat: 'numeric',
+                        yearFormat: 'numeric',
+                      })
+                    : 'N/A'}
                 </Text>
               </View>
             </View>
@@ -980,7 +986,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   <Text style={[styles.label, { fontSize: 7 }]}>Date:</Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
                     {data.informant?.date
-                      ? formatDateTime(data.informant.date)
+                      ? formatDateTime(data.informant.date, {
+                          monthFormat: 'numeric',
+                        })
                       : 'N/A'}
                   </Text>
                 </View>
@@ -1023,7 +1031,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   <Text style={[styles.label, { fontSize: 7 }]}>Date:</Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
                     {data.preparedBy?.date
-                      ? formatDateTime(data.preparedBy.date)
+                      ? formatDateTime(data.preparedBy.date, {
+                          monthFormat: 'numeric',
+                        })
                       : 'N/A'}
                   </Text>
                 </View>
@@ -1069,7 +1079,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   <Text style={[styles.label, { fontSize: 7 }]}>Date:</Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
                     {data.receivedBy?.date
-                      ? formatDateTime(data.receivedBy.date)
+                      ? formatDateTime(data.receivedBy.date, {
+                          monthFormat: 'numeric',
+                        })
                       : 'N/A'}
                   </Text>
                 </View>
@@ -1114,7 +1126,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   <Text style={[styles.label, { fontSize: 7 }]}>Date:</Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
                     {data.registeredByOffice?.date
-                      ? formatDateTime(data.registeredByOffice.date)
+                      ? formatDateTime(data.registeredByOffice.date, {
+                          monthFormat: 'numeric',
+                        })
                       : 'N/A'}
                   </Text>
                 </View>
