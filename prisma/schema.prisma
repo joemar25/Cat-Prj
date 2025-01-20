@@ -41,6 +41,9 @@ model User {
   sessions      Session[]
   workflows     Workflow[]
 
+  preparedCivilRegistryForms CivilRegistryFormBase[] @relation("PreparedCivilRegistryForms")
+  verifiedCivilRegistryForms CivilRegistryFormBase[] @relation("VerifiedCivilRegistryForms")
+
   @@map("user")
 }
 
@@ -395,19 +398,20 @@ model Profile {
 /// * - Metadata storage
 /// * - Workflow integration
 model Document {
-  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  type          AttachmentType
-  title         String
-  description   String?
-  metadata      Json?
-  status        DocumentStatus @default(PENDING)
-  version       Int            @default(1)
-  isLatest      Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  attachments   Attachment[]
-  auditLogs     AuditLog[]
-  workflowSteps WorkflowStep[]
+  id                 String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type               AttachmentType
+  title              String
+  description        String?
+  metadata           Json?
+  status             DocumentStatus          @default(PENDING)
+  version            Int                     @default(1)
+  isLatest           Boolean                 @default(true)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  attachments        Attachment[]
+  auditLogs          AuditLog[]
+  workflowSteps      WorkflowStep[]
+  civilRegistryForms CivilRegistryFormBase[]
 
   @@map("document")
 }
@@ -533,6 +537,9 @@ model AuditLog {
   document   Document @relation(fields: [entityId], references: [id])
   user       User     @relation(fields: [userId], references: [id])
 
+  civilRegistryFormId String?                @db.Uuid
+  civilRegistryForm   CivilRegistryFormBase? @relation(fields: [civilRegistryFormId], references: [id])
+
   @@map("audit_log")
 }
 
@@ -572,6 +579,13 @@ enum MannerOfDeath {
   SUICIDE
   HOMICIDE
   UNDETERMINED
+}
+
+enum CertifiedCopyStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
 }
 
 /// *
@@ -676,21 +690,23 @@ enum AttachmentType {
 model CivilRegistryFormBase {
   id                 String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   formType           CivilRegistryFormType
-  pageNumber         String
-  bookNumber         String
-  registryNumber     String
-  dateOfRegistration DateTime
-  issuedTo           String
+  pageNumber         String?
+  bookNumber         String?
+  registryNumber     String?
+  issuedTo           String?
   purpose            String
   remarks            String?
+  isRegisteredLate   Boolean               @default(false)
+  dateOfRegistration DateTime?
+  copies             Int?                  @default(0)
 
   // Officials
   preparedByName         String?
   preparedByPosition     String?
   verifiedByName         String?
   verifiedByPosition     String?
-  civilRegistrar         String
-  civilRegistrarPosition String
+  civilRegistrar         String?
+  civilRegistrarPosition String?
 
   // Payment
   amountPaid Float?
@@ -728,13 +744,13 @@ model CivilRegistryForm1A {
   id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   baseFormId           String    @unique @db.Uuid
   nameOfChild          String
-  sex                  String
+  sex                  String?
   dateOfBirth          DateTime
   placeOfBirth         String
   nameOfMother         String
-  citizenshipMother    String
+  citizenshipMother    String?
   nameOfFather         String
-  citizenshipFather    String
+  citizenshipFather    String?
   dateMarriageParents  DateTime?
   placeMarriageParents String?
 
@@ -750,13 +766,13 @@ model CivilRegistryForm2A {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   baseFormId     String   @unique @db.Uuid
   nameOfDeceased String
-  sex            String
-  age            Int
-  civilStatus    String
-  citizenship    String
+  sex            String?
+  age            Int?
+  civilStatus    String?
+  citizenship    String?
   dateOfDeath    DateTime
   placeOfDeath   String
-  causeOfDeath   String
+  causeOfDeath   String?
 
   baseForm CivilRegistryFormBase @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
 
@@ -771,18 +787,18 @@ model CivilRegistryForm3A {
   baseFormId String @unique @db.Uuid
 
   husbandName           String
-  husbandDateOfBirthAge String
-  husbandCitizenship    String
-  husbandCivilStatus    String
-  husbandMother         String
-  husbandFather         String
+  husbandDateOfBirthAge String?
+  husbandCitizenship    String?
+  husbandCivilStatus    String?
+  husbandMother         String?
+  husbandFather         String?
 
   wifeName           String
-  wifeDateOfBirthAge String
-  wifeCitizenship    String
-  wifeCivilStatus    String
-  wifeMother         String
-  wifeFather         String
+  wifeDateOfBirthAge String?
+  wifeCitizenship    String?
+  wifeCivilStatus    String?
+  wifeMother         String?
+  wifeFather         String?
 
   dateOfMarriage  DateTime
   placeOfMarriage String
