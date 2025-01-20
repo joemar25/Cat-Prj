@@ -130,7 +130,7 @@ const RegistryInformationCard: React.FC = () => {
 
         setIsChecking(true);
         try {
-          await checkRegistryNumberExists(value);
+          await checkRegistryNumberExists(value, FormType.DEATH);
           clearErrors('registryNumber');
           setLastCheckedValue(value);
         } catch (error) {

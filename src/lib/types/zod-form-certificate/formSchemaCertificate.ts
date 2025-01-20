@@ -1,6 +1,7 @@
 // src\lib\types\zod-form-certificate\formSchemaCertificate.ts
 import { checkRegistryNumberExists } from '@/hooks/form-certificate-actions';
 import { COUNTRY } from '@/lib/constants/locations';
+import { FormType } from '@prisma/client';
 import { z } from 'zod';
 
 // Sub-schemas
@@ -44,7 +45,10 @@ export const marriageCertificateSchema = z.object({
     )
     .superRefine(async (value, ctx) => {
       try {
-        const exists = await checkRegistryNumberExists(value);
+        const exists = await checkRegistryNumberExists(
+          value,
+          FormType.MARRIAGE
+        );
         if (exists) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -424,7 +428,7 @@ export const deathCertificateSchema = z.object({
     )
     .superRefine(async (value, ctx) => {
       try {
-        const exists = await checkRegistryNumberExists(value);
+        const exists = await checkRegistryNumberExists(value, FormType.DEATH);
         if (exists) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -770,7 +774,7 @@ export const birthCertificateSchema = z.object({
     )
     .superRefine(async (value, ctx) => {
       try {
-        const exists = await checkRegistryNumberExists(value);
+        const exists = await checkRegistryNumberExists(value, FormType.BIRTH);
         if (exists) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,

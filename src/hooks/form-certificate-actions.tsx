@@ -69,23 +69,69 @@ export async function generateRegistryNumber(formType: FormType) {
 
     // Use transaction to prevent race conditions
     return await prisma.$transaction(async (tx) => {
-      const birthCertCount = await tx.birthCertificateForm.count({
-        where: {
-          baseForm: {
-            AND: [
-              {
-                dateOfRegistration: {
-                  gte: new Date(currentYear, 0, 1),
-                  lt: new Date(currentYear + 1, 0, 1),
-                },
-              },
-              { formType: formType },
-            ],
-          },
-        },
-      });
+      let formCount;
 
-      const nextSequence = birthCertCount + 1;
+      // Count based on form type
+      switch (formType) {
+        case FormType.BIRTH:
+          formCount = await tx.birthCertificateForm.count({
+            where: {
+              baseForm: {
+                AND: [
+                  {
+                    dateOfRegistration: {
+                      gte: new Date(currentYear, 0, 1),
+                      lt: new Date(currentYear + 1, 0, 1),
+                    },
+                  },
+                  { formType: formType },
+                ],
+              },
+            },
+          });
+          break;
+
+        case FormType.DEATH:
+          formCount = await tx.deathCertificateForm.count({
+            where: {
+              baseForm: {
+                AND: [
+                  {
+                    dateOfRegistration: {
+                      gte: new Date(currentYear, 0, 1),
+                      lt: new Date(currentYear + 1, 0, 1),
+                    },
+                  },
+                  { formType: formType },
+                ],
+              },
+            },
+          });
+          break;
+
+        case FormType.MARRIAGE:
+          formCount = await tx.marriageCertificateForm.count({
+            where: {
+              baseForm: {
+                AND: [
+                  {
+                    dateOfRegistration: {
+                      gte: new Date(currentYear, 0, 1),
+                      lt: new Date(currentYear + 1, 0, 1),
+                    },
+                  },
+                  { formType: formType },
+                ],
+              },
+            },
+          });
+          break;
+
+        default:
+          throw new Error('Invalid form type');
+      }
+
+      const nextSequence = formCount + 1;
 
       if (nextSequence > 99999) {
         throw new Error(
@@ -121,7 +167,10 @@ export async function generateRegistryNumber(formType: FormType) {
   }
 }
 
-export async function checkRegistryNumberExists(registryNumber: string) {
+export async function checkRegistryNumberExists(
+  registryNumber: string,
+  formType: FormType
+) {
   try {
     const [year, sequence] = registryNumber.split('-');
     const yearNum = parseInt(year);
@@ -140,7 +189,7 @@ export async function checkRegistryNumberExists(registryNumber: string) {
       const existingForm = await tx.baseRegistryForm.findFirst({
         where: {
           registryNumber,
-          formType: FormType.BIRTH,
+          formType,
           dateOfRegistration: {
             gte: new Date(yearNum, 0, 1),
             lt: new Date(yearNum + 1, 0, 1),
@@ -152,32 +201,71 @@ export async function checkRegistryNumberExists(registryNumber: string) {
         throw new Error(`Registry number ${registryNumber} already exists`);
       }
 
-      if (sequenceNum > 1) {
-        const previousCount = await tx.birthCertificateForm.count({
-          where: {
-            baseForm: {
-              AND: [
-                {
-                  dateOfRegistration: {
-                    gte: new Date(yearNum, 0, 1),
-                    lt: new Date(yearNum + 1, 0, 1),
+      let previousCount;
+      switch (formType) {
+        case FormType.BIRTH:
+          previousCount = await tx.birthCertificateForm.count({
+            where: {
+              baseForm: {
+                AND: [
+                  {
+                    dateOfRegistration: {
+                      gte: new Date(yearNum, 0, 1),
+                      lt: new Date(yearNum + 1, 0, 1),
+                    },
                   },
-                },
-                { formType: FormType.BIRTH },
-              ],
+                  { formType },
+                ],
+              },
             },
-          },
-        });
+          });
+          break;
+        case FormType.DEATH:
+          previousCount = await tx.deathCertificateForm.count({
+            where: {
+              baseForm: {
+                AND: [
+                  {
+                    dateOfRegistration: {
+                      gte: new Date(yearNum, 0, 1),
+                      lt: new Date(yearNum + 1, 0, 1),
+                    },
+                  },
+                  { formType },
+                ],
+              },
+            },
+          });
+          break;
+        case FormType.MARRIAGE:
+          previousCount = await tx.marriageCertificateForm.count({
+            where: {
+              baseForm: {
+                AND: [
+                  {
+                    dateOfRegistration: {
+                      gte: new Date(yearNum, 0, 1),
+                      lt: new Date(yearNum + 1, 0, 1),
+                    },
+                  },
+                  { formType },
+                ],
+              },
+            },
+          });
+          break;
+        default:
+          throw new Error('Invalid form type');
+      }
 
-        if (sequenceNum > previousCount + 1) {
-          throw new Error(
-            `Cannot use registry number ${registryNumber}. Please use number ${yearNum}-${(
-              previousCount + 1
-            )
-              .toString()
-              .padStart(5, '0')}`
-          );
-        }
+      if (sequenceNum > previousCount + 1) {
+        throw new Error(
+          `Cannot use registry number ${registryNumber}. Please use number ${yearNum}-${(
+            previousCount + 1
+          )
+            .toString()
+            .padStart(5, '0')}`
+        );
       }
 
       return false;
@@ -196,7 +284,10 @@ export async function createMarriageCertificate(
 ) {
   try {
     // 1. Validate registry number
-    const exists = await checkRegistryNumberExists(data.registryNumber);
+    const exists = await checkRegistryNumberExists(
+      data.registryNumber,
+      FormType.MARRIAGE
+    );
     if (exists) {
       return {
         success: false,
@@ -343,7 +434,10 @@ export async function createMarriageCertificate(
 export async function createDeathCertificate(data: DeathCertificateFormValues) {
   try {
     // 1. Validate registry number
-    const exists = await checkRegistryNumberExists(data.registryNumber);
+    const exists = await checkRegistryNumberExists(
+      data.registryNumber,
+      FormType.DEATH
+    );
     if (exists) {
       return {
         success: false,
@@ -513,7 +607,10 @@ export async function createDeathCertificate(data: DeathCertificateFormValues) {
 export async function createBirthCertificate(data: BirthCertificateFormValues) {
   try {
     // 1. Validate registry number
-    const exists = await checkRegistryNumberExists(data.registryNumber);
+    const exists = await checkRegistryNumberExists(
+      data.registryNumber,
+      FormType.BIRTH
+    );
     if (exists) {
       return {
         success: false,

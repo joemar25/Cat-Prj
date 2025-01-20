@@ -154,7 +154,7 @@ const RegistryInfoCard: React.FC = () => {
 
         setIsChecking(true);
         try {
-          await checkRegistryNumberExists(value);
+          await checkRegistryNumberExists(value, FormType.MARRIAGE);
           clearErrors('registryNumber');
           setLastCheckedValue(value);
         } catch (error) {
