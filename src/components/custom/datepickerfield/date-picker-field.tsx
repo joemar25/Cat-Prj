@@ -39,24 +39,20 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
   label,
   placeholder = 'Pick a date',
 }) => {
-  // State for current month displayed in the calendar
   const [currentDate, setCurrentDate] = useState<Date>(
     field.value || new Date()
   );
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  // Update currentDate when field.value changes
   useEffect(() => {
     if (field.value) {
       setCurrentDate(field.value);
     }
   }, [field.value]);
 
-  // Get current year and month for dropdowns
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();
 
-  // Generate years from 1900 to current year
   const years = Array.from(
     { length: new Date().getFullYear() - 1900 + 1 },
     (_, i) => new Date().getFullYear() - i
@@ -72,6 +68,11 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
     const newDate = new Date(currentDate);
     newDate.setFullYear(year);
     setCurrentDate(newDate);
+  };
+
+  // Function to format date in numeric format (MM/DD/YYYY)
+  const formatDateNumeric = (date: Date) => {
+    return format(date, 'M/d/yyyy');
   };
 
   return (
@@ -95,7 +96,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
                 )}
               >
                 {field.value ? (
-                  format(field.value, 'MMMM do, yyyy')
+                  formatDateNumeric(field.value)
                 ) : (
                   <span>{placeholder}</span>
                 )}
@@ -111,12 +112,14 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
                   onValueChange={(value) => handleMonthChange(parseInt(value))}
                 >
                   <SelectTrigger className='w-[140px] h-8'>
-                    <SelectValue>{format(currentDate, 'MMMM')}</SelectValue>
+                    <SelectValue>
+                      {format(currentDate, 'M')} - {format(currentDate, 'MMMM')}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent position='popper'>
                     {Array.from({ length: 12 }, (_, i) => (
                       <SelectItem key={i} value={i.toString()}>
-                        {format(new Date(2000, i, 1), 'MMMM')}
+                        {i + 1} - {format(new Date(2000, i, 1), 'MMMM')}
                       </SelectItem>
                     ))}
                   </SelectContent>
