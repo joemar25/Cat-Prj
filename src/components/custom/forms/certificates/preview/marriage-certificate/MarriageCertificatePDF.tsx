@@ -1182,7 +1182,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
         >
           REMARKS / ANNOTATIONS (FOR LCRO/OCRG USE ONLY)
         </Text>
-        <Text style={styles.value}>{'N/A'}</Text>
+        <Text style={styles.value}>{data.remarks || 'N/A'}</Text>
       </View>
     </View>,
   ];

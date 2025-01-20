@@ -131,6 +131,8 @@ export type MarriageFormData = {
     title: string;
     date: string; // should match the format used in your form
   };
+
+  remarks?: string;
 };
 
 // Preview component props

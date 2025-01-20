@@ -37,6 +37,7 @@ import MarriageDetailsCard from './form-cards/marriage-cards/marriage-details-ca
 import ReceivedByCard from './form-cards/marriage-cards/received-by-card';
 import RegisteredAtOfficeCard from './form-cards/marriage-cards/registered-at-office-card';
 import RegistryInfoCard from './form-cards/marriage-cards/registry-info-card';
+import RemarksCard from './form-cards/marriage-cards/remarks-card';
 import SolemnizingOfficerCertification from './form-cards/marriage-cards/solemnizing-officer-certification-card';
 import WifeInfoCard from './form-cards/marriage-cards/wife-info-card';
 import WifeParentsInfoCard from './form-cards/marriage-cards/wife-parent-info-card';
@@ -235,6 +236,8 @@ export function MarriageCertificateForm({
             title: 'N/A',
             date: 'N/A',
           },
+
+      remarks: formData.remarks || 'N/A',
     };
 
     return data;
@@ -276,6 +279,7 @@ export function MarriageCertificateForm({
                       <WitnessesCard />
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard />
+                      <RemarksCard />
                       {/* <HusbandConsentInfoCard />
                       <WifeConsentInfoCard /> */}
 

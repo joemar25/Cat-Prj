@@ -221,6 +221,8 @@ export const marriageCertificateSchema = z.object({
     title: z.string().min(1, 'Title is required'),
     date: z.date(),
   }),
+
+  remarks: z.string().optional(),
 });
 // Type inference
 export type MarriageCertificateFormValues = z.infer<
