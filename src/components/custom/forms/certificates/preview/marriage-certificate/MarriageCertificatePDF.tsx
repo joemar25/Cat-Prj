@@ -1,8 +1,4 @@
-import {
-  MarriageFormData,
-  PersonName,
-  Place,
-} from '@/types/marriage-certificate'; // Adjust the import path as needed
+import { MarriageFormData, Place } from '@/types/marriage-certificate'; // Adjust the import path as needed
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import React from 'react';
 import { sty } from '../death-certificate/stylish';
@@ -11,10 +7,10 @@ import { styles } from './marriage';
 // Define styles for the PDF
 
 // Helper functions to format data
-const formatName = (name: PersonName | null | undefined): string => {
-  if (!name) return 'N/A';
-  return `${name.first}${name.middle ? ` ${name.middle}` : ''} ${name.last}`;
-};
+// const formatName = (name: PersonName | null | undefined): string => {
+//   if (!name) return 'N/A';
+//   return `${name.first}${name.middle ? ` ${name.middle}` : ''} ${name.last}`;
+// };
 
 const formatPlace = (place: Place | null | undefined): string => {
   if (!place) return 'N/A';
@@ -981,7 +977,6 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
       </View>
 
       {/* Twentieth Section */}
-      {/* Twentieth Section */}
       <View style={styles.gridContainer}>
         {/* Column 1: Numbering */}
         <View
@@ -1074,7 +1069,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
 
       {/* Twenty-First Section */}
       <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
+        {/* Column 1: Received By */}
         <View
           style={[
             styles.gridColumn,
@@ -1087,20 +1082,20 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
               { textAlign: 'left', fontSize: 9, padding: 5 },
             ]}
           >
-            21. RECIEVED BY
+            21. RECEIVED BY
           </Text>
           <View style={[styles.flexColumn, { padding: 5 }]}>
             <View style={[styles.flexColumn, { padding: 5 }]}>
               <View style={styles.fieldContainer}>
                 <Text style={styles.label}>Signature:</Text>
                 <Text style={styles.value}>
-                  {data.witnesses?.name || 'N/A'}
+                  {data.receivedBy?.signature || 'N/A'}
                 </Text>
               </View>
               <View style={styles.fieldContainer}>
                 <Text style={styles.label}>Name in Print:</Text>
                 <Text style={styles.value}>
-                  {data.witnesses?.signature || 'N/A'}
+                  {data.receivedBy?.name || 'N/A'}
                 </Text>
               </View>
             </View>
@@ -1108,20 +1103,20 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
               <View style={styles.fieldContainer}>
                 <Text style={styles.label}>Title or Position:</Text>
                 <Text style={styles.value}>
-                  {data.witnesses?.name || 'N/A'}
+                  {data.receivedBy?.title || 'N/A'}
                 </Text>
               </View>
               <View style={styles.fieldContainer}>
                 <Text style={styles.label}>Date:</Text>
                 <Text style={styles.value}>
-                  {data.witnesses?.signature || 'N/A'}
+                  {data.receivedBy?.date || 'N/A'}
                 </Text>
               </View>
             </View>
           </View>
         </View>
 
-        {/* Column 2: Husband's Information */}
+        {/* Column 2: Registered at Civil Registrar */}
         <View
           style={[
             styles.gridColumn,
@@ -1139,24 +1134,28 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           <View style={[styles.flexColumn, { padding: 5 }]}>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Signature:</Text>
-              <Text style={styles.value}>{data.witnesses?.name || 'N/A'}</Text>
+              <Text style={styles.value}>
+                {data.registeredAtCivilRegistrar?.signature || 'N/A'}
+              </Text>
             </View>
             <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Name in Print:</Text>
+              <Text style={styles.label}>Name:</Text>
               <Text style={styles.value}>
-                {data.witnesses?.signature || 'N/A'}
+                {data.registeredAtCivilRegistrar?.name || 'N/A'}
               </Text>
             </View>
           </View>
           <View style={[styles.flexColumn, { padding: 5 }]}>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Title or Position:</Text>
-              <Text style={styles.value}>{data.witnesses?.name || 'N/A'}</Text>
+              <Text style={styles.value}>
+                {data.registeredAtCivilRegistrar?.title || 'N/A'}
+              </Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Date:</Text>
               <Text style={styles.value}>
-                {data.witnesses?.signature || 'N/A'}
+                {data.registeredAtCivilRegistrar?.date || 'N/A'}
               </Text>
             </View>
           </View>

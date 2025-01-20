@@ -116,6 +116,21 @@ export type MarriageFormData = {
     husband: string;
     wife: string;
   };
+
+  receivedBy: {
+    signature: string;
+    name: string;
+    title: string;
+    date: string; // should match the format used in your form
+  };
+
+  // Registered at Civil Registrar
+  registeredAtCivilRegistrar: {
+    signature: string;
+    name: string;
+    title: string;
+    date: string; // should match the format used in your form
+  };
 };
 
 // Preview component props

@@ -200,6 +200,41 @@ export function MarriageCertificateForm({
             wife: formData.contractingPartiesSignature.wife || '',
           }
         : undefined,
+
+      receivedBy: formData.receivedBy
+        ? {
+            signature: formData.receivedBy.signature || 'N/A',
+            name: formData.receivedBy.name || 'N/A',
+            title: formData.receivedBy.title || 'N/A',
+            date: formData.receivedBy.date
+              ? format(new Date(formData.receivedBy.date), 'MMMM dd, yyyy')
+              : 'N/A',
+          }
+        : {
+            signature: 'N/A',
+            name: 'N/A',
+            title: 'N/A',
+            date: 'N/A',
+          },
+
+      registeredAtCivilRegistrar: formData.registeredAtCivilRegistrar
+        ? {
+            signature: formData.registeredAtCivilRegistrar.signature || 'N/A',
+            name: formData.registeredAtCivilRegistrar.name || 'N/A',
+            title: formData.registeredAtCivilRegistrar.title || 'N/A',
+            date: formData.registeredAtCivilRegistrar.date
+              ? format(
+                  new Date(formData.registeredAtCivilRegistrar.date),
+                  'MMMM dd, yyyy'
+                ) // Month Day, Year format
+              : 'N/A',
+          }
+        : {
+            signature: 'N/A',
+            name: 'N/A',
+            title: 'N/A',
+            date: 'N/A',
+          },
     };
 
     return data;
