@@ -8,9 +8,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Button } from '@/components/ui/button'
 import { FormType } from '@prisma/client'
 import useDocumentStore from '@/state/use-document-store'
-import DeathCertificateForm from '@/components/custom/public_request_forms/death_cert_form'
-import BirthCertificateForm from '@/components/custom/public_request_forms/birth_cert_form'
-import MarriageCertificateForm from '@/components/custom/public_request_forms/marriage_cert_form'
+import DeathCertificateForm from '@/components/custom/public_request-forms/death_cert_form'
+import BirthCertificateForm from '@/components/custom/public_request-forms/birth_cert_form'
+import MarriageCertificateForm from '@/components/custom/public_request-forms/marriage_cert_form'
 
 export default function DocumentRequestForm() {
     const { selectedFormType, setSelectedFormType } = useDocumentStore()
