@@ -1,6 +1,7 @@
 // src/app/public_request/page.tsx
 'use client'
 
+import { useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -14,11 +15,17 @@ import MarriageCertificateForm from '@/components/custom/public_request_forms/ma
 export default function DocumentRequestForm() {
     const { selectedFormType, setSelectedFormType } = useDocumentStore()
 
+    useEffect(() => {
+        console.log('Current selected form type:', selectedFormType)
+    }, [selectedFormType])
+
     const handleFormSelection = (value: FormType) => {
+        console.log('Form type selected:', value)
         setSelectedFormType(value)
     }
 
     const FormRenderer = () => {
+        console.log('Rendering form for type:', selectedFormType)
         switch (selectedFormType) {
             case 'BIRTH':
                 return <BirthCertificateForm />
@@ -65,7 +72,10 @@ export default function DocumentRequestForm() {
                     ) : (
                         <>
                             <Button
-                                onClick={() => setSelectedFormType(null)}
+                                onClick={() => {
+                                    console.log('Returning to form selection')
+                                    setSelectedFormType(null)
+                                }}
                                 variant="outline"
                                 className="mb-6"
                             >

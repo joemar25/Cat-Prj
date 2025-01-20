@@ -1,15 +1,16 @@
 // src/components/custom/requests/data-table-toolbar.tsx
 'use client'
 
-import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
-import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
-import { Button } from '@/components/ui/button'
+import { useCallback } from 'react'
+import { Table } from '@tanstack/react-table'
 import { Icons } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { CertifiedCopy } from '@prisma/client'
+import { Button } from '@/components/ui/button'
 import { Cross2Icon } from '@radix-ui/react-icons'
-import { Table } from '@tanstack/react-table'
-import { useCallback } from 'react'
+import { FormSelection } from './components/form-selection'
+import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
+import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
 
 interface DataTableToolbarProps<TData extends CertifiedCopy> {
   table: Table<TData>
@@ -76,12 +77,9 @@ export function DataTableToolbar<TData extends CertifiedCopy>({
       <div className='flex items-center space-x-4'>
         <Button variant='outline' className='h-10' onClick={handleExport}>
           <Icons.download className='mr-2 h-4 w-4' />
-          Scan
+          Export
         </Button>
-        <Button variant='outline' className='h-10' onClick={handleExport}>
-          <Icons.download className='mr-2 h-4 w-4' />
-          Upload
-        </Button>
+        <FormSelection />
         <DataTableViewOptions table={table} />
       </div>
     </div>

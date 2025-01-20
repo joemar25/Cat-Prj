@@ -1,12 +1,13 @@
-import type { LucideIcon } from 'lucide-react'
-import { Icons } from '@/components/ui/icons'
 import { UserRole } from '@prisma/client'
+import { Icons } from '@/components/ui/icons'
 import { NavConfig, NavMainItem, NavSecondaryItem, NavigationConfiguration, hasSubItems } from '@/lib/types/navigation'
 
+import type { LucideIcon } from 'lucide-react'
+
 // Environment variables
-const DEBUG = process.env.NEXT_PUBLIC_NODE_ENV === 'development'
 const KIOSK = process.env.NEXT_PUBLIC_KIOSK === 'true'
 const SETTINGS = process.env.NEXT_PUBLIC_SETTINGS === 'true'
+const DEBUG = process.env.NEXT_PUBLIC_NODE_ENV === 'development'
 const REGULAR_USER_ACC = process.env.NEXT_PUBLIC_REGULAR_USER_ACC === 'true'
 
 // Debug logs
@@ -137,14 +138,38 @@ export const navigationConfig: NavigationConfiguration = {
             type: 'main',
             title: 'Civil Registry',
             url: '/civil-registry',
-            iconName: 'file',
+            iconName: 'briefcase',
         },
         {
             id: 'requests',
             type: 'main',
             title: 'Manage Requests',
             url: '/requests',
-            iconName: 'user2',
+            iconName: 'tag',
+            items: [
+                {
+                    id: 'birth',
+                    title: 'Birth Cert',
+                    url: '/requests/birth-cert',
+                },
+                {
+                    id: 'marriage',
+                    title: 'Marriage Cert',
+                    url: '/requests/marriage-cert',
+                },
+                {
+                    id: 'death',
+                    title: 'Death Cert',
+                    url: '/requests/death-cert',
+                },
+            ],
+        },
+        {
+            id: 'certified-true-copies',
+            type: 'main',
+            title: 'Mangage CTC',
+            url: '/certified-true-copies',
+            iconName: 'lifeBuoy',
         },
         {
             id: 'feedback',

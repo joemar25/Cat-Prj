@@ -2,8 +2,8 @@
 'use client'
 
 import { useState } from 'react'
-import { DataTable } from '@/components/custom/requests/data-table'
-import { createColumns } from '@/components/custom/requests/columns'
+import { DataTable } from '@/components/custom/certified-true-copies/data-table'
+import { createColumns } from '@/components/custom/certified-true-copies/columns'
 import { ExtendedCertifiedCopy } from '@/types/certified-true-copy'
 
 interface RequestsTableClientProps {
