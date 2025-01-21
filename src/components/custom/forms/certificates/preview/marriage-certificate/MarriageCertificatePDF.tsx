@@ -9,12 +9,12 @@ import { styles } from './marriage';
 
 // Helper functions to format data
 // const formatName = (name: PersonName | null | undefined): string => {
-//   if (!name) return 'N/A';
+//   if (!name) return '';
 //   return `${name.first}${name.middle ? ` ${name.middle}` : ''} ${name.last}`;
 // };
 
 const formatPlace = (place: Place | null | undefined): string => {
-  if (!place) return 'N/A';
+  if (!place) return '';
   const { cityMunicipality, province, country } = place;
   return [cityMunicipality, province, country].filter(Boolean).join(', ');
 };
@@ -70,11 +70,11 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           <View style={sty.leftGrid}>
             <View style={sty.fieldContainer}>
               <Text style={sty.label}>Province:</Text>
-              <Text style={sty.value}>{data.province || 'N/A'}</Text>
+              <Text style={sty.value}>{data.province || ''}</Text>
             </View>
             <View style={[sty.fieldContainer, { borderBottom: 'none' }]}>
               <Text style={sty.label}>City/Municipality:</Text>
-              <Text style={sty.value}>{data.cityMunicipality || 'N/A'}</Text>
+              <Text style={sty.value}>{data.cityMunicipality || ''}</Text>
             </View>
           </View>
 
@@ -82,7 +82,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           <View style={sty.rightGrid}>
             <View style={sty.registryNoContainer}>
               <Text style={sty.label}>Registry No.:</Text>
-              <Text style={sty.value}>{data.registryNo || 'N/A'}</Text>
+              <Text style={sty.value}>{data.registryNo || ''}</Text>
             </View>
           </View>
         </View>
@@ -111,17 +111,17 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           <View style={[styles.flexColumn, { padding: 5 }]}>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>First Name:</Text>
-              <Text style={styles.value}>{data.husbandFirstName || 'N/A'}</Text>
+              <Text style={styles.value}>{data.husbandFirstName || ''}</Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Middle Name:</Text>
               <Text style={styles.value}>
-                {data.husbandMiddleName || 'N/A'}
+                {data.husbandMiddleName || ''}
               </Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Last Name:</Text>
-              <Text style={styles.value}>{data.husbandLastName || 'N/A'}</Text>
+              <Text style={styles.value}>{data.husbandLastName || ''}</Text>
             </View>
           </View>
         </View>
@@ -137,15 +137,15 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           <View style={[styles.flexColumn, { padding: 5 }]}>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>First Name:</Text>
-              <Text style={styles.value}>{data.wifeFirstName || 'N/A'}</Text>
+              <Text style={styles.value}>{data.wifeFirstName || ''}</Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Middle Name:</Text>
-              <Text style={styles.value}>{data.wifeMiddleName || 'N/A'}</Text>
+              <Text style={styles.value}>{data.wifeMiddleName || ''}</Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Last Name:</Text>
-              <Text style={styles.value}>{data.wifeLastName || 'N/A'}</Text>
+              <Text style={styles.value}>{data.wifeLastName || ''}</Text>
             </View>
           </View>
         </View>
@@ -185,10 +185,10 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                     dayFormat: 'numeric',
                     yearFormat: 'numeric',
                   })
-                : 'N/A'}
+                : ''}
             </Text>
             <Text style={styles.value}>
-              {data.husbandAge ? `${data.husbandAge} y.o` : 'N/A'}
+              {data.husbandAge ? `${data.husbandAge} y.o` : ''}
             </Text>
           </View>
         </View>
@@ -209,10 +209,10 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                     dayFormat: 'numeric',
                     yearFormat: 'numeric',
                   })
-                : 'N/A'}
+                : ''}
             </Text>
             <Text style={styles.value}>
-              {data.wifeAge ? `${data.wifeAge} y.o` : 'N/A'}
+              {data.wifeAge ? `${data.wifeAge} y.o` : ''}
             </Text>
           </View>
         </View>
@@ -244,7 +244,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           </View>
           <View style={styles.flexRow}>
             <Text style={styles.value}>
-              {formatPlace(data.husbandPlaceOfBirth) || 'N/A'}
+              {formatPlace(data.husbandPlaceOfBirth) || ''}
             </Text>
           </View>
         </View>
@@ -258,7 +258,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           </View>
           <View style={styles.flexRow}>
             <Text style={styles.value}>
-              {formatPlace(data.wifePlaceOfBirth) || 'N/A'}
+              {formatPlace(data.wifePlaceOfBirth) || ''}
             </Text>
           </View>
         </View>
@@ -292,7 +292,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                   { textAlign: 'left', textTransform: 'uppercase' },
                 ]}
               >
-                {data.husbandSex || 'N/A'}
+                {data.husbandSex || ''}
               </Text>
             </View>
             <View
@@ -303,7 +303,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
             >
               <Text style={styles.gridHeader}>(Citizenship)</Text>
               <Text style={styles.value}>
-                {data.husbandCitizenship || 'N/A'}
+                {data.husbandCitizenship || ''}
               </Text>
             </View>
           </View>
@@ -319,7 +319,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                   { textAlign: 'left', textTransform: 'uppercase' },
                 ]}
               >
-                {data.wifeSex || 'N/A'}
+                {data.wifeSex || ''}
               </Text>
             </View>
             <View
@@ -329,7 +329,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
               ]}
             >
               <Text style={styles.gridHeader}>(Citizenship)</Text>
-              <Text style={styles.value}>{data.wifeCitizenship || 'N/A'}</Text>
+              <Text style={styles.value}>{data.wifeCitizenship || ''}</Text>
             </View>
           </View>
         </View>
@@ -361,7 +361,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           </View>
           <View style={styles.flexRow}>
             <Text style={styles.value}>
-              <Text style={styles.value}>{data.husbandResidence || 'N/A'}</Text>
+              <Text style={styles.value}>{data.husbandResidence || ''}</Text>
             </Text>
           </View>
         </View>
@@ -375,7 +375,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           </View>
           <View style={styles.flexRow}>
             <Text style={styles.value}>
-              <Text style={styles.value}>{data.wifeResidence || 'N/A'}</Text>
+              <Text style={styles.value}>{data.wifeResidence || ''}</Text>
             </Text>
           </View>
         </View>
@@ -401,14 +401,14 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           ]}
         >
           <View style={styles.flexRow}>
-            <Text style={styles.value}>{data.husbandReligion || 'N/A'}</Text>
+            <Text style={styles.value}>{data.husbandReligion || ''}</Text>
           </View>
         </View>
 
         {/* Column 3: Wife's Information */}
         <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
           <View style={styles.flexRow}>
-            <Text style={styles.value}>{data.wifeReligion || 'N/A'}</Text>
+            <Text style={styles.value}>{data.wifeReligion || ''}</Text>
           </View>
         </View>
       </View>
@@ -433,14 +433,14 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           ]}
         >
           <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
-            <Text style={styles.value}>{data.husbandCivilStatus || 'N/A'}</Text>
+            <Text style={styles.value}>{data.husbandCivilStatus || ''}</Text>
           </View>
         </View>
 
         {/* Column 3: Wife's Information */}
         <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
           <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
-            <Text style={styles.value}>{data.wifeCivilStatus || 'N/A'}</Text>
+            <Text style={styles.value}>{data.wifeCivilStatus || ''}</Text>
           </View>
         </View>
       </View>
@@ -471,13 +471,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           </View>
           <View style={styles.flexRow}>
             <Text style={styles.value}>
-              {data.husbandFatherName?.first || 'N/A'}
+              {data.husbandFatherName?.first || ''}
             </Text>
             <Text style={styles.value}>
-              {data.husbandFatherName?.middle || 'N/A'}
+              {data.husbandFatherName?.middle || ''}
             </Text>
             <Text style={styles.value}>
-              {data.husbandFatherName?.last || 'N/A'}
+              {data.husbandFatherName?.last || ''}
             </Text>
           </View>
         </View>
@@ -491,13 +491,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           </View>
           <View style={styles.flexRow}>
             <Text style={styles.value}>
-              {data.wifeFatherName?.first || 'N/A'}
+              {data.wifeFatherName?.first || ''}
             </Text>
             <Text style={styles.value}>
-              {data.wifeFatherName?.middle || 'N/A'}
+              {data.wifeFatherName?.middle || ''}
             </Text>
             <Text style={styles.value}>
-              {data.wifeFatherName?.last || 'N/A'}
+              {data.wifeFatherName?.last || ''}
             </Text>
           </View>
         </View>
@@ -524,7 +524,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
         >
           <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
             <Text style={styles.value}>
-              {data.husbandFatherCitizenship || 'N/A'}
+              {data.husbandFatherCitizenship || ''}
             </Text>
           </View>
         </View>
@@ -533,7 +533,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
         <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
           <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
             <Text style={styles.value}>
-              {data.wifeFatherCitizenship || 'N/A'}
+              {data.wifeFatherCitizenship || ''}
             </Text>
           </View>
         </View>
@@ -565,13 +565,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           </View>
           <View style={styles.flexRow}>
             <Text style={styles.value}>
-              {data.husbandMotherMaidenName?.first || 'N/A'}
+              {data.husbandMotherMaidenName?.first || ''}
             </Text>
             <Text style={styles.value}>
-              {data.husbandMotherMaidenName?.middle || 'N/A'}
+              {data.husbandMotherMaidenName?.middle || ''}
             </Text>
             <Text style={styles.value}>
-              {data.husbandMotherMaidenName?.last || 'N/A'}
+              {data.husbandMotherMaidenName?.last || ''}
             </Text>
           </View>
         </View>
@@ -585,13 +585,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           </View>
           <View style={styles.flexRow}>
             <Text style={styles.value}>
-              {data.wifeMotherMaidenName?.first || 'N/A'}
+              {data.wifeMotherMaidenName?.first || ''}
             </Text>
             <Text style={styles.value}>
-              {data.wifeMotherMaidenName?.middle || 'N/A'}
+              {data.wifeMotherMaidenName?.middle || ''}
             </Text>
             <Text style={styles.value}>
-              {data.wifeMotherMaidenName?.last || 'N/A'}
+              {data.wifeMotherMaidenName?.last || ''}
             </Text>
           </View>
         </View>
@@ -618,7 +618,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
         >
           <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
             <Text style={styles.value}>
-              {data.husbandMotherCitizenship || 'N/A'}
+              {data.husbandMotherCitizenship || ''}
             </Text>
           </View>
         </View>
@@ -627,7 +627,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
         <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
           <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
             <Text style={styles.value}>
-              {data.wifeMotherCitizenship || 'N/A'}
+              {data.wifeMotherCitizenship || ''}
             </Text>
           </View>
         </View>
@@ -661,13 +661,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           </View>
           <View style={[styles.flexRow]}>
             <Text style={styles.value}>
-              {data.husbandConsentPerson?.name.first || 'N/A'}
+              {data.husbandConsentPerson?.name.first || ''}
             </Text>
             <Text style={styles.value}>
-              {data.husbandConsentPerson?.name.middle || 'N/A'}
+              {data.husbandConsentPerson?.name.middle || ''}
             </Text>
             <Text style={styles.value}>
-              {data.husbandConsentPerson?.name.last || 'N/A'}
+              {data.husbandConsentPerson?.name.last || ''}
             </Text>
           </View>
         </View>
@@ -681,13 +681,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           </View>
           <View style={[styles.flexRow]}>
             <Text style={styles.value}>
-              {data.wifeConsentPerson?.name.first || 'N/A'}
+              {data.wifeConsentPerson?.name.first || ''}
             </Text>
             <Text style={styles.value}>
-              {data.wifeConsentPerson?.name.middle || 'N/A'}
+              {data.wifeConsentPerson?.name.middle || ''}
             </Text>
             <Text style={styles.value}>
-              {data.wifeConsentPerson?.name.last || 'N/A'}
+              {data.wifeConsentPerson?.name.last || ''}
             </Text>
           </View>
         </View>
@@ -714,7 +714,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
         >
           <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
             <Text style={styles.value}>
-              {data.husbandConsentPerson?.relationship || 'N/A'}
+              {data.husbandConsentPerson?.relationship || ''}
             </Text>
           </View>
         </View>
@@ -723,7 +723,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
         <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
           <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
             <Text style={styles.value}>
-              {data.wifeConsentPerson?.relationship || 'N/A'}
+              {data.wifeConsentPerson?.relationship || ''}
             </Text>
           </View>
         </View>
@@ -756,7 +756,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           <View style={styles.flexRow}>
             <Text style={styles.value}>
               <Text style={styles.value}>
-                {data.husbandConsentPerson?.residence || 'N/A'}
+                {data.husbandConsentPerson?.residence || ''}
               </Text>
             </Text>
           </View>
@@ -772,7 +772,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           <View style={styles.flexRow}>
             <Text style={styles.value}>
               <Text style={styles.value}>
-                {data.wifeConsentPerson?.residence || 'N/A'}
+                {data.wifeConsentPerson?.residence || ''}
               </Text>
             </Text>
           </View>
@@ -789,7 +789,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
         </View>
         <View style={styles.gridColumn}>
           <Text style={styles.value}>
-            {formatPlace(data.placeOfMarriage) || 'N/A'}
+            {formatPlace(data.placeOfMarriage) || ''}
           </Text>
         </View>
       </View>
@@ -824,7 +824,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                       dayFormat: 'numeric',
                       yearFormat: 'numeric',
                     })
-                  : 'N/A'}
+                  : ''}
               </Text>
             </View>
           </View>
@@ -846,7 +846,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
               <Text style={styles.gridHeader}>17. Time of Marriage: </Text>
             </View>
             <View style={styles.gridColumn}>
-              <Text style={styles.value}>{data.timeOfMarriage || 'N/A'}</Text>
+              <Text style={styles.value}>{data.timeOfMarriage || ''}</Text>
             </View>
           </View>
         </View>
@@ -975,15 +975,15 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
 
           <View style={[styles.flexRow, { fontSize: 9 }]}>
             <Text style={styles.value}>
-              {data.solemnizingOfficer?.name + ', ' || 'N/A'}
+              {data.solemnizingOfficer?.name + ', ' || ''}
             </Text>
             <Text style={styles.value}>
-              {data.solemnizingOfficer?.position + ', ' || 'N/A'}
+              {data.solemnizingOfficer?.position + ', ' || ''}
             </Text>
             <Text style={styles.value}>
-              {data.solemnizingOfficer?.religion + ', ' || 'N/A'}
+              {data.solemnizingOfficer?.religion + ', ' || ''}
             </Text>
-            <Text style={styles.value}>{'N/A'}</Text>
+            <Text style={styles.value}>{''}</Text>
           </View>
         </View>
       </View>
@@ -1014,13 +1014,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Name:</Text>
               <Text style={styles.value}>
-                {data.witnesses?.husband?.[0]?.name || 'N/A'}
+                {data.witnesses?.husband?.[0]?.name || ''}
               </Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Signature:</Text>
               <Text style={styles.value}>
-                {data.witnesses?.husband?.[0]?.signature || 'N/A'}
+                {data.witnesses?.husband?.[0]?.signature || ''}
               </Text>
             </View>
           </View>
@@ -1028,13 +1028,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Name:</Text>
               <Text style={styles.value}>
-                {data.witnesses?.husband?.[1]?.name || 'N/A'}
+                {data.witnesses?.husband?.[1]?.name || ''}
               </Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Signature:</Text>
               <Text style={styles.value}>
-                {data.witnesses?.husband?.[1]?.signature || 'N/A'}
+                {data.witnesses?.husband?.[1]?.signature || ''}
               </Text>
             </View>
           </View>
@@ -1052,13 +1052,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Name:</Text>
               <Text style={styles.value}>
-                {data.witnesses?.wife?.[0]?.name || 'N/A'}
+                {data.witnesses?.wife?.[0]?.name || ''}
               </Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Signature:</Text>
               <Text style={styles.value}>
-                {data.witnesses?.wife?.[0]?.signature || 'N/A'}
+                {data.witnesses?.wife?.[0]?.signature || ''}
               </Text>
             </View>
           </View>
@@ -1066,13 +1066,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Name:</Text>
               <Text style={styles.value}>
-                {data.witnesses?.wife?.[1]?.name || 'N/A'}
+                {data.witnesses?.wife?.[1]?.name || ''}
               </Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Signature:</Text>
               <Text style={styles.value}>
-                {data.witnesses?.wife?.[1]?.signature || 'N/A'}
+                {data.witnesses?.wife?.[1]?.signature || ''}
               </Text>
             </View>
           </View>
@@ -1101,13 +1101,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
               <View style={styles.fieldContainer}>
                 <Text style={styles.label}>Signature:</Text>
                 <Text style={styles.value}>
-                  {data.receivedBy?.signature || 'N/A'}
+                  {data.receivedBy?.signature || ''}
                 </Text>
               </View>
               <View style={styles.fieldContainer}>
                 <Text style={styles.label}>Name in Print:</Text>
                 <Text style={styles.value}>
-                  {data.receivedBy?.name || 'N/A'}
+                  {data.receivedBy?.name || ''}
                 </Text>
               </View>
             </View>
@@ -1115,7 +1115,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
               <View style={styles.fieldContainer}>
                 <Text style={styles.label}>Title or Position:</Text>
                 <Text style={styles.value}>
-                  {data.receivedBy?.title || 'N/A'}
+                  {data.receivedBy?.title || ''}
                 </Text>
               </View>
               <View style={styles.fieldContainer}>
@@ -1127,7 +1127,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                         dayFormat: 'numeric',
                         yearFormat: 'numeric',
                       })
-                    : 'N/A'}
+                    : ''}
                 </Text>
               </View>
             </View>
@@ -1153,13 +1153,13 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Signature:</Text>
               <Text style={styles.value}>
-                {data.registeredAtCivilRegistrar?.signature || 'N/A'}
+                {data.registeredAtCivilRegistrar?.signature || ''}
               </Text>
             </View>
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Name:</Text>
               <Text style={styles.value}>
-                {data.registeredAtCivilRegistrar?.name || 'N/A'}
+                {data.registeredAtCivilRegistrar?.name || ''}
               </Text>
             </View>
           </View>
@@ -1167,7 +1167,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>Title or Position:</Text>
               <Text style={styles.value}>
-                {data.registeredAtCivilRegistrar?.title || 'N/A'}
+                {data.registeredAtCivilRegistrar?.title || ''}
               </Text>
             </View>
             <View style={styles.fieldContainer}>
@@ -1179,7 +1179,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                       dayFormat: 'numeric',
                       yearFormat: 'numeric',
                     })
-                  : 'N/A'}
+                  : ''}
               </Text>
             </View>
           </View>
@@ -1206,7 +1206,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
         >
           REMARKS / ANNOTATIONS (FOR LCRO/OCRG USE ONLY)
         </Text>
-        <Text style={styles.value}>{data.remarks || 'N/A'}</Text>
+        <Text style={styles.value}>{data.remarks || ''}</Text>
       </View>
     </View>,
   ];
