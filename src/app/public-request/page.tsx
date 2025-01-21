@@ -1,16 +1,16 @@
-// src/app/public_request/page.tsx
+// src/app/public-request/page.tsx
 'use client'
 
 import { useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Button } from '@/components/ui/button'
 import { FormType } from '@prisma/client'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 import useDocumentStore from '@/state/use-document-store'
-import DeathCertificateForm from '@/components/custom/public_request-forms/death_cert_form'
-import BirthCertificateForm from '@/components/custom/public_request-forms/birth_cert_form'
-import MarriageCertificateForm from '@/components/custom/public_request-forms/marriage_cert_form'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import DeathCertificateForm from '@/components/custom/public_request-forms/death-cert-form'
+import BirthCertificateForm from '@/components/custom/public_request-forms/birth-cert-form'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import MarriageCertificateForm from '@/components/custom/public_request-forms/marriage-cert-form'
 
 export default function DocumentRequestForm() {
     const { selectedFormType, setSelectedFormType } = useDocumentStore()
