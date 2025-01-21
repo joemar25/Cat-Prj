@@ -1,6 +1,6 @@
 // prisma\seed-data.ts
 import { fakerEN as faker } from '@faker-js/faker';
-import { AttendantType, DocumentStatus, FormType, PrismaClient } from '@prisma/client';
+import { AttendantType, DocumentStatus, FormType, NotificationType, PrismaClient } from '@prisma/client';
 import { REGIONS } from '../src/lib/constants/locations';
 
 // Helper function to generate random date between two dates
@@ -21,6 +21,97 @@ const generateTimeString = (): string => {
   const minutes = faker.number.int({ min: 0, max: 59 });
   const ampm = faker.helpers.arrayElement(['AM', 'PM']);
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+};
+
+const generateFeedback = (userIds: string[]) => {
+  const feedbackMessages = [
+    'The system is very user-friendly and easy to navigate.',
+    'I encountered some lag when submitting forms. Please optimize the performance.',
+    'It would be great to have a dark mode option for the interface.',
+    'I found a bug where the form submission fails when the internet connection is slow.',
+    'The civil registry process is much faster now. Thank you!',
+    'Can you add a feature to track the status of my submitted documents?',
+    'The system is reliable, but the UI could use some modern design improvements.',
+    'I appreciate the quick response from the support team.',
+    'The search functionality for records could be improved.',
+    'The system is excellent, but it would be helpful to have more detailed instructions.',
+  ];
+
+  // Randomly decide if the feedback is anonymous (50% chance)
+  const isAnonymous = faker.datatype.boolean();
+
+  return {
+    feedback: faker.helpers.arrayElement(feedbackMessages),
+    submittedBy: isAnonymous ? null : faker.helpers.arrayElement(userIds), // Null for anonymous users
+    createdAt: faker.date.between({ from: new Date(2023, 0, 1), to: new Date() }),
+    updatedAt: faker.date.between({ from: new Date(2023, 0, 1), to: new Date() }),
+  };
+};
+
+export const seedFeedbackData = async (prisma: PrismaClient, userIds: string[]) => {
+  console.log('Seeding Feedback data...');
+
+  // Generate an array of feedback entries
+  const feedbackData = Array(50)
+    .fill(null)
+    .map(() => generateFeedback(userIds));
+
+  // Insert feedback data into the database
+  await prisma.feedback.createMany({ data: feedbackData });
+
+  console.log('Feedback data seeded successfully!');
+};
+
+const generateNotification = (userIds: string[]) => {
+  const notificationTitles = [
+    'New Document Uploaded',
+    'Form Submission Approved',
+    'Form Submission Rejected',
+    'Reminder: Update Your Profile',
+    'System Maintenance Scheduled',
+    'New Feedback Received',
+    'Certified Copy Request Processed',
+    'Payment Received',
+    'Account Verification Required',
+    'Welcome to the Civil Registry System',
+  ];
+
+  const notificationMessages = [
+    'A new document has been uploaded to your account. Please review it.',
+    'Your form submission has been approved. You can now proceed to the next step.',
+    'Your form submission has been rejected. Please review the comments and resubmit.',
+    'Please update your profile information to ensure accurate records.',
+    'System maintenance is scheduled for tomorrow at 2:00 AM. Expect downtime for 1 hour.',
+    'You have received new feedback. Please review it in the feedback section.',
+    'Your certified copy request has been processed. You can download it now.',
+    'Your payment has been received. Thank you for your transaction.',
+    'Your account requires verification. Please upload the necessary documents.',
+    'Welcome to the Civil Registry System! We are glad to have you here.',
+  ];
+
+  return {
+    userId: faker.helpers.arrayElement(userIds), // Assign to a random user
+    type: faker.helpers.arrayElement(Object.values(NotificationType)), // Random type (EMAIL, SYSTEM, SMS)
+    title: faker.helpers.arrayElement(notificationTitles),
+    message: faker.helpers.arrayElement(notificationMessages),
+    read: faker.datatype.boolean(), // Randomly mark as read or unread
+    readAt: faker.helpers.maybe(() => faker.date.recent(), { probability: 0.5 }), // Optional readAt timestamp
+    createdAt: faker.date.between({ from: new Date(2023, 0, 1), to: new Date() }), // Random creation date
+  };
+};
+
+export const seedNotificationData = async (prisma: PrismaClient, userIds: string[]) => {
+  console.log('Seeding Notification data...');
+
+  // Generate an array of notification entries
+  const notificationData = Array(100) // Generate 100 notifications
+    .fill(null)
+    .map(() => generateNotification(userIds));
+
+  // Insert notification data into the database
+  await prisma.notification.createMany({ data: notificationData });
+
+  console.log('Notification data seeded successfully!');
 };
 
 // Generate a base registry form
@@ -594,4 +685,6 @@ export const generateAdditionalData = async (prisma: PrismaClient) => {
 export const generateTestData = async (prisma: PrismaClient, userIds: string[]) => {
   await generateBulkData(prisma, userIds);
   await generateAdditionalData(prisma);
+  await seedFeedbackData(prisma, userIds);
+  await seedNotificationData(prisma, userIds);
 };
