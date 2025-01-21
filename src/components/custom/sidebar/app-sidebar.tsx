@@ -86,7 +86,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
                 {/* Title */}
                 <div className="flex-1 overflow-hidden">
                   <span className="block font-semibold text-muted-foreground leading-normal break-words max-h-16 overflow-auto">
-                    Quanby Demo
+                    Legazpi City Civil Registry
                   </span>
                 </div>
               </div>

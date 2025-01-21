@@ -30,11 +30,10 @@ import {
   deleteBaseRegistryForm,
 } from '@/hooks/civil-registry-action'
 import { JsonValue } from '@prisma/client/runtime/library'
-import { Eye, Plus, Printer } from 'lucide-react'
 import BirthAnnotationForm from '../forms/annotations/birthcert'
 import DeathAnnotationForm from '../forms/annotations/death-annotation-form'
 import MarriageAnnotationForm from '../forms/annotations/marriage-annotation-form'
-import { ScanFormDialog } from './actions/scan-form-dialog'
+// import { ScanFormDialog } from './actions/scan-form-dialog'
 import { FileUploadDialog } from './components/file-upload'
 
 interface DataTableRowActionsProps {
@@ -125,6 +124,31 @@ export function DataTableRowActions({
   const handleUploadSuccess = (fileUrl: string) => {
     toast.success(`File uploaded successfully: ${fileUrl}`)
     onUpdateAction?.({ ...form, documentUrl: fileUrl })
+  }
+
+  const handleExportDocument = async (documentUrl: string | null, registryNumber: string) => {
+    if (!documentUrl) {
+      return
+    }
+
+    const cleanUrl = documentUrl.startsWith('/') ? documentUrl.slice(1) : documentUrl
+    const response = await fetch(`/api/download?path=${encodeURIComponent(cleanUrl)}`)
+    const blob = await response.blob()
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+    const originalFileName = documentUrl.split('/').pop() || 'document.pdf'
+    const fileName = `${registryNumber}_${timestamp}_${originalFileName}`
+
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
+
+    toast.success('File downloaded successfully')
   }
 
   interface FullNameFormat {
@@ -282,7 +306,9 @@ export function DataTableRowActions({
         open={uploadDialogOpen}
         onOpenChangeAction={setUploadDialogOpen}
         onUploadSuccess={handleUploadSuccess}
-        referenceNumber={form.registryNumber}
+        formId={form.id} // Pass the ID of the BaseRegistryForm
+        formType={form.formType} // Pass the form type (e.g., 'BIRTH', 'DEATH', 'MARRIAGE')
+        registryNumber={form.registryNumber} // Pass the registryNumber
       />
 
       <DropdownMenu>
@@ -296,22 +322,26 @@ export function DataTableRowActions({
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setViewDetailsOpen(true)}>
-            <Eye className="mr-2 h-4 w-4" />
+            <Icons.eye className="mr-2 h-4 w-4" />
             View Details
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
-            <Eye className="mr-2 h-4 w-4" />
+            <Icons.add className="mr-2 h-4 w-4" />
             Import Document
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => console.log('Print document')}>
-            <Printer className="mr-2 h-4 w-4" />
-            Print Document
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          {form.documentUrl && (
+            <DropdownMenuItem
+              onClick={() => handleExportDocument(form.documentUrl, form.registryNumber)}
+            >
+              <Icons.download className="mr-2 h-4 w-4" />
+              Export Document
+            </DropdownMenuItem>
+          )}
+          {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
             <ScanFormDialog />
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem onClick={handleOpenForm}>
-            <Plus className="mr-2 h-4 w-4" />
+            <Icons.file className="mr-2 h-4 w-4" />
             Issue Certificate
           </DropdownMenuItem>
           <DropdownMenuItem
