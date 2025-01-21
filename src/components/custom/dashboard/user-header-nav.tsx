@@ -15,7 +15,6 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 export function UserHeaderNav({ user }: UserHeaderNavProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const getInitials = () => {
@@ -63,32 +62,14 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
           <DropdownMenuItem asChild>
             <Link href="/profile">Profile</Link>
           </DropdownMenuItem>
-          <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-            <PopoverTrigger asChild className='cursor-pointer'>
-              <DropdownMenuItem
+              {/* <DropdownMenuItem
                 onSelect={(e) => {
                   e.preventDefault()
-                  setIsSettingsOpen(true)
-                  setIsDropdownOpen(true) // Keep the dropdown open
+                  setIsDropdownOpen(true) 
                 }}
               >
                 Settings
-              </DropdownMenuItem>
-            </PopoverTrigger>
-            <PopoverContent className="p-2" align="end" side="bottom">
-              <div className="flex flex-col space-y-2">
-                <p className="text-sm font-semibold">SELECT A LANGUAGE</p>
-                <div className="space-y-1">
-                  <Button variant="ghost" className="justify-start">
-                    Filipino
-                  </Button>
-                  <Button variant="ghost" className="justify-start">
-                    ENGLISH
-                  </Button>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
+              </DropdownMenuItem> */}
           <DropdownMenuItem
             className="text-destructive"
             onSelect={(e) => {
