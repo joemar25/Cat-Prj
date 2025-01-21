@@ -210,7 +210,7 @@ const RightSide = () => {
             <div
               key={index}
               className={` rounded-full transition-colors duration-300 ${
-                currentIndex === index ? "bg-transparent bg-yellow-500 dark:bg-blueColor/80 h-4 w-8" : " border-2 border-yellowColor dark:border-blueColor w-4 h-4"
+                currentIndex === index ? "bg-transparent bg-yellow-500 dark:bg-blueColor/80 h-3 w-6" : " border-2 border-yellowColor dark:border-blueColor w-3 h-3"
               }`}
             />
           ))}
