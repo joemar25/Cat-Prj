@@ -40,6 +40,11 @@ export function transformToMainNavItem(item: NavConfig, role: UserRole): NavMain
         return { ...baseItem, hidden: true } // Hide the item for non-admins
     }
 
+    // Only show "Manage CTC" for admins
+    if (item.id === 'certified-true-copies' && role !== 'ADMIN') {
+        return { ...baseItem, hidden: true } // Hide the item for non-admins
+    }
+
     if (hasSubItems(item)) {
         baseItem.items = item.items
             .filter(subItem => {
