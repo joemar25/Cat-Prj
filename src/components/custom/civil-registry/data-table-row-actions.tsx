@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,7 +33,11 @@ import {
   deleteBaseRegistryForm,
 } from '@/hooks/civil-registry-action';
 import { JsonValue } from '@prisma/client/runtime/library';
-import { Eye } from 'lucide-react';
+import { Eye, Plus } from 'lucide-react';
+
+import BirthAnnotationForm from '../forms/annotations/birthcert';
+import DeathAnnotationForm from '../forms/annotations/death-annotation-form';
+import MarriageAnnotationForm from '../forms/annotations/marriage-annotation-form';
 
 interface DataTableRowActionsProps {
   row: Row<BaseRegistryFormWithRelations>;
@@ -67,6 +72,30 @@ export function DataTableRowActions({
   const [isLoading, setIsLoading] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
+
+  // -----------------
+
+  const [open, setOpen] = useState(false);
+  const [birthFormOpen, setBirthFormOpen] = useState(false);
+  const [deathFormOpen, setDeathFormOpen] = useState(false);
+  const [marriageFormOpen, setMarriageFormOpen] = useState(false);
+
+  const handleFormSelect = (formType: string) => {
+    setOpen(false);
+    switch (formType) {
+      case 'birth-annotation':
+        setBirthFormOpen(true);
+        break;
+      case 'death-annotation':
+        setDeathFormOpen(true);
+        break;
+      case 'marriage-annotation':
+        setMarriageFormOpen(true);
+        break;
+      default:
+        break;
+    }
+  };
 
   // Check permissions
   const canManageForms = hasPermission(
@@ -270,6 +299,10 @@ export function DataTableRowActions({
             <Icons.edit className='mr-2 h-4 w-4' />
             Edit
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setOpen(true)}>
+            <Plus className='mr-2 h-4 w-4' />
+            Issue Certificate
+          </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={(e) => e.preventDefault()}
             onClick={handleDelete}
@@ -367,6 +400,80 @@ export function DataTableRowActions({
           </div>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className='sm:max-w-4xl'>
+          <DialogHeader>
+            <DialogTitle className='text-center text-xl font-semibold'>
+              Select Form Type
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className='flex gap-4'>
+            <Card
+              className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
+              onClick={() => handleFormSelect('birth-annotation')}
+            >
+              <CardHeader>
+                <CardTitle className='text-center text-base'>
+                  Civil Registry Form No. 1A
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='text-center'>
+                <p className='text-sm text-muted-foreground'>
+                  (Birth Available)
+                </p>
+              </CardContent>
+            </Card>
+            <Card
+              className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
+              onClick={() => handleFormSelect('death-annotation')}
+            >
+              <CardHeader>
+                <CardTitle className='text-center text-base'>
+                  Civil Registry Form No. 2A
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='text-center'>
+                <p className='text-sm text-muted-foreground'>
+                  (Death Available)
+                </p>
+              </CardContent>
+            </Card>
+            <Card
+              className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
+              onClick={() => handleFormSelect('marriage-annotation')}
+            >
+              <CardHeader>
+                <CardTitle className='text-center text-base'>
+                  Civil Registry Form No. 3A
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='text-center'>
+                <p className='text-sm text-muted-foreground'>
+                  (Marriage Available)
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <BirthAnnotationForm
+        open={birthFormOpen}
+        onOpenChange={setBirthFormOpen}
+        onCancel={() => setBirthFormOpen(false)}
+      />
+      <DeathAnnotationForm
+        open={deathFormOpen}
+        onOpenChange={setDeathFormOpen}
+        onCancel={() => setDeathFormOpen(false)}
+      />
+      <MarriageAnnotationForm
+        open={marriageFormOpen}
+        onOpenChange={setMarriageFormOpen}
+        onCancel={() => setMarriageFormOpen(false)}
+      />
     </>
   );
 }
