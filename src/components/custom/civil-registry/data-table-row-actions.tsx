@@ -32,7 +32,7 @@ import {
   deleteBaseRegistryForm,
 } from '@/hooks/civil-registry-action';
 import { JsonValue } from '@prisma/client/runtime/library';
-import { Eye, Plus } from 'lucide-react';
+import { Eye, Plus, Printer } from 'lucide-react';
 
 import BirthAnnotationForm from '../forms/annotations/birthcert';
 import DeathAnnotationForm from '../forms/annotations/death-annotation-form';
@@ -173,9 +173,8 @@ export function DataTableRowActions({
           (parsed as ShortNameFormat).last ||
           '';
 
-        return `${firstName} ${
-          middleName ? middleName + ' ' : ''
-        }${lastName}`.trim();
+        return `${firstName} ${middleName ? middleName + ' ' : ''
+          }${lastName}`.trim();
       } catch {
         return nameObj;
       }
@@ -195,9 +194,8 @@ export function DataTableRowActions({
         (nameObj as ShortNameFormat).last ||
         '';
 
-      return `${firstName} ${
-        middleName ? middleName + ' ' : ''
-      }${lastName}`.trim();
+      return `${firstName} ${middleName ? middleName + ' ' : ''
+        }${lastName}`.trim();
     }
 
     return String(nameObj);
@@ -294,10 +292,18 @@ export function DataTableRowActions({
             <Eye className='mr-2 h-4 w-4' />
             View Details
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+          <DropdownMenuItem onClick={() => console.log("hello")}>
+            <Eye className='mr-2 h-4 w-4' />
+            Import Document
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => console.log("hello")}>
+            <Printer className='mr-2 h-4 w-4' />
+            Print Document
+          </DropdownMenuItem>
+          {/* <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
             <Icons.edit className='mr-2 h-4 w-4' />
             Edit
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
             <ScanFormDialog />
           </DropdownMenuItem>
@@ -315,10 +321,10 @@ export function DataTableRowActions({
             {isLoading ? 'Deleting...' : 'Delete'}
           </DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu >
 
       {/* Edit Form Dialog */}
-      <EditCivilRegistryFormDialog
+      < EditCivilRegistryFormDialog
         form={form}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
@@ -326,7 +332,7 @@ export function DataTableRowActions({
       />
 
       {/* View Details Dialog */}
-      <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
+      <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen} >
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
             <DialogTitle>Form Details</DialogTitle>
@@ -401,7 +407,7 @@ export function DataTableRowActions({
             )}
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       <BirthAnnotationForm
         open={birthFormOpen}

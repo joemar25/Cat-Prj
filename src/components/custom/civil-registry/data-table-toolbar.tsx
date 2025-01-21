@@ -11,7 +11,7 @@ import { Table } from '@tanstack/react-table'
 import { toast } from 'sonner'
 import { AddCivilRegistryFormDialog } from './actions/add-form-dialog'
 import { ExtendedBaseRegistryForm } from './columns'
-import { AddCivilRegistryFormDialogPdf } from './actions/upload-pdf-dialog'
+// import { AddCivilRegistryFormDialogPdf } from './actions/upload-pdf-dialog'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarIcon } from 'lucide-react'
@@ -284,7 +284,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               </div>
               <div className="flex items-center gap-2">
                 <AddCivilRegistryFormDialog />
-                <AddCivilRegistryFormDialogPdf />
+                {/* <AddCivilRegistryFormDialogPdf /> */}
               </div>
             </div>
           </CardContent>

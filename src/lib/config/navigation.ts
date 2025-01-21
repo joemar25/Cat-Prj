@@ -140,30 +140,30 @@ export const navigationConfig: NavigationConfiguration = {
             url: '/civil-registry',
             iconName: 'briefcase',
         },
-        {
-            id: 'requests',
-            type: 'main',
-            title: 'Manage Requests',
-            url: '/requests',
-            iconName: 'tag',
-            items: [
-                {
-                    id: 'birth',
-                    title: 'Birth Cert',
-                    url: '/requests/birth-cert',
-                },
-                {
-                    id: 'marriage',
-                    title: 'Marriage Cert',
-                    url: '/requests/marriage-cert',
-                },
-                {
-                    id: 'death',
-                    title: 'Death Cert',
-                    url: '/requests/death-cert',
-                },
-            ],
-        },
+        // {
+        //     id: 'requests',
+        //     type: 'main',
+        //     title: 'Manage Requests',
+        //     url: '/requests',
+        //     iconName: 'tag',
+        //     items: [
+        //         {
+        //             id: 'birth',
+        //             title: 'Birth Cert',
+        //             url: '/requests/birth-cert',
+        //         },
+        //         {
+        //             id: 'marriage',
+        //             title: 'Marriage Cert',
+        //             url: '/requests/marriage-cert',
+        //         },
+        //         {
+        //             id: 'death',
+        //             title: 'Death Cert',
+        //             url: '/requests/death-cert',
+        //         },
+        //     ],
+        // },
         {
             id: 'certified-true-copies',
             type: 'main',
