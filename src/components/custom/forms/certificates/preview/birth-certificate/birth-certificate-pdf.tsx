@@ -316,12 +316,12 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <View style={styles.leftGrid}>
                 <View style={styles.fieldContainer}>
                   <Text style={styles.label}>Province:</Text>
-                  <Text style={styles.value}>{data.province || 'N/A'}</Text>
+                  <Text style={styles.value}>{data.province || ''}</Text>
                 </View>
                 <View style={styles.fieldContainer}>
                   <Text style={styles.label}>City/Municipality:</Text>
                   <Text style={styles.value}>
-                    {data.cityMunicipality || 'N/A'}
+                    {data.cityMunicipality || ''}
                   </Text>
                 </View>
               </View>
@@ -331,7 +331,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 <View style={styles.registryNoContainer}>
                   <Text style={styles.label}>Registry No.:</Text>
                   <Text style={styles.value}>
-                    {data.registryNumber || 'N/A'}
+                    {data.registryNumber || ''}
                   </Text>
                 </View>
               </View>
@@ -357,13 +357,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   </View>
                   <View style={styles.nameInputContainer}>
                     <Text style={styles.nameInput}>
-                      {data.childInfo?.firstName || 'N/A'}
+                      {data.childInfo?.firstName || ''}
                     </Text>
                     <Text style={styles.nameInput}>
-                      {data.childInfo?.middleName || 'N/A'}
+                      {data.childInfo?.middleName || ''}
                     </Text>
                     <Text style={styles.nameInput}>
-                      {data.childInfo?.lastName || 'N/A'}
+                      {data.childInfo?.lastName || ''}
                     </Text>
                   </View>
                 </View>
@@ -378,7 +378,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   <View style={styles.sexGrid}>
                     <Text style={styles.sexLabel}>Sex:</Text>
                     <Text style={styles.sexValue}>
-                      {data.childInfo?.sex || 'N/A'}
+                      {data.childInfo?.sex || ''}
                     </Text>
                   </View>
                   <View style={{ width: '85%' }}>
@@ -391,13 +391,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       </View>
                       <View style={styles.dateInputContainer}>
                         <Text style={styles.dateInput}>
-                          {data.childInfo?.dateOfBirth?.month || 'N/A'}
+                          {data.childInfo?.dateOfBirth?.month || ''}
                         </Text>
                         <Text style={styles.dateInput}>
-                          {data.childInfo?.dateOfBirth?.day || 'N/A'}
+                          {data.childInfo?.dateOfBirth?.day || ''}
                         </Text>
                         <Text style={styles.dateInput}>
-                          {data.childInfo?.dateOfBirth?.year || 'N/A'}
+                          {data.childInfo?.dateOfBirth?.year || ''}
                         </Text>
                       </View>
                     </View>
@@ -409,7 +409,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   <View style={styles.placeOfBirthColumn}>
                     <Text style={styles.placeOfBirthLabel}>Hospital:</Text>
                     <Text style={styles.placeOfBirthValue}>
-                      {data.childInfo?.placeOfBirth?.hospital || 'N/A'}
+                      {data.childInfo?.placeOfBirth?.hospital || ''}
                     </Text>
                   </View>
                   <View style={styles.placeOfBirthColumn}>
@@ -417,13 +417,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       City/Municipality:
                     </Text>
                     <Text style={styles.placeOfBirthValue}>
-                      {data.childInfo?.placeOfBirth?.cityMunicipality || 'N/A'}
+                      {data.childInfo?.placeOfBirth?.cityMunicipality || ''}
                     </Text>
                   </View>
                   <View style={styles.placeOfBirthColumn}>
                     <Text style={styles.placeOfBirthLabel}>Province:</Text>
                     <Text style={styles.placeOfBirthValue}>
-                      {data.childInfo?.placeOfBirth?.province || 'N/A'}
+                      {data.childInfo?.placeOfBirth?.province || ''}
                     </Text>
                   </View>
                 </View>
@@ -433,7 +433,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   <View style={styles.bottomGridColumn}>
                     <Text style={styles.bottomGridLabel}>Type of Birth:</Text>
                     <Text style={styles.bottomGridValue}>
-                      {data.childInfo?.typeOfBirth || 'N/A'}
+                      {data.childInfo?.typeOfBirth || ''}
                     </Text>
                   </View>
                   <View style={styles.bottomGridColumn}>
@@ -441,19 +441,19 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       Multiple Birth Order:
                     </Text>
                     <Text style={styles.bottomGridValue}>
-                      {data.childInfo?.multipleBirthOrder || 'N/A'}
+                      {data.childInfo?.multipleBirthOrder || ''}
                     </Text>
                   </View>
                   <View style={styles.bottomGridColumn}>
                     <Text style={styles.bottomGridLabel}>Birth Order:</Text>
                     <Text style={styles.bottomGridValue}>
-                      {data.childInfo?.birthOrder || 'N/A'}
+                      {data.childInfo?.birthOrder || ''}
                     </Text>
                   </View>
                   <View style={styles.bottomGridColumn}>
                     <Text style={styles.bottomGridLabel}>Weight at Birth:</Text>
                     <Text style={styles.bottomGridValue}>
-                      {data.childInfo?.weightAtBirth || 'N/A'}
+                      {data.childInfo?.weightAtBirth || ''}
                     </Text>
                   </View>
                 </View>
@@ -480,13 +480,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   </View>
                   <View style={styles.nameInputContainer}>
                     <Text style={styles.nameInput}>
-                      {data.motherInfo?.firstName || 'N/A'}
+                      {data.motherInfo?.firstName || ''}
                     </Text>
                     <Text style={styles.nameInput}>
-                      {data.motherInfo?.middleName || 'N/A'}
+                      {data.motherInfo?.middleName || ''}
                     </Text>
                     <Text style={styles.nameInput}>
-                      {data.motherInfo?.lastName || 'N/A'}
+                      {data.motherInfo?.lastName || ''}
                     </Text>
                   </View>
                 </View>
@@ -507,7 +507,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Citizenship:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.motherCitizenship || 'N/A'}
+                        {data.motherInfo?.motherCitizenship || ''}
                       </Text>
                     </View>
                   </View>
@@ -520,7 +520,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Religion:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.motherReligion || 'N/A'}
+                        {data.motherInfo?.motherReligion || ''}
                       </Text>
                     </View>
                   </View>
@@ -544,7 +544,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         Total Children Born Alive:
                       </Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.totalChildrenBornAlive || 'N/A'}
+                        {data.motherInfo?.totalChildrenBornAlive || ''}
                       </Text>
                     </View>
                   </View>
@@ -557,7 +557,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Children Now Dead:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.childrenNowDead || 'N/A'}
+                        {data.motherInfo?.childrenNowDead || ''}
                       </Text>
                     </View>
                   </View>
@@ -570,7 +570,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Occupation:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.motherOccupation || 'N/A'}
+                        {data.motherInfo?.motherOccupation || ''}
                       </Text>
                     </View>
                   </View>
@@ -585,7 +585,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         Age at time of this birth(completed years):
                       </Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.motherAge || 'N/A'}
+                        {data.motherInfo?.motherAge || ''}
                       </Text>
                     </View>
                   </View>
@@ -607,7 +607,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Residence:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.residence?.address || 'N/A'}
+                        {data.motherInfo?.residence?.address || ''}
                       </Text>
                     </View>
                   </View>
@@ -620,7 +620,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>City/Municipality:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.residence?.cityMunicipality || 'N/A'}
+                        {data.motherInfo?.residence?.cityMunicipality || ''}
                       </Text>
                     </View>
                   </View>
@@ -633,7 +633,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Province:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.residence?.province || 'N/A'}
+                        {data.motherInfo?.residence?.province || ''}
                       </Text>
                     </View>
                   </View>
@@ -646,7 +646,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Country:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.residence?.country || 'N/A'}
+                        {data.motherInfo?.residence?.country || ''}
                       </Text>
                     </View>
                   </View>
@@ -674,13 +674,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   </View>
                   <View style={styles.nameInputContainer}>
                     <Text style={styles.nameInput}>
-                      {data.fatherInfo?.firstName || 'N/A'}
+                      {data.fatherInfo?.firstName || ''}
                     </Text>
                     <Text style={styles.nameInput}>
-                      {data.fatherInfo?.middleName || 'N/A'}
+                      {data.fatherInfo?.middleName || ''}
                     </Text>
                     <Text style={styles.nameInput}>
-                      {data.fatherInfo?.lastName || 'N/A'}
+                      {data.fatherInfo?.lastName || ''}
                     </Text>
                   </View>
                 </View>
@@ -701,7 +701,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Citizenship:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.fatherCitizenship || 'N/A'}
+                        {data.fatherInfo?.fatherCitizenship || ''}
                       </Text>
                     </View>
                   </View>
@@ -714,7 +714,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Religion:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.fatherReligion || 'N/A'}
+                        {data.fatherInfo?.fatherReligion || ''}
                       </Text>
                     </View>
                   </View>
@@ -727,7 +727,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Occupation:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.fatherOccupation || 'N/A'}
+                        {data.fatherInfo?.fatherOccupation || ''}
                       </Text>
                     </View>
                   </View>
@@ -742,7 +742,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         Age at time of this birth(completed years):
                       </Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.fatherAge || 'N/A'}
+                        {data.fatherInfo?.fatherAge || ''}
                       </Text>
                     </View>
                   </View>
@@ -764,7 +764,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Residence:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.residence?.address || 'N/A'}
+                        {data.fatherInfo?.residence?.address || ''}
                       </Text>
                     </View>
                   </View>
@@ -777,7 +777,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>City/Municipality:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.residence?.cityMunicipality || 'N/A'}
+                        {data.fatherInfo?.residence?.cityMunicipality || ''}
                       </Text>
                     </View>
                   </View>
@@ -790,7 +790,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Province:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.residence?.province || 'N/A'}
+                        {data.fatherInfo?.residence?.province || ''}
                       </Text>
                     </View>
                   </View>
@@ -803,7 +803,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Country:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.residence?.country || 'N/A'}
+                        {data.fatherInfo?.residence?.country || ''}
                       </Text>
                     </View>
                   </View>
@@ -825,13 +825,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 </View>
                 <View style={styles.dateInputContainer}>
                   <Text style={styles.dateInput}>
-                    {data.parentMarriage?.date?.month || 'N/A'}
+                    {data.parentMarriage?.date?.month || ''}
                   </Text>
                   <Text style={styles.dateInput}>
-                    {data.parentMarriage?.date?.day || 'N/A'}
+                    {data.parentMarriage?.date?.day || ''}
                   </Text>
                   <Text style={styles.dateInput}>
-                    {data.parentMarriage?.date?.year || 'N/A'}
+                    {data.parentMarriage?.date?.year || ''}
                   </Text>
                 </View>
               </View>
@@ -844,13 +844,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 </View>
                 <View style={styles.dateInputContainer}>
                   <Text style={styles.dateInput}>
-                    {data.parentMarriage?.place?.cityMunicipality || 'N/A'}
+                    {data.parentMarriage?.place?.cityMunicipality || ''}
                   </Text>
                   <Text style={styles.dateInput}>
-                    {data.parentMarriage?.place?.province || 'N/A'}
+                    {data.parentMarriage?.place?.province || ''}
                   </Text>
                   <Text style={styles.dateInput}>
-                    {data.parentMarriage?.place?.country || 'N/A'}
+                    {data.parentMarriage?.place?.country || ''}
                   </Text>
                 </View>
               </View>
@@ -861,8 +861,8 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
           <View style={styles.sectionGrid}>
             <Text style={styles.label}>Attendant:</Text>
             <Text style={styles.value}>
-              {data.attendant?.type || 'N/A'} -{' '}
-              {data.attendant?.certification?.name || 'N/A'}
+              {data.attendant?.type || ''} -{' '}
+              {data.attendant?.certification?.name || ''}
             </Text>
           </View>
 
@@ -875,7 +875,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               I hereby certify that I attended the birth of the child who was
               born alive at{' '}
               <Text style={{ textDecoration: 'underline' }}>
-                {data.attendant?.certification?.time || 'N/A'}
+                {data.attendant?.certification?.time || ''}
               </Text>{' '}
               on the date of birth specified above.
             </Text>
@@ -884,14 +884,14 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 <Text style={[styles.label, { fontSize: 7 }]}>Signature:</Text>
                 <Text style={[styles.value, { fontSize: 7 }]}>
                   <Text style={{ textDecoration: 'underline' }}>
-                    {data.attendant?.certification?.signature || 'N/A'}
+                    {data.attendant?.certification?.signature || ''}
                   </Text>
                 </Text>
               </View>
               <View style={{ width: '50%' }}>
                 <Text style={[styles.label, { fontSize: 7 }]}>Address:</Text>
                 <Text style={[styles.value, { fontSize: 7 }]}>
-                  {data.attendant?.certification?.address || 'N/A'}
+                  {data.attendant?.certification?.address || ''}
                 </Text>
               </View>
             </View>
@@ -901,7 +901,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   Name in Print:
                 </Text>
                 <Text style={[styles.value, { fontSize: 7 }]}>
-                  {data.attendant?.certification?.name || 'N/A'}
+                  {data.attendant?.certification?.name || ''}
                 </Text>
               </View>
               <View style={{ width: '50%' }}>
@@ -909,7 +909,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   Title or Position:
                 </Text>
                 <Text style={[styles.value, { fontSize: 7 }]}>
-                  {data.attendant?.certification?.title || 'N/A'}
+                  {data.attendant?.certification?.title || ''}
                 </Text>
               </View>
             </View>
@@ -923,7 +923,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         dayFormat: 'numeric',
                         yearFormat: 'numeric',
                       })
-                    : 'N/A'}
+                    : ''}
                 </Text>
               </View>
             </View>
@@ -952,7 +952,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   </Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
                     <Text style={{ textDecoration: 'underline' }}>
-                      {data.informant?.signature || 'N/A'}
+                      {data.informant?.signature || ''}
                     </Text>
                   </Text>
                 </View>
@@ -961,7 +961,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     Name in Print:
                   </Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
-                    {data.informant?.name || 'N/A'}
+                    {data.informant?.name || ''}
                   </Text>
                 </View>
               </View>
@@ -971,13 +971,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     Relationship to the Child:
                   </Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
-                    {data.informant?.relationship || 'N/A'}
+                    {data.informant?.relationship || ''}
                   </Text>
                 </View>
                 <View style={{ width: '50%' }}>
                   <Text style={[styles.label, { fontSize: 7 }]}>Address:</Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
-                    {data.informant?.address || 'N/A'}
+                    {data.informant?.address || ''}
                   </Text>
                 </View>
               </View>
@@ -989,7 +989,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       ? formatDateTime(data.informant.date, {
                           monthFormat: 'numeric',
                         })
-                      : 'N/A'}
+                      : ''}
                   </Text>
                 </View>
               </View>
@@ -1005,7 +1005,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   </Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
                     <Text style={{ textDecoration: 'underline' }}>
-                      {data.preparedBy?.signature || 'N/A'}
+                      {data.preparedBy?.signature || ''}
                     </Text>
                   </Text>
                 </View>
@@ -1014,7 +1014,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     Name in Print:
                   </Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
-                    {data.preparedBy?.name || 'N/A'}
+                    {data.preparedBy?.name || ''}
                   </Text>
                 </View>
               </View>
@@ -1024,7 +1024,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     Title or Position:
                   </Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
-                    {data.preparedBy?.title || 'N/A'}
+                    {data.preparedBy?.title || ''}
                   </Text>
                 </View>
                 <View style={{ width: '50%' }}>
@@ -1034,7 +1034,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       ? formatDateTime(data.preparedBy.date, {
                           monthFormat: 'numeric',
                         })
-                      : 'N/A'}
+                      : ''}
                   </Text>
                 </View>
               </View>
@@ -1053,7 +1053,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   </Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
                     <Text style={{ textDecoration: 'underline' }}>
-                      {data.receivedBy?.signature || 'N/A'}
+                      {data.receivedBy?.signature || ''}
                     </Text>
                   </Text>
                 </View>
@@ -1062,7 +1062,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     Name in Print:
                   </Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
-                    {data.receivedBy?.name || 'N/A'}
+                    {data.receivedBy?.name || ''}
                   </Text>
                 </View>
               </View>
@@ -1072,7 +1072,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     Title or Position:
                   </Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
-                    {data.receivedBy?.title || 'N/A'}
+                    {data.receivedBy?.title || ''}
                   </Text>
                 </View>
                 <View style={{ width: '50%' }}>
@@ -1082,7 +1082,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       ? formatDateTime(data.receivedBy.date, {
                           monthFormat: 'numeric',
                         })
-                      : 'N/A'}
+                      : ''}
                   </Text>
                 </View>
               </View>
@@ -1100,7 +1100,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   </Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
                     <Text style={{ textDecoration: 'underline' }}>
-                      {data.registeredByOffice?.signature || 'N/A'}
+                      {data.registeredByOffice?.signature || ''}
                     </Text>
                   </Text>
                 </View>
@@ -1109,7 +1109,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     Name in Print:
                   </Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
-                    {data.registeredByOffice?.name || 'N/A'}
+                    {data.registeredByOffice?.name || ''}
                   </Text>
                 </View>
               </View>
@@ -1119,7 +1119,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     Title or Position:
                   </Text>
                   <Text style={[styles.value, { fontSize: 7 }]}>
-                    {data.registeredByOffice?.title || 'N/A'}
+                    {data.registeredByOffice?.title || ''}
                   </Text>
                 </View>
                 <View style={{ width: '50%' }}>
@@ -1129,7 +1129,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       ? formatDateTime(data.registeredByOffice.date, {
                           monthFormat: 'numeric',
                         })
-                      : 'N/A'}
+                      : ''}
                   </Text>
                 </View>
               </View>
@@ -1140,7 +1140,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
           <View style={[styles.sectionGrid, styles.remarksGrid]}>
             <Text style={[styles.label, { fontSize: 7 }]}>Remarks:</Text>
             <Text style={[styles.value, { fontSize: 7 }]}>
-              {data.remarks || 'N/A'}
+              {data.remarks || ''}
             </Text>
           </View>
         </View>
