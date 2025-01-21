@@ -413,6 +413,7 @@ export function DataTableRowActions({
         open={birthFormOpen}
         onOpenChange={setBirthFormOpen}
         onCancel={() => setBirthFormOpen(false)}
+        row={row} // Add this line to pass the row data
       />
       <DeathAnnotationForm
         open={deathFormOpen}

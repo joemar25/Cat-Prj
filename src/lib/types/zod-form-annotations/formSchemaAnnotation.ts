@@ -1,3 +1,5 @@
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action';
+import { Row } from '@tanstack/react-table';
 import { z } from 'zod';
 
 export interface BirthAnnotationFormProps {
@@ -6,6 +8,50 @@ export interface BirthAnnotationFormProps {
   onCancel: () => void;
 }
 
+export interface ExtendedBirthAnnotationFormProps
+  extends BirthAnnotationFormProps {
+  row?: Row<BaseRegistryFormWithRelations>;
+}
+
+export interface NameStructure {
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  first?: string;
+  middle?: string;
+  last?: string;
+}
+
+export interface PlaceStructure {
+  province?: string;
+  cityMunicipality?: string;
+  barangay?: string;
+  hospital?: string;
+  toString(): string;
+}
+
+export interface MarriagePlace {
+  cityMunicipality?: string;
+  province?: string;
+  church?: string;
+}
+
+export interface ParentMarriage {
+  date?: string | Date;
+  place?: string | MarriagePlace;
+}
+
+export interface BirthCertificateForm {
+  childName: NameStructure;
+  sex: string;
+  dateOfBirth: string | Date;
+  placeOfBirth: PlaceStructure;
+  motherMaidenName: NameStructure;
+  motherCitizenship: string;
+  fatherName: NameStructure;
+  fatherCitizenship: string;
+  parentMarriage?: ParentMarriage;
+}
 export const birthAnnotationSchema = z.object({
   pageNumber: z.string().min(1, 'Page number is required'),
   bookNumber: z.string().min(1, 'Book number is required'),
