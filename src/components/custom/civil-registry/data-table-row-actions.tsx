@@ -32,7 +32,12 @@ import {
   deleteBaseRegistryForm,
 } from '@/hooks/civil-registry-action';
 import { JsonValue } from '@prisma/client/runtime/library';
-import { Eye } from 'lucide-react';
+import { Eye, Plus, Printer } from 'lucide-react';
+
+import BirthAnnotationForm from '../forms/annotations/birthcert';
+import DeathAnnotationForm from '../forms/annotations/death-annotation-form';
+import MarriageAnnotationForm from '../forms/annotations/marriage-annotation-form';
+import { ScanFormDialog } from './actions/scan-form-dialog';
 
 interface DataTableRowActionsProps {
   row: Row<BaseRegistryFormWithRelations>;
@@ -62,11 +67,34 @@ export function DataTableRowActions({
   row,
   onUpdateAction,
 }: DataTableRowActionsProps) {
+  console.log('Row data:', row); // Log the row data
   const { data: session } = useSession();
   const form = row.original;
   const [isLoading, setIsLoading] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
+
+  // -----------------
+
+  const [birthFormOpen, setBirthFormOpen] = useState(false);
+  const [deathFormOpen, setDeathFormOpen] = useState(false);
+  const [marriageFormOpen, setMarriageFormOpen] = useState(false);
+
+  const handleOpenForm = () => {
+    switch (form.formType) {
+      case 'BIRTH':
+        setBirthFormOpen(true);
+        break;
+      case 'DEATH':
+        setDeathFormOpen(true);
+        break;
+      case 'MARRIAGE':
+        setMarriageFormOpen(true);
+        break;
+      default:
+        toast.error('Unknown form type');
+    }
+  };
 
   // Check permissions
   const canManageForms = hasPermission(
@@ -145,9 +173,8 @@ export function DataTableRowActions({
           (parsed as ShortNameFormat).last ||
           '';
 
-        return `${firstName} ${
-          middleName ? middleName + ' ' : ''
-        }${lastName}`.trim();
+        return `${firstName} ${middleName ? middleName + ' ' : ''
+          }${lastName}`.trim();
       } catch {
         return nameObj;
       }
@@ -167,9 +194,8 @@ export function DataTableRowActions({
         (nameObj as ShortNameFormat).last ||
         '';
 
-      return `${firstName} ${
-        middleName ? middleName + ' ' : ''
-      }${lastName}`.trim();
+      return `${firstName} ${middleName ? middleName + ' ' : ''
+        }${lastName}`.trim();
     }
 
     return String(nameObj);
@@ -266,9 +292,24 @@ export function DataTableRowActions({
             <Eye className='mr-2 h-4 w-4' />
             View Details
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+          <DropdownMenuItem onClick={() => console.log("hello")}>
+            <Eye className='mr-2 h-4 w-4' />
+            Import Document
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => console.log("hello")}>
+            <Printer className='mr-2 h-4 w-4' />
+            Print Document
+          </DropdownMenuItem>
+          {/* <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
             <Icons.edit className='mr-2 h-4 w-4' />
             Edit
+          </DropdownMenuItem> */}
+          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+            <ScanFormDialog />
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleOpenForm}>
+            <Plus className='mr-2 h-4 w-4' />
+            Issue Certificate
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={(e) => e.preventDefault()}
@@ -280,10 +321,10 @@ export function DataTableRowActions({
             {isLoading ? 'Deleting...' : 'Delete'}
           </DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu >
 
       {/* Edit Form Dialog */}
-      <EditCivilRegistryFormDialog
+      < EditCivilRegistryFormDialog
         form={form}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
@@ -291,7 +332,7 @@ export function DataTableRowActions({
       />
 
       {/* View Details Dialog */}
-      <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
+      <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen} >
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
             <DialogTitle>Form Details</DialogTitle>
@@ -366,7 +407,24 @@ export function DataTableRowActions({
             )}
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog >
+
+      <BirthAnnotationForm
+        open={birthFormOpen}
+        onOpenChange={setBirthFormOpen}
+        onCancel={() => setBirthFormOpen(false)}
+        row={row} // Add this line to pass the row data
+      />
+      <DeathAnnotationForm
+        open={deathFormOpen}
+        onOpenChange={setDeathFormOpen}
+        onCancel={() => setDeathFormOpen(false)}
+      />
+      <MarriageAnnotationForm
+        open={marriageFormOpen}
+        onOpenChange={setMarriageFormOpen}
+        onCancel={() => setMarriageFormOpen(false)}
+      />
     </>
   );
 }

@@ -40,6 +40,11 @@ export function transformToMainNavItem(item: NavConfig, role: UserRole): NavMain
         return { ...baseItem, hidden: true } // Hide the item for non-admins
     }
 
+    // Only show "Manage CTC" for admins
+    if (item.id === 'certified-true-copies' && role !== 'ADMIN') {
+        return { ...baseItem, hidden: true } // Hide the item for non-admins
+    }
+
     if (hasSubItems(item)) {
         baseItem.items = item.items
             .filter(subItem => {
@@ -140,30 +145,30 @@ export const navigationConfig: NavigationConfiguration = {
             url: '/civil-registry',
             iconName: 'briefcase',
         },
-        {
-            id: 'requests',
-            type: 'main',
-            title: 'Manage Requests',
-            url: '/requests',
-            iconName: 'tag',
-            items: [
-                {
-                    id: 'birth',
-                    title: 'Birth Cert',
-                    url: '/requests/birth-cert',
-                },
-                {
-                    id: 'marriage',
-                    title: 'Marriage Cert',
-                    url: '/requests/marriage-cert',
-                },
-                {
-                    id: 'death',
-                    title: 'Death Cert',
-                    url: '/requests/death-cert',
-                },
-            ],
-        },
+        // {
+        //     id: 'requests',
+        //     type: 'main',
+        //     title: 'Manage Requests',
+        //     url: '/requests',
+        //     iconName: 'tag',
+        //     items: [
+        //         {
+        //             id: 'birth',
+        //             title: 'Birth Cert',
+        //             url: '/requests/birth-cert',
+        //         },
+        //         {
+        //             id: 'marriage',
+        //             title: 'Marriage Cert',
+        //             url: '/requests/marriage-cert',
+        //         },
+        //         {
+        //             id: 'death',
+        //             title: 'Death Cert',
+        //             url: '/requests/death-cert',
+        //         },
+        //     ],
+        // },
         {
             id: 'certified-true-copies',
             type: 'main',

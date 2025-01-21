@@ -1,15 +1,14 @@
-import { Icons } from "@/components/ui/icons"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Icons } from "@/components/ui/icons";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export function ScanFormDialog() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="default" className="h-10">
+                <div className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground">
                     <Icons.post className="mr-2 h-4 w-4" />
                     Scan Form
-                </Button>
+                </div>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -22,5 +21,5 @@ export function ScanFormDialog() {
                 </div>
             </DialogContent>
         </Dialog>
-    )
+    );
 }

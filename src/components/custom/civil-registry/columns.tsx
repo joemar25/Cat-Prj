@@ -104,7 +104,9 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
           ? JSON.parse(row.birthCertificateForm.childName)
           : row.birthCertificateForm.childName;
         details = JSON.stringify({
-          name: `${childName.first || ''} ${childName.middle || ''} ${childName.last || ''}`,
+          firstName: childName.first || '',
+          middleName: childName.middle || '',
+          lastName: childName.last || '',
           sex: row.birthCertificateForm.sex,
           dateOfBirth: format(row.birthCertificateForm.dateOfBirth, 'PP'),
         });
@@ -113,14 +115,18 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
           ? JSON.parse(row.deathCertificateForm.deceasedName)
           : row.deathCertificateForm.deceasedName;
         details = JSON.stringify({
-          name: `${deceasedName.first || ''} ${deceasedName.middle || ''} ${deceasedName.last || ''}`,
+          firstName: deceasedName.first || '',
+          middleName: deceasedName.middle || '',
+          lastName: deceasedName.last || '',
           sex: row.deathCertificateForm.sex,
           dateOfDeath: format(row.deathCertificateForm.dateOfDeath, 'PP'),
         });
       } else if (row.formType === 'MARRIAGE' && row.marriageCertificateForm) {
         details = JSON.stringify({
-          husband: `${row.marriageCertificateForm.husbandLastName}, ${row.marriageCertificateForm.husbandFirstName}`,
-          wife: `${row.marriageCertificateForm.wifeLastName}, ${row.marriageCertificateForm.wifeFirstName}`,
+          husbandFirstName: row.marriageCertificateForm.husbandFirstName,
+          husbandLastName: row.marriageCertificateForm.husbandLastName,
+          wifeFirstName: row.marriageCertificateForm.wifeFirstName,
+          wifeLastName: row.marriageCertificateForm.wifeLastName,
           dateOfMarriage: format(row.marriageCertificateForm.dateOfMarriage, 'PP'),
         });
       }
@@ -130,21 +136,25 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title='Details' />,
     cell: ({ row }) => {
       const details = JSON.parse(row.getValue('details')) as {
-        name?: string;
+        firstName?: string;
+        middleName?: string;
+        lastName?: string;
         sex?: string;
         dateOfBirth?: string;
         dateOfDeath?: string;
-        husband?: string;
-        wife?: string;
+        husbandFirstName?: string;
+        husbandLastName?: string;
+        wifeFirstName?: string;
+        wifeLastName?: string;
         dateOfMarriage?: string;
       };
 
       return (
         <div className="space-y-2">
-          {details.name && (
+          {(details.firstName || details.middleName || details.lastName) && (
             <div className="flex items-center space-x-2">
               <span className="font-medium">Name:</span>
-              <span>{details.name}</span>
+              <span>{`${details.firstName || ''} ${details.middleName || ''} ${details.lastName || ''}`}</span>
             </div>
           )}
           {details.sex && (
@@ -155,41 +165,86 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
           )}
           {details.dateOfBirth && (
             <div className="flex items-center space-x-2">
-              <span className="font-medium">Date:</span>
+              <span className="font-medium">Date of Birth:</span>
               <span>{details.dateOfBirth}</span>
             </div>
           )}
           {details.dateOfDeath && (
             <div className="flex items-center space-x-2">
-              <span className="font-medium">Date:</span>
+              <span className="font-medium">Date of Death:</span>
               <span>{details.dateOfDeath}</span>
             </div>
           )}
-          {details.husband && (
+          {(details.husbandFirstName || details.husbandLastName) && (
             <div className="flex items-center space-x-2">
               <span className="font-medium">Husband:</span>
-              <span>{details.husband}</span>
+              <span>{`${details.husbandFirstName || ''} ${details.husbandLastName || ''}`}</span>
             </div>
           )}
-          {details.wife && (
+          {(details.wifeFirstName || details.wifeLastName) && (
             <div className="flex items-center space-x-2">
               <span className="font-medium">Wife:</span>
-              <span>{details.wife}</span>
+              <span>{`${details.wifeFirstName || ''} ${details.wifeLastName || ''}`}</span>
             </div>
           )}
           {details.dateOfMarriage && (
             <div className="flex items-center space-x-2">
-              <span className="font-medium">Date:</span>
+              <span className="font-medium">Date of Marriage:</span>
               <span>{details.dateOfMarriage}</span>
             </div>
           )}
         </div>
       );
     },
-    filterFn: (row, id, value: string[]) => {
-      const details = row.getValue(id) as string;
-      if (!value?.length) return true;
-      return value.some((val) => details.toLowerCase().includes(val.toLowerCase()));
+    filterFn: (row, id, value) => {
+      // Early return if value is not in expected format
+      if (!Array.isArray(value)) return true;
+
+      try {
+        const details = JSON.parse(row.getValue(id)) as {
+          firstName?: string;
+          middleName?: string;
+          lastName?: string;
+          husbandFirstName?: string;
+          husbandLastName?: string;
+          wifeFirstName?: string;
+          wifeLastName?: string;
+        };
+
+        const [firstNameSearch, middleNameSearch, lastNameSearch] = value as [string, string, string];
+
+        // If no search terms are provided, return true
+        if (!firstNameSearch && !middleNameSearch && !lastNameSearch) {
+          return true;
+        }
+
+        // For birth/death certificates
+        if (details.firstName || details.middleName || details.lastName) {
+          const firstMatch = !firstNameSearch ||
+            (details.firstName?.toLowerCase() || '').includes(firstNameSearch.toLowerCase());
+          const middleMatch = !middleNameSearch ||
+            (details.middleName?.toLowerCase() || '').includes(middleNameSearch.toLowerCase());
+          const lastMatch = !lastNameSearch ||
+            (details.lastName?.toLowerCase() || '').includes(lastNameSearch.toLowerCase());
+          return firstMatch && middleMatch && lastMatch;
+        }
+
+        // For marriage certificates
+        const husbandFirstMatch = !firstNameSearch ||
+          (details.husbandFirstName?.toLowerCase() || '').includes(firstNameSearch.toLowerCase());
+        const husbandLastMatch = !lastNameSearch ||
+          (details.husbandLastName?.toLowerCase() || '').includes(lastNameSearch.toLowerCase());
+        const wifeFirstMatch = !firstNameSearch ||
+          (details.wifeFirstName?.toLowerCase() || '').includes(firstNameSearch.toLowerCase());
+        const wifeLastMatch = !lastNameSearch ||
+          (details.wifeLastName?.toLowerCase() || '').includes(lastNameSearch.toLowerCase());
+
+        return (husbandFirstMatch && husbandLastMatch) || (wifeFirstMatch && wifeLastMatch);
+      } catch (error) {
+        // If there's any error parsing the JSON or processing the filter, return true
+        console.log(error)
+        return true;
+      }
     },
   },
   {

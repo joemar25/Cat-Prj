@@ -463,6 +463,16 @@ export async function createDeathCertificate(data: DeathCertificateFormValues) {
         error: 'Date of death cannot be before date of birth',
       };
     }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        name: data.preparedBy.name,
+      },
+    });
+
+    if (!user) {
+      throw new Error('Preparer not found');
+    }
     const baseForm = await prisma.baseRegistryForm.create({
       data: {
         formNumber: '103', // Form 103 for Death Certificate
@@ -475,21 +485,8 @@ export async function createDeathCertificate(data: DeathCertificateFormValues) {
         dateOfRegistration: new Date(),
         status: 'PENDING',
         preparedBy: {
-          connectOrCreate: {
-            where: {
-              email: `${data.preparedBy.name
-                .toLowerCase()
-                .replace(/\s+/g, '.')}@example.com`,
-            },
-            create: {
-              id: crypto.randomUUID(),
-              name: data.preparedBy.name,
-              email: `${data.preparedBy.name
-                .toLowerCase()
-                .replace(/\s+/g, '.')}@example.com`,
-              username: data.preparedBy.name.toLowerCase().replace(/\s+/g, '.'),
-              emailVerified: true,
-            },
+          connect: {
+            id: user.id,
           },
         },
 
@@ -626,6 +623,16 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
       };
     }
 
+    const user = await prisma.user.findFirst({
+      where: {
+        name: data.preparedBy.name,
+      },
+    });
+
+    if (!user) {
+      throw new Error('Preparer not found');
+    }
+
     // 3. Create the birth certificate
     const baseForm = await prisma.baseRegistryForm.create({
       data: {
@@ -642,24 +649,10 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
 
         // Preparer Information
         preparedBy: {
-          connectOrCreate: {
-            where: {
-              email: `${data.preparedBy.name
-                .toLowerCase()
-                .replace(/\s+/g, '.')}@example.com`,
-            },
-            create: {
-              id: crypto.randomUUID(),
-              name: data.preparedBy.name,
-              email: `${data.preparedBy.name
-                .toLowerCase()
-                .replace(/\s+/g, '.')}@example.com`,
-              username: data.preparedBy.name.toLowerCase().replace(/\s+/g, '.'),
-              emailVerified: true,
-            },
+          connect: {
+            id: user.id,
           },
         },
-
         // Birth Certificate Form
         birthCertificateForm: {
           create: {
@@ -682,7 +675,7 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
             typeOfBirth: data.childInfo.typeOfBirth,
             multipleBirthOrder: data.childInfo.multipleBirthOrder || null,
             birthOrder: data.childInfo.birthOrder || null,
-            weightAtBirth: parseFloat(data.childInfo.weightAtBirth),
+            weightAtBirth: data.childInfo.weightAtBirth,
 
             // Mother Information
             motherMaidenName: {

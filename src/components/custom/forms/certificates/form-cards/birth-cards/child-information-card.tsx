@@ -130,6 +130,18 @@ const ChildInformationCard: React.FC = () => {
                         type='number'
                         placeholder='Enter weight'
                         {...field}
+                        onInput={(e) => {
+                          const input = e.target as HTMLInputElement;
+                          const value = input.value;
+
+                          // Prevent negative numbers
+                          if (parseFloat(value) < 0) {
+                            input.value = value.slice(1); // Remove the minus sign
+                          }
+
+                          field.onChange(input.value); // Update the form value
+                        }}
+                        min='0' // Prevents users from incrementing to a negative value using stepper controls
                       />
                     </FormControl>
                     <FormMessage />
