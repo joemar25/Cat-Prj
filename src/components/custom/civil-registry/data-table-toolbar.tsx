@@ -20,6 +20,8 @@ import { format } from 'date-fns'
 import { useState, useEffect } from 'react'
 import { DateRange } from 'react-day-picker'
 import { ComponentType } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>
@@ -39,6 +41,9 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   >([])
   const [pageSearch, setPageSearch] = useState<string>('')
   const [bookSearch, setBookSearch] = useState<string>('')
+  const [firstNameSearch, setFirstNameSearch] = useState<string>('')
+  const [lastNameSearch, setLastNameSearch] = useState<string>('')
+  const [middleNameSearch, setMiddleNameSearch] = useState<string>('')
 
   const formTypeColumn = table.getColumn('formType')
   const preparedByColumn = table.getColumn('preparedBy')
@@ -47,6 +52,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const statusColumn = table.getColumn('status')
   const yearColumn = table.getColumn('year')
   const registryDetailsColumn = table.getColumn('registryDetails')
+  const detailsColumn = table.getColumn('details')
 
   // Generate available years from the data
   useEffect(() => {
@@ -176,47 +182,113 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   return (
     <div className="space-y-4">
       {/* Top row with search and action buttons */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
-        <div className="flex flex-wrap gap-2">
-          {/* Main Search */}
-          <div className="relative w-full sm:w-[300px]">
-            <Input
-              placeholder="Search forms..."
-              onChange={(event) => table.setGlobalFilter(event.target.value)}
-              className="w-full"
-            />
-          </div>
+      <div className="flex flex-col sm:flex-row gap-4">
+        {/* Search Section */}
+        <Card className="flex-1">
+          <CardContent className="p-4">
+            <Tabs defaultValue="basic" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="basic">Basic Search</TabsTrigger>
+                <TabsTrigger value="advanced">Name Search</TabsTrigger>
+              </TabsList>
 
-          {/* Page Number Search */}
-          <div className="relative w-full sm:w-[200px]">
-            <Input
-              placeholder="Search page number..."
-              value={pageSearch}
-              onChange={(event) => handlePageSearch(event.target.value)}
-              className="w-full"
-            />
-          </div>
+              <TabsContent value="basic" className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="col-span-full md:col-span-2 lg:col-span-1">
+                    <Input
+                      placeholder="Search forms..."
+                      onChange={(event) => table.setGlobalFilter(event.target.value)}
+                      className="w-full"
+                    />
+                  </div>
 
-          {/* Book Number Search */}
-          <div className="relative w-full sm:w-[200px]">
-            <Input
-              placeholder="Search book number..."
-              value={bookSearch}
-              onChange={(event) => handleBookSearch(event.target.value)}
-              className="w-full"
-            />
-          </div>
-        </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      placeholder="Page number..."
+                      value={pageSearch}
+                      onChange={(event) => handlePageSearch(event.target.value)}
+                    />
+                    <Input
+                      placeholder="Book number..."
+                      value={bookSearch}
+                      onChange={(event) => handleBookSearch(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" className="h-10" onClick={handleExport}>
-            <Icons.download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <AddCivilRegistryFormDialog />
-          <AddCivilRegistryFormDialogPdf />
-          <DataTableViewOptions table={table} />
-        </div>
+              <TabsContent value="advanced">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <Input
+                    placeholder="First name"
+                    value={firstNameSearch}
+                    onChange={(event) => {
+                      setFirstNameSearch(event.target.value);
+                      if (detailsColumn) {
+                        detailsColumn.setFilterValue([
+                          event.target.value,
+                          middleNameSearch,
+                          lastNameSearch
+                        ]);
+                      }
+                    }}
+                  />
+                  <Input
+                    placeholder="Middle name"
+                    value={middleNameSearch}
+                    onChange={(event) => {
+                      setMiddleNameSearch(event.target.value);
+                      if (detailsColumn) {
+                        detailsColumn.setFilterValue([
+                          firstNameSearch,
+                          event.target.value,
+                          lastNameSearch
+                        ]);
+                      }
+                    }}
+                  />
+                  <Input
+                    placeholder="Last name"
+                    value={lastNameSearch}
+                    onChange={(event) => {
+                      setLastNameSearch(event.target.value);
+                      if (detailsColumn) {
+                        detailsColumn.setFilterValue([
+                          firstNameSearch,
+                          middleNameSearch,
+                          event.target.value
+                        ]);
+                      }
+                    }}
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+
+        {/* Actions Section */}
+        <Card className="w-full sm:w-auto">
+          <CardContent className="p-4">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={"outline"}
+                  className="w-full sm:w-auto"
+                  onClick={handleExport}
+                >
+                  <Icons.download className="mr-2 h-4 w-4" />
+                  Export
+                </Button>
+                <DataTableViewOptions table={table} />
+              </div>
+              <div className="flex items-center gap-2">
+                <AddCivilRegistryFormDialog />
+                <AddCivilRegistryFormDialogPdf />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Filters section */}
@@ -316,5 +388,5 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
