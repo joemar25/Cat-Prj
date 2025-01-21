@@ -68,11 +68,11 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
   return (
     <Sidebar variant="inset" {...props}>
       {/* Sidebar Header */}
-      <SidebarHeader className="p-4 border-b">
+      <SidebarHeader className="p-4 border-b bg-stone-100 mb-2 hover:bg-stone-200 duration-300">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 ">
                 {/* Logo */}
                 <Image
                   src={"/images/lgu-legazpi.png"}
