@@ -52,7 +52,10 @@ export default {
 					'3': 'hsl(var(--chart-3))',
 					'4': 'hsl(var(--chart-4))',
 					'5': 'hsl(var(--chart-5))'
-				}
+				},
+				redColor: "#FF0000",
+				yellowColor: "#fcd000",
+				blueColor: "#0000FF",
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

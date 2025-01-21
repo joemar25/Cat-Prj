@@ -58,7 +58,7 @@ export const SignInForm = () => {
                     name="email"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Email</FormLabel>
+                            <FormLabel className="ml-1">Email</FormLabel>
                             <FormControl>
                                 <Input {...field} placeholder="Enter your email" type="email" />
                             </FormControl>
@@ -71,7 +71,7 @@ export const SignInForm = () => {
                     name="password"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Password</FormLabel>
+                            <FormLabel className="ml-1">Password</FormLabel>
                             <FormControl>
                                 <PasswordInput {...field} placeholder="Enter your password" />
                             </FormControl>
@@ -79,7 +79,7 @@ export const SignInForm = () => {
                         </FormItem>
                     )}
                 />
-                <Button type="submit" disabled={isLoading} className="w-full">
+                <Button type="submit" disabled={isLoading} className="w-full bg-blueColor/80 dark:bg-yellowColor dark:text-black font-semibold">
                     {isLoading ? "Signing In..." : "Sign In"}
                 </Button>
             </form>

@@ -66,9 +66,9 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
   }
 
   return (
-    <Sidebar variant="inset" {...props}>
+    <Sidebar variant="inset" {...props} className='border border-border p-0'>
       {/* Sidebar Header */}
-      <SidebarHeader className="p-4 border-b bg-stone-100 mb-2 hover:bg-stone-200 duration-300">
+      <SidebarHeader className="border-b p-4 duration-300">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
@@ -112,9 +112,9 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       <SidebarFooter>
         <Dialog open={isLogoutOpen} onOpenChange={setIsLogoutOpen}>
           <DialogTrigger asChild>
-            <div className="flex w-56 h-6 mb-2 hover:bg-muted p-2 ml-2 rounded-md cursor-pointer">
+            <div className="flex pb-4 cursor-pointer">
               <button
-                className="text-red-600 flex justify-start text-sm items-center dark:text-red-400"
+                className="text-red-600 w-full flex rounded-md overflow-hidden duration-300 justify-start text-base p-2 items-center hover:text-white hover:bg-red-500 dark:hover:text-white dark:bg-muted dark:hover:bg-red-600 bg-muted dark:text-red-400"
                 disabled={isLoggingOut}
               >
                 {isLoggingOut ? (

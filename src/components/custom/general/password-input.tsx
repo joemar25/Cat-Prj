@@ -24,6 +24,7 @@ export const PasswordInput = ({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 name={name}
+                className="p-3"
             />
             <Button
                 type="button"

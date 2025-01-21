@@ -66,7 +66,7 @@ export function NavMain({ items }: NavMainProps) {
                   tooltip={item.title}
                   className={`
                     transition-all duration-150 ease-in-out
-                    hover:bg-accent/50 active:scale-[0.98]
+                    hover:bg-accent/50 active:scale-[0.98] py-6 px-4
                     ${isActive ? 'bg-accent/80 text-accent-foreground font-medium' : ''}
                   `}
                 >
@@ -76,11 +76,11 @@ export function NavMain({ items }: NavMainProps) {
                   >
                     {ItemIcon && (
                       <ItemIcon className={`
-                        w-4 h-4 transition-colors duration-150
+                        w-6 h-6 transition-colors duration-150
                         ${isActive ? 'text-accent-foreground' : 'text-muted-foreground'}
                       `} />
                     )}
-                    <span>{item.title}</span>
+                    <span className='text-base'>{item.title}</span>
                     {item.notViewedCount !== undefined && item.notViewedCount > 0 && (
                       <Badge variant='default' className='text-xs px-1.5 py-0.5'>
                         {item.notViewedCount}

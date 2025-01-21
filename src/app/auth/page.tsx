@@ -4,7 +4,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { SignInForm } from "@/components/custom/auth/sign-in-form";
 import { SignUpForm } from "@/components/custom/auth/sign-up-form";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -13,37 +13,82 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Lottie, { LottieRefCurrentProps } from "lottie-react";
+import certificate from "../../../public/lottie/certificate.json";
+import { useTheme } from "next-themes";
+import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { ThemeChange } from "@/components/theme/theme-change";
 
 const Login = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSignUp, setIsSignUp] = useState(false);
   const [isDevelopment, setIsDevelopment] = useState(false);
+  const { setTheme, theme } = useTheme();
 
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
   useEffect(() => {
     setIsDevelopment(process.env.NEXT_PUBLIC_NODE_ENV === "development");
   }, []);
 
   return (
-    <div className="min-h-dvh w-dvh flex items-center justify-center">
-      <div className="w-full h-screen bg-palette-5 overflow-hidden">
-        <div className="w-full h-full flex justify-end items-center relative bg-gray-700">
-         
-          {/* Left side parent */}
-          <div className="md:w-[60%] w-full  absolute top-0 md:left-[5%] left-[2%] z-20 h-full flex justify-center items-center">
-            <Card className="w-full max-w-4xl mx-auto shadow-lg flex overflow-hidden">
-              {/* Left Section - Welcome Message */}
-              <div className="hidden lg:flex flex-1 bg-gradient-to-br from-primary/10 to-primary/5 items-center justify-center border-r">
-                <CardHeader className=" text-center h-[27rem] w-[27rem]">
-                  <img src="/images/logo.jpg" className="w-fit h-full object-cover rounded-full" alt="" />
-                </CardHeader>
-              </div>
-
-              {/* Right Section - Auth Forms */}
-              <div className="flex-1">
-                <AnimatePresence mode="wait" initial={false}>
-                  {!isSignUp ? (
+    <div className="w-full h-screen font-inter">
+      <div className="w-full h-full flex justify-end items-center relative bg-white dark:bg-[#19191e]">
+        <div className="absolute inset-0 bg-gradient-to-tr from-blueColor/10 via-white via-50% to-blueColor/10 dark:hidden" />
+        <div className="w-full z-20 h-full flex justify-center px-4 items-center ">
+          <Card className="w-full max-w-5xl max-h-[90dvh] mx-auto shadow-xl flex flex-row overflow-hidden border border-gray-500/30 dark:border-[#2a2a30]   dark:bg-[#19191e]">
+            {/* Left Section - Welcome Message */}
+            <div className="w-full dark:bg-[#19191e] rounded-l-lg">
+              <AnimatePresence mode="wait" initial={false}>
+                {!isSignUp ? (
+                  <motion.div
+                    key="sign-in"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2, ease: "easeInOut" }}
+                    className="h-full w-full"
+                  >
+                    <CardHeader className="w-full text-left md:flex-row flex-col gap-2 space-y-1 flex items-center md:justify-start justify-center">
+                      <img src="/images/new.png" className="w-28 h-28" alt="" />
+                      <div>
+                        <CardTitle className="text-2xl w-full font-bold tracking-wide uppercase ">
+                          City Government of Legazpi
+                        </CardTitle>
+                        <CardDescription>
+                          Office of the City Civil Registrar
+                        </CardDescription>
+                      </div>
+                    </CardHeader>
+                    <CardHeader className="text-left space-y-1">
+                      <CardTitle className="text-2xl font-bold capitalize">
+                        Welcome Back
+                      </CardTitle>
+                      <CardDescription className="font-normal">
+                        Sign in to your account to continue
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-2">
+                      <SignInForm />
+                      {isDevelopment && (
+                        <div className="text-center text-sm mt-6">
+                          <p className="text-muted-foreground">
+                            Don&apos;t have an account?{" "}
+                            <Button
+                              variant="link"
+                              className="text-primary p-0"
+                              onClick={() => setIsSignUp(true)}
+                            >
+                              Sign up here
+                            </Button>
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </motion.div>
+                ) : (
+                  isDevelopment && (
                     <motion.div
-                      key="sign-in"
+                      key="sign-up"
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
@@ -52,75 +97,54 @@ const Login = () => {
                     >
                       <CardHeader className="text-center space-y-1 p-6 sm:p-12 pb-0">
                         <CardTitle className="text-2xl font-bold">
-                          Sign In
+                          Create Account
                         </CardTitle>
                         <CardDescription>
-                          Welcome back! Please sign in to continue.
+                          Join us today! Create your account to get started.
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="p-6 sm:p-12 pt-6">
-                        <SignInForm />
-                        {isDevelopment && (
-                          <div className="text-center text-sm mt-6">
-                            <p className="text-muted-foreground">
-                              Don&apos;t have an account?{" "}
-                              <Button
-                                variant="link"
-                                className="text-primary p-0"
-                                onClick={() => setIsSignUp(true)}
-                              >
-                                Sign up here
-                              </Button>
-                            </p>
-                          </div>
-                        )}
+                        <SignUpForm />
+                        <div className="text-center text-sm mt-6">
+                          <p className="text-muted-foreground">
+                            Already have an account?{" "}
+                            <Button
+                              variant="link"
+                              className="text-primary p-0"
+                              onClick={() => setIsSignUp(false)}
+                            >
+                              Sign in here
+                            </Button>
+                          </p>
+                        </div>
                       </CardContent>
                     </motion.div>
-                  ) : (
-                    isDevelopment && (
-                      <motion.div
-                        key="sign-up"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.2, ease: "easeInOut" }}
-                        className="h-full"
-                      >
-                        <CardHeader className="text-center space-y-1 p-6 sm:p-12 pb-0">
-                          <CardTitle className="text-2xl font-bold">
-                            Create Account
-                          </CardTitle>
-                          <CardDescription>
-                            Join us today! Create your account to get started.
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent className="p-6 sm:p-12 pt-6">
-                          <SignUpForm />
-                          <div className="text-center text-sm mt-6">
-                            <p className="text-muted-foreground">
-                              Already have an account?{" "}
-                              <Button
-                                variant="link"
-                                className="text-primary p-0"
-                                onClick={() => setIsSignUp(false)}
-                              >
-                                Sign in here
-                              </Button>
-                            </p>
-                          </div>
-                        </CardContent>
-                      </motion.div>
-                    )
-                  )}
-                </AnimatePresence>
-              </div>
-            </Card>
-          </div>
+                  )
+                )}
+              </AnimatePresence>
+            </div>
 
-          <RightSide
-            currentIndex={currentIndex}
-            setCurrentIndex={setCurrentIndex}
-          />
+            {/* Right Section - Auth Forms */}
+            <div className="w-full hidden lg:flex flex-col items-center justify-center dark:bg-blueColor/15 bg-blueColor/10 relative overflow-hidden">
+              <span className="z-50 absolute top-2 right-0">
+                <ThemeChange />
+              </span>
+
+              {/* Lottie animation */}
+              <Lottie
+                lottieRef={lottieRef}
+                animationData={certificate}
+                loop={true}
+                autoplay={true}
+                className="w-full h-full relative z-10"
+                onComplete={() => {
+                  if (lottieRef.current) {
+                    lottieRef.current.play();
+                  }
+                }}
+              />
+            </div>
+          </Card>
         </div>
       </div>
     </div>
@@ -198,8 +222,8 @@ const RightSide = ({
   return (
     <div className="w-full md:max-w-[55%]  h-full overflow-hidden relative">
       {/* Gradient overlay */}
-      <div className="md:block hidden absolute inset-0 bg-gradient-to-r from-gray-700 via-gray-500/50 to-transparent z-10" />
-      <div className="block md:hidden absolute inset-0 bg-gradient-to-r from-gray-700 via-gray-500/70 to-transparent z-10" />
+      {/* <div className="md:block hidden absolute inset-0 bg-gradient-to-r from-white dark:from-black dark:via-black/50 via-white/50 to-transparent z-10" />
+      <div className="block md:hidden absolute inset-0 bg-gradient-to-r from-white dark:from-black dark:via-black/70 via-white/70 to-transparent z-10" /> */}
       {/* Image container with sliding effect */}
       <div
         className={`flex w-full h-full ${
