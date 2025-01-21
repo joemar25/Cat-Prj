@@ -37,6 +37,7 @@ import { Eye, Plus } from 'lucide-react';
 import BirthAnnotationForm from '../forms/annotations/birthcert';
 import DeathAnnotationForm from '../forms/annotations/death-annotation-form';
 import MarriageAnnotationForm from '../forms/annotations/marriage-annotation-form';
+import { ScanFormDialog } from './actions/scan-form-dialog';
 
 interface DataTableRowActionsProps {
   row: Row<BaseRegistryFormWithRelations>;
@@ -296,6 +297,9 @@ export function DataTableRowActions({
           <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
             <Icons.edit className='mr-2 h-4 w-4' />
             Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+            <ScanFormDialog />
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleOpenForm}>
             <Plus className='mr-2 h-4 w-4' />

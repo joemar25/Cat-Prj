@@ -20,7 +20,6 @@ import { format } from 'date-fns'
 import { useState, useEffect } from 'react'
 import { DateRange } from 'react-day-picker'
 import { ComponentType } from 'react'
-import { ScanFormDialog } from './actions/scan-form-dialog'
 
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>
@@ -214,7 +213,6 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
             <Icons.download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <ScanFormDialog />
           <AddCivilRegistryFormDialog />
           <AddCivilRegistryFormDialogPdf />
           <DataTableViewOptions table={table} />
