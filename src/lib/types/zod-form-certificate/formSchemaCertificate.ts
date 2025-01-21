@@ -803,7 +803,7 @@ export const birthCertificateSchema = z.object({
     firstName: z.string().min(1, 'First name is required'),
     middleName: z.string().optional(),
     lastName: z.string().min(1, 'Last name is required'),
-    sex: z.enum(['Male', 'Female']),
+    sex: z.enum(['Male', 'Female', '']),
     dateOfBirth: z.object({
       day: z.string().min(1, 'Day is required'),
       month: z.string().min(1, 'Month is required'),
@@ -817,7 +817,19 @@ export const birthCertificateSchema = z.object({
     typeOfBirth: z.string().min(1, 'Type of birth is required'),
     multipleBirthOrder: z.string().optional(),
     birthOrder: z.string().min(1, 'Birth order is required'),
-    weightAtBirth: z.string().min(1, 'Weight is required'),
+    weightAtBirth: z.preprocess(
+      (value) => {
+        if (typeof value === 'string') {
+          const parsed = parseFloat(value);
+          return isNaN(parsed) ? undefined : parsed; // Convert to number or return undefined for invalid input
+        }
+        return value; // Keep value as is if already a number
+      },
+      z
+        .number()
+        .positive('Weight must be greater than zero') // Must be greater than 0
+        .min(0.01, 'Weight must be greater than zero') // Must be more than 0
+    ),
   }),
 
   // Mother Info - Updated field names
@@ -965,7 +977,7 @@ export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> 
       typeOfBirth: 'Single',
       multipleBirthOrder: '', // Added to match schema
       birthOrder: '1',
-      weightAtBirth: '3.2', // Changed from weight
+      weightAtBirth: 0, // Changed from weight
     },
 
     motherInfo: {
