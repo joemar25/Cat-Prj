@@ -84,6 +84,7 @@ model BaseRegistryForm {
   birthCertificateForm    BirthCertificateForm?
   deathCertificateForm    DeathCertificateForm?
   marriageCertificateForm MarriageCertificateForm?
+  documentUrl             String?
 
   @@index([registryNumber])
   @@index([formNumber])

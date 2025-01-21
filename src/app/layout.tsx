@@ -20,7 +20,7 @@ const geistMono = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'Quanby Demo',
+  title: 'Legazpi City Civil Registry',
   description: '',
 }
 

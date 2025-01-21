@@ -75,6 +75,7 @@ import {
     Key,
     Clock,
     Cross,
+    Scan,
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
 } from 'lucide-react'
@@ -185,6 +186,7 @@ export const Icons = {
     key: Key,
     clock: Clock,
     x: Cross,
+    scan: Scan,
 } as const
 
 export type IconsType = typeof Icons
