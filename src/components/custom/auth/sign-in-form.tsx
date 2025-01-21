@@ -79,7 +79,7 @@ export const SignInForm = () => {
                         </FormItem>
                     )}
                 />
-                <Button type="submit" disabled={isLoading} className="w-full bg-blueColor/80 dark:bg-yellowColor dark:text-black font-semibold">
+                <Button type="submit" disabled={isLoading} className="w-full bg-blueColor/80 hover:bg-blueColor duration-300 dark:hover:bg-yellowColor/80 dark:bg-yellowColor dark:text-black font-semibold">
                     {isLoading ? "Signing In..." : "Sign In"}
                 </Button>
             </form>
