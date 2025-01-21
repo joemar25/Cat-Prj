@@ -19,7 +19,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,6 +67,7 @@ export function DataTableRowActions({
   row,
   onUpdateAction,
 }: DataTableRowActionsProps) {
+  console.log('Row data:', row); // Log the row data
   const { data: session } = useSession();
   const form = row.original;
   const [isLoading, setIsLoading] = useState(false);
@@ -76,25 +76,23 @@ export function DataTableRowActions({
 
   // -----------------
 
-  const [open, setOpen] = useState(false);
   const [birthFormOpen, setBirthFormOpen] = useState(false);
   const [deathFormOpen, setDeathFormOpen] = useState(false);
   const [marriageFormOpen, setMarriageFormOpen] = useState(false);
 
-  const handleFormSelect = (formType: string) => {
-    setOpen(false);
-    switch (formType) {
-      case 'birth-annotation':
+  const handleOpenForm = () => {
+    switch (form.formType) {
+      case 'BIRTH':
         setBirthFormOpen(true);
         break;
-      case 'death-annotation':
+      case 'DEATH':
         setDeathFormOpen(true);
         break;
-      case 'marriage-annotation':
+      case 'MARRIAGE':
         setMarriageFormOpen(true);
         break;
       default:
-        break;
+        toast.error('Unknown form type');
     }
   };
 
@@ -175,8 +173,9 @@ export function DataTableRowActions({
           (parsed as ShortNameFormat).last ||
           '';
 
-        return `${firstName} ${middleName ? middleName + ' ' : ''
-          }${lastName}`.trim();
+        return `${firstName} ${
+          middleName ? middleName + ' ' : ''
+        }${lastName}`.trim();
       } catch {
         return nameObj;
       }
@@ -196,8 +195,9 @@ export function DataTableRowActions({
         (nameObj as ShortNameFormat).last ||
         '';
 
-      return `${firstName} ${middleName ? middleName + ' ' : ''
-        }${lastName}`.trim();
+      return `${firstName} ${
+        middleName ? middleName + ' ' : ''
+      }${lastName}`.trim();
     }
 
     return String(nameObj);
@@ -301,7 +301,7 @@ export function DataTableRowActions({
           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
             <ScanFormDialog />
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
+          <DropdownMenuItem onClick={handleOpenForm}>
             <Plus className='mr-2 h-4 w-4' />
             Issue Certificate
           </DropdownMenuItem>
@@ -399,64 +399,6 @@ export function DataTableRowActions({
                 <span className='col-span-3'>{form.lcroNotations}</span>
               </div>
             )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className='sm:max-w-4xl'>
-          <DialogHeader>
-            <DialogTitle className='text-center text-xl font-semibold'>
-              Select Form Type
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className='flex gap-4'>
-            <Card
-              className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
-              onClick={() => handleFormSelect('birth-annotation')}
-            >
-              <CardHeader>
-                <CardTitle className='text-center text-base'>
-                  Civil Registry Form No. 1A
-                </CardTitle>
-              </CardHeader>
-              <CardContent className='text-center'>
-                <p className='text-sm text-muted-foreground'>
-                  (Birth Available)
-                </p>
-              </CardContent>
-            </Card>
-            <Card
-              className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
-              onClick={() => handleFormSelect('death-annotation')}
-            >
-              <CardHeader>
-                <CardTitle className='text-center text-base'>
-                  Civil Registry Form No. 2A
-                </CardTitle>
-              </CardHeader>
-              <CardContent className='text-center'>
-                <p className='text-sm text-muted-foreground'>
-                  (Death Available)
-                </p>
-              </CardContent>
-            </Card>
-            <Card
-              className='flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border'
-              onClick={() => handleFormSelect('marriage-annotation')}
-            >
-              <CardHeader>
-                <CardTitle className='text-center text-base'>
-                  Civil Registry Form No. 3A
-                </CardTitle>
-              </CardHeader>
-              <CardContent className='text-center'>
-                <p className='text-sm text-muted-foreground'>
-                  (Marriage Available)
-                </p>
-              </CardContent>
-            </Card>
           </div>
         </DialogContent>
       </Dialog>
