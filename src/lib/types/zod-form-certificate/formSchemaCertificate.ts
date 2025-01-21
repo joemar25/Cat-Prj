@@ -514,6 +514,7 @@ export const deathCertificateSchema = z.object({
       'Hospital Authority',
       'None',
       'Others',
+      ""
     ]),
     duration: z.object({
       from: z.date().optional(),
@@ -885,7 +886,14 @@ export const birthCertificateSchema = z.object({
 
   // The rest remain mostly the same but renamed to match component usage
   attendant: z.object({
-    type: z.enum(['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others']),
+    type: z.union([
+      z.literal('Physician'),
+      z.literal('Nurse'),
+      z.literal('Midwife'),
+      z.literal('Hilot'),
+      z.literal('Others'),
+      z.string(), // Allow any string when "Others" is selected
+    ]),
     certification: z.object({
       time: z.string().min(1, 'Time is required'),
       signature: z.string().optional(),
