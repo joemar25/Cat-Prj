@@ -164,7 +164,7 @@ const RightSide = () => {
 
   return (
     <div className="w-full hidden lg:flex flex-col items-center justify-center dark:bg-blueColor/15 bg-blueColor/80 relative overflow-hidden">
-      <span className="z-50 absolute top-2 right-0">
+      <span className="z-50 absolute top-2 right-0 ">
         <ThemeChange />
       </span>
 
