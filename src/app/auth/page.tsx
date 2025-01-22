@@ -50,15 +50,17 @@ const Login = () => {
                     className="h-full w-full"
                   >
                     <CardHeader className="w-full text-left md:flex-row flex-col gap-2 space-y-1 flex items-center md:justify-start justify-center">
-                      <img src="/images/new.png" className="w-28 h-28" alt="" />
-                      <div>
-                        <CardTitle className="text-2xl w-full font-bold font-inter tracking-tight uppercase ">
+                      <img src="/images/new.png" className="w-24 h-24" alt="" />
+                      <img src="/images/logo.jpg" className="w-24 h-24 rounded-full" alt="" />
+                      <div className="pl-2">
+                        <CardTitle className="text-xl w-full font-bold font-inter tracking-tight uppercase">
                           City Government of Legazpi
                         </CardTitle>
                         <CardDescription>
-                          Office of the City Civil Registrar
+                          Office of the City Civil Registry
                         </CardDescription>
                       </div>
+                      
                     </CardHeader>
                     <CardHeader className="text-left space-y-1">
                       <CardTitle className="text-2xl font-bold capitalize">
