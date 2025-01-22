@@ -194,9 +194,81 @@ export const marriageAnnotationSchema = z.object({
   placeOfMarriage: z.string().min(1, 'Place of marriage is required'),
 });
 
+export interface MarriageAnnotationFormProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCancel: () => void;
+}
+
+export interface ExtendedMarriageAnnotationFormProps
+  extends MarriageAnnotationFormProps {
+  row?: Row<BaseRegistryFormWithRelations>;
+}
+
+export interface BaseForm {
+  id: string;
+  preparedBy: {
+    name: string;
+    id: string;
+  };
+  verifiedBy: {
+    name: string;
+    id: string;
+  };
+  receivedByPosition: string | null;
+  registeredByPosition: string | null;
+  pageNumber: string;
+  bookNumber: string;
+  registryNumber: string;
+  dateOfRegistration: string | Date;
+}
+
+export interface MarriageCertificateForm {
+  id: string;
+  baseFormId: string;
+  husbandFirstName: string;
+  husbandMiddleName: string;
+  husbandLastName: string;
+  husbandDateOfBirth: string | Date;
+  husbandAge: number;
+  husbandPlaceOfBirth: PlaceStructure;
+  husbandSex: string;
+  husbandCitizenship: string;
+  husbandResidence: string;
+  husbandReligion: string;
+  husbandCivilStatus: string;
+  husbandFatherName: NameStructure;
+  husbandMotherMaidenName: NameStructure;
+  husbandFatherCitizenship: string;
+  husbandMotherCitizenship: string;
+
+  wifeFirstName: string;
+  wifeMiddleName: string;
+  wifeLastName: string;
+  wifeDateOfBirth: string | Date;
+  wifeAge: number;
+  wifePlaceOfBirth: PlaceStructure;
+  wifeSex: string;
+  wifeCitizenship: string;
+  wifeResidence: string;
+  wifeReligion: string;
+  wifeCivilStatus: string;
+  wifeFatherName: NameStructure;
+  wifeMotherMaidenName: NameStructure;
+  wifeFatherCitizenship: string;
+  wifeMotherCitizenship: string;
+
+  placeOfMarriage: MarriagePlace;
+  dateOfMarriage: string | Date;
+  timeOfMarriage: string;
+  marriageSettlement: boolean;
+}
+
 export type MarriageAnnotationFormValues = z.infer<
   typeof marriageAnnotationSchema
 >;
+
+// Extended interface with row prop
 
 export const marriageAnnotationDefaultValues: MarriageAnnotationFormValues = {
   pageNumber: '',

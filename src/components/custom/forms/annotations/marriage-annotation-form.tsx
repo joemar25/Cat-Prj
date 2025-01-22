@@ -11,75 +11,184 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
 import { createMarriageAnnotation } from '@/hooks/form-annotations-actions';
 import {
+  ExtendedMarriageAnnotationFormProps,
+  marriageAnnotationDefaultValues,
   MarriageAnnotationFormValues,
   marriageAnnotationSchema,
+  MarriageCertificateForm,
 } from '@/lib/types/zod-form-annotations/formSchemaAnnotation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Save } from 'lucide-react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-
-interface MarriageAnnotationFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
-}
-
-// Realistic default values
-const defaultValues: MarriageAnnotationFormValues = {
-  pageNumber: '156',
-  bookNumber: 'MRCB-2024-142',
-  registryNumber: 'MR-2024-1567',
-  dateOfRegistration: new Date('2024-01-15'),
-  issuedTo: 'Michael Andrew Santos',
-  purpose: 'Immigration Requirements / Legal Purposes',
-  preparedByName: 'Catherine P. Rodriguez',
-  preparedByPosition: 'Civil Registry Officer III',
-  verifiedByName: 'Atty. Manuel G. Fernandez',
-  verifiedByPosition: 'Civil Registry Department Head',
-  civilRegistrar: 'PRISCILLA L. GALICIA',
-  civilRegistrarPosition: 'OIC - City Civil Registrar',
-  amountPaid: 250.0,
-  orNumber: 'OR-2024-89754',
-  datePaid: new Date('2024-01-15'),
-
-  // Husband's Information
-  husbandName: 'Michael Andrew Santos',
-  husbandDateOfBirthAge: '1992-03-15 / 31',
-  husbandCitizenship: 'Filipino',
-  husbandCivilStatus: 'Single',
-  husbandMother: 'Maria Elena Perez Santos',
-  husbandFather: 'Roberto Carlos Santos',
-
-  // Wife's Information
-  wifeName: 'Jennifer Marie Garcia',
-  wifeDateOfBirthAge: '1994-07-22 / 29',
-  wifeCitizenship: 'Filipino',
-  wifeCivilStatus: 'Single',
-  wifeMother: 'Ana Victoria Martinez Garcia',
-  wifeFather: 'Jose Miguel Garcia',
-
-  dateOfMarriage: new Date('2024-02-14'),
-  placeOfMarriage: 'Manila Cathedral, Intramuros, Manila City',
-};
 
 const MarriageAnnotationForm = ({
   open,
   onOpenChange,
   onCancel,
-}: MarriageAnnotationFormProps) => {
+  row,
+}: ExtendedMarriageAnnotationFormProps) => {
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { isSubmitting },
   } = useForm<MarriageAnnotationFormValues>({
     resolver: zodResolver(marriageAnnotationSchema),
-    defaultValues,
+    defaultValues: marriageAnnotationDefaultValues,
   });
+
+  useEffect(() => {
+    if (row?.original) {
+      const form = row.original;
+      const marriageForm =
+        form.marriageCertificateForm as MarriageCertificateForm;
+
+      if (marriageForm) {
+        // Basic form info
+        setValue('pageNumber', form.pageNumber);
+        setValue('bookNumber', form.bookNumber);
+        setValue('registryNumber', form.registryNumber);
+        setValue('dateOfRegistration', new Date(form.dateOfRegistration));
+
+        // Husband's information
+        const husbandFullName =
+          `${marriageForm.husbandFirstName} ${marriageForm.husbandMiddleName} ${marriageForm.husbandLastName}`.trim();
+        setValue('husbandName', husbandFullName);
+        setValue(
+          'husbandDateOfBirthAge',
+          `${new Date(
+            marriageForm.husbandDateOfBirth
+          ).toLocaleDateString()} / ${marriageForm.husbandAge}`
+        );
+        setValue('husbandCitizenship', marriageForm.husbandCitizenship);
+        setValue('husbandCivilStatus', marriageForm.husbandCivilStatus);
+
+        // Handle husband's parents
+        if (
+          marriageForm.husbandFatherName &&
+          typeof marriageForm.husbandFatherName === 'object'
+        ) {
+          const fatherName = [
+            marriageForm.husbandFatherName.firstName ||
+              marriageForm.husbandFatherName.first,
+            marriageForm.husbandFatherName.lastName ||
+              marriageForm.husbandFatherName.last,
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .trim();
+          setValue('husbandFather', fatherName);
+        }
+
+        if (
+          marriageForm.husbandMotherMaidenName &&
+          typeof marriageForm.husbandMotherMaidenName === 'object'
+        ) {
+          const motherName = [
+            marriageForm.husbandMotherMaidenName.firstName ||
+              marriageForm.husbandMotherMaidenName.first,
+            marriageForm.husbandMotherMaidenName.lastName ||
+              marriageForm.husbandMotherMaidenName.last,
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .trim();
+          setValue('husbandMother', motherName);
+        }
+
+        // Wife's information
+        const wifeFullName =
+          `${marriageForm.wifeFirstName} ${marriageForm.wifeMiddleName} ${marriageForm.wifeLastName}`.trim();
+        setValue('wifeName', wifeFullName);
+        setValue(
+          'wifeDateOfBirthAge',
+          `${new Date(marriageForm.wifeDateOfBirth).toLocaleDateString()} / ${
+            marriageForm.wifeAge
+          }`
+        );
+        setValue('wifeCitizenship', marriageForm.wifeCitizenship);
+        setValue('wifeCivilStatus', marriageForm.wifeCivilStatus);
+
+        // Handle wife's parents
+        if (
+          marriageForm.wifeFatherName &&
+          typeof marriageForm.wifeFatherName === 'object'
+        ) {
+          const fatherName = [
+            marriageForm.wifeFatherName.firstName ||
+              marriageForm.wifeFatherName.first,
+            marriageForm.wifeFatherName.lastName ||
+              marriageForm.wifeFatherName.last,
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .trim();
+          setValue('wifeFather', fatherName);
+        }
+
+        if (
+          marriageForm.wifeMotherMaidenName &&
+          typeof marriageForm.wifeMotherMaidenName === 'object'
+        ) {
+          const motherName = [
+            marriageForm.wifeMotherMaidenName.firstName ||
+              marriageForm.wifeMotherMaidenName.first,
+            marriageForm.wifeMotherMaidenName.lastName ||
+              marriageForm.wifeMotherMaidenName.last,
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .trim();
+          setValue('wifeMother', motherName);
+        }
+
+        // Marriage details
+        if (marriageForm.dateOfMarriage) {
+          setValue('dateOfMarriage', new Date(marriageForm.dateOfMarriage));
+        }
+
+        if (
+          marriageForm.placeOfMarriage &&
+          typeof marriageForm.placeOfMarriage === 'object'
+        ) {
+          const placeOfMarriage = [
+            marriageForm.placeOfMarriage.church,
+            marriageForm.placeOfMarriage.cityMunicipality,
+            marriageForm.placeOfMarriage.province,
+          ]
+            .filter(Boolean)
+            .join(', ');
+          setValue('placeOfMarriage', placeOfMarriage);
+        }
+
+        // Officials and verification info
+        if (form.preparedBy) {
+          setValue('preparedByName', form.preparedBy.name);
+          // Use null coalescing
+          setValue('preparedByPosition', form.receivedByPosition || '');
+        }
+
+        if (form.verifiedBy) {
+          setValue('verifiedByName', form.verifiedBy.name);
+          // Use null coalescing
+          setValue('verifiedByPosition', form.registeredByPosition || '');
+        }
+
+        // Set default values for required fields
+        setValue('civilRegistrar', 'PRISCILLA L. GALICIA');
+        setValue('civilRegistrarPosition', 'OIC - City Civil Registrar');
+        setValue('purpose', 'Legal Purposes');
+        setValue('issuedTo', husbandFullName);
+        setValue('amountPaid', 250.0);
+        setValue('datePaid', new Date());
+      }
+    }
+  }, [row, setValue]);
 
   const onSubmit = async (data: MarriageAnnotationFormValues) => {
     try {
@@ -275,7 +384,7 @@ const MarriageAnnotationForm = ({
                     <Input
                       type='number'
                       step='0.01'
-                      {...register('amountPaid')}
+                      {...register('amountPaid', { valueAsNumber: true })}
                     />
                   </div>
                   <div className='grid grid-cols-[120px_1fr] gap-4 items-center'>
