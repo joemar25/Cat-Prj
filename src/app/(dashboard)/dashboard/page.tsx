@@ -1,8 +1,8 @@
-import ChartsDashboard from "./components/charts"
-import MetricsDashboard from "./components/metrics"
-import StatisticsDashboard from "./components/statistics"
+import ChartsDashboard from "@/components/custom/dashboard/components/charts"
+import MetricsDashboard from "@/components/custom/dashboard/components/metrics"
+import StatisticsDashboard from "@/components/custom/dashboard/components/statistics"
 
-import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header.tsx"
+import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header"
 
 export default async function DashboardPage() {
 

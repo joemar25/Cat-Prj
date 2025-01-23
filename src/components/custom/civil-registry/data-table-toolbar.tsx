@@ -1,27 +1,26 @@
 'use client'
 
-import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
-import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
-import { Button } from '@/components/ui/button'
-import { Icons } from '@/components/ui/icons'
-import { Input } from '@/components/ui/input'
-import { FormType } from '@prisma/client'
-import { Cross2Icon } from '@radix-ui/react-icons'
-import { Table } from '@tanstack/react-table'
 import { toast } from 'sonner'
-import { AddCivilRegistryFormDialog } from './actions/add-form-dialog'
-import { ExtendedBaseRegistryForm } from './columns'
-// import { AddCivilRegistryFormDialogPdf } from './actions/upload-pdf-dialog'
-import { Calendar } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { CalendarIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
+import { ComponentType } from 'react'
+import { FormType } from '@prisma/client'
 import { useState, useEffect } from 'react'
 import { DateRange } from 'react-day-picker'
-import { ComponentType } from 'react'
+import { Table } from '@tanstack/react-table'
+import { Icons } from '@/components/ui/icons'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Cross2Icon } from '@radix-ui/react-icons'
+import { Calendar } from '@/components/ui/calendar'
+import { ExtendedBaseRegistryForm } from './columns'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
+import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
+import { AddCivilRegistryFormDialog } from '@/components/custom/civil-registry/actions/add-form-dialog'
+// import { AddCivilRegistryFormDialogPdf } from '@/components/custom/civil-registry/actions/upload-pdf-dialog'
 
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>
@@ -352,7 +351,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                   !dateRange && 'text-muted-foreground'
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <Icons.calendar className="mr-2 h-4 w-4" />
                 {dateRange?.from ? (
                   dateRange.to ? (
                     <>

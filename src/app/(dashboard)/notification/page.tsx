@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header.tsx'
+import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { NotificationList } from '@/components/custom/notification/notification-list'
 
 export default async function ProfilePage() {
@@ -28,7 +28,7 @@ export default async function ProfilePage() {
                 ]}
             />
             <div className="flex flex-1 flex-col gap-4 p-4">
-            <NotificationList />
+                <NotificationList />
             </div>
         </>
     )

@@ -1,8 +1,8 @@
 // src/components/custom/dashboard/dashboard-header.tsx
 import { auth } from '@/lib/auth'
+import { DashboardHeaderProps } from '@/types/dashboard'
 import { UserRole, Permission, User } from '@prisma/client'
 import { DashboardHeaderClient } from './dashboard-header-client'
-import { DashboardHeaderProps } from '@/types/dashboard'
 
 export async function DashboardHeader({
     breadcrumbs = []

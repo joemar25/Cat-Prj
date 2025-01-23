@@ -1,51 +1,46 @@
-'use client';
+'use client'
 
-import BirthCertificateForm from '@/components/custom/forms/certificates/birth-certificate-form';
-import DeathCertificateForm from '@/components/custom/forms/certificates/death-certificate-form';
-import MarriageCertificateForm from '@/components/custom/forms/certificates/marriage-certificate-form';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useState } from 'react'
+import { Icons } from '@/components/ui/icons'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+
+import BirthCertificateForm from '@/components/custom/forms/certificates/birth-certificate-form'
+import DeathCertificateForm from '@/components/custom/forms/certificates/death-certificate-form'
+import MarriageCertificateForm from '@/components/custom/forms/certificates/marriage-certificate-form'
 
 export function AddCivilRegistryFormDialog() {
-  const [open, setOpen] = useState(false);
-  const [marriageCertificateOpen, setMarriageCertificateOpen] = useState(false);
+  const [open, setOpen] = useState(false)
+  const [marriageCertificateOpen, setMarriageCertificateOpen] = useState(false)
   const [birthCertificateFormOpen, setBirthCertificateFormOpen] =
-    useState(false);
-  const [deathCertificateOpen, setDeathCertificateOpen] = useState(false);
+    useState(false)
+  const [deathCertificateOpen, setDeathCertificateOpen] = useState(false)
 
   const handleFormSelect = (formType: string) => {
-    setOpen(false);
+    setOpen(false)
     switch (formType) {
       case 'death-certificate':
         // Handle death certificate form
-        setDeathCertificateOpen(true);
-        break;
+        setDeathCertificateOpen(true)
+        break
       case 'marriage-certificate':
-        setMarriageCertificateOpen(true);
-        break;
+        setMarriageCertificateOpen(true)
+        break
       case 'live-birth-certificate':
-        setBirthCertificateFormOpen(true);
-        break;
+        setBirthCertificateFormOpen(true)
+        break
       default:
-        break;
+        break
     }
-  };
+  }
 
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button>
-            <Plus className='mr-2 h-4 w-4' />
+            <Icons.plus className='mr-2 h-4 w-4' />
             Create New Form
           </Button>
         </DialogTrigger>
@@ -112,8 +107,8 @@ export function AddCivilRegistryFormDialog() {
         open={marriageCertificateOpen}
         onOpenChange={setMarriageCertificateOpen}
         onCancel={() => {
-          setMarriageCertificateOpen(false);
-          setTimeout(() => setOpen(true), 0);
+          setMarriageCertificateOpen(false)
+          setTimeout(() => setOpen(true), 0)
         }}
       />
 
@@ -121,8 +116,8 @@ export function AddCivilRegistryFormDialog() {
         open={birthCertificateFormOpen}
         onOpenChange={setBirthCertificateFormOpen}
         onCancel={() => {
-          setBirthCertificateFormOpen(false);
-          setTimeout(() => setOpen(true), 0);
+          setBirthCertificateFormOpen(false)
+          setTimeout(() => setOpen(true), 0)
         }}
       />
 
@@ -130,10 +125,10 @@ export function AddCivilRegistryFormDialog() {
         open={deathCertificateOpen}
         onOpenChange={setDeathCertificateOpen}
         onCancel={() => {
-          setDeathCertificateOpen(false);
-          setTimeout(() => setOpen(true), 0);
+          setDeathCertificateOpen(false)
+          setTimeout(() => setOpen(true), 0)
         }}
       />
     </>
-  );
+  )
 }

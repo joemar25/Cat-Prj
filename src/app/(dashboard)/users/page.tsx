@@ -1,5 +1,5 @@
 // src\app\(dashboard)\users\page.tsx
-import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header.tsx'
+import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { UsersTableClient } from '@/components/custom/users/users-table-client'
 import {
   Card,

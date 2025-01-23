@@ -1,5 +1,5 @@
 // src/app/(dashboard)/civil-registry/page.tsx
-import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header.tsx'
+import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { DataTable } from '@/components/custom/civil-registry/data-table'
 import { columns } from '@/components/custom/civil-registry/columns'
 import {
