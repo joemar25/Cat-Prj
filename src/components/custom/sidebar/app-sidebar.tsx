@@ -75,10 +75,10 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
               <div className="flex items-center gap-3 ">
                 {/* Logo */}
                 <Image
-                  src={"/images/lgu-legazpi.png"}
+                  src={"/images/new.png"}
                   alt="Logo"
-                  width={40}
-                  height={40}
+                  width={45}
+                  height={45}
                   priority
                   className="rounded-full flex-shrink-0"
                 />
@@ -144,7 +144,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
               </Button>
               <Button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-sm text-white rounded-md hover:bg-red-700 disabled:bg-red-400"
+                className="px-6 py-2 bg-red-600 text-sm text-white rounded-md hover:bg-red-700 disabled:bg-red-400"
                 disabled={isLoggingOut}
               >
                 {isLoggingOut ? (
