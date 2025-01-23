@@ -12,13 +12,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createMarriageAnnotation } from '@/hooks/form-annotations-actions';
+
 import {
   ExtendedMarriageAnnotationFormProps,
-  marriageAnnotationDefaultValues,
   MarriageAnnotationFormValues,
   marriageAnnotationSchema,
   MarriageCertificateForm,
-} from '@/lib/types/zod-form-annotations/formSchemaAnnotation';
+} from '@/lib/types/zod-form-annotations/marriage-annotation-form-schema';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Save } from 'lucide-react';
 import { useEffect } from 'react';
@@ -39,7 +40,6 @@ const MarriageAnnotationForm = ({
     formState: { isSubmitting },
   } = useForm<MarriageAnnotationFormValues>({
     resolver: zodResolver(marriageAnnotationSchema),
-    defaultValues: marriageAnnotationDefaultValues,
   });
 
   useEffect(() => {

@@ -12,12 +12,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createDeathAnnotation } from '@/hooks/form-annotations-actions';
+import { DeathAnnotationFormFields } from '@/lib/constants/form-annotations-dynamic-fields';
 import {
   DeathAnnotationFormValues,
   deathAnnotationSchema,
   ExtendedDeathAnnotationFormProps,
-  PlaceStructure,
-} from '@/lib/types/zod-form-annotations/formSchemaAnnotation';
+} from '@/lib/types/zod-form-annotations/death-annotation-form-schema';
+import { PlaceStructure } from '@/lib/types/zod-form-annotations/form-annotation-shared-interfaces';
+
 import { formatDateTime } from '@/utils/date';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Save } from 'lucide-react';
@@ -213,46 +215,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
 
                 {/* Main Form Fields */}
                 <div className='space-y-4'>
-                  {[
-                    {
-                      label: 'Registry Number',
-                      name: 'registryNumber',
-                      type: 'text',
-                    },
-                    {
-                      label: 'Date of Registration',
-                      name: 'dateOfRegistration',
-                      type: 'date',
-                    },
-                    {
-                      label: 'Name of Deceased',
-                      name: 'nameOfDeceased',
-                      type: 'text',
-                    },
-                    { label: 'Sex', name: 'sex', type: 'text' },
-                    { label: 'Age', name: 'age', type: 'number' },
-                    {
-                      label: 'Civil Status',
-                      name: 'civilStatus',
-                      type: 'text',
-                    },
-                    { label: 'Citizenship', name: 'citizenship', type: 'text' },
-                    {
-                      label: 'Date of Death',
-                      name: 'dateOfDeath',
-                      type: 'date',
-                    },
-                    {
-                      label: 'Place of Death',
-                      name: 'placeOfDeath',
-                      type: 'text',
-                    },
-                    {
-                      label: 'Cause of Death',
-                      name: 'causeOfDeath',
-                      type: 'text',
-                    },
-                  ].map((field, index) => (
+                  {DeathAnnotationFormFields.map((field, index) => (
                     <div
                       key={index}
                       className='grid grid-cols-[150px_1fr] gap-4 items-center'
