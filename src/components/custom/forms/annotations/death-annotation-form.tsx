@@ -13,42 +13,135 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createDeathAnnotation } from '@/hooks/form-annotations-actions';
 import {
-  deathAnnotationDefaultValues,
   DeathAnnotationFormValues,
   deathAnnotationSchema,
+  ExtendedDeathAnnotationFormProps,
+  PlaceStructure,
 } from '@/lib/types/zod-form-annotations/formSchemaAnnotation';
+import { formatDateTime } from '@/utils/date';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Save } from 'lucide-react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-export interface DeathAnnotationFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
-}
-
-const DeathAnnotationForm: React.FC<DeathAnnotationFormProps> = ({
+const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
   open,
   onOpenChange,
   onCancel,
+  row,
 }) => {
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<DeathAnnotationFormValues>({
     resolver: zodResolver(deathAnnotationSchema),
-    defaultValues: deathAnnotationDefaultValues,
   });
+
+  useEffect(() => {
+    if (row?.original) {
+      // Basic form information
+      setValue('pageNumber', row.original.pageNumber);
+      setValue('bookNumber', row.original.bookNumber);
+      setValue('registryNumber', row.original.registryNumber);
+      setValue(
+        'dateOfRegistration',
+        row.original.dateOfRegistration
+          ? new Date(row.original.dateOfRegistration)
+          : new Date()
+      );
+
+      const deathForm = row.original.deathCertificateForm;
+      if (deathForm) {
+        // Handle deceased name
+        const deceasedName = deathForm.deceasedName;
+        if (deceasedName && typeof deceasedName === 'object') {
+          const nameObj = deceasedName as {
+            first?: string;
+            middle?: string;
+            last?: string;
+          };
+
+          const fullName = [
+            nameObj.first || '',
+            nameObj.middle || '',
+            nameObj.last || '',
+          ]
+            .filter(Boolean)
+            .join(' ');
+
+          setValue('nameOfDeceased', fullName);
+        }
+
+        // Basic details
+        setValue('sex', deathForm.sex || '');
+        setValue('civilStatus', deathForm.civilStatus || '');
+        setValue('citizenship', deathForm.citizenship || '');
+
+        // Handle dates
+        if (deathForm.dateOfDeath) {
+          setValue('dateOfDeath', new Date(deathForm.dateOfDeath));
+        }
+
+        if (deathForm.dateOfBirth && deathForm.dateOfDeath) {
+          const birthDate = new Date(deathForm.dateOfBirth);
+          const deathDate = new Date(deathForm.dateOfDeath);
+          const age = Math.floor(
+            (deathDate.getTime() - birthDate.getTime()) /
+              (1000 * 60 * 60 * 24 * 365.25)
+          );
+          setValue('age', age);
+        }
+
+        // Handle place of death
+        if (
+          typeof deathForm.placeOfDeath === 'object' &&
+          deathForm.placeOfDeath
+        ) {
+          const place = deathForm.placeOfDeath as PlaceStructure;
+          const placeOfDeath = [
+            place.hospital,
+            place.barangay,
+            place.cityMunicipality,
+            place.province,
+          ]
+            .filter(Boolean)
+            .join(', ');
+          setValue('placeOfDeath', placeOfDeath);
+        }
+
+        // Handle cause of death
+
+        if (
+          deathForm.causesOfDeath &&
+          typeof deathForm.causesOfDeath === 'object' &&
+          deathForm.causesOfDeath !== null &&
+          'immediate' in deathForm.causesOfDeath
+        ) {
+          const immediate = deathForm.causesOfDeath.immediate;
+          setValue('causeOfDeath', immediate ? String(immediate) : '');
+        }
+      }
+
+      // Officials information
+      if (row.original.preparedBy) {
+        setValue('preparedByName', row.original.preparedBy.name || '');
+      }
+      setValue('preparedByPosition', row.original.receivedByPosition || '');
+
+      if (row.original.verifiedBy) {
+        setValue('verifiedByName', row.original.verifiedBy.name || '');
+      }
+      setValue('verifiedByPosition', row.original.registeredByPosition || '');
+
+      // Fixed values
+      setValue('civilRegistrar', 'PRISCILLA L. GALICIA');
+      setValue('civilRegistrarPosition', 'OIC - City Civil Registrar');
+    }
+  }, [row, setValue]);
 
   const onSubmit = async (data: DeathAnnotationFormValues) => {
     try {
@@ -56,7 +149,7 @@ const DeathAnnotationForm: React.FC<DeathAnnotationFormProps> = ({
       if (response.success) {
         toast.success('Death annotation created successfully');
         onOpenChange(false);
-        reset(); // Reset the form after successful submission
+        reset();
       } else {
         toast.error('Failed to create death annotation');
       }
@@ -67,9 +160,9 @@ const DeathAnnotationForm: React.FC<DeathAnnotationFormProps> = ({
   };
 
   const handleCancel = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
     onCancel();
-    reset(); // Reset form when canceling
+    reset();
   };
 
   return (
@@ -89,7 +182,9 @@ const DeathAnnotationForm: React.FC<DeathAnnotationFormProps> = ({
                   <h2 className='text-lg font-medium'>
                     TO WHOM IT MAY CONCERN:
                   </h2>
-                  <p className='absolute top-0 right-0'>{currentDate}</p>
+                  <p className='absolute top-0 right-0'>
+                    {formatDateTime(new Date())}
+                  </p>
                   <p className='mt-2'>
                     We certify that, among others, the following facts of death
                     appear in our Register of Death on

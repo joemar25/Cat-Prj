@@ -145,6 +145,17 @@ export const deathAnnotationDefaultValues: DeathAnnotationFormValues = {
   datePaid: new Date(),
 };
 
+export interface DeathAnnotationFormProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCancel: () => void;
+}
+// First, add the extended interface
+export interface ExtendedDeathAnnotationFormProps
+  extends DeathAnnotationFormProps {
+  row?: Row<BaseRegistryFormWithRelations>;
+}
+
 export const marriageAnnotationSchema = z.object({
   // Base Form Fields (matching civilRegistryFormBase)
   pageNumber: z.string().min(1, 'Page number is required'),
