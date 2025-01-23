@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { editProfileSchema } from '../profile/edit-profile'
+import { editProfileSchema } from '@/lib/validation/profile/edit-profile'
 
 export const editUserSchema = z.object({
     name: z

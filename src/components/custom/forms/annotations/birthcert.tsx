@@ -1,29 +1,29 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { createBirthAnnotation } from '@/hooks/form-annotations-actions';
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { createBirthAnnotation } from '@/hooks/form-annotations-actions'
 import {
   BirthAnnotationFormValues,
   birthAnnotationSchema,
   BirthCertificateForm,
   ExtendedBirthAnnotationFormProps,
-} from '@/lib/types/zod-form-annotations/formSchemaAnnotation';
-import { formatDateTime } from '@/utils/date';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Save } from 'lucide-react';
-import { useEffect, useRef } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+} from '@/lib/types/zod-form-annotations/formSchemaAnnotation'
+import { formatDateTime } from '@/utils/date'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2, Save } from 'lucide-react'
+import { useEffect, useRef } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
   open,
@@ -31,7 +31,7 @@ const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
   onCancel,
   row,
 }) => {
-  const isCanceling = useRef(false);
+  const isCanceling = useRef(false)
 
   const {
     register,
@@ -64,39 +64,39 @@ const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
       verifiedBy: '',
       verifiedByPosition: '',
     },
-  });
+  })
 
   // Populate form with row data if available
   useEffect(() => {
     if (row?.original) {
-      const form = row.original;
-      const birthForm = form.birthCertificateForm as BirthCertificateForm;
+      const form = row.original
+      const birthForm = form.birthCertificateForm as BirthCertificateForm
 
       if (birthForm) {
         // Basic form info
-        setValue('pageNumber', form.pageNumber);
-        setValue('bookNumber', form.bookNumber);
-        setValue('registryNumber', form.registryNumber);
-        setValue('dateOfRegistration', new Date(form.dateOfRegistration));
+        setValue('pageNumber', form.pageNumber)
+        setValue('bookNumber', form.bookNumber)
+        setValue('registryNumber', form.registryNumber)
+        setValue('dateOfRegistration', new Date(form.dateOfRegistration))
 
         // Handle child name
         if (birthForm.childName) {
           setValue(
             'childFirstName',
             birthForm.childName.firstName || birthForm.childName.first || ''
-          );
+          )
           setValue(
             'childMiddleName',
             birthForm.childName.middleName || birthForm.childName.middle || ''
-          );
+          )
           setValue(
             'childLastName',
             birthForm.childName.lastName || birthForm.childName.last || ''
-          );
+          )
         }
 
-        setValue('sex', birthForm.sex);
-        setValue('dateOfBirth', new Date(birthForm.dateOfBirth));
+        setValue('sex', birthForm.sex)
+        setValue('dateOfBirth', new Date(birthForm.dateOfBirth))
 
         // Handle place of birth
         if (birthForm.placeOfBirth) {
@@ -104,28 +104,28 @@ const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
             typeof birthForm.placeOfBirth === 'string'
               ? birthForm.placeOfBirth
               : [
-                  birthForm.placeOfBirth.hospital,
-                  birthForm.placeOfBirth.barangay,
-                  birthForm.placeOfBirth.cityMunicipality,
-                  birthForm.placeOfBirth.province,
-                ]
-                  .filter(Boolean)
-                  .join(', ');
-          setValue('placeOfBirth', placeOfBirth);
+                birthForm.placeOfBirth.hospital,
+                birthForm.placeOfBirth.barangay,
+                birthForm.placeOfBirth.cityMunicipality,
+                birthForm.placeOfBirth.province,
+              ]
+                .filter(Boolean)
+                .join(', ')
+          setValue('placeOfBirth', placeOfBirth)
         }
 
         // Handle mother's information
         if (birthForm.motherMaidenName) {
           const motherFullName = [
             birthForm.motherMaidenName.firstName ||
-              birthForm.motherMaidenName.first,
+            birthForm.motherMaidenName.first,
             birthForm.motherMaidenName.lastName ||
-              birthForm.motherMaidenName.last,
+            birthForm.motherMaidenName.last,
           ]
             .filter(Boolean)
-            .join(' ');
-          setValue('motherName', motherFullName);
-          setValue('motherCitizenship', birthForm.motherCitizenship);
+            .join(' ')
+          setValue('motherName', motherFullName)
+          setValue('motherCitizenship', birthForm.motherCitizenship)
         }
 
         // Handle father's information
@@ -135,9 +135,9 @@ const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
             birthForm.fatherName.lastName || birthForm.fatherName.last,
           ]
             .filter(Boolean)
-            .join(' ');
-          setValue('fatherName', fatherFullName);
-          setValue('fatherCitizenship', birthForm.fatherCitizenship);
+            .join(' ')
+          setValue('fatherName', fatherFullName)
+          setValue('fatherCitizenship', birthForm.fatherCitizenship)
         }
 
         // Handle parent marriage details
@@ -146,64 +146,64 @@ const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
             setValue(
               'parentsMarriageDate',
               new Date(birthForm.parentMarriage.date)
-            );
+            )
           }
 
           const marriagePlace =
             typeof birthForm.parentMarriage.place === 'string'
               ? birthForm.parentMarriage.place
               : [
-                  birthForm.parentMarriage.place?.church,
-                  birthForm.parentMarriage.place?.cityMunicipality,
-                  birthForm.parentMarriage.place?.province,
-                ]
-                  .filter(Boolean)
-                  .join(', ');
+                birthForm.parentMarriage.place?.church,
+                birthForm.parentMarriage.place?.cityMunicipality,
+                birthForm.parentMarriage.place?.province,
+              ]
+                .filter(Boolean)
+                .join(', ')
 
-          setValue('parentsMarriagePlace', marriagePlace);
+          setValue('parentsMarriagePlace', marriagePlace)
         }
 
-        setValue('remarks', form.remarks || '');
+        setValue('remarks', form.remarks || '')
 
         // Handle prepared by and verified by info
         if (form.preparedBy) {
-          setValue('preparedBy', form.preparedBy.name || '');
-          setValue('preparedByPosition', form.receivedByPosition || '');
+          setValue('preparedBy', form.preparedBy.name || '')
+          setValue('preparedByPosition', form.receivedByPosition || '')
         }
 
         if (form.verifiedBy) {
-          setValue('verifiedBy', form.verifiedBy.name || '');
-          setValue('verifiedByPosition', form.registeredByPosition || '');
+          setValue('verifiedBy', form.verifiedBy.name || '')
+          setValue('verifiedByPosition', form.registeredByPosition || '')
         }
       }
     }
-  }, [row, setValue]);
+  }, [row, setValue])
 
   const onSubmit = async (data: BirthAnnotationFormValues) => {
     if (isCanceling.current) {
-      isCanceling.current = false;
-      return;
+      isCanceling.current = false
+      return
     }
 
     try {
-      const response = await createBirthAnnotation(data);
+      const response = await createBirthAnnotation(data)
       if (response.success) {
-        toast.success('Birth annotation created successfully');
-        onOpenChange(false);
-        reset();
+        toast.success('Birth annotation created successfully')
+        onOpenChange(false)
+        reset()
       } else {
-        toast.error('Failed to create birth annotation');
+        toast.error('Failed to create birth annotation')
       }
     } catch (error) {
-      console.error('Error creating birth annotation:', error);
-      toast.error('An error occurred while creating the annotation');
+      console.error('Error creating birth annotation:', error)
+      toast.error('An error occurred while creating the annotation')
     }
-  };
+  }
 
   const handleCancel = () => {
-    isCanceling.current = true;
-    onCancel();
-  };
+    isCanceling.current = true
+    onCancel()
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -420,7 +420,7 @@ const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
         </form>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
-export default BirthAnnotationForm;
+export default BirthAnnotationForm

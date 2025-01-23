@@ -1,106 +1,92 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { createDeathCertificate } from '@/hooks/form-certificate-actions';
-import {
-  DeathCertificateFormProps,
-  DeathCertificateFormValues,
-  deathCertificateSchema,
-  defaultDeathCertificateValues,
-} from '@/lib/types/zod-form-certificate/formSchemaCertificate';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { PDFViewer } from '@react-pdf/renderer';
-import { Loader2, Save } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import {
-  ConfirmationDialog,
-  shouldSkipAlert,
-} from '../../confirmation-dialog/confirmation-dialog';
+import { toast } from 'sonner'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Form } from '@/components/ui/form'
+import { Loader2, Save } from 'lucide-react'
+import { PDFViewer } from '@react-pdf/renderer'
+import { Button } from '@/components/ui/button'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { createDeathCertificate } from '@/hooks/form-certificate-actions'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ConfirmationDialog, shouldSkipAlert } from '@/components/custom/confirmation-dialog/confirmation-dialog'
+import { DeathCertificateFormProps, DeathCertificateFormValues, deathCertificateSchema, defaultDeathCertificateValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate'
 
 // Import all the card components
-import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
-import CausesOfDeathCard from './form-cards/death-cards/causes-of-death';
-import CertificationOfDeathCard from './form-cards/death-cards/certification-of-death-card';
-import CertificationInformantCard from './form-cards/death-cards/certification-of-informant-card';
-import DeathByExternalCausesCard from './form-cards/death-cards/death-by-external-causes';
-import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
-import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
-import MedicalCertificateCard from './form-cards/death-cards/medical-certificate-card';
-import PersonalInformationCard from './form-cards/death-cards/personal-information-card';
-import PreparedByCard from './form-cards/death-cards/prepared-by-card';
-import ReceivedByCard from './form-cards/death-cards/received-by-card';
-import RegisteredAtOfficeCard from './form-cards/death-cards/registered-at-office-card';
-import RegistryInformationCard from './form-cards/death-cards/regsitry-information-card';
-import RemarksCard from './form-cards/death-cards/remarks-card';
-import DeathCertificatePDF from './preview/death-certificate/death-certificate-preview';
+import DeathCertificatePDF from './preview/death-certificate/death-certificate-preview'
+import RemarksCard from '@/components/custom/forms/certificates/form-cards/death-cards/remarks-card'
+import PreparedByCard from '@/components/custom/forms/certificates/form-cards/death-cards/prepared-by-card'
+import ReceivedByCard from '@/components/custom/forms/certificates/form-cards/death-cards/received-by-card'
+import CausesOfDeathCard from '@/components/custom/forms/certificates/form-cards/death-cards/causes-of-death'
+import MaternalConditionCard from '@/components/custom/forms/certificates/form-cards/death-cards/maternal-condition-card'
+import MedicalCertificateCard from '@/components/custom/forms/certificates/form-cards/death-cards/medical-certificate-card'
+import RegisteredAtOfficeCard from '@/components/custom/forms/certificates/form-cards/death-cards/registered-at-office-card'
+import DisposalInformationCard from '@/components/custom/forms/certificates/form-cards/death-cards/disposal-information-card'
+import PersonalInformationCard from '@/components/custom/forms/certificates/form-cards/death-cards/personal-information-card'
+import DeathByExternalCausesCard from '@/components/custom/forms/certificates/form-cards/death-cards/death-by-external-causes'
+import RegistryInformationCard from '@/components/custom/forms/certificates/form-cards/death-cards/regsitry-information-card'
+import AttendantInformationCard from '@/components/custom/forms/certificates/form-cards/death-cards/attendant-information-card'
+import CertificationOfDeathCard from '@/components/custom/forms/certificates/form-cards/death-cards/certification-of-death-card'
+import CertificationInformantCard from '@/components/custom/forms/certificates/form-cards/death-cards/certification-of-informant-card'
 
 export default function DeathCertificateForm({
   open,
   onOpenChange,
   onCancel,
 }: DeathCertificateFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showAlert, setShowAlert] = useState(false)
   const [pendingSubmission, setPendingSubmission] =
-    useState<DeathCertificateFormValues | null>(null);
+    useState<DeathCertificateFormValues | null>(null)
 
   const form = useForm<DeathCertificateFormValues>({
     resolver: zodResolver(deathCertificateSchema),
     defaultValues: defaultDeathCertificateValues,
-  });
+  })
 
   const onSubmit = async (values: DeathCertificateFormValues) => {
     try {
-      setIsSubmitting(true);
-      const result = await createDeathCertificate(values);
+      setIsSubmitting(true)
+      const result = await createDeathCertificate(values)
 
       if (result.success) {
-        toast.success('Death certificate has been registered successfully');
-        onOpenChange(false);
-        form.reset();
+        toast.success('Death certificate has been registered successfully')
+        onOpenChange(false)
+        form.reset()
       } else {
-        throw new Error(result.error);
+        throw new Error(result.error)
       }
     } catch (error) {
-      console.error('Submission error:', error);
-      toast.error('Failed to register death certificate. Please try again.');
+      console.error('Submission error:', error)
+      toast.error('Failed to register death certificate. Please try again.')
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const handleSubmit = (values: DeathCertificateFormValues) => {
     if (shouldSkipAlert('skipDeathCertificateAlert')) {
-      onSubmit(values);
+      onSubmit(values)
     } else {
-      setPendingSubmission(values);
-      setShowAlert(true);
+      setPendingSubmission(values)
+      setShowAlert(true)
     }
-  };
+  }
 
   const confirmSubmit = () => {
     if (pendingSubmission) {
-      onSubmit(pendingSubmission);
-      setShowAlert(false);
-      setPendingSubmission(null);
+      onSubmit(pendingSubmission)
+      setShowAlert(false)
+      setPendingSubmission(null)
     }
-  };
+  }
 
   // Add this function in your DeathCertificateForm component
   const transformFormDataForPreview = (
     data: Partial<DeathCertificateFormValues> | null
   ): Partial<DeathCertificateFormValues> => {
-    if (!data) return {};
+    if (!data) return {}
 
     return {
       // Registry Information
@@ -156,14 +142,14 @@ export default function DeathCertificateForm({
 
       // Remarks
       remarks: data.remarks,
-    };
-  };
+    }
+  }
 
   const handleError = () => {
     toast.warning('Please fill in all required fields', {
       description: 'Some required information is missing or incorrect.',
-    });
-  };
+    })
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -281,5 +267,5 @@ export default function DeathCertificateForm({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

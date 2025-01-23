@@ -1,5 +1,8 @@
 'use client';
 
+import MarriageAnnotationForm from '@/components/custom/forms//annotations/marriage-annotation-form';
+import BirthAnnotationForm from '@/components/custom/forms/annotations/birthcert';
+import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation-form';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,9 +32,6 @@ import { Row } from '@tanstack/react-table';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import BirthAnnotationForm from '../forms/annotations/birthcert';
-import DeathAnnotationForm from '../forms/annotations/death-annotation-form';
-import MarriageAnnotationForm from '../forms/annotations/marriage-annotation-form';
 import { EditCivilRegistryFormDialog } from './actions/edit-civil-registry-form-dialog';
 // import { ScanFormDialog } from './actions/scan-form-dialog'
 import { FileUploadDialog } from './components/file-upload';

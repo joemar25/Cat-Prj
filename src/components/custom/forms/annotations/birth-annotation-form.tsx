@@ -1,39 +1,17 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  BirthAnnotationFormProps,
-  BirthAnnotationFormValues,
-  birthAnnotationSchema,
-} from '@/lib/types/zod-form-annotations/formSchemaAnnotation';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import DatePickerField from '../../datepickerfield/date-picker-field';
+import { Eye } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Card, CardContent } from '@/components/ui/card'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { BirthAnnotationFormProps, BirthAnnotationFormValues, birthAnnotationSchema } from '@/lib/types/zod-form-annotations/formSchemaAnnotation'
+
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
 
 export function BirthAnnotationForm({
   open,
@@ -48,12 +26,12 @@ export function BirthAnnotationForm({
       registryNumber: '',
       dateOfRegistration: new Date(),
     },
-  });
+  })
 
   const onSubmit = async (values: BirthAnnotationFormValues) => {
-    console.log(values);
+    console.log(values)
     // Handle form submission
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -261,7 +239,7 @@ export function BirthAnnotationForm({
                     name='motherName'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Mother&apos;s Name</FormLabel>
+                        <FormLabel>Mother&aposs Name</FormLabel>
                         <FormControl>
                           <Input
                             className='h-10'
@@ -278,7 +256,7 @@ export function BirthAnnotationForm({
                     name='fatherName'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Father&apos;s Name</FormLabel>
+                        <FormLabel>Father&aposs Name</FormLabel>
                         <FormControl>
                           <Input
                             className='h-10'
@@ -295,7 +273,7 @@ export function BirthAnnotationForm({
                     name='motherCitizenship'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Mother&apos;s Citizenship</FormLabel>
+                        <FormLabel>Mother&aposs Citizenship</FormLabel>
                         <FormControl>
                           <Input
                             className='h-10'
@@ -312,7 +290,7 @@ export function BirthAnnotationForm({
                     name='fatherCitizenship'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Father&apos;s Citizenship</FormLabel>
+                        <FormLabel>Father&aposs Citizenship</FormLabel>
                         <FormControl>
                           <Input
                             className='h-10'
@@ -445,5 +423,5 @@ export function BirthAnnotationForm({
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
