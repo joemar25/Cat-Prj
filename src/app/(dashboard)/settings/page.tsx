@@ -1,4 +1,4 @@
-import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header.tsx"
+import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header"
 
 export default async function SettingsPage() {
 

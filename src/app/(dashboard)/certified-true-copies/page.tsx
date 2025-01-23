@@ -1,16 +1,12 @@
 // src\app\(dashboard)\requests\page.tsx
-// import { RequestsTableClient } from '@/components/custom/certified-true-copies/requests-table-client';
-import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header.tsx';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-// import { prisma } from '@/lib/prisma';
-import { Suspense } from 'react';
+
+// import { prisma } from '@/lib/prisma'
+import { Skeleton } from '@/components/ui/skeleton'
+import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+// import { RequestsTableClient } from '@/components/custom/certified-true-copies/requests-table-client'
+
+import { Suspense } from 'react'
 // async function getRequests() {
 //   try {
 //     const requests = await prisma.civilRegistryFormBase.findMany({
@@ -22,11 +18,11 @@ import { Suspense } from 'react';
 //         deathForm: true,
 //         marriageForm: true,
 //       },
-//     });
-//     return requests;
+//     })
+//     return requests
 //   } catch (error) {
-//     console.error('Error fetching request data:', error);
-//     return [];
+//     console.error('Error fetching request data:', error)
+//     return []
 //   }
 // }
 
@@ -51,11 +47,11 @@ function RequestsTableSkeleton() {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
 
 export default async function RequestsPage() {
-  // const requests = await getRequests();
+  // const requests = await getRequests()
 
   return (
     <>
@@ -69,5 +65,5 @@ export default async function RequestsPage() {
         </Suspense>
       </div>
     </>
-  );
+  )
 }

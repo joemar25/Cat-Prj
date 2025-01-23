@@ -1,24 +1,25 @@
 'use client'
 
-import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
-import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
-import { Button } from '@/components/ui/button'
+import { useCallback } from 'react'
+import { User } from '@prisma/client'
 import { Icons } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { User, UserRole } from '@prisma/client'
-import { Cross2Icon } from '@radix-ui/react-icons'
+import { Button } from '@/components/ui/button'
+// import { User, UserRole } from '@prisma/client'
 import { Table } from '@tanstack/react-table'
-import { useCallback } from 'react'
+import { Cross2Icon } from '@radix-ui/react-icons'
+import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
+import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
 
 interface DataTableToolbarProps<TData extends User> {
   table: Table<TData>
 }
 
-const userRoles = [
-  { label: 'Administrator', value: UserRole.ADMIN },
-  { label: 'Staff', value: UserRole.STAFF },
-  { label: 'User', value: UserRole.USER },
-]
+// const userRoles = [
+//   { label: 'Administrator', value: UserRole.ADMIN },
+//   { label: 'Staff', value: UserRole.STAFF },
+//   { label: 'User', value: UserRole.USER },
+// ]
 
 const verificationStatus = [
   { label: 'Verified', value: 'true' },
@@ -31,7 +32,7 @@ export function DataTableToolbar<TData extends User>({
   const isFiltered = table.getState().columnFilters.length > 0
 
   const nameColumn = table.getColumn('name')
-  const roleColumn = table.getColumn('role')
+  // const roleColumn = table.getColumn('role')
   const statusColumn = table.getColumn('emailVerified')
 
   const handleSearch = useCallback(
@@ -58,6 +59,8 @@ export function DataTableToolbar<TData extends User>({
           />
         </div>
 
+        {/* 
+        mar-note: Do not remove this comment, as this role column can be used for future purposes.
         {roleColumn && (
           <DataTableFacetedFilter
             column={roleColumn}
@@ -73,7 +76,7 @@ export function DataTableToolbar<TData extends User>({
                     : Icons.userCog,
             }))}
           />
-        )}
+        )} */}
 
         {statusColumn && (
           <DataTableFacetedFilter

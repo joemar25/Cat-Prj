@@ -1,5 +1,5 @@
 // src\app\(dashboard)\requests\birth-cert\page.tsx
-import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header.tsx'
+import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { RequestsTableClient } from '@/components/custom/certified-true-copies/requests-table-client'
 import {
   Card,

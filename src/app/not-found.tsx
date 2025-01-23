@@ -1,7 +1,7 @@
 'use client'
 
-import { Home } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Icons } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
 
 export default function NotFound() {
@@ -19,7 +19,7 @@ export default function NotFound() {
                 The page you&apos;re looking for doesn&apos;t exist or has been moved.
             </p>
             <Button variant={'outline'} className='gap-2' onClick={handleReturnHome}>
-                <Home size={16} />
+                <Icons.home size={16} />
                 Return Home
             </Button>
         </div>

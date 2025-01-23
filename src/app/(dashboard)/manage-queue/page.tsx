@@ -1,5 +1,5 @@
 // src\app\(dashboard)\manage-queue\page.tsx
-import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header.tsx"
+import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header"
 import { QueueManagement } from "@/components/custom/manage-queue/management"
 
 export default async function ManageQueue() {
