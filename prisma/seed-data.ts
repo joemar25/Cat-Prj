@@ -5,7 +5,7 @@
  */
 import { fakerEN as faker } from '@faker-js/faker'
 import { AttendantType, DocumentStatus, FormType, NotificationType, PrismaClient } from '@prisma/client'
-import { REGIONS } from '../src/lib/constants/locations'
+import { REGIONS } from '@/lib/constants/locations'
 
 // ======================================================================
 // Helper Functions

@@ -1,27 +1,26 @@
-import { MarriageFormData, Place } from '@/types/marriage-certificate'; // Adjust the import path as needed
-import { formatDateTime } from '@/utils/date';
-import { Document, Page, Text, View } from '@react-pdf/renderer';
-import React from 'react';
-import { sty } from '../death-certificate/stylish';
-import { styles } from './marriage';
+import { MarriageFormData, Place } from '@/types/marriage-certificate'
+import { formatDateTime } from '@/utils/date'
+import { Document, Page, Text, View } from '@react-pdf/renderer'
+import { sty } from '../death-certificate/stylish'
+import { styles } from './marriage'
 
 // Define styles for the PDF
 
 // Helper functions to format data
 // const formatName = (name: PersonName | null | undefined): string => {
-//   if (!name) return '';
-//   return `${name.first}${name.middle ? ` ${name.middle}` : ''} ${name.last}`;
-// };
+//   if (!name) return ''
+//   return `${name.first}${name.middle ? ` ${name.middle}` : ''} ${name.last}`
+// }
 
 const formatPlace = (place: Place | null | undefined): string => {
-  if (!place) return '';
-  const { cityMunicipality, province, country } = place;
-  return [cityMunicipality, province, country].filter(Boolean).join(', ');
-};
+  if (!place) return ''
+  const { cityMunicipality, province, country } = place
+  return [cityMunicipality, province, country].filter(Boolean).join(', ')
+}
 
 // PDF Component
 interface MarriageCertificatePDFProps {
-  data: Partial<MarriageFormData>;
+  data: Partial<MarriageFormData>
 }
 
 const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
@@ -36,7 +35,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
           </View>
         </Page>
       </Document>
-    );
+    )
   }
 
   // Split the sections into two groups
@@ -181,10 +180,10 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
             <Text style={styles.value}>
               {data.husbandDateOfBirth
                 ? formatDateTime(data.husbandDateOfBirth, {
-                    monthFormat: 'numeric',
-                    dayFormat: 'numeric',
-                    yearFormat: 'numeric',
-                  })
+                  monthFormat: 'numeric',
+                  dayFormat: 'numeric',
+                  yearFormat: 'numeric',
+                })
                 : ''}
             </Text>
             <Text style={styles.value}>
@@ -205,10 +204,10 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
             <Text style={styles.value}>
               {data.wifeDateOfBirth
                 ? formatDateTime(data.wifeDateOfBirth, {
-                    monthFormat: 'numeric',
-                    dayFormat: 'numeric',
-                    yearFormat: 'numeric',
-                  })
+                  monthFormat: 'numeric',
+                  dayFormat: 'numeric',
+                  yearFormat: 'numeric',
+                })
                 : ''}
             </Text>
             <Text style={styles.value}>
@@ -820,10 +819,10 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
               <Text style={styles.value}>
                 {data.dateOfMarriage
                   ? formatDateTime(data.dateOfMarriage, {
-                      monthFormat: 'numeric',
-                      dayFormat: 'numeric',
-                      yearFormat: 'numeric',
-                    })
+                    monthFormat: 'numeric',
+                    dayFormat: 'numeric',
+                    yearFormat: 'numeric',
+                  })
                   : ''}
               </Text>
             </View>
@@ -1123,10 +1122,10 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                 <Text style={styles.value}>
                   {data.receivedBy?.date
                     ? formatDateTime(data.receivedBy.date, {
-                        monthFormat: 'numeric',
-                        dayFormat: 'numeric',
-                        yearFormat: 'numeric',
-                      })
+                      monthFormat: 'numeric',
+                      dayFormat: 'numeric',
+                      yearFormat: 'numeric',
+                    })
                     : ''}
                 </Text>
               </View>
@@ -1175,10 +1174,10 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
               <Text style={styles.value}>
                 {data.registeredAtCivilRegistrar?.date
                   ? formatDateTime(data.registeredAtCivilRegistrar.date, {
-                      monthFormat: 'numeric',
-                      dayFormat: 'numeric',
-                      yearFormat: 'numeric',
-                    })
+                    monthFormat: 'numeric',
+                    dayFormat: 'numeric',
+                    yearFormat: 'numeric',
+                  })
                   : ''}
               </Text>
             </View>
@@ -1209,7 +1208,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
         <Text style={styles.value}>{data.remarks || ''}</Text>
       </View>
     </View>,
-  ];
+  ]
 
   return (
     <Document>
@@ -1217,7 +1216,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
         {firstPageSections}
       </Page>
     </Document>
-  );
-};
+  )
+}
 
-export default MarriageCertificatePDF;
+export default MarriageCertificatePDF

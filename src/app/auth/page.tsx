@@ -1,35 +1,34 @@
 // src\app\auth\sign-in\page.tsx
-"use client";
+"use client"
 
-import { AnimatePresence, motion } from "framer-motion";
-import { SignInForm } from "@/components/custom/auth/sign-in-form";
-import { SignUpForm } from "@/components/custom/auth/sign-up-form";
-import { useState, useEffect, useRef } from "react";
+import Image from "next/image"
+import { AnimatePresence, motion } from "framer-motion"
+import { SignInForm } from "@/components/custom/auth/sign-in-form"
+import { SignUpForm } from "@/components/custom/auth/sign-up-form"
+import { useState, useEffect, useRef } from "react"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Lottie, { LottieRefCurrentProps } from "lottie-react";
-import files from "../../../public/lottie/files.json";
-import lock from "../../../public/lottie/lock.json";
-import check from "../../../public/lottie/check.json";
-import red from "../../../public/lottie/red.json";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import Lottie, { LottieRefCurrentProps } from "lottie-react"
+import files from "@lottie/files.json"
+import lock from "@lottie/lock.json"
+import check from "@lottie/check.json"
+import red from "@lottie/red.json"
 
-import { useTheme } from "next-themes";
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
-import { ThemeChange } from "@/components/theme/theme-change";
+import { ThemeChange } from "@/components/theme/theme-change"
 
 const Login = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [isDevelopment, setIsDevelopment] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false)
+  const [isDevelopment, setIsDevelopment] = useState(false)
 
   useEffect(() => {
-    setIsDevelopment(process.env.NEXT_PUBLIC_NODE_ENV === "development");
-  }, []);
+    setIsDevelopment(process.env.NEXT_PUBLIC_NODE_ENV === "development")
+  }, [])
 
   return (
     <div className="w-full h-screen font-manrope">
@@ -50,8 +49,8 @@ const Login = () => {
                     className="h-full w-full"
                   >
                     <CardHeader className="w-full text-left md:flex-row flex-col gap-2 space-y-1 flex items-center md:justify-start justify-center">
-                      <img src="/images/new.png" className="w-24 h-24" alt="" />
-                      <img src="/images/logo.jpg" className="w-24 h-24 rounded-full" alt="" />
+                      <Image src={"/images/new.png"} className="w-24 h-24" height={24} width={24} alt="" />
+                      <Image src={"/images/logo.jpg"} className="w-24 h-24 rounded-full" height={24} width={24} alt="" />
                       <div className="pl-2">
                         <CardTitle className="text-xl w-full font-bold font-inter tracking-tight uppercase">
                           City Government of Legazpi
@@ -60,7 +59,7 @@ const Login = () => {
                           Office of the City Civil Registry
                         </CardDescription>
                       </div>
-                      
+
                     </CardHeader>
                     <CardHeader className="text-left space-y-1">
                       <CardTitle className="text-2xl font-bold capitalize">
@@ -75,7 +74,7 @@ const Login = () => {
                       {isDevelopment && (
                         <div className="text-center text-sm mt-6">
                           <p className="text-muted-foreground">
-                            Don&apos;t have an account?{" "}
+                            Don&apost have an account?{" "}
                             <Button
                               variant="link"
                               className="text-primary p-0"
@@ -133,34 +132,34 @@ const Login = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
 
 const lottieSet = [
   { animationData: red, color: "#fcd000" },
   { animationData: check, color: "#fcd000" },
   { animationData: lock, color: "#fcd000" },
   { animationData: files, color: "#fcd000" },
-];
+]
 
 const RightSide = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isSliding, setIsSliding] = useState(false); // Controls the sliding animation
-  const lottieRef = useRef<LottieRefCurrentProps>(null);
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isSliding, setIsSliding] = useState(false) // Controls the sliding animation
+  const lottieRef = useRef<LottieRefCurrentProps>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsSliding(true); // Start the sliding animation
+      setIsSliding(true) // Start the sliding animation
       setTimeout(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % lottieSet.length); // Update the index
-        setIsSliding(false); // Reset sliding state after transition
-      }, 500); // Match the CSS transition duration
-    }, 7000); // Change animation every 7 seconds
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % lottieSet.length) // Update the index
+        setIsSliding(false) // Reset sliding state after transition
+      }, 500) // Match the CSS transition duration
+    }, 7000) // Change animation every 7 seconds
 
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, []);
+    return () => clearInterval(interval) // Cleanup on unmount
+  }, [])
 
   return (
     <div className="w-full hidden lg:flex flex-col items-center justify-center dark:bg-blueColor/15 bg-blueColor/80 relative overflow-hidden">
@@ -203,25 +202,23 @@ const RightSide = () => {
           </span>
         </CardDescription>
 
-        
+
       </div>
 
       {/* Indicators */}
       <div className="flex gap-2 mt-4 absolute bottom-6 z-50">
-          {lottieSet.map((_, index) => (
-            <div
-              key={index}
-              className={` rounded-full transition-colors duration-300 ${
-                currentIndex === index ? "bg-transparent bg-yellow-500 dark:bg-blueColor/80 h-3 w-6" : " border-2 border-yellowColor dark:border-blueColor w-3 h-3"
+        {lottieSet.map((_, index) => (
+          <div
+            key={index}
+            className={` rounded-full transition-colors duration-300 ${currentIndex === index ? "bg-transparent bg-yellow-500 dark:bg-blueColor/80 h-3 w-6" : " border-2 border-yellowColor dark:border-blueColor w-3 h-3"
               }`}
-            />
-          ))}
-        </div>
+          />
+        ))}
+      </div>
 
       <div
-        className={`w-fit h-full overflow-hidden transition-transform duration-500 ${
-          isSliding ? "translate-y-full" : "translate-y-[30%]"
-        }`}
+        className={`w-fit h-full overflow-hidden transition-transform duration-500 ${isSliding ? "translate-y-full" : "translate-y-[30%]"
+          }`}
       >
         <Lottie
           lottieRef={lottieRef}
@@ -233,6 +230,5 @@ const RightSide = () => {
       </div>
 
     </div>
-  );
-};
-
+  )
+}

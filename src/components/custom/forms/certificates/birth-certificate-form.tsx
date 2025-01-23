@@ -1,110 +1,97 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { createBirthCertificate } from '@/hooks/form-certificate-actions';
-import {
-  BirthCertificateFormProps,
-  BirthCertificateFormValues,
-  birthCertificateSchema,
-  defaultBirthCertificateValues,
-} from '@/lib/types/zod-form-certificate/formSchemaCertificate';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { PDFViewer } from '@react-pdf/renderer';
-import { Loader2, Save } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import {
-  ConfirmationDialog,
-  shouldSkipAlert,
-} from '../../confirmation-dialog/confirmation-dialog';
-import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
-import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
-import ChildInformationCard from './form-cards/birth-cards/child-information-card';
-import FatherInformationCard from './form-cards/birth-cards/father-information-card';
-import MarriageOfParentsCard from './form-cards/birth-cards/marriage-parents-card';
-import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
-import PreparedByCard from './form-cards/birth-cards/prepared-by-card';
-import ReceivedByCard from './form-cards/birth-cards/received-by';
-import RegisteredAtOfficeCard from './form-cards/birth-cards/registered-at-office-card';
-import RegistryInformationCard from './form-cards/birth-cards/registry-information-card';
-import RemarksCard from './form-cards/birth-cards/remarks';
-import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
+import { toast } from 'sonner'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Form } from '@/components/ui/form'
+import { Loader2, Save } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { PDFViewer } from '@react-pdf/renderer'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { createBirthCertificate } from '@/hooks/form-certificate-actions'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ConfirmationDialog, shouldSkipAlert } from '@/components/custom/confirmation-dialog/confirmation-dialog'
+import { BirthCertificateFormProps, BirthCertificateFormValues, birthCertificateSchema, defaultBirthCertificateValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate'
+
+import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf'
+import RemarksCard from '@/components/custom/forms/certificates/form-cards/birth-cards/remarks'
+import ReceivedByCard from '@/components/custom/forms/certificates/form-cards/birth-cards/received-by'
+import PreparedByCard from '@/components/custom/forms/certificates/form-cards/birth-cards/prepared-by-card'
+import MarriageOfParentsCard from '@/components/custom/forms/certificates/form-cards/birth-cards/marriage-parents-card'
+import ChildInformationCard from '@/components/custom/forms/certificates/form-cards/birth-cards/child-information-card'
+import FatherInformationCard from '@/components/custom/forms/certificates/form-cards/birth-cards/father-information-card'
+import MotherInformationCard from '@/components/custom/forms/certificates/form-cards/birth-cards/mother-information-card'
+import AttendantInformationCard from '@/components/custom/forms/certificates/form-cards/birth-cards/attendant-information'
+import RegisteredAtOfficeCard from '@/components/custom/forms/certificates/form-cards/birth-cards/registered-at-office-card'
+import RegistryInformationCard from '@/components/custom/forms/certificates/form-cards/birth-cards/registry-information-card'
+import CertificationOfInformantCard from '@/components/custom/forms/certificates/form-cards/birth-cards/certification-of-informant'
 
 export default function BirthCertificateForm({
   open,
   onOpenChange,
   onCancel,
 }: BirthCertificateFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showAlert, setShowAlert] = useState(false)
   const [pendingSubmission, setPendingSubmission] =
-    useState<BirthCertificateFormValues | null>(null);
+    useState<BirthCertificateFormValues | null>(null)
 
   const form = useForm<BirthCertificateFormValues>({
     resolver: zodResolver(birthCertificateSchema),
     defaultValues: defaultBirthCertificateValues,
-  });
+  })
 
   const onSubmit = async (values: BirthCertificateFormValues) => {
     try {
-      setIsSubmitting(true);
-      const result = await createBirthCertificate(values);
+      setIsSubmitting(true)
+      const result = await createBirthCertificate(values)
 
       if (result.success) {
         toast.success('Birth Certificate Registration', {
           description: 'Birth certificate has been registered successfully',
-        });
-        onOpenChange(false);
-        form.reset();
+        })
+        onOpenChange(false)
+        form.reset()
       } else {
         // Handle specific error cases
         if (result.error?.includes('registry number already exists')) {
           toast.error('Registry Number Error', {
             description:
               'This registry number is already in use. Please use a different number.',
-          });
+          })
         } else if (result.error?.includes('date')) {
           toast.error('Date Validation Error', {
             description: result.error,
-          });
+          })
         } else {
           toast.error('Registration Error', {
             description: result.error || 'Failed to register birth certificate',
-          });
+          })
         }
       }
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error('Submission error:', error)
 
       // More specific error handling
       if (error instanceof Error) {
         toast.error('Registration Error', {
           description: error.message,
-        });
+        })
       } else {
         toast.error('Registration Error', {
           description: 'An unexpected error occurred. Please try again.',
-        });
+        })
       }
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const transformFormDataForPreview = (
     formData: Partial<BirthCertificateFormValues>
   ): Partial<BirthCertificateFormValues> => {
-    if (!formData) return {};
+    if (!formData) return {}
 
     return {
       ...formData,
@@ -223,55 +210,55 @@ export default function BirthCertificateForm({
         date: formData.registeredByOffice.date,
         signature: formData.registeredByOffice.signature,
       },
-    };
-  };
+    }
+  }
 
   const handleSubmit = (values: BirthCertificateFormValues) => {
     if (shouldSkipAlert('skipBirthCertificateAlert')) {
-      onSubmit(values);
+      onSubmit(values)
     } else {
-      setPendingSubmission(values);
-      setShowAlert(true);
+      setPendingSubmission(values)
+      setShowAlert(true)
     }
-  };
+  }
 
   // Add this separate error handler
   const handleError = () => {
     // Get all form errors
-    const errors = form.formState.errors;
+    const errors = form.formState.errors
 
     // Check for specific field errors and show appropriate messages
     if (errors.registryNumber) {
-      toast.error(errors.registryNumber.message);
-      return;
+      toast.error(errors.registryNumber.message)
+      return
     }
 
     if (errors.childInfo) {
-      toast.error("Please check the child's information section for errors");
-      return;
+      toast.error("Please check the child's information section for errors")
+      return
     }
 
     if (errors.motherInfo) {
-      toast.error("Please check the mother's information section for errors");
-      return;
+      toast.error("Please check the mother's information section for errors")
+      return
     }
 
     if (errors.fatherInfo) {
-      toast.error("Please check the father's information section for errors");
-      return;
+      toast.error("Please check the father's information section for errors")
+      return
     }
 
     // Default error message if no specific error is found
-    toast.error('Please check all required fields and try again');
-  };
+    toast.error('Please check all required fields and try again')
+  }
 
   const confirmSubmit = () => {
     if (pendingSubmission) {
-      onSubmit(pendingSubmission);
-      setShowAlert(false);
-      setPendingSubmission(null);
+      onSubmit(pendingSubmission)
+      setShowAlert(false)
+      setPendingSubmission(null)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -342,11 +329,11 @@ export default function BirthCertificateForm({
                     onConfirm={confirmSubmit}
                     isSubmitting={isSubmitting}
                     localStorageKey='skipBirthCertificateAlert'
-                    // Optionally override default texts
-                    // title="Custom Title"
-                    // description="Custom Description"
-                    // confirmButtonText="Custom Confirm Text"
-                    // cancelButtonText="Custom Cancel Text"
+                  // Optionally override default texts
+                  // title="Custom Title"
+                  // description="Custom Description"
+                  // confirmButtonText="Custom Confirm Text"
+                  // cancelButtonText="Custom Cancel Text"
                   />
                 </div>
               </ScrollArea>
@@ -366,5 +353,5 @@ export default function BirthCertificateForm({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

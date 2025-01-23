@@ -1,105 +1,92 @@
 // src\components\custom\forms\certificates\marriage-certificate-form.tsx
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { createMarriageCertificate } from '@/hooks/form-certificate-actions';
-import {
-  defaultMarriageCertificateValues,
-  MarriageCertificateFormProps,
-  MarriageCertificateFormValues,
-  marriageCertificateSchema,
-} from '@/lib/types/zod-form-certificate/formSchemaCertificate';
-import { MarriageFormData } from '@/types/marriage-certificate';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { PDFViewer } from '@react-pdf/renderer';
-import { format } from 'date-fns';
-import { Loader2, Save } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import {
-  ConfirmationDialog,
-  shouldSkipAlert,
-} from '../../confirmation-dialog/confirmation-dialog';
-import ContractingPartiesCertificationCard from './form-cards/marriage-cards/contracting-parties-certification.-card';
-import HusbandInfoCard from './form-cards/marriage-cards/husband-info-card';
-import HusbandParentsInfoCard from './form-cards/marriage-cards/husband-parent-info-card';
-import MarriageDetailsCard from './form-cards/marriage-cards/marriage-details-card';
-import ReceivedByCard from './form-cards/marriage-cards/received-by-card';
-import RegisteredAtOfficeCard from './form-cards/marriage-cards/registered-at-office-card';
-import RegistryInfoCard from './form-cards/marriage-cards/registry-info-card';
-import RemarksCard from './form-cards/marriage-cards/remarks-card';
-import SolemnizingOfficerCertification from './form-cards/marriage-cards/solemnizing-officer-certification-card';
-import WifeInfoCard from './form-cards/marriage-cards/wife-info-card';
-import WifeParentsInfoCard from './form-cards/marriage-cards/wife-parent-info-card';
-import WitnessesCard from './form-cards/marriage-cards/witnesses-section-card';
-import MarriageCertificatePDF from './preview/marriage-certificate/MarriageCertificatePDF';
+import { toast } from 'sonner'
+import { useState } from 'react'
+import { format } from 'date-fns'
+import { useForm } from 'react-hook-form'
+import { Form } from '@/components/ui/form'
+import { Loader2, Save } from 'lucide-react'
+import { PDFViewer } from '@react-pdf/renderer'
+import { Button } from '@/components/ui/button'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { MarriageFormData } from '@/types/marriage-certificate'
+import { createMarriageCertificate } from '@/hooks/form-certificate-actions'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { defaultMarriageCertificateValues, MarriageCertificateFormProps, MarriageCertificateFormValues, marriageCertificateSchema } from '@/lib/types/zod-form-certificate/formSchemaCertificate'
+
+import RemarksCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/remarks-card'
+import WifeInfoCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/wife-info-card'
+import ReceivedByCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/received-by-card'
+import HusbandInfoCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/husband-info-card'
+import { ConfirmationDialog, shouldSkipAlert } from '@/components/custom/confirmation-dialog/confirmation-dialog'
+import RegistryInfoCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/registry-info-card'
+import WitnessesCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/witnesses-section-card'
+import WifeParentsInfoCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/wife-parent-info-card'
+import MarriageDetailsCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/marriage-details-card'
+import HusbandParentsInfoCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/husband-parent-info-card'
+import RegisteredAtOfficeCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/registered-at-office-card'
+import MarriageCertificatePDF from '@/components/custom/forms/certificates/preview/marriage-certificate/marriage-certificate-pdf'
+import SolemnizingOfficerCertification from '@/components/custom/forms/certificates/form-cards/marriage-cards/solemnizing-officer-certification-card'
+import ContractingPartiesCertificationCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/contracting-parties-certification-card'
 
 export function MarriageCertificateForm({
   open,
   onOpenChange,
   onCancel,
 }: MarriageCertificateFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showAlert, setShowAlert] = useState(false)
   const [pendingSubmission, setPendingSubmission] =
-    useState<MarriageCertificateFormValues | null>(null);
+    useState<MarriageCertificateFormValues | null>(null)
 
   const form = useForm<MarriageCertificateFormValues>({
     resolver: zodResolver(marriageCertificateSchema),
     defaultValues: defaultMarriageCertificateValues,
-  });
+  })
 
   const onSubmit = async (values: MarriageCertificateFormValues) => {
     try {
-      setIsSubmitting(true);
-      const result = await createMarriageCertificate(values);
+      setIsSubmitting(true)
+      const result = await createMarriageCertificate(values)
 
       if (result.success) {
-        toast.success('Marriage certificate has been registered successfully');
-        onOpenChange(false); // Close the dialog
-        form.reset(); // Reset the form
+        toast.success('Marriage certificate has been registered successfully')
+        onOpenChange(false) // Close the dialog
+        form.reset() // Reset the form
       } else {
-        throw new Error(result.error);
+        throw new Error(result.error)
       }
     } catch (error) {
-      console.error('Submission error:', error);
-      toast.error('Failed to register marriage certificate. Please try again.');
+      console.error('Submission error:', error)
+      toast.error('Failed to register marriage certificate. Please try again.')
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const handleSubmit = (values: MarriageCertificateFormValues) => {
     if (shouldSkipAlert('skipMarriageCertificateAlert')) {
-      onSubmit(values);
+      onSubmit(values)
     } else {
-      setPendingSubmission(values);
-      setShowAlert(true);
+      setPendingSubmission(values)
+      setShowAlert(true)
     }
-  };
+  }
 
   const confirmSubmit = () => {
     if (pendingSubmission) {
-      onSubmit(pendingSubmission);
-      setShowAlert(false);
-      setPendingSubmission(null);
+      onSubmit(pendingSubmission)
+      setShowAlert(false)
+      setPendingSubmission(null)
     }
-  };
+  }
 
   const transformFormDataForPreview = (
     formData: Partial<MarriageCertificateFormValues>
   ): Partial<MarriageFormData> => {
-    if (!formData) return {};
+    if (!formData) return {}
 
     const data: Partial<MarriageFormData> = {
       ...formData,
@@ -119,52 +106,52 @@ export function MarriageCertificateForm({
       // Transform place of birth structures
       husbandPlaceOfBirth: formData.husbandPlaceOfBirth
         ? {
-            cityMunicipality: formData.husbandPlaceOfBirth.cityMunicipality,
-            province: formData.husbandPlaceOfBirth.province,
-            country: formData.husbandPlaceOfBirth.country || 'Philippines',
-          }
+          cityMunicipality: formData.husbandPlaceOfBirth.cityMunicipality,
+          province: formData.husbandPlaceOfBirth.province,
+          country: formData.husbandPlaceOfBirth.country || 'Philippines',
+        }
         : undefined,
 
       wifePlaceOfBirth: formData.wifePlaceOfBirth
         ? {
-            cityMunicipality: formData.wifePlaceOfBirth.cityMunicipality,
-            province: formData.wifePlaceOfBirth.province,
-            country: formData.wifePlaceOfBirth.country || 'Philippines',
-          }
+          cityMunicipality: formData.wifePlaceOfBirth.cityMunicipality,
+          province: formData.wifePlaceOfBirth.province,
+          country: formData.wifePlaceOfBirth.country || 'Philippines',
+        }
         : undefined,
 
       // Transform place of marriage
       placeOfMarriage: formData.placeOfMarriage
         ? {
-            office: formData.placeOfMarriage.office,
-            cityMunicipality: formData.placeOfMarriage.cityMunicipality,
-            province: formData.placeOfMarriage.province,
-            country: 'Philippines',
-          }
+          office: formData.placeOfMarriage.office,
+          cityMunicipality: formData.placeOfMarriage.cityMunicipality,
+          province: formData.placeOfMarriage.province,
+          country: 'Philippines',
+        }
         : undefined,
 
       // Transform solemnizing officer
       solemnizingOfficer: formData.solemnizingOfficer
         ? {
-            ...formData.solemnizingOfficer,
-            registryNoExpiryDate:
-              formData.solemnizingOfficer.registryNoExpiryDate,
-          }
+          ...formData.solemnizingOfficer,
+          registryNoExpiryDate:
+            formData.solemnizingOfficer.registryNoExpiryDate,
+        }
         : undefined,
 
       // Transform witnesses array
       witnesses: {
         husband: Array.isArray(formData.witnesses?.husband)
           ? formData.witnesses.husband.map((witness) => ({
-              name: witness?.name || '',
-              signature: witness?.signature || '',
-            }))
+            name: witness?.name || '',
+            signature: witness?.signature || '',
+          }))
           : [{ name: '', signature: '' }],
         wife: Array.isArray(formData.witnesses?.wife)
           ? formData.witnesses.wife.map((witness) => ({
-              name: witness?.name || '',
-              signature: witness?.signature || '',
-            }))
+            name: witness?.name || '',
+            signature: witness?.signature || '',
+          }))
           : [{ name: '', signature: '' }],
       },
 
@@ -172,28 +159,28 @@ export function MarriageCertificateForm({
       husbandConsentPerson:
         formData.husbandConsentGivenBy && formData.husbandConsentRelationship
           ? {
-              name: formData.husbandConsentGivenBy,
-              relationship: formData.husbandConsentRelationship,
-              residence: formData.husbandConsentResidence || '',
-            }
+            name: formData.husbandConsentGivenBy,
+            relationship: formData.husbandConsentRelationship,
+            residence: formData.husbandConsentResidence || '',
+          }
           : null,
 
       wifeConsentPerson:
         formData.wifeConsentGivenBy && formData.wifeConsentRelationship
           ? {
-              name: formData.wifeConsentGivenBy,
-              relationship: formData.wifeConsentRelationship,
-              residence: formData.wifeConsentResidence || '',
-            }
+            name: formData.wifeConsentGivenBy,
+            relationship: formData.wifeConsentRelationship,
+            residence: formData.wifeConsentResidence || '',
+          }
           : null,
 
       // Transform marriage license details
       marriageLicenseDetails: formData.marriageLicenseDetails
         ? {
-            number: formData.marriageLicenseDetails.number,
-            dateIssued: formData.marriageLicenseDetails.dateIssued,
-            placeIssued: formData.marriageLicenseDetails.placeIssued,
-          }
+          number: formData.marriageLicenseDetails.number,
+          dateIssued: formData.marriageLicenseDetails.dateIssued,
+          placeIssued: formData.marriageLicenseDetails.placeIssued,
+        }
         : undefined,
 
       // Transform signatures
@@ -204,50 +191,50 @@ export function MarriageCertificateForm({
 
       receivedBy: formData.receivedBy
         ? {
-            signature: formData.receivedBy.signature || 'N/A',
-            name: formData.receivedBy.name || 'N/A',
-            title: formData.receivedBy.title || 'N/A',
-            date: formData.receivedBy.date
-              ? format(new Date(formData.receivedBy.date), 'MMMM dd, yyyy')
-              : 'N/A',
-          }
+          signature: formData.receivedBy.signature || 'N/A',
+          name: formData.receivedBy.name || 'N/A',
+          title: formData.receivedBy.title || 'N/A',
+          date: formData.receivedBy.date
+            ? format(new Date(formData.receivedBy.date), 'MMMM dd, yyyy')
+            : 'N/A',
+        }
         : {
-            signature: 'N/A',
-            name: 'N/A',
-            title: 'N/A',
-            date: 'N/A',
-          },
+          signature: 'N/A',
+          name: 'N/A',
+          title: 'N/A',
+          date: 'N/A',
+        },
 
       registeredAtCivilRegistrar: formData.registeredAtCivilRegistrar
         ? {
-            signature: formData.registeredAtCivilRegistrar.signature || 'N/A',
-            name: formData.registeredAtCivilRegistrar.name || 'N/A',
-            title: formData.registeredAtCivilRegistrar.title || 'N/A',
-            date: formData.registeredAtCivilRegistrar.date
-              ? format(
-                  new Date(formData.registeredAtCivilRegistrar.date),
-                  'MMMM dd, yyyy'
-                ) // Month Day, Year format
-              : 'N/A',
-          }
+          signature: formData.registeredAtCivilRegistrar.signature || 'N/A',
+          name: formData.registeredAtCivilRegistrar.name || 'N/A',
+          title: formData.registeredAtCivilRegistrar.title || 'N/A',
+          date: formData.registeredAtCivilRegistrar.date
+            ? format(
+              new Date(formData.registeredAtCivilRegistrar.date),
+              'MMMM dd, yyyy'
+            ) // Month Day, Year format
+            : 'N/A',
+        }
         : {
-            signature: 'N/A',
-            name: 'N/A',
-            title: 'N/A',
-            date: 'N/A',
-          },
+          signature: 'N/A',
+          name: 'N/A',
+          title: 'N/A',
+          date: 'N/A',
+        },
 
       remarks: formData.remarks || 'N/A',
-    };
+    }
 
-    return data;
-  };
+    return data
+  }
 
   const handleError = () => {
     toast.warning('Please fill in all required fields', {
       description: 'Some required information is missing or incorrect.',
-    });
-  };
+    })
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -338,7 +325,7 @@ export function MarriageCertificateForm({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
-export default MarriageCertificateForm;
+export default MarriageCertificateForm

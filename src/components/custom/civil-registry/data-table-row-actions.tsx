@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,200 +16,199 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Icons } from '@/components/ui/icons';
+} from '@/components/ui/dropdown-menu'
+import { Icons } from '@/components/ui/icons'
 import {
   BaseRegistryFormWithRelations,
   deleteBaseRegistryForm,
-} from '@/hooks/civil-registry-action';
-import { hasPermission } from '@/types/auth';
-import { FormType } from '@prisma/client';
-import { JsonValue } from '@prisma/client/runtime/library';
-import { Row } from '@tanstack/react-table';
-import { useSession } from 'next-auth/react';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import BirthAnnotationForm from '../forms/annotations/birthcert';
-import DeathAnnotationForm from '../forms/annotations/death-annotation-form';
-import MarriageAnnotationForm from '../forms/annotations/marriage-annotation-form';
-import { EditCivilRegistryFormDialog } from './actions/edit-civil-registry-form-dialog';
+} from '@/hooks/civil-registry-action'
+import { hasPermission } from '@/types/auth'
+import { FormType } from '@prisma/client'
+import { JsonValue } from '@prisma/client/runtime/library'
+import { Row } from '@tanstack/react-table'
+import { useSession } from 'next-auth/react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import BirthAnnotationForm from '@/components/custom/forms/annotations/birthcert'
+import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation-form'
+import MarriageAnnotationForm from '@/components/custom/forms//annotations/marriage-annotation-form'
+import { EditCivilRegistryFormDialog } from './actions/edit-civil-registry-form-dialog'
 // import { ScanFormDialog } from './actions/scan-form-dialog'
-import { FileUploadDialog } from './components/file-upload';
+import { FileUploadDialog } from './components/file-upload'
 
 interface DataTableRowActionsProps {
-  row: Row<BaseRegistryFormWithRelations>;
-  onUpdateAction?: (updatedForm: BaseRegistryFormWithRelations) => void;
+  row: Row<BaseRegistryFormWithRelations>
+  onUpdateAction?: (updatedForm: BaseRegistryFormWithRelations) => void
 }
 
 const formTypeLabels: Record<FormType, string> = {
   MARRIAGE: 'Marriage (Form 97)',
   BIRTH: 'Birth (Form 102)',
   DEATH: 'Death (Form 103)',
-};
+}
 
 const statusVariants: Record<
   string,
   {
-    label: string;
-    variant: 'default' | 'secondary' | 'destructive' | 'outline';
+    label: string
+    variant: 'default' | 'secondary' | 'destructive' | 'outline'
   }
 > = {
   PENDING: { label: 'Pending', variant: 'secondary' },
   VERIFIED: { label: 'Verified', variant: 'default' },
   REJECTED: { label: 'Rejected', variant: 'destructive' },
   EXPIRED: { label: 'Expired', variant: 'outline' },
-};
+}
 
 export function DataTableRowActions({
   row,
   onUpdateAction,
 }: DataTableRowActionsProps) {
-  console.log(row);
-  const { data: session } = useSession();
-  const form = row.original;
-  const [isLoading, setIsLoading] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
+  console.log(row)
+  const { data: session } = useSession()
+  const form = row.original
+  const [isLoading, setIsLoading] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
 
-  const [birthFormOpen, setBirthFormOpen] = useState(false);
-  const [deathFormOpen, setDeathFormOpen] = useState(false);
-  const [marriageFormOpen, setMarriageFormOpen] = useState(false);
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [birthFormOpen, setBirthFormOpen] = useState(false)
+  const [deathFormOpen, setDeathFormOpen] = useState(false)
+  const [marriageFormOpen, setMarriageFormOpen] = useState(false)
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
 
   const handleOpenForm = () => {
     switch (form.formType) {
       case 'BIRTH':
-        setBirthFormOpen(true);
-        break;
+        setBirthFormOpen(true)
+        break
       case 'DEATH':
-        setDeathFormOpen(true);
-        break;
+        setDeathFormOpen(true)
+        break
       case 'MARRIAGE':
-        setMarriageFormOpen(true);
-        break;
+        setMarriageFormOpen(true)
+        break
       default:
-        toast.error('Unknown form type');
+        toast.error('Unknown form type')
     }
-  };
+  }
 
   const canManageForms = hasPermission(
     session?.user?.permissions ?? [],
     'DOCUMENTS_MANAGE'
-  );
-  if (!canManageForms) return null;
+  )
+  if (!canManageForms) return null
 
   const handleDelete = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      const result = await deleteBaseRegistryForm(form.id);
+      const result = await deleteBaseRegistryForm(form.id)
       if (result.success) {
-        toast.success(result.message);
-        onUpdateAction?.(form);
+        toast.success(result.message)
+        onUpdateAction?.(form)
       } else {
-        toast.error(result.message);
+        toast.error(result.message)
       }
     } catch (error) {
-      console.error('Error deleting form:', error);
-      toast.error('An unexpected error occurred');
+      console.error('Error deleting form:', error)
+      toast.error('An unexpected error occurred')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleSave = (updatedForm: BaseRegistryFormWithRelations) => {
-    toast.success(`Form ${updatedForm.id} has been updated successfully!`);
-    onUpdateAction?.(updatedForm);
-    setEditDialogOpen(false);
-  };
+    toast.success(`Form ${updatedForm.id} has been updated successfully!`)
+    onUpdateAction?.(updatedForm)
+    setEditDialogOpen(false)
+  }
 
   const handleUploadSuccess = (fileUrl: string) => {
-    toast.success(`File uploaded successfully: ${fileUrl}`);
-    onUpdateAction?.({ ...form, documentUrl: fileUrl });
-  };
+    toast.success(`File uploaded successfully: ${fileUrl}`)
+    onUpdateAction?.({ ...form, documentUrl: fileUrl })
+  }
 
   const handleExportDocument = async (
     documentUrl: string | null,
     registryNumber: string
   ) => {
     if (!documentUrl) {
-      return;
+      return
     }
 
     const cleanUrl = documentUrl.startsWith('/')
       ? documentUrl.slice(1)
-      : documentUrl;
+      : documentUrl
     const response = await fetch(
       `/api/download?path=${encodeURIComponent(cleanUrl)}`
-    );
-    const blob = await response.blob();
+    )
+    const blob = await response.blob()
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const originalFileName = documentUrl.split('/').pop() || 'document.pdf';
-    const fileName = `${registryNumber}_${timestamp}_${originalFileName}`;
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+    const originalFileName = documentUrl.split('/').pop() || 'document.pdf'
+    const fileName = `${registryNumber}_${timestamp}_${originalFileName}`
 
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
 
-    toast.success('File downloaded successfully');
-  };
+    toast.success('File downloaded successfully')
+  }
 
   interface FullNameFormat {
-    firstName?: string;
-    middleName?: string;
-    lastName?: string;
+    firstName?: string
+    middleName?: string
+    lastName?: string
   }
 
   interface ShortNameFormat {
-    first?: string;
-    middle?: string;
-    last?: string;
+    first?: string
+    middle?: string
+    last?: string
   }
 
-  type NameObject = FullNameFormat | ShortNameFormat;
+  type NameObject = FullNameFormat | ShortNameFormat
 
   const isNameObject = (value: unknown): value is NameObject => {
-    if (!value || typeof value !== 'object') return false;
-    const obj = value as Record<string, unknown>;
+    if (!value || typeof value !== 'object') return false
+    const obj = value as Record<string, unknown>
     return (
       (('firstName' in obj || 'first' in obj) &&
         ('lastName' in obj || 'last' in obj)) ||
       'middleName' in obj ||
       'middle' in obj
-    );
-  };
+    )
+  }
 
   const formatName = (nameObj: JsonValue | null): string => {
-    if (!nameObj) return '';
+    if (!nameObj) return ''
 
     if (typeof nameObj === 'string') {
       try {
-        const parsed = JSON.parse(nameObj);
-        if (!isNameObject(parsed)) return nameObj;
+        const parsed = JSON.parse(nameObj)
+        if (!isNameObject(parsed)) return nameObj
 
         const firstName =
           (parsed as FullNameFormat).firstName ||
           (parsed as ShortNameFormat).first ||
-          '';
+          ''
         const middleName =
           (parsed as FullNameFormat).middleName ||
           (parsed as ShortNameFormat).middle ||
-          '';
+          ''
         const lastName =
           (parsed as FullNameFormat).lastName ||
           (parsed as ShortNameFormat).last ||
-          '';
+          ''
 
-        return `${firstName} ${
-          middleName ? middleName + ' ' : ''
-        }${lastName}`.trim();
+        return `${firstName} ${middleName ? middleName + ' ' : ''
+          }${lastName}`.trim()
       } catch {
-        return nameObj;
+        return nameObj
       }
     }
 
@@ -217,23 +216,22 @@ export function DataTableRowActions({
       const firstName =
         (nameObj as FullNameFormat).firstName ||
         (nameObj as ShortNameFormat).first ||
-        '';
+        ''
       const middleName =
         (nameObj as FullNameFormat).middleName ||
         (nameObj as ShortNameFormat).middle ||
-        '';
+        ''
       const lastName =
         (nameObj as FullNameFormat).lastName ||
         (nameObj as ShortNameFormat).last ||
-        '';
+        ''
 
-      return `${firstName} ${
-        middleName ? middleName + ' ' : ''
-      }${lastName}`.trim();
+      return `${firstName} ${middleName ? middleName + ' ' : ''
+        }${lastName}`.trim()
     }
 
-    return String(nameObj);
-  };
+    return String(nameObj)
+  }
 
   const getSpecificFormDetails = () => {
     if (form.marriageCertificateForm) {
@@ -260,7 +258,7 @@ export function DataTableRowActions({
             </span>
           </div>
         </>
-      );
+      )
     } else if (form.birthCertificateForm) {
       return (
         <>
@@ -283,7 +281,7 @@ export function DataTableRowActions({
             <span className='col-span-3'>{form.birthCertificateForm.sex}</span>
           </div>
         </>
-      );
+      )
     } else if (form.deathCertificateForm) {
       return (
         <>
@@ -306,10 +304,10 @@ export function DataTableRowActions({
             <span className='col-span-3'>{form.deathCertificateForm.sex}</span>
           </div>
         </>
-      );
+      )
     }
-    return null;
-  };
+    return null
+  }
 
   return (
     <>
@@ -474,5 +472,5 @@ export function DataTableRowActions({
         row={row}
       />
     </>
-  );
+  )
 }
