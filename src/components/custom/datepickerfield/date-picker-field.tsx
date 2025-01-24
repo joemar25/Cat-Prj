@@ -1,37 +1,37 @@
-'use client'
+'use client';
 
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import {
   FormControl,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from '@/components/ui/form';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
+} from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
-import { format } from 'date-fns'
-import { CalendarIcon } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface DatePickerFieldProps {
   field: {
-    value: Date | undefined
-    onChange: (date: Date | undefined) => void
-  }
-  label: string
-  placeholder?: string
+    value: Date | undefined;
+    onChange: (date: Date | undefined) => void;
+  };
+  label: string;
+  placeholder?: string;
 }
 
 const DatePickerField: React.FC<DatePickerFieldProps> = ({
@@ -39,41 +39,48 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
   label,
   placeholder = 'Pick a date',
 }) => {
-  const [currentDate, setCurrentDate] = useState<Date>(
-    field.value || new Date()
-  )
-  const [calendarOpen, setCalendarOpen] = useState(false)
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
+  // Ensure `field.value` is a valid Date object
+  const isValidDate = (date: Date | undefined): date is Date => {
+    return date instanceof Date && !isNaN(date.getTime());
+  };
+
+  // Set initial date
   useEffect(() => {
-    if (field.value) {
-      setCurrentDate(field.value)
+    if (isValidDate(field.value)) {
+      setCurrentDate(field.value);
+    } else {
+      setCurrentDate(new Date()); // Fallback to current date
     }
-  }, [field.value])
+  }, [field.value]);
 
-  const currentYear = currentDate.getFullYear()
-  const currentMonth = currentDate.getMonth()
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
 
   const years = Array.from(
     { length: new Date().getFullYear() - 1900 + 1 },
     (_, i) => new Date().getFullYear() - i
-  )
+  );
 
   const handleMonthChange = (month: number) => {
-    const newDate = new Date(currentDate)
-    newDate.setMonth(month)
-    setCurrentDate(newDate)
-  }
+    const newDate = new Date(currentDate);
+    newDate.setMonth(month);
+    setCurrentDate(newDate);
+  };
 
   const handleYearChange = (year: number) => {
-    const newDate = new Date(currentDate)
-    newDate.setFullYear(year)
-    setCurrentDate(newDate)
-  }
+    const newDate = new Date(currentDate);
+    newDate.setFullYear(year);
+    setCurrentDate(newDate);
+  };
 
   // Function to format date in numeric format (MM/DD/YYYY)
-  const formatDateNumeric = (date: Date) => {
-    return format(date, 'M/d/yyyy')
-  }
+  const formatDateNumeric = (date: Date | undefined): string => {
+    if (!isValidDate(date)) return '';
+    return format(date, 'MM/dd/yyyy');
+  };
 
   return (
     <FormItem>
@@ -95,7 +102,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
                   !field.value && 'text-muted-foreground'
                 )}
               >
-                {field.value ? (
+                {isValidDate(field.value) ? (
                   formatDateNumeric(field.value)
                 ) : (
                   <span>{placeholder}</span>
@@ -143,12 +150,12 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
             </div>
             <Calendar
               mode='single'
-              selected={field.value}
+              selected={isValidDate(field.value) ? field.value : undefined}
               month={currentDate}
               onMonthChange={setCurrentDate}
               onSelect={(date) => {
-                field.onChange(date)
-                setCalendarOpen(false)
+                field.onChange(date);
+                setCalendarOpen(false);
               }}
               disabled={(date: Date): boolean =>
                 date > new Date() || date < new Date('1900-01-01')
@@ -161,7 +168,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
       </div>
       <FormMessage />
     </FormItem>
-  )
-}
+  );
+};
 
-export default DatePickerField
+export default DatePickerField;

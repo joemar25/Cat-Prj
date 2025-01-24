@@ -1,3 +1,5 @@
+'use client';
+
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -15,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import {
   getAllProvinces,
   getCitiesMunicipalities,
@@ -46,13 +48,8 @@ const MarriageOfParentsCard: React.FC = () => {
               control={control}
               name='parentMarriage.date'
               render={({ field }) => {
-                // Convert the separate date fields to a Date object
                 const dateValue = field.value
-                  ? new Date(
-                      parseInt(field.value.year),
-                      parseInt(field.value.month) - 1, // Months are 0-based in JavaScript
-                      parseInt(field.value.day)
-                    )
+                  ? new Date(field.value.split('/').reverse().join('-'))
                   : undefined;
 
                 return (
@@ -61,22 +58,21 @@ const MarriageOfParentsCard: React.FC = () => {
                       value: dateValue,
                       onChange: (date) => {
                         if (date) {
-                          // Convert back to your form's expected format
-                          field.onChange({
-                            year: date.getFullYear().toString(),
-                            month: (date.getMonth() + 1).toString(), // Add 1 because months are 0-based
-                            day: date.getDate().toString(),
-                          });
+                          const month = (date.getMonth() + 1)
+                            .toString()
+                            .padStart(2, '0');
+                          const day = date
+                            .getDate()
+                            .toString()
+                            .padStart(2, '0');
+                          const year = date.getFullYear();
+                          field.onChange(`${month}/${day}/${year}`);
                         } else {
-                          field.onChange({
-                            year: '',
-                            month: '',
-                            day: '',
-                          });
+                          field.onChange('');
                         }
                       },
                     }}
-                    label='Date of Marriage'
+                    label='Marriage Date'
                     placeholder='Select marriage date'
                   />
                 );
@@ -112,7 +108,7 @@ const MarriageOfParentsCard: React.FC = () => {
                       }
                     >
                       <FormControl>
-                        <SelectTrigger className='h-10'>
+                        <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
                           <SelectValue placeholder='Select province' />
                         </SelectTrigger>
                       </FormControl>
@@ -141,7 +137,7 @@ const MarriageOfParentsCard: React.FC = () => {
                       disabled={!selectedProvince}
                     >
                       <FormControl>
-                        <SelectTrigger className='h-10'>
+                        <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
                           <SelectValue placeholder='Select city/municipality' />
                         </SelectTrigger>
                       </FormControl>
@@ -164,7 +160,11 @@ const MarriageOfParentsCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Country</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter country' {...field} />
+                      <Input
+                        className='h-10'
+                        placeholder='Enter country'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

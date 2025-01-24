@@ -750,320 +750,126 @@ export interface DeathCertificateFormProps {
 
 // --------------------------------- Birth Certificate Schema --------------------------//
 // Define the Zod schema for the birth certificate form
-export const birthCertificateSchema = z.object({
-  registryNumber: z
-    .string()
-    .regex(/^\d{4}-\d{5}$/, 'Registry number must be in format: YYYY-#####')
-    .refine(
-      (value) => {
-        const year = parseInt(value.split('-')[0]);
-        const currentYear = new Date().getFullYear();
-        return year >= 1945 && year <= currentYear;
-      },
-      {
-        message: 'Registration year must be between 1945 and current year',
-      }
-    )
-    .refine(
-      (value) => {
-        const sequenceNumber = parseInt(value.split('-')[1]);
-        return sequenceNumber > 0 && sequenceNumber <= 99999;
-      },
-      {
-        message: 'Sequence number must be between 1 and 99999',
-      }
-    ),
-  province: z
-    .string()
-    .min(1, 'Province is required')
-    .max(100, 'Province name is too long'),
-  cityMunicipality: z
-    .string()
-    .min(1, 'City/Municipality is required')
-    .max(100, 'City/Municipality name is too long'),
 
-  childInfo: z.object({
-    firstName: z.string().min(1, 'First name is required'),
-    middleName: z.string().optional(),
-    lastName: z.string().min(1, 'Last name is required'),
-    sex: z.enum(['Male', 'Female', '']),
-    dateOfBirth: z.object({
-      day: z.string().min(1, 'Day is required'),
-      month: z.string().min(1, 'Month is required'),
-      year: z.string().min(1, 'Year is required'),
-    }),
-    placeOfBirth: z.object({
-      hospital: z.string().min(1, 'Hospital is required'),
-      cityMunicipality: z.string().min(1, 'City/Municipality is required'),
-      province: z.string().min(1, 'Province is required'),
-    }),
-    typeOfBirth: z.string().min(1, 'Type of birth is required'),
-    multipleBirthOrder: z.string().optional(),
-    birthOrder: z.string().min(1, 'Birth order is required'),
-    weightAtBirth: z.preprocess(
-      (value) => {
-        if (typeof value === 'string') {
-          const parsed = parseFloat(value);
-          return isNaN(parsed) ? undefined : parsed; // Convert to number or return undefined for invalid input
-        }
-        return value; // Keep value as is if already a number
-      },
-      z
-        .number()
-        .positive('Weight must be greater than zero') // Must be greater than 0
-        .min(0.01, 'Weight must be greater than zero') // Must be more than 0
-    ),
-  }),
 
-  // Mother Info - Updated field names
-  motherInfo: z.object({
-    firstName: z.string().min(1, 'First name is required'),
-    middleName: z.string().optional(),
-    lastName: z.string().min(1, 'Last name is required'),
-    motherCitizenship: z.string().min(1, 'Citizenship is required'),
-    motherReligion: z.string().min(1, 'Religion is required'),
-    motherOccupation: z.string().min(1, 'Occupation is required'),
-    motherAge: z.string().min(1, 'Age is required'),
-    totalChildrenBornAlive: z.string().min(1, 'Total children is required'),
-    childrenStillLiving: z.string().min(1, 'Living children is required'),
-    childrenNowDead: z.string().min(1, 'Children dead is required'),
-    residence: z.object({
-      address: z.string().min(1, 'Address is required'),
-      cityMunicipality: z.string().min(1, 'City/Municipality is required'),
-      province: z.string().min(1, 'Province is required'),
-      country: z.string().min(1, 'Country is required'),
-    }),
-  }),
-
-  // Father Info - Updated field names
-  fatherInfo: z.object({
-    firstName: z.string().min(1, 'First name is required'),
-    middleName: z.string().optional(),
-    lastName: z.string().min(1, 'Last name is required'),
-    fatherCitizenship: z.string().min(1, 'Citizenship is required'), // Updated
-    fatherReligion: z.string().min(1, 'Religion is required'), // Updated
-    fatherOccupation: z.string().min(1, 'Occupation is required'), // Updated
-    fatherAge: z.string().min(1, 'Age is required'), // Updated
-    residence: z.object({
-      address: z.string().min(1, 'Address is required'),
-      cityMunicipality: z.string().min(1, 'City/Municipality is required'),
-      province: z.string().min(1, 'Province is required'),
-      country: z.string().min(1, 'Country is required'),
-    }),
-  }),
-
-  // Parent Marriage - Renamed to match the model
-  parentMarriage: z.object({
-    date: z.object({
-      month: z.string().min(1, 'Month is required'),
-      day: z.string().min(1, 'Day is required'),
-      year: z.string().min(1, 'Year is required'),
-    }),
-    place: z.object({
-      cityMunicipality: z.string().min(1, 'City/Municipality is required'),
-      province: z.string().min(1, 'Province is required'),
-      country: z.string().min(1, 'Country is required'),
-    }),
-  }),
-
-  // The rest remain mostly the same but renamed to match component usage
-  attendant: z.object({
-    type: z.union([
-      z.literal('Physician'),
-      z.literal('Nurse'),
-      z.literal('Midwife'),
-      z.literal('Hilot'),
-      z.literal('Others'),
-      z.string(), // Allow any string when "Others" is selected
-    ]),
-    certification: z.object({
-      time: z.string().min(1, 'Time is required'),
-      signature: z.string().optional(),
-      name: z.string().min(1, 'Name is required'),
-      title: z.string().min(1, 'Title is required'),
-      address: z.string().min(1, 'Address is required'),
-      date: z.string().min(1, 'Date is required'),
-    }),
-  }),
-
-  informant: z.object({
-    signature: z.string().optional(),
-    name: z.string().min(1, 'Name is required'),
-    relationship: z.string().min(1, 'Relationship is required'),
-    address: z.string().min(1, 'Address is required'),
-    date: z.string().min(1, 'Date is required'),
-  }),
-
-  preparedBy: z.object({
-    signature: z.string().optional(),
-    name: z.string().min(1, 'Name is required'),
-    title: z.string().superRefine((title, ctx) => {
-      if (!title && ctx.path.includes('preparedBy')) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Title should be auto-filled. Please select a name first.',
-        });
-      }
-    }),
-    date: z.string().min(1, 'Date is required'),
-  }),
-
-  receivedBy: z.object({
-    signature: z.string().optional(),
-    name: z.string().min(1, 'Name is required'),
-    title: z.string().superRefine((title, ctx) => {
-      if (!title && ctx.path.includes('receivedBy')) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Title should be auto-filled. Please select a name first.',
-        });
-      }
-    }),
-    date: z.string().min(1, 'Date is required'),
-  }),
-
-  registeredByOffice: z.object({
-    signature: z.string().optional(),
-    name: z.string().min(1, 'Name is required'),
-    title: z.string().superRefine((title, ctx) => {
-      if (!title && ctx.path.includes('registeredByOffice')) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Title should be auto-filled. Please select a name first.',
-        });
-      }
-    }),
-    date: z.string().min(1, 'Date is required'),
-  }),
-
-  remarks: z.string().optional(),
-});
-
-// Type inference
-export type BirthCertificateFormValues = z.infer<typeof birthCertificateSchema>;
 
 // Default data for the birth certificate form
-export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> =
-  {
-    registryNumber: '',
-    province: '',
-    cityMunicipality: '',
+// export const defaultBirthCertificateValues: Partial<BirthCertificateFormValues> =
+//   {
+//     registryNumber: '',
+//     province: '',
+//     cityMunicipality: '',
 
-    childInfo: {
-      firstName: '',
-      middleName: '',
-      lastName: '',
-      sex: 'Male',
-      dateOfBirth: {
-        day: '15',
-        month: '6',
-        year: '2024',
-      },
-      placeOfBirth: {
-        hospital: 'Bulacan Medical Center',
-        cityMunicipality: '',
-        province: '',
-      },
-      typeOfBirth: 'Single',
-      multipleBirthOrder: '', // Added to match schema
-      birthOrder: '1',
-      weightAtBirth: 0, // Changed from weight
-    },
+//     childInfo: {
+//       firstName: '',
+//       middleName: '',
+//       lastName: '',
+//       sex: 'Male',
+//       dateOfBirth: {
+//         day: '15',
+//         month: '6',
+//         year: '2024',
+//       },
+//       placeOfBirth: {
+//         hospital: 'Bulacan Medical Center',
+//         cityMunicipality: '',
+//         province: '',
+//       },
+//       typeOfBirth: 'Single',
+//       multipleBirthOrder: '', // Added to match schema
+//       birthOrder: '1',
+//       weightAtBirth: 0, // Changed from weight
+//     },
 
-    motherInfo: {
-      firstName: 'Maria',
-      middleName: 'Garcia',
-      lastName: 'Santos',
-      motherCitizenship: 'Filipino', // Changed from citizenship
-      motherReligion: 'Roman Catholic', // Changed from religion
-      motherOccupation: 'Teacher', // Changed from occupation
-      motherAge: '28', // Changed from age
-      totalChildrenBornAlive: '2', // Changed from totalChildren
-      childrenStillLiving: '2', // Changed from livingChildren
-      childrenNowDead: '0', // Changed from childrenDead
-      residence: {
-        address: '123 Main St., Brgy. Mojon',
-        cityMunicipality: '',
-        province: '',
-        country: 'Philippines',
-      },
-    },
+//     motherInfo: {
+//       firstName: 'Maria',
+//       middleName: 'Garcia',
+//       lastName: 'Santos',
+//       motherCitizenship: 'Filipino', // Changed from citizenship
+//       motherReligion: 'Roman Catholic', // Changed from religion
+//       motherOccupation: 'Teacher', // Changed from occupation
+//       motherAge: '28', // Changed from age
+//       totalChildrenBornAlive: '2', // Changed from totalChildren
+//       childrenStillLiving: '2', // Changed from livingChildren
+//       childrenNowDead: '0', // Changed from childrenDead
+//       residence: {
+//         address: '123 Main St., Brgy. Mojon',
+//         cityMunicipality: '',
+//         province: '',
+//         country: 'Philippines',
+//       },
+//     },
 
-    fatherInfo: {
-      firstName: 'Juan',
-      middleName: 'Reyes',
-      lastName: 'Dela Cruz',
-      fatherCitizenship: 'Filipino', // Changed from citizenship
-      fatherReligion: 'Roman Catholic', // Changed from religion
-      fatherOccupation: 'Engineer', // Changed from occupation
-      fatherAge: '30', // Changed from age
-      residence: {
-        address: '123 Main St., Brgy. Mojon',
-        cityMunicipality: '',
-        province: '',
-        country: 'Philippines',
-      },
-    },
+//     fatherInfo: {
+//       firstName: 'Juan',
+//       middleName: 'Reyes',
+//       lastName: 'Dela Cruz',
+//       fatherCitizenship: 'Filipino', // Changed from citizenship
+//       fatherReligion: 'Roman Catholic', // Changed from religion
+//       fatherOccupation: 'Engineer', // Changed from occupation
+//       fatherAge: '30', // Changed from age
+//       residence: {
+//         address: '123 Main St., Brgy. Mojon',
+//         cityMunicipality: '',
+//         province: '',
+//         country: 'Philippines',
+//       },
+//     },
 
-    parentMarriage: {
-      // Changed from marriageOfParents
-      date: {
-        month: '12',
-        day: '25',
-        year: '2020',
-      },
-      place: {
-        cityMunicipality: '',
-        province: '',
-        country: 'Philippines',
-      },
-    },
+//     parentMarriage: {
+//       // Changed from marriageOfParents
+//       date: {
+//         month: '12',
+//         day: '25',
+//         year: '2020',
+//       },
+//       place: {
+//         cityMunicipality: '',
+//         province: '',
+//         country: 'Philippines',
+//       },
+//     },
 
-    attendant: {
-      type: 'Physician',
-      certification: {
-        time: '10:30',
-        signature: '', // Added to match schema
-        name: 'Dr. John Smith',
-        title: 'Obstetrician',
-        address: 'Bulacan Medical Center',
-        date: '2024-06-15',
-      },
-    },
+//     attendant: {
+//       type: 'Physician',
+//       certification: {
+//         time: '10:30',
+//         signature: '', // Added to match schema
+//         name: 'Dr. John Smith',
+//         title: 'Obstetrician',
+//         address: 'Bulacan Medical Center',
+//         date: '2024-06-15',
+//       },
+//     },
 
-    informant: {
-      signature: '', // Added to match schema
-      name: 'Maria Santos Dela Cruz',
-      relationship: 'Mother',
-      address: '123 Main St., Brgy. Mojon, Malolos, Bulacan',
-      date: '2024-06-15',
-    },
+//     informant: {
+//       signature: '', // Added to match schema
+//       name: 'Maria Santos Dela Cruz',
+//       relationship: 'Mother',
+//       address: '123 Main St., Brgy. Mojon, Malolos, Bulacan',
+//       date: '2024-06-15',
+//     },
 
-    preparedBy: {
-      signature: '', // Added to match schema
-      name: '',
-      title: '',
-      date: '',
-    },
+//     preparedBy: {
+//       signature: '', // Added to match schema
+//       name: '',
+//       title: '',
+//       date: '',
+//     },
 
-    receivedBy: {
-      signature: '', // Added to match schema
-      name: '',
-      title: '',
-      date: '',
-    },
+//     receivedBy: {
+//       signature: '', // Added to match schema
+//       name: '',
+//       title: '',
+//       date: '',
+//     },
 
-    registeredByOffice: {
-      signature: '', // Added to match schema
-      name: '',
-      title: '',
-      date: '',
-    },
+//     registeredByOffice: {
+//       signature: '', // Added to match schema
+//       name: '',
+//       title: '',
+//       date: '',
+//     },
 
-    remarks: '',
-  };
-export interface BirthCertificateFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
-}
+//     remarks: '',
+//   };

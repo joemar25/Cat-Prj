@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
@@ -14,12 +16,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import {
   getAllProvinces,
   getCitiesMunicipalities,
 } from '@/lib/utils/location-helpers';
-
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -47,76 +48,18 @@ const MotherInformationCard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='space-y-4'>
-              {/* Maiden Name Fields */}
-              <div>
-                <h4 className='text-sm font-medium mb-3'></h4>
-                <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                  <FormField
-                    control={control}
-                    name='motherInfo.firstName'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder='Enter first name' {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={control}
-                    name='motherInfo.middleName'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Middle Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder='Enter middle name' {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={control}
-                    name='motherInfo.lastName'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last Name (Maiden)</FormLabel>
-                        <FormControl>
-                          <Input placeholder='Enter maiden name' {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
-              {/* Additional Personal Information */}
+              {/* Name Fields */}
               <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 <FormField
                   control={control}
-                  name='motherInfo.motherCitizenship' // Changed from citizenship
+                  name='motherInfo.firstName'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Citizenship</FormLabel>
-                      <FormControl>
-                        <Input placeholder='Enter citizenship' {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name='motherInfo.motherReligion'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Religion</FormLabel>
+                      <FormLabel>First Name</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder='Enter religion/religious sect'
+                          className='h-10'
+                          placeholder='Enter first name'
                           {...field}
                         />
                       </FormControl>
@@ -126,12 +69,88 @@ const MotherInformationCard: React.FC = () => {
                 />
                 <FormField
                   control={control}
-                  name='motherInfo.motherOccupation' // Changed from occupation
+                  name='motherInfo.middleName'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Middle Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          className='h-10'
+                          placeholder='Enter middle name'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name='motherInfo.lastName'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name (Maiden)</FormLabel>
+                      <FormControl>
+                        <Input
+                          className='h-10'
+                          placeholder='Enter maiden name'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Additional Personal Information */}
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                <FormField
+                  control={control}
+                  name='motherInfo.citizenship'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Citizenship</FormLabel>
+                      <FormControl>
+                        <Input
+                          className='h-10'
+                          placeholder='Enter citizenship'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name='motherInfo.religion'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Religion</FormLabel>
+                      <FormControl>
+                        <Input
+                          className='h-10'
+                          placeholder='Enter religion'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name='motherInfo.occupation'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Occupation</FormLabel>
                       <FormControl>
-                        <Input placeholder='Enter occupation' {...field} />
+                        <Input
+                          className='h-10'
+                          placeholder='Enter occupation'
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -143,7 +162,7 @@ const MotherInformationCard: React.FC = () => {
               <div>
                 <FormField
                   control={control}
-                  name='motherInfo.motherAge' // Changed from age
+                  name='motherInfo.age'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -151,9 +170,15 @@ const MotherInformationCard: React.FC = () => {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          type='number'
+                          className='h-10'
                           placeholder='Enter age'
                           {...field}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d*$/.test(value) || value === '') {
+                              field.onChange(value);
+                            }
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -174,12 +199,22 @@ const MotherInformationCard: React.FC = () => {
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <FormField
                 control={control}
-                name='motherInfo.totalChildrenBornAlive' // Changed from totalChildren
+                name='motherInfo.totalChildrenBornAlive'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Total Children Born Alive</FormLabel>
                     <FormControl>
-                      <Input type='number' {...field} />
+                      <Input
+                        className='h-10'
+                        placeholder='Enter number'
+                        {...field}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^\d*$/.test(value) || value === '') {
+                            field.onChange(value);
+                          }
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -187,14 +222,24 @@ const MotherInformationCard: React.FC = () => {
               />
               <FormField
                 control={control}
-                name='motherInfo.childrenStillLiving' // Changed from livingChildren
+                name='motherInfo.childrenStillLiving'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
                       No. Children Still Living including this birth
                     </FormLabel>
                     <FormControl>
-                      <Input type='number' {...field} />
+                      <Input
+                        className='h-10'
+                        placeholder='Enter number'
+                        {...field}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^\d*$/.test(value) || value === '') {
+                            field.onChange(value);
+                          }
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -202,12 +247,22 @@ const MotherInformationCard: React.FC = () => {
               />
               <FormField
                 control={control}
-                name='motherInfo.childrenNowDead' // Changed from childrenDead
+                name='motherInfo.childrenNowDead'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>No. Children Born Alive But now Dead</FormLabel>
                     <FormControl>
-                      <Input type='number' {...field} />
+                      <Input
+                        className='h-10'
+                        placeholder='Enter number'
+                        {...field}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^\d*$/.test(value) || value === '') {
+                            field.onChange(value);
+                          }
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -224,15 +279,16 @@ const MotherInformationCard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='space-y-4'>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div className='grid grid-cols-1 gap-4'>
                 <FormField
                   control={control}
                   name='motherInfo.residence.address'
                   render={({ field }) => (
-                    <FormItem className='col-span-2'>
+                    <FormItem>
                       <FormLabel>House No., St., Barangay</FormLabel>
                       <FormControl>
                         <Input
+                          className='h-10'
                           placeholder='Enter complete address'
                           {...field}
                         />
@@ -244,7 +300,6 @@ const MotherInformationCard: React.FC = () => {
               </div>
 
               <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                {/* Province - First */}
                 <FormField
                   control={control}
                   name='motherInfo.residence.province'
@@ -265,7 +320,7 @@ const MotherInformationCard: React.FC = () => {
                         }
                       >
                         <FormControl>
-                          <SelectTrigger className='h-10'>
+                          <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
                             <SelectValue placeholder='Select province' />
                           </SelectTrigger>
                         </FormControl>
@@ -281,8 +336,6 @@ const MotherInformationCard: React.FC = () => {
                     </FormItem>
                   )}
                 />
-
-                {/* City/Municipality - Second */}
                 <FormField
                   control={control}
                   name='motherInfo.residence.cityMunicipality'
@@ -295,7 +348,7 @@ const MotherInformationCard: React.FC = () => {
                         disabled={!selectedProvince}
                       >
                         <FormControl>
-                          <SelectTrigger className='h-10'>
+                          <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
                             <SelectValue placeholder='Select city/municipality' />
                           </SelectTrigger>
                         </FormControl>
@@ -311,7 +364,6 @@ const MotherInformationCard: React.FC = () => {
                     </FormItem>
                   )}
                 />
-                {/* Country - Third */}
                 <FormField
                   control={control}
                   name='motherInfo.residence.country'
@@ -319,7 +371,11 @@ const MotherInformationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Country</FormLabel>
                       <FormControl>
-                        <Input placeholder='Enter country' {...field} />
+                        <Input
+                          className='h-10'
+                          placeholder='Enter country'
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

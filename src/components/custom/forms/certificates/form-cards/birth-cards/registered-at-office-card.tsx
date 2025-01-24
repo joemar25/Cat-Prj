@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -38,20 +38,11 @@ const RegisteredAtOfficeCard: React.FC = () => {
     );
     if (staff) {
       setValue('registeredByOffice.title', staff.title, {
-        shouldValidate: isSubmitted, // Only validate if form has been submitted
+        shouldValidate: isSubmitted,
         shouldDirty: true,
       });
     }
   }, [selectedName, setValue, isSubmitted]);
-
-  // Set default date to today when component mounts
-  useEffect(() => {
-    if (!watch('registeredByOffice.date')) {
-      setValue('registeredByOffice.date', new Date().toISOString(), {
-        shouldValidate: false, // Don't validate on initial set
-      });
-    }
-  }, [setValue, watch]);
 
   return (
     <Card>
@@ -60,18 +51,14 @@ const RegisteredAtOfficeCard: React.FC = () => {
       </CardHeader>
       <CardContent className='space-y-4'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          {/* Name */}
           <FormField
             control={control}
             name='registeredByOffice.name'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger className='h-10'>
                       <SelectValue placeholder='Select staff name' />
@@ -90,6 +77,7 @@ const RegisteredAtOfficeCard: React.FC = () => {
             )}
           />
 
+          {/* Title or Position */}
           <FormField
             control={control}
             name='registeredByOffice.title'
@@ -98,9 +86,9 @@ const RegisteredAtOfficeCard: React.FC = () => {
                 <FormLabel>Title or Position</FormLabel>
                 <FormControl>
                   <Input
-                    className='h-10'
                     placeholder='Title will auto-fill'
                     {...field}
+                    className='h-10'
                     disabled
                   />
                 </FormControl>
@@ -109,29 +97,52 @@ const RegisteredAtOfficeCard: React.FC = () => {
             )}
           />
 
+          {/* Date */}
           <FormField
             control={control}
             name='registeredByOffice.date'
-            render={({ field }) => {
-              const dateValue = field.value
-                ? new Date(field.value)
-                : new Date();
+            render={({ field, fieldState }) => {
+              // Safely parse the date value
+              let dateValue: Date | undefined;
+              if (field.value && /^\d{2}\/\d{2}\/\d{4}$/.test(field.value)) {
+                const [month, day, year] = field.value.split('/').map(Number);
+                dateValue = new Date(year, month - 1, day);
+                if (isNaN(dateValue.getTime())) {
+                  dateValue = undefined; // Fallback to undefined if the date is invalid
+                }
+              }
 
               return (
-                <DatePickerField
-                  field={{
-                    value: dateValue,
-                    onChange: (date) => {
-                      if (date) {
-                        field.onChange(date.toISOString());
-                      } else {
-                        field.onChange(new Date().toISOString());
-                      }
-                    },
-                  }}
-                  label='Date'
-                  placeholder='Select date'
-                />
+                <FormItem>
+                  <FormControl>
+                    <DatePickerField
+                      field={{
+                        value: dateValue,
+                        onChange: (date) => {
+                          if (date) {
+                            const month = (date.getMonth() + 1)
+                              .toString()
+                              .padStart(2, '0');
+                            const day = date
+                              .getDate()
+                              .toString()
+                              .padStart(2, '0');
+                            const year = date.getFullYear();
+                            field.onChange(`${month}/${day}/${year}`);
+                          } else {
+                            field.onChange('');
+                          }
+                        },
+                      }}
+                      label='Date'
+                      placeholder='Select date'
+                    />
+                  </FormControl>
+                  {/* Ensure FormMessage is only rendered once */}
+                  {fieldState.error && (
+                    <FormMessage>{fieldState.error.message}</FormMessage>
+                  )}
+                </FormItem>
               );
             }}
           />

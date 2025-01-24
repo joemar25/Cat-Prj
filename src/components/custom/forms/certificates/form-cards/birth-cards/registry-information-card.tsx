@@ -30,7 +30,7 @@ import {
 const RegistryInformationCard: React.FC = () => {
   const { control, setValue, setError, clearErrors } = useFormContext();
   const [registryNumber, setRegistryNumber] = useState('');
-  const [debouncedRegistryNumber] = useDebounce(registryNumber, 300); // 300ms debounce
+  const [debouncedRegistryNumber] = useDebounce(registryNumber, 500); // Increased debounce time
   const [isChecking, setIsChecking] = useState(false);
   const [validationResult, setValidationResult] = useState<{
     exists: boolean | null;
@@ -46,8 +46,12 @@ const RegistryInformationCard: React.FC = () => {
   // Fetch provinces on component mount
   useEffect(() => {
     const fetchProvinces = async () => {
-      const allProvinces = await getAllProvinces(); // Replace with your real fetching logic
-      setProvinces(allProvinces);
+      try {
+        const allProvinces = await getAllProvinces();
+        setProvinces(allProvinces);
+      } catch (error) {
+        console.error('Failed to fetch provinces:', error);
+      }
     };
 
     fetchProvinces();
@@ -56,8 +60,16 @@ const RegistryInformationCard: React.FC = () => {
   // Update municipalities when province changes
   useEffect(() => {
     if (selectedProvince) {
-      const cities = getCitiesMunicipalities(selectedProvince);
-      setMunicipalities(cities);
+      const fetchMunicipalities = async () => {
+        try {
+          const cities = getCitiesMunicipalities(selectedProvince);
+          setMunicipalities(cities);
+        } catch (error) {
+          console.error('Failed to fetch municipalities:', error);
+        }
+      };
+
+      fetchMunicipalities();
     } else {
       setMunicipalities([]);
     }
@@ -84,7 +96,7 @@ const RegistryInformationCard: React.FC = () => {
         if (exists) {
           setError('registryNumber', {
             type: 'manual',
-            message: 'Registry number already exists',
+            message: 'This registry number is already in use.',
           });
           setValidationResult({ exists: true, error: null });
         } else {
@@ -93,7 +105,10 @@ const RegistryInformationCard: React.FC = () => {
         }
       } catch (error) {
         console.error('Validation error:', error);
-        setValidationResult({ exists: null, error: 'Validation failed' });
+        setValidationResult({
+          exists: null,
+          error: 'Failed to validate registry number. Please try again.',
+        });
       } finally {
         setIsChecking(false);
       }
@@ -103,7 +118,8 @@ const RegistryInformationCard: React.FC = () => {
 
   // Validate the registry number on debounce
   useEffect(() => {
-    if (debouncedRegistryNumber.length === 10) {
+    if (debouncedRegistryNumber.length >= 6) {
+      // Minimum length for validation (e.g., 2025-1)
       checkRegistryNumber(debouncedRegistryNumber);
     } else {
       clearErrors('registryNumber');
@@ -117,7 +133,7 @@ const RegistryInformationCard: React.FC = () => {
     let value = event.target.value.replace(/[^\d-]/g, ''); // Ensure numeric input
 
     if (value.length >= 4 && !value.includes('-')) {
-      value = value.slice(0, 4) + '-' + value.slice(4); // Auto-format to YYYY-#####
+      value = value.slice(0, 4) + '-' + value.slice(4); // Auto-format to YYYY-numbers
     }
 
     setRegistryNumber(value);
@@ -157,11 +173,11 @@ const RegistryInformationCard: React.FC = () => {
                   <FormControl>
                     <Input
                       className='h-10 pr-8'
-                      placeholder='YYYY-#####'
+                      placeholder='YYYY-numbers'
                       {...field}
                       onChange={handleRegistryNumberChange}
                       value={field.value || ''}
-                      maxLength={10}
+                      maxLength={20} // Optional: Prevent excessively long inputs
                       inputMode='numeric'
                     />
                   </FormControl>
@@ -170,7 +186,7 @@ const RegistryInformationCard: React.FC = () => {
                   </div>
                 </div>
                 <FormDescription>
-                  Format: YYYY-##### (e.g., 2025-00001)
+                  Format: YYYY-numbers (e.g., 2025-123456)
                 </FormDescription>
                 {fieldState.error && (
                   <FormMessage>{fieldState.error.message}</FormMessage>
