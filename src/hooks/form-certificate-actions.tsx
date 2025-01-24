@@ -7,6 +7,7 @@ import {
   DeathCertificateFormValues,
   MarriageCertificateFormValues,
 } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { parseToDate } from '@/utils/date';
 import { FormType } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
@@ -14,7 +15,8 @@ import { revalidatePath } from 'next/cache';
 function isValidDate(date: unknown, formType: FormType): boolean {
   switch (formType) {
     case FormType.BIRTH:
-      // Birth certificate expects {year, month, day} format
+    // Birth certificate expects {year, month, day} format
+    case FormType.BIRTH:
       if (
         typeof date === 'object' &&
         date !== null &&
@@ -23,14 +25,27 @@ function isValidDate(date: unknown, formType: FormType): boolean {
         'day' in date
       ) {
         const { year, month, day } = date as {
-          year: string;
-          month: string;
-          day: string;
+          year: string | number;
+          month: string | number;
+          day: string | number;
         };
-        const constructedDate = new Date(`${year}-${month}-${day}`);
-        return (
-          constructedDate instanceof Date && !isNaN(constructedDate.getTime())
-        );
+
+        const yearNum = parseInt(year.toString());
+        const monthNum = parseInt(month.toString());
+        const dayNum = parseInt(day.toString());
+
+        // Validate ranges for year, month, and day
+        if (
+          yearNum >= 1945 &&
+          yearNum <= new Date().getFullYear() && // Year should be valid
+          monthNum >= 1 &&
+          monthNum <= 12 && // Month should be 1-12
+          dayNum >= 1 &&
+          dayNum <= 31 // Day should be valid
+        ) {
+          const constructedDate = new Date(`${yearNum}-${monthNum}-${dayNum}`);
+          return !isNaN(constructedDate.getTime());
+        }
       }
       return false;
 
@@ -61,220 +76,6 @@ function isValidDate(date: unknown, formType: FormType): boolean {
 
     default:
       return false;
-  }
-}
-export async function generateRegistryNumber(formType: FormType) {
-  try {
-    const currentYear = new Date().getFullYear();
-
-    // Use transaction to prevent race conditions
-    return await prisma.$transaction(async (tx) => {
-      let formCount;
-
-      // Count based on form type
-      switch (formType) {
-        case FormType.BIRTH:
-          formCount = await tx.birthCertificateForm.count({
-            where: {
-              baseForm: {
-                AND: [
-                  {
-                    dateOfRegistration: {
-                      gte: new Date(currentYear, 0, 1),
-                      lt: new Date(currentYear + 1, 0, 1),
-                    },
-                  },
-                  { formType: formType },
-                ],
-              },
-            },
-          });
-          break;
-
-        case FormType.DEATH:
-          formCount = await tx.deathCertificateForm.count({
-            where: {
-              baseForm: {
-                AND: [
-                  {
-                    dateOfRegistration: {
-                      gte: new Date(currentYear, 0, 1),
-                      lt: new Date(currentYear + 1, 0, 1),
-                    },
-                  },
-                  { formType: formType },
-                ],
-              },
-            },
-          });
-          break;
-
-        case FormType.MARRIAGE:
-          formCount = await tx.marriageCertificateForm.count({
-            where: {
-              baseForm: {
-                AND: [
-                  {
-                    dateOfRegistration: {
-                      gte: new Date(currentYear, 0, 1),
-                      lt: new Date(currentYear + 1, 0, 1),
-                    },
-                  },
-                  { formType: formType },
-                ],
-              },
-            },
-          });
-          break;
-
-        default:
-          throw new Error('Invalid form type');
-      }
-
-      const nextSequence = formCount + 1;
-
-      if (nextSequence > 99999) {
-        throw new Error(
-          'Maximum registry number sequence reached for the year'
-        );
-      }
-
-      const registryNumber = `${currentYear}-${nextSequence
-        .toString()
-        .padStart(5, '0')}`;
-
-      // Verify within the same transaction
-      const existingRegistry = await tx.baseRegistryForm.findFirst({
-        where: {
-          registryNumber,
-          formType,
-          dateOfRegistration: {
-            gte: new Date(currentYear, 0, 1),
-            lt: new Date(currentYear + 1, 0, 1),
-          },
-        },
-      });
-
-      if (existingRegistry) {
-        throw new Error('Registry number already exists');
-      }
-
-      return registryNumber;
-    });
-  } catch (error) {
-    console.error('Error generating registry number:', error);
-    throw new Error('Failed to generate registry number');
-  }
-}
-
-export async function checkRegistryNumberExists(
-  registryNumber: string,
-  formType: FormType
-) {
-  try {
-    const [year, sequence] = registryNumber.split('-');
-    const yearNum = parseInt(year);
-    const sequenceNum = parseInt(sequence);
-
-    if (yearNum < 1945 || yearNum > new Date().getFullYear()) {
-      throw new Error('Invalid registration year');
-    }
-
-    if (sequenceNum <= 0 || sequenceNum > 99999) {
-      throw new Error('Invalid sequence number');
-    }
-
-    // Use transaction to ensure consistency
-    return await prisma.$transaction(async (tx) => {
-      const existingForm = await tx.baseRegistryForm.findFirst({
-        where: {
-          registryNumber,
-          formType,
-          dateOfRegistration: {
-            gte: new Date(yearNum, 0, 1),
-            lt: new Date(yearNum + 1, 0, 1),
-          },
-        },
-      });
-
-      if (existingForm) {
-        throw new Error(`Registry number ${registryNumber} already exists`);
-      }
-
-      let previousCount;
-      switch (formType) {
-        case FormType.BIRTH:
-          previousCount = await tx.birthCertificateForm.count({
-            where: {
-              baseForm: {
-                AND: [
-                  {
-                    dateOfRegistration: {
-                      gte: new Date(yearNum, 0, 1),
-                      lt: new Date(yearNum + 1, 0, 1),
-                    },
-                  },
-                  { formType },
-                ],
-              },
-            },
-          });
-          break;
-        case FormType.DEATH:
-          previousCount = await tx.deathCertificateForm.count({
-            where: {
-              baseForm: {
-                AND: [
-                  {
-                    dateOfRegistration: {
-                      gte: new Date(yearNum, 0, 1),
-                      lt: new Date(yearNum + 1, 0, 1),
-                    },
-                  },
-                  { formType },
-                ],
-              },
-            },
-          });
-          break;
-        case FormType.MARRIAGE:
-          previousCount = await tx.marriageCertificateForm.count({
-            where: {
-              baseForm: {
-                AND: [
-                  {
-                    dateOfRegistration: {
-                      gte: new Date(yearNum, 0, 1),
-                      lt: new Date(yearNum + 1, 0, 1),
-                    },
-                  },
-                  { formType },
-                ],
-              },
-            },
-          });
-          break;
-        default:
-          throw new Error('Invalid form type');
-      }
-
-      if (sequenceNum > previousCount + 1) {
-        throw new Error(
-          `Cannot use registry number ${registryNumber}. Please use number ${yearNum}-${(
-            previousCount + 1
-          )
-            .toString()
-            .padStart(5, '0')}`
-        );
-      }
-
-      return false;
-    });
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to check registry number');
   }
 }
 
@@ -600,29 +401,54 @@ export async function createDeathCertificate(data: DeathCertificateFormValues) {
 
 // ------------------------------- Birth Certificate Server Action -------------------------------//
 
-// Complete birth certificate creation with validation
 export async function createBirthCertificate(data: BirthCertificateFormValues) {
   try {
-    // 1. Validate registry number
-    const exists = await checkRegistryNumberExists(
-      data.registryNumber,
-      FormType.BIRTH
+    // Parse and validate child date of birth
+    const dateOfBirth = parseToDate(
+      data.childInfo.dateOfBirth.year,
+      data.childInfo.dateOfBirth.month,
+      data.childInfo.dateOfBirth.day
     );
-    if (exists) {
+
+    if (!dateOfBirth || isNaN(dateOfBirth.getTime())) {
+      return { success: false, error: 'Invalid date of birth' };
+    }
+
+    // Parse and validate parent marriage date
+    const parentMarriageDate = parseToDate(
+      data.parentMarriage.date.year,
+      data.parentMarriage.date.month,
+      data.parentMarriage.date.day
+    );
+
+    if (!parentMarriageDate || isNaN(parentMarriageDate.getTime())) {
+      return { success: false, error: 'Invalid parent marriage date' };
+    }
+
+    // Validate registry number format before checking in DB
+    if (!/\d{4}-\d{5}/.test(data.registryNumber)) {
+      return {
+        success: false,
+        error: 'Registry number must be in the format YYYY-#####',
+      };
+    }
+
+    // Validate registry number does not already exist
+    const existingRegistry = await prisma.baseRegistryForm.findFirst({
+      where: {
+        registryNumber: data.registryNumber,
+        formType: FormType.BIRTH,
+      },
+    });
+
+    if (existingRegistry) {
       return {
         success: false,
         error: 'Registry number already exists. Please use a different number.',
       };
     }
 
-    // 2. Validate dates
-    if (!isValidDate(data.childInfo.dateOfBirth, FormType.BIRTH)) {
-      return {
-        success: false,
-        error: 'Invalid date of birth',
-      };
-    }
-
+    // Validate preparer exists
     const user = await prisma.user.findFirst({
       where: {
         name: data.preparedBy.name,
@@ -630,10 +456,28 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
     });
 
     if (!user) {
-      throw new Error('Preparer not found');
+      return { success: false, error: 'Preparer not found' };
     }
 
-    // 3. Create the birth certificate
+    // Validate place of birth fields
+    if (
+      !data.childInfo.placeOfBirth.hospital ||
+      !data.childInfo.placeOfBirth.cityMunicipality ||
+      !data.childInfo.placeOfBirth.province
+    ) {
+      return { success: false, error: 'Place of birth fields are incomplete' };
+    }
+
+    // Validate mother and father details
+    if (!data.motherInfo.firstName || !data.motherInfo.lastName) {
+      return { success: false, error: 'Mother information is incomplete' };
+    }
+
+    if (!data.fatherInfo.firstName || !data.fatherInfo.lastName) {
+      return { success: false, error: 'Father information is incomplete' };
+    }
+
+    // Create the birth certificate
     const baseForm = await prisma.baseRegistryForm.create({
       data: {
         // Base Registry Form Fields
@@ -663,9 +507,7 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
               lastName: data.childInfo.lastName.trim(),
             },
             sex: data.childInfo.sex,
-            dateOfBirth: new Date(
-              `${data.childInfo.dateOfBirth.year}-${data.childInfo.dateOfBirth.month}-${data.childInfo.dateOfBirth.day}`
-            ),
+            dateOfBirth: dateOfBirth,
             placeOfBirth: {
               hospital: data.childInfo.placeOfBirth.hospital.trim(),
               province: data.childInfo.placeOfBirth.province.trim(),
@@ -720,9 +562,7 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
 
             // Marriage Information
             parentMarriage: {
-              date: new Date(
-                `${data.parentMarriage.date.year}-${data.parentMarriage.date.month}-${data.parentMarriage.date.day}`
-              ),
+              date: parentMarriageDate,
               place: {
                 cityMunicipality:
                   data.parentMarriage.place.cityMunicipality.trim(),
@@ -786,15 +626,40 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
     };
   } catch (error) {
     console.error('Error creating birth certificate:', error);
-    if (error instanceof Error) {
-      return {
-        success: false,
-        error: `Failed to create birth certificate: ${error.message}`,
-      };
-    }
     return {
       success: false,
-      error: 'Failed to create birth certificate',
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to create birth certificate',
+    };
+  }
+}
+
+export async function checkRegistryNumberExists(
+  registryNumber: string,
+  formType: FormType
+) {
+  try {
+    if (!registryNumber || !formType) {
+      throw new Error(
+        'Invalid input. Registry number and form type are required.'
+      );
+    }
+
+    // Check if the registry number exists
+    const existingRegistry = await prisma.baseRegistryForm.findFirst({
+      where: {
+        registryNumber,
+        formType,
+      },
+    });
+
+    return { exists: !!existingRegistry };
+  } catch (error) {
+    console.error('Error checking registry number:', error);
+    return {
+      error: 'Failed to check registry number. Please try again later.',
     };
   }
 }

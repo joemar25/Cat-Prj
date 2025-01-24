@@ -64,7 +64,6 @@ export function DataTableRowActions({
   row,
   onUpdateAction,
 }: DataTableRowActionsProps) {
-  console.log(row);
   const { data: session } = useSession();
   const form = row.original;
   const [isLoading, setIsLoading] = useState(false);

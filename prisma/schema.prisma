@@ -60,7 +60,7 @@ model BaseRegistryForm {
   id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   formNumber              String                   @db.VarChar(3)
   formType                FormType
-  registryNumber          String
+  registryNumber          String @unique
   province                String
   cityMunicipality        String
   pageNumber              String

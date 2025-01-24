@@ -33,12 +33,12 @@ import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
+const BirthAnnotationForm = ({
   open,
   onOpenChange,
   onCancel,
   row,
-}) => {
+}: ExtendedBirthAnnotationFormProps) => {
   const isCanceling = useRef(false);
 
   const {

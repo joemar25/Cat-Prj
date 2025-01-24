@@ -58,11 +58,13 @@
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
+    "react-use": "^17.6.0",
     "recharts": "^2.15.0",
     "sonner": "^1.7.1",
     "swr": "^2.3.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
+    "use-debounce": "^10.0.4",
     "zod": "^3.24.1",
     "zustand": "^5.0.3"
   },

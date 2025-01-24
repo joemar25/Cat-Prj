@@ -514,7 +514,7 @@ export const deathCertificateSchema = z.object({
       'Hospital Authority',
       'None',
       'Others',
-      ""
+      '',
     ]),
     duration: z.object({
       from: z.date().optional(),
@@ -772,25 +772,7 @@ export const birthCertificateSchema = z.object({
       {
         message: 'Sequence number must be between 1 and 99999',
       }
-    )
-    .superRefine(async (value, ctx) => {
-      try {
-        const exists = await checkRegistryNumberExists(value, FormType.BIRTH);
-        if (exists) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `Registry number ${value} already exists`,
-          });
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: error.message,
-          });
-        }
-      }
-    }),
+    ),
   province: z
     .string()
     .min(1, 'Province is required')
