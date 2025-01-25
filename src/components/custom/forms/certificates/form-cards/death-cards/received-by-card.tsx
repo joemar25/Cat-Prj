@@ -1,7 +1,7 @@
 'use client';
 
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   FormControl,
   FormField,
@@ -18,7 +18,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
+import { parseToDate } from '@/utils/date';
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -47,7 +48,11 @@ const ReceivedByCard: React.FC = () => {
   // Set default date to today when component mounts
   useEffect(() => {
     if (!watch('receivedBy.date')) {
-      setValue('receivedBy.date', new Date(), {
+      const today = new Date();
+      const month = (today.getMonth() + 1).toString().padStart(2, '0');
+      const day = today.getDate().toString().padStart(2, '0');
+      const year = today.getFullYear();
+      setValue('receivedBy.date', `${month}/${day}/${year}`, {
         shouldValidate: false, // Don't validate on initial set
       });
     }
@@ -55,8 +60,8 @@ const ReceivedByCard: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Received By</CardTitle>
+      <CardHeader className='pb-3'>
+        <h3 className='text-sm font-semibold'>Received By</h3>
       </CardHeader>
       <CardContent className='space-y-4'>
         {/* Signature */}
@@ -67,7 +72,11 @@ const ReceivedByCard: React.FC = () => {
             <FormItem>
               <FormLabel>Signature</FormLabel>
               <FormControl>
-                <Input placeholder='Signature' {...field} />
+                <Input
+                  className='h-10'
+                  placeholder='Enter signature'
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -130,20 +139,36 @@ const ReceivedByCard: React.FC = () => {
           control={control}
           name='receivedBy.date'
           render={({ field }) => {
-            const dateValue =
-              field.value instanceof Date ? field.value : new Date();
+            const dateValue = field.value
+              ? (() => {
+                  const [month, day, year] = field.value.split('/');
+                  return parseToDate(year, month, day);
+                })()
+              : undefined;
 
             return (
-              <DatePickerField
-                field={{
-                  value: dateValue,
-                  onChange: (date) => {
-                    field.onChange(date || new Date());
-                  },
-                }}
-                label='Date'
-                placeholder='Select date'
-              />
+              <FormItem>
+                <DatePickerField
+                  field={{
+                    value: dateValue || undefined,
+                    onChange: (date) => {
+                      if (date) {
+                        const month = (date.getMonth() + 1)
+                          .toString()
+                          .padStart(2, '0');
+                        const day = date.getDate().toString().padStart(2, '0');
+                        const year = date.getFullYear();
+                        field.onChange(`${month}/${day}/${year}`);
+                      } else {
+                        field.onChange('');
+                      }
+                    },
+                  }}
+                  label='Date'
+                  placeholder='Select date'
+                />
+                <FormMessage />
+              </FormItem>
             );
           }}
         />

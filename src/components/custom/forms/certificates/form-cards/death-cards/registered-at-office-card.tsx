@@ -1,7 +1,7 @@
 'use client';
 
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   FormControl,
   FormField,
@@ -18,7 +18,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
+import { parseToDate } from '@/utils/date';
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -47,7 +48,11 @@ const RegisteredAtOfficeCard: React.FC = () => {
   // Set default date to today when component mounts
   useEffect(() => {
     if (!watch('registeredAtCivilRegistrar.date')) {
-      setValue('registeredAtCivilRegistrar.date', new Date(), {
+      const today = new Date();
+      const month = (today.getMonth() + 1).toString().padStart(2, '0');
+      const day = today.getDate().toString().padStart(2, '0');
+      const year = today.getFullYear();
+      setValue('registeredAtCivilRegistrar.date', `${month}/${day}/${year}`, {
         shouldValidate: false, // Don't validate on initial set
       });
     }
@@ -55,8 +60,10 @@ const RegisteredAtOfficeCard: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Registered at the Office of Civil Registrar</CardTitle>
+      <CardHeader className='pb-3'>
+        <h3 className='text-sm font-semibold'>
+          Registered at the Office of Civil Registrar
+        </h3>
       </CardHeader>
       <CardContent className='space-y-4'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
@@ -116,20 +123,39 @@ const RegisteredAtOfficeCard: React.FC = () => {
             control={control}
             name='registeredAtCivilRegistrar.date'
             render={({ field }) => {
-              const dateValue =
-                field.value instanceof Date ? field.value : new Date();
+              const dateValue = field.value
+                ? (() => {
+                    const [month, day, year] = field.value.split('/');
+                    return parseToDate(year, month, day);
+                  })()
+                : undefined;
 
               return (
-                <DatePickerField
-                  field={{
-                    value: dateValue,
-                    onChange: (date) => {
-                      field.onChange(date || new Date());
-                    },
-                  }}
-                  label='Date'
-                  placeholder='Select date'
-                />
+                <FormItem>
+                  <DatePickerField
+                    field={{
+                      value: dateValue || undefined,
+                      onChange: (date) => {
+                        if (date) {
+                          const month = (date.getMonth() + 1)
+                            .toString()
+                            .padStart(2, '0');
+                          const day = date
+                            .getDate()
+                            .toString()
+                            .padStart(2, '0');
+                          const year = date.getFullYear();
+                          field.onChange(`${month}/${day}/${year}`);
+                        } else {
+                          field.onChange('');
+                        }
+                      },
+                    }}
+                    label='Date'
+                    placeholder='Select date'
+                  />
+                  <FormMessage />
+                </FormItem>
               );
             }}
           />

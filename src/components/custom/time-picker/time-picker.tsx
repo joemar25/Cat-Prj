@@ -5,7 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Clock, X } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { useState } from 'react';
 
 interface TimePickerProps {
@@ -31,32 +31,15 @@ const TimePicker: React.FC<TimePickerProps> = ({ value, onChange }) => {
     onChange(e.target.value);
   };
 
-  // Clear the selected time
-  const handleClearTime = () => {
-    onChange('');
-    setIsPopoverOpen(false);
-  };
-
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>
         <Button
           variant='outline'
-          className='w-full justify-between text-left font-normal'
+          className='w-full justify-start text-left font-normal'
         >
-          <div className='flex items-center'>
-            <Clock className='mr-2 h-4 w-4' />
-            {value ? formatTimeTo12Hour(value) : 'Select time'}
-          </div>
-          {value && (
-            <X
-              className='h-4 w-4 text-muted-foreground hover:text-foreground'
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent popover from opening
-                handleClearTime();
-              }}
-            />
-          )}
+          <Clock className='mr-2 h-4 w-4' />
+          {value ? formatTimeTo12Hour(value) : 'Select time'}
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-auto p-2'>

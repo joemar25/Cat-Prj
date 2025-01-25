@@ -18,101 +18,130 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { checkRegistryNumberExists } from '@/hooks/form-certificate-actions';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import {
   getAllProvinces,
   getCitiesMunicipalities,
 } from '@/lib/utils/location-helpers';
 import { FormType } from '@prisma/client';
-import debounce from 'lodash/debounce';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { toast } from 'sonner';
+import { useDebounce } from 'use-debounce';
 
 const RegistryInformationCard: React.FC = () => {
   const { control, setValue, setError, clearErrors } =
     useFormContext<DeathCertificateFormValues>();
-  const [selectedProvince, setSelectedProvince] = useState('');
+  const [registryNumber, setRegistryNumber] = useState('');
+  const [debouncedRegistryNumber] = useDebounce(registryNumber, 500); // Debounce for registry number validation
   const [isChecking, setIsChecking] = useState(false);
-  const [lastCheckedValue, setLastCheckedValue] = useState('');
+  const [validationResult, setValidationResult] = useState<{
+    exists: boolean | null;
+    error: string | null;
+  }>({ exists: null, error: null });
 
-  const allProvinces = getAllProvinces();
-  const citiesMunicipalities = getCitiesMunicipalities(selectedProvince);
+  const [selectedProvince, setSelectedProvince] = useState('');
+  const [provinces, setProvinces] = useState<{ id: string; name: string }[]>(
+    []
+  );
+  const [municipalities, setMunicipalities] = useState<string[]>([]);
 
-  // Format manual input to match YYYY-##### pattern
-  const formatRegistryNumber = useCallback((value: string) => {
-    const cleaned = value.replace(/[^\d-]/g, '');
-    const parts = cleaned.split('-');
-    const year = parts[0]?.slice(0, 4) || '';
-    const sequence = parts[1]?.slice(0, 5) || '';
+  // Fetch provinces on component mount
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        const allProvinces = getAllProvinces();
+        setProvinces(allProvinces);
+      } catch (error) {
+        console.error('Failed to fetch provinces:', error);
+      }
+    };
 
-    if (year.length === 4 && !cleaned.includes('-') && year === parts[0]) {
-      return `${year}-${sequence}`;
-    }
-
-    if (year && sequence) {
-      return `${year}-${sequence}`;
-    }
-
-    return cleaned;
+    fetchProvinces();
   }, []);
 
-  // Validation logic
-  const validateRegistryNumber = useCallback((value: string): string => {
-    if (!value) return '';
-
-    if (!value.match(/^\d{4}-\d{5}$/)) {
-      if (value.length < 10) return '';
-      return 'Registry number must be in format: YYYY-#####';
+  // Update municipalities when province changes
+  useEffect(() => {
+    if (selectedProvince) {
+      const cities = getCitiesMunicipalities(selectedProvince);
+      setMunicipalities(cities);
+    } else {
+      setMunicipalities([]);
     }
+  }, [selectedProvince]);
 
-    const year = parseInt(value.split('-')[0]);
-    const currentYear = new Date().getFullYear();
-    if (year < 1945 || year > currentYear) {
-      return 'Registration year must be between 1945 and current year';
-    }
-
-    const sequence = parseInt(value.split('-')[1]);
-    if (sequence <= 0 || sequence > 99999) {
-      return 'Sequence number must be between 1 and 99999';
-    }
-
-    return '';
-  }, []);
-
-  // Registry number check with debounce
-  const checkRegistryNumberDebounced = useMemo(
-    () =>
-      debounce(async (value: string) => {
-        if (!value.match(/^\d{4}-\d{5}$/)) return;
-        if (value === lastCheckedValue) return;
-
+  // Validate registry number
+  const checkRegistryNumber = useCallback(
+    async (value: string) => {
+      try {
         setIsChecking(true);
-        try {
-          await checkRegistryNumberExists(value, FormType.DEATH);
+
+        const response = await checkRegistryNumberExists(value, FormType.DEATH);
+
+        if (response.exists) {
+          setError('registryNumber', {
+            type: 'manual',
+            message: 'This registry number is already in use.',
+          });
+          setValidationResult({ exists: true, error: null });
+        } else {
           clearErrors('registryNumber');
-          setLastCheckedValue(value);
-        } catch (error) {
-          if (error instanceof Error) {
-            setError('registryNumber', {
-              type: 'manual',
-              message: error.message,
-            });
-            toast.error(error.message);
-          }
-        } finally {
-          setIsChecking(false);
+          setValidationResult({ exists: false, error: null });
         }
-      }, 500),
-    [lastCheckedValue, setError, clearErrors]
+      } catch (error) {
+        console.error('Validation error:', error);
+        setValidationResult({
+          exists: null,
+          error: 'Failed to validate registry number. Please try again.',
+        });
+      } finally {
+        setIsChecking(false);
+      }
+    },
+    [setError, clearErrors]
   );
 
-  // Cleanup effect
+  // Validate the registry number on debounce
   useEffect(() => {
-    return () => {
-      checkRegistryNumberDebounced.cancel();
-    };
-  }, [checkRegistryNumberDebounced]);
+    if (debouncedRegistryNumber.length >= 6) {
+      // Minimum length for validation (e.g., 2025-1)
+      checkRegistryNumber(debouncedRegistryNumber);
+    } else {
+      clearErrors('registryNumber');
+      setValidationResult({ exists: null, error: null });
+    }
+  }, [debouncedRegistryNumber, checkRegistryNumber, clearErrors]);
+
+  // Format registry number input
+  const handleRegistryNumberChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    let value = event.target.value.replace(/[^\d-]/g, ''); // Ensure numeric input
+
+    if (value.length >= 4 && !value.includes('-')) {
+      value = value.slice(0, 4) + '-' + value.slice(4); // Auto-format to YYYY-numbers
+    }
+
+    setRegistryNumber(value);
+    setValue('registryNumber', value);
+  };
+
+  // Get validation icon based on state
+  const getValidationIcon = () => {
+    if (isChecking) {
+      return <Loader2 className='h-4 w-4 animate-spin text-yellow-500' />;
+    }
+    if (validationResult.error) {
+      return <AlertCircle className='h-4 w-4 text-red-500' />;
+    }
+    if (validationResult.exists === false) {
+      return <CheckCircle2 className='h-4 w-4 text-green-500' />;
+    }
+    if (validationResult.exists === true) {
+      return <AlertCircle className='h-4 w-4 text-red-500' />;
+    }
+    return null;
+  };
 
   return (
     <Card>
@@ -120,132 +149,108 @@ const RegistryInformationCard: React.FC = () => {
         <CardTitle>Registry Information</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className='space-y-6'>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-            <FormField
-              control={control}
-              name='registryNumber'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Registry Number</FormLabel>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          {/* Registry Number */}
+          <FormField
+            control={control}
+            name='registryNumber'
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel>Registry Number</FormLabel>
+                <div className='relative'>
                   <FormControl>
                     <Input
-                      className='h-10'
-                      placeholder='YYYY-#####'
-                      maxLength={10}
+                      className='h-10 pr-8'
+                      placeholder='YYYY-numbers'
                       {...field}
-                      onChange={(e) => {
-                        const formatted = formatRegistryNumber(e.target.value);
-                        field.onChange(formatted);
-
-                        const error = validateRegistryNumber(formatted);
-                        if (error) {
-                          setError('registryNumber', {
-                            type: 'manual',
-                            message: error,
-                          });
-                        } else if (formatted.length === 10) {
-                          checkRegistryNumberDebounced(formatted);
-                        }
-                      }}
-                      onBlur={() => {
-                        if (field.value) {
-                          const error = validateRegistryNumber(field.value);
-                          if (error) {
-                            setError('registryNumber', {
-                              type: 'manual',
-                              message: error,
-                            });
-                            toast.error(error);
-                          } else if (field.value.length < 10) {
-                            toast.error('Please complete the registry number');
-                          }
-                        }
-                      }}
+                      onChange={handleRegistryNumberChange}
                       value={field.value || ''}
+                      maxLength={20} // Optional: Prevent excessively long inputs
                       inputMode='numeric'
                     />
                   </FormControl>
-                  <FormDescription>
-                    Format: YYYY-##### (e.g., 2025-00001)
-                  </FormDescription>
-                  {isChecking && (
-                    <FormDescription className='text-yellow-600'>
-                      Checking registry number...
-                    </FormDescription>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  <div className='absolute right-2 top-[10px]'>
+                    {getValidationIcon()}
+                  </div>
+                </div>
+                <FormDescription>
+                  Format: YYYY-numbers (e.g., 2025-123456)
+                </FormDescription>
+                {fieldState.error && (
+                  <FormMessage>{fieldState.error.message}</FormMessage>
+                )}
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={control}
-              name='province'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Province</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      const provinceObj = allProvinces.find(
-                        (p) => p.id === value
-                      );
-                      field.onChange(provinceObj?.name || '');
-                      setSelectedProvince(value);
-                      // Clear city when province changes
-                      setValue('cityMunicipality', '');
-                    }}
-                    value={
-                      allProvinces.find((p) => p.name === field.value)?.id || ''
-                    }
-                  >
-                    <FormControl>
-                      <SelectTrigger className='h-10'>
-                        <SelectValue placeholder='Select province' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {allProvinces.map((province) => (
-                        <SelectItem key={province.id} value={province.id}>
-                          {province.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          {/* Province */}
+          <FormField
+            control={control}
+            name='province'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Province</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    const selected = provinces.find(
+                      (province) => province.id === value
+                    );
+                    field.onChange(selected?.name || '');
+                    setSelectedProvince(value);
+                    setValue('province', selected?.name || '');
+                  }}
+                  value={
+                    provinces.find((province) => province.name === field.value)
+                      ?.id || ''
+                  }
+                >
+                  <FormControl>
+                    <SelectTrigger className='h-10'>
+                      <SelectValue placeholder='Select province' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {provinces.map((province) => (
+                      <SelectItem key={province.id} value={province.id}>
+                        {province.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={control}
-              name='cityMunicipality'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>City/Municipality</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value || ''}
-                    disabled={!selectedProvince}
-                  >
-                    <FormControl>
-                      <SelectTrigger className='h-10'>
-                        <SelectValue placeholder='Select city/municipality' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {citiesMunicipalities.map((city) => (
-                        <SelectItem key={city} value={city}>
-                          {city}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          {/* City/Municipality */}
+          <FormField
+            control={control}
+            name='cityMunicipality'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City/Municipality</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || ''}
+                  disabled={!selectedProvince}
+                >
+                  <FormControl>
+                    <SelectTrigger className='h-10'>
+                      <SelectValue placeholder='Select city/municipality' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {municipalities.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
       </CardContent>
     </Card>

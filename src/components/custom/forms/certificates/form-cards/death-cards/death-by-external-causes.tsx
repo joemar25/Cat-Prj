@@ -7,7 +7,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -20,9 +20,10 @@ const DeathByExternalCausesCard: React.FC = () => {
         <CardTitle>Death by External Causes</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
+        {/* Manner of Death */}
         <FormField
           control={control}
-          name='deathByExternalCauses.mannerOfDeath'
+          name='medicalCertificate.externalCauses.mannerOfDeath' // Updated path
           render={({ field }) => (
             <FormItem>
               <FormLabel>Manner of Death</FormLabel>
@@ -36,9 +37,11 @@ const DeathByExternalCausesCard: React.FC = () => {
             </FormItem>
           )}
         />
+
+        {/* Place of Occurrence */}
         <FormField
           control={control}
-          name='deathByExternalCauses.placeOfOccurrence'
+          name='medicalCertificate.externalCauses.placeOfOccurrence' // Updated path
           render={({ field }) => (
             <FormItem>
               <FormLabel>Place of Occurrence</FormLabel>

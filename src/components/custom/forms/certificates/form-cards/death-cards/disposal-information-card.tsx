@@ -1,7 +1,7 @@
 'use client';
 
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   FormControl,
   FormField,
@@ -11,7 +11,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
+import { parseToDate } from '@/utils/date';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -20,8 +21,8 @@ const DisposalInformationCard: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Disposal Information</CardTitle>
+      <CardHeader className='pb-3'>
+        <h3 className='text-sm font-semibold'>Disposal Information</h3>
       </CardHeader>
       <CardContent className='space-y-4'>
         {/* Method of Disposal */}
@@ -32,7 +33,11 @@ const DisposalInformationCard: React.FC = () => {
             <FormItem>
               <FormLabel>Method of Disposal</FormLabel>
               <FormControl>
-                <Input {...field} placeholder='Burial, Cremation, etc.' />
+                <Input
+                  className='h-10'
+                  placeholder='Burial, Cremation, etc.'
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -50,7 +55,11 @@ const DisposalInformationCard: React.FC = () => {
                 <FormItem>
                   <FormLabel>Permit Number</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='Enter permit number' />
+                    <Input
+                      className='h-10'
+                      placeholder='Enter permit number'
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -59,12 +68,41 @@ const DisposalInformationCard: React.FC = () => {
             <FormField
               control={control}
               name='disposal.burialPermit.dateIssued'
-              render={({ field }) => (
-                <FormItem>
-                  <DatePickerField field={field} label='Date Issued' />
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const dateValue = field.value
+                  ? (() => {
+                      const [month, day, year] = field.value.split('/');
+                      return parseToDate(year, month, day);
+                    })()
+                  : undefined;
+
+                return (
+                  <FormItem>
+                    <DatePickerField
+                      field={{
+                        value: dateValue || undefined,
+                        onChange: (date) => {
+                          if (date) {
+                            const month = (date.getMonth() + 1)
+                              .toString()
+                              .padStart(2, '0');
+                            const day = date
+                              .getDate()
+                              .toString()
+                              .padStart(2, '0');
+                            const year = date.getFullYear();
+                            field.onChange(`${month}/${day}/${year}`);
+                          } else {
+                            field.onChange('');
+                          }
+                        },
+                      }}
+                      label='Date Issued'
+                      placeholder='Select date issued'
+                    />
+                  </FormItem>
+                );
+              }}
             />
           </div>
 
@@ -78,7 +116,11 @@ const DisposalInformationCard: React.FC = () => {
                 <FormItem>
                   <FormLabel>Permit Number</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder='Enter permit number' />
+                    <Input
+                      className='h-10'
+                      placeholder='Enter permit number'
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -87,12 +129,42 @@ const DisposalInformationCard: React.FC = () => {
             <FormField
               control={control}
               name='disposal.transferPermit.dateIssued'
-              render={({ field }) => (
-                <FormItem>
-                  <DatePickerField field={field} label='Date Issued' />
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const dateValue = field.value
+                  ? (() => {
+                      const [month, day, year] = field.value.split('/');
+                      return parseToDate(year, month, day);
+                    })()
+                  : undefined;
+
+                return (
+                  <FormItem>
+                    <DatePickerField
+                      field={{
+                        value: dateValue || undefined,
+                        onChange: (date) => {
+                          if (date) {
+                            const month = (date.getMonth() + 1)
+                              .toString()
+                              .padStart(2, '0');
+                            const day = date
+                              .getDate()
+                              .toString()
+                              .padStart(2, '0');
+                            const year = date.getFullYear();
+                            field.onChange(`${month}/${day}/${year}`);
+                          } else {
+                            field.onChange('');
+                          }
+                        },
+                      }}
+                      label='Date Issued'
+                      placeholder='Select date issued'
+                    />
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
           </div>
         </div>
@@ -100,12 +172,16 @@ const DisposalInformationCard: React.FC = () => {
         {/* Cemetery or Crematory Information */}
         <FormField
           control={control}
-          name='cemeteryAddress'
+          name='disposal.cemeteryAddress'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name and Address of Cemetery or Crematory</FormLabel>
               <FormControl>
-                <Textarea {...field} placeholder='Enter name and address' />
+                <Textarea
+                  className='h-20'
+                  placeholder='Enter name and address'
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

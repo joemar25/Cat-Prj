@@ -1,6 +1,6 @@
 'use client';
 
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { formatDateTime } from '@/utils/date';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import React from 'react';
@@ -10,11 +10,6 @@ import { sty } from './stylish';
 interface DeathCertificatePDFProps {
   data: Partial<DeathCertificateFormValues>;
 }
-
-const formatDate = (date?: Date): string => {
-  if (!date) return '';
-  return date.toLocaleDateString();
-};
 
 const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
   if (!data || Object.keys(data).length === 0) {
@@ -86,22 +81,28 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           </View>
           <View style={styles.fieldContainer3}>
             <Text style={styles.label}>(First):</Text>
-            <Text style={styles.data1}>{data.name?.first || ''}</Text>
+            <Text style={styles.data1}>
+              {data.personalInfo?.firstName || ''}
+            </Text>
           </View>
           <View style={styles.fieldContainer3}>
             <Text style={styles.label}>(Middle):</Text>
-            <Text style={styles.data1}>{data.name?.middle || ''}</Text>
+            <Text style={styles.data1}>
+              {data.personalInfo?.middleName || ''}
+            </Text>
           </View>
           <View
             style={[styles.fieldContainer3, { borderRight: '1px solid #000' }]}
           >
             <Text style={styles.label}>(Last):</Text>
-            <Text style={styles.data1}>{data.name?.last || ''}</Text>
+            <Text style={styles.data1}>
+              {data.personalInfo?.lastName || ''}
+            </Text>
           </View>
 
           <View style={styles.fieldContainer3}>
             <Text style={styles.label}>2. SEX:</Text>
-            <Text style={styles.data1}>{data.sex || ''}</Text>
+            <Text style={styles.data1}>{data.personalInfo?.sex || ''}</Text>
           </View>
         </View>
 
@@ -110,23 +111,37 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           <View style={styles.fieldContainer4}>
             <Text style={styles.label}>3. DATE OF DEATH:</Text>
             <Text style={styles.data1}>
-              {data.dateOfDeath ? formatDate(data.dateOfDeath) : ''}
+              {data.personalInfo?.dateOfDeath
+                ? formatDateTime(data.personalInfo.dateOfDeath, {
+                    monthFormat: 'numeric',
+                    dayFormat: 'numeric',
+                    yearFormat: 'numeric',
+                    showTime: false, // No time needed for dates
+                  })
+                : ''}
             </Text>
           </View>
           <View style={styles.fieldContainer4}>
             <Text style={styles.label}>4. DATE OF BIRTH:</Text>
             <Text style={styles.data1}>
-              {data.dateOfBirth ? formatDate(data.dateOfBirth) : ''}
+              {data.personalInfo?.dateOfBirth
+                ? formatDateTime(data.personalInfo.dateOfBirth, {
+                    monthFormat: 'numeric',
+                    dayFormat: 'numeric',
+                    yearFormat: 'numeric',
+                    showTime: false, // No time needed for dates
+                  })
+                : ''}
             </Text>
           </View>
           <View style={styles.fieldContainer4}>
             <Text style={styles.label}>5. AGE AT THE TIME OF DEATH:</Text>
             <Text style={styles.data1}>
-              {data.ageAtDeath
-                ? `${data.ageAtDeath.years || 0} yrs, ${
-                    data.ageAtDeath.months || 0
-                  } mos, ${data.ageAtDeath.days || 0} d, ${
-                    data.ageAtDeath.hours || 0
+              {data.personalInfo?.ageAtDeath
+                ? `${data.personalInfo.ageAtDeath.years || 0} yrs, ${
+                    data.personalInfo.ageAtDeath.months || 0
+                  } mos, ${data.personalInfo.ageAtDeath.days || 0} d, ${
+                    data.personalInfo.ageAtDeath.hours || 0
                   } hrs`
                 : ''}
             </Text>
@@ -142,12 +157,20 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
                 (Name of Hospital/Clinic/Institution/House No., St., Brgy,
                 City/Municipality, Province)
               </Text>
-              <Text style={styles.data1}>{data.placeOfDeath || ''}</Text>
+              <Text style={styles.data1}>
+                {data.personalInfo?.placeOfDeath
+                  ? `${data.personalInfo.placeOfDeath.specificAddress || ''}, ${
+                      data.personalInfo.placeOfDeath.cityMunicipality || ''
+                    }, ${data.personalInfo.placeOfDeath.province || ''}`
+                  : ''}
+              </Text>
             </View>
           </View>
           <View style={styles.CivilStatus}>
             <Text style={styles.label}>7. CIVIL STATUS:</Text>
-            <Text style={styles.data1}>{data.civilStatus || ''}</Text>
+            <Text style={styles.data1}>
+              {data.personalInfo?.civilStatus || ''}
+            </Text>
           </View>
         </View>
 
@@ -155,15 +178,21 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
         <View style={styles.fieldContainer6}>
           <View style={styles.religion}>
             <Text style={styles.label}>8. RELIGION:</Text>
-            <Text style={styles.data1}>{data.religion || ''}</Text>
+            <Text style={styles.data1}>
+              {data.personalInfo?.religion || ''}
+            </Text>
           </View>
           <View style={styles.citizenship}>
             <Text style={styles.label}>9. CITIZENSHIP:</Text>
-            <Text style={styles.data1}>{data.citizenship || ''}</Text>
+            <Text style={styles.data1}>
+              {data.personalInfo?.citizenship || ''}
+            </Text>
           </View>
           <View style={styles.residence}>
             <Text style={styles.label}>10. RESIDENCE:</Text>
-            <Text style={styles.data1}>{data.residence || ''}</Text>
+            <Text style={styles.data1}>
+              {data.personalInfo?.residence || ''}
+            </Text>
           </View>
         </View>
 
@@ -171,7 +200,9 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
         <View style={styles.section2}>
           <View style={styles.occupation}>
             <Text style={styles.label}>11. OCCUPATION:</Text>
-            <Text style={styles.data1}>{data.occupation || ''}</Text>
+            <Text style={styles.data1}>
+              {data.personalInfo?.occupation || ''}
+            </Text>
           </View>
           <View style={styles.fieldContainer7}>
             <View style={styles.fatherName}>
@@ -179,10 +210,10 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
               <Text style={styles.label1}>(First, Middle, Last)</Text>
             </View>
             <Text style={styles.data1}>
-              {data.fatherName
-                ? `${data.fatherName.first} ${data.fatherName.middle || ''} ${
-                    data.fatherName.last
-                  }`
+              {data.familyInfo?.father
+                ? `${data.familyInfo.father.firstName} ${
+                    data.familyInfo.father.middleName || ''
+                  } ${data.familyInfo.father.lastName}`
                 : ''}
             </Text>
           </View>
@@ -192,10 +223,10 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
               <Text style={styles.label1}>(First, Middle, Last)</Text>
             </View>
             <Text style={styles.data1}>
-              {data.motherMaidenName
-                ? `${data.motherMaidenName.first} ${
-                    data.motherMaidenName.middle || ''
-                  } ${data.motherMaidenName.last}`
+              {data.familyInfo?.mother
+                ? `${data.familyInfo.mother.firstName} ${
+                    data.familyInfo.mother.middleName || ''
+                  } ${data.familyInfo.mother.lastName}`
                 : ''}
             </Text>
           </View>
@@ -239,28 +270,31 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
                   {/* Values Column */}
                   <View style={[styles.gridColumn, { flex: 1 }]}>
                     <Text style={styles.data2}>
-                      {data.causesOfDeath?.immediate || ''}
+                      {data.medicalCertificate?.causesOfDeath?.immediate || ''}
                     </Text>
                     <Text style={styles.data2}>
-                      {data.causesOfDeath?.antecedent || ''}
+                      {data.medicalCertificate?.causesOfDeath?.antecedent || ''}
                     </Text>
                     <Text style={styles.data2}>
-                      {data.causesOfDeath?.underlying || ''}
+                      {data.medicalCertificate?.causesOfDeath?.underlying || ''}
                     </Text>
                   </View>
 
                   {/* Interval Column */}
                   <View style={[styles.gridColumn, { flex: 1 }]}>
                     {/* <Text style={styles.data2}></Text>
-                    <Text style={styles.data2}></Text>
-                    <Text style={styles.data2}></Text> */}
+            <Text style={styles.data2}></Text>
+            <Text style={styles.data2}></Text> */}
                   </View>
                 </View>
                 <View style={[styles.rowSpan, { flex: 2 }]}>
                   <Text style={styles.label3}>
                     II. Other significant conditions contributing to death:
                   </Text>
-                  <Text style={styles.data3}></Text>
+                  <Text style={styles.data3}>
+                    {data.medicalCertificate?.causesOfDeath
+                      ?.contributingConditions || ''}
+                  </Text>
                 </View>
               </View>
             </View>
@@ -273,7 +307,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             19c. Maternal Condition:
           </Text>
           <Text style={styles.maternalConditionValue}>
-            {data.maternalCondition || ''}
+            {data.medicalCertificate?.maternalCondition || ''}
           </Text>
         </View>
 
@@ -293,7 +327,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
                 Manner of Death:
               </Text>
               <Text style={styles.deathExternalCausesValue}>
-                {data.deathByExternalCauses?.mannerOfDeath || ''}
+                {data.medicalCertificate?.externalCauses?.mannerOfDeath || ''}
               </Text>
             </View>
 
@@ -303,7 +337,8 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
                 Place of Occurrence:
               </Text>
               <Text style={styles.deathExternalCausesValue}>
-                {data.deathByExternalCauses?.placeOfOccurrence || ''}
+                {data.medicalCertificate?.externalCauses?.placeOfOccurrence ||
+                  ''}
               </Text>
             </View>
           </View>
@@ -332,13 +367,11 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
               <View style={styles.attendantFieldContainer}>
                 <Text style={styles.attendantLabel2}>Duration:</Text>
                 <Text style={styles.attendantValue}>
-                  {data.attendant?.duration?.from &&
-                  data.attendant?.duration?.to
-                    ? `From: ${new Date(
-                        data.attendant.duration.from
-                      ).toLocaleDateString()} To: ${new Date(
-                        data.attendant.duration.to
-                      ).toLocaleDateString()}`
+                  {data.attendant?.attendance?.from &&
+                  data.attendant?.attendance?.to
+                    ? `From: ${formatDateTime(
+                        data.attendant.attendance.from
+                      )} To: ${formatDateTime(data.attendant.attendance.to)}`
                     : ''}
                 </Text>
               </View>
@@ -353,14 +386,14 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             <View style={styles.attendantFieldContainerColumn}>
               <Text style={styles.attendantValue}>
                 From:{' '}
-                {data.attendant?.duration?.from
-                  ? new Date(data.attendant.duration.from).toLocaleDateString()
+                {data.attendant?.attendance?.from
+                  ? formatDateTime(data.attendant.attendance.from)
                   : ''}
               </Text>
               <Text style={styles.attendantValue}>
                 To:{' '}
-                {data.attendant?.duration?.to
-                  ? new Date(data.attendant.duration.to).toLocaleDateString()
+                {data.attendant?.attendance?.to
+                  ? formatDateTime(data.attendant.attendance.to)
                   : ''}
               </Text>
             </View>
@@ -381,10 +414,10 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             </Text>
           </View>
           <View style={styles.fieldContainer11}>
-            <Text style={styles.attendedLabel}>Death Date/Time:</Text>
+            <Text style={styles.attendedLabel}>Certification Date:</Text>
             <Text style={styles.attendedValue}>
-              {data.certification?.deathDateTime
-                ? formatDateTime(data.certification.deathDateTime, {
+              {data.certification?.date
+                ? formatDateTime(data.certification.date, {
                     monthFormat: 'numeric',
                     dayFormat: 'numeric',
                     yearFormat: 'numeric',
@@ -400,7 +433,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           <View style={styles.fieldContainer11}>
             <Text style={styles.nameLabel}>Name:</Text>
             <Text style={styles.nameValue}>
-              {data.certification?.nameInPrint || ''}
+              {data.certification?.name || ''}
             </Text>
           </View>
 
@@ -408,7 +441,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           <View style={styles.fieldContainer11}>
             <Text style={styles.titleLabel}>Title/Position:</Text>
             <Text style={styles.titleValue}>
-              {data.certification?.titleOfPosition || ''}
+              {data.certification?.title || ''}
             </Text>
           </View>
         </View>
@@ -432,12 +465,14 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
               Number: {data.disposal?.burialPermit?.number || ''}
             </Text>
             <Text style={styles.burialCremationValue}>
-              {[
-                'Number: ',
-                data.disposal?.burialPermit?.number || '',
-                ', Date Issued: ',
-                data.disposal?.burialPermit?.dateIssued || '',
-              ].join('')}
+              Date Issued:{' '}
+              {data.disposal?.burialPermit?.dateIssued
+                ? formatDateTime(data.disposal.burialPermit.dateIssued, {
+                    monthFormat: 'numeric',
+                    dayFormat: 'numeric',
+                    yearFormat: 'numeric',
+                  })
+                : ''}
             </Text>
           </View>
 
@@ -449,21 +484,31 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             </Text>
             <Text style={styles.transferPermitValue}>
               Date Issued:{' '}
-              {formatDate(data.disposal?.transferPermit?.dateIssued) || ''}
+              {data.disposal?.transferPermit?.dateIssued
+                ? formatDateTime(data.disposal.transferPermit.dateIssued, {
+                    monthFormat: 'numeric',
+                    dayFormat: 'numeric',
+                    yearFormat: 'numeric',
+                  })
+                : ''}
             </Text>
           </View>
         </View>
+
+        {/* Cemetery name and address */}
         <View style={styles.section}>
           <View style={styles.fieldContainer222}>
             <Text style={styles.subtitle}>
               25. NAME AND ADDRESS OF CEMETERY:
             </Text>
-            <Text style={styles.value12}>{data.cemeteryAddress || ''}</Text>
+            <Text style={styles.value12}>
+              {data.disposal?.cemeteryAddress || ''}
+            </Text>
           </View>
         </View>
 
         <View>
-          {/* First Row: Section 26 and 27 */}
+          {/* First Row: Sections 26 (Informant) and 27 (Prepared By) */}
           <View
             style={[
               styles.Last,
@@ -483,14 +528,12 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
               </View>
               <View style={styles.fieldContainer}>
                 <Text style={styles.label12}>Name:</Text>
-                <Text style={styles.value12}>
-                  {data.informant?.nameInPrint || ''}
-                </Text>
+                <Text style={styles.value12}>{data.informant?.name || ''}</Text>
               </View>
               <View style={styles.fieldContainer}>
                 <Text style={styles.label12}>Relationship to Deceased:</Text>
                 <Text style={styles.value12}>
-                  {data.informant?.relationshipToDeceased || ''}
+                  {data.informant?.relationship || ''}
                 </Text>
               </View>
               <View style={styles.fieldContainer}>
@@ -503,37 +546,41 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
                 <Text style={styles.label12}>Date:</Text>
                 <Text style={styles.value12}>
                   {data.informant?.date
-                    ? formatDate(data.informant.date)
+                    ? formatDateTime(data.informant.date, {
+                        monthFormat: 'numeric',
+                        dayFormat: 'numeric',
+                        yearFormat: 'numeric',
+                      })
                     : ''}
                 </Text>
               </View>
             </View>
 
             {/* Section 27: Prepared By */}
-            <View style={[styles.section12]}>
+            <View style={styles.section12}>
               <Text style={styles.preparedByTitle}>27. Prepared By</Text>
               <View style={styles.fieldContainer12}>
                 <Text style={styles.label12}>Signature:</Text>
                 <Text style={styles.value12}>
-                  {data?.preparedBy?.signature || ''}
+                  {data.preparedBy?.signature || ''}
                 </Text>
               </View>
               <View style={styles.fieldContainer12}>
                 <Text style={styles.label12}>Name:</Text>
                 <Text style={styles.value12}>
-                  {data?.preparedBy?.name || ''}
+                  {data.preparedBy?.name || ''}
                 </Text>
               </View>
               <View style={styles.fieldContainer12}>
                 <Text style={styles.label12}>Title or Position:</Text>
                 <Text style={styles.value12}>
-                  {data?.preparedBy?.title || ''}
+                  {data.preparedBy?.title || ''}
                 </Text>
               </View>
               <View style={styles.fieldContainer12}>
                 <Text style={styles.label12}>Date:</Text>
                 <Text style={styles.value12}>
-                  {data?.preparedBy?.date
+                  {data.preparedBy?.date
                     ? formatDateTime(data.preparedBy.date, {
                         monthFormat: 'numeric',
                         dayFormat: 'numeric',
@@ -545,7 +592,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             </View>
           </View>
 
-          {/* Second Row: Section 28 and 29 */}
+          {/* Second Row: Sections 28 (Received By) and 29 (Registered at Civil Registrar) */}
           <View
             style={[
               styles.Last,
@@ -554,7 +601,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           >
             {/* Section 28: Received By */}
             <View style={[styles.section12, { borderRight: '1px solid #000' }]}>
-              <Text style={styles.receivedByTitle}>28. RECIEVED BY</Text>
+              <Text style={styles.receivedByTitle}>28. RECEIVED BY</Text>
               <View style={styles.fieldContainer}>
                 <Text style={styles.label12}>Signature:</Text>
                 <Text style={styles.value12}>
@@ -577,14 +624,18 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
                 <Text style={styles.label12}>Date:</Text>
                 <Text style={styles.value12}>
                   {data.receivedBy?.date
-                    ? formatDate(data.receivedBy.date)
+                    ? formatDateTime(data.receivedBy.date, {
+                        monthFormat: 'numeric',
+                        dayFormat: 'numeric',
+                        yearFormat: 'numeric',
+                      })
                     : ''}
                 </Text>
               </View>
             </View>
 
             {/* Section 29: Registered at Civil Registrar */}
-            <View style={[styles.section12]}>
+            <View style={styles.section12}>
               <Text style={styles.registeredAtCivilRegistrarTitle}>
                 29. REGISTERED AT CIVIL REGISTRAR
               </Text>
@@ -604,13 +655,18 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
                 <Text style={styles.label12}>Date:</Text>
                 <Text style={styles.value12}>
                   {data.registeredAtCivilRegistrar?.date
-                    ? formatDate(data.registeredAtCivilRegistrar.date)
+                    ? formatDateTime(data.registeredAtCivilRegistrar.date, {
+                        monthFormat: 'numeric',
+                        dayFormat: 'numeric',
+                        yearFormat: 'numeric',
+                      })
                     : ''}
                 </Text>
               </View>
             </View>
           </View>
         </View>
+
         <View
           style={{
             flexDirection: 'column',
@@ -630,6 +686,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           >
             REMARKS / ANNOTATIONS (FOR LCRO/OCRG USE ONLY)
           </Text>
+          {/* Remarks Section */}
           <Text style={styles.data1}>{data.remarks || ''}</Text>
         </View>
       </Page>

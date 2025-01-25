@@ -1,4 +1,3 @@
-// CausesOfDeathCard.tsx
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
@@ -8,7 +7,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -21,55 +20,74 @@ const CausesOfDeathCard: React.FC = () => {
         <CardTitle>Causes of Death</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
+        {/* Immediate Cause */}
         <FormField
           control={control}
-          name='causesOfDeath.immediate'
+          name='medicalCertificate.causesOfDeath.immediate'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Immediate Cause</FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea
+                  {...field}
+                  placeholder='Enter the immediate cause of death'
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Antecedent Cause */}
         <FormField
           control={control}
-          name='causesOfDeath.antecedent'
+          name='medicalCertificate.causesOfDeath.antecedent'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Antecedent Cause</FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea
+                  {...field}
+                  placeholder='Enter the antecedent cause of death'
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Underlying Cause */}
         <FormField
           control={control}
-          name='causesOfDeath.underlying'
+          name='medicalCertificate.causesOfDeath.underlying'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Underlying Cause</FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea
+                  {...field}
+                  placeholder='Enter the underlying cause of death'
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Contributing Conditions */}
         <FormField
           control={control}
-          name='causesOfDeath.contributingConditions'
+          name='medicalCertificate.causesOfDeath.contributingConditions'
           render={({ field }) => (
             <FormItem>
               <FormLabel>
                 Other Significant Conditions Contributing to Death
               </FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea
+                  {...field}
+                  placeholder='Enter other significant conditions contributing to death'
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

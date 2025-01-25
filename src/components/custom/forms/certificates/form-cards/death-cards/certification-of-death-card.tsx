@@ -1,7 +1,8 @@
 'use client';
 
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import TimePicker from '@/components/custom/time-picker/time-picker';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   FormControl,
   FormField,
@@ -19,13 +20,18 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
+// Helper function to parse MM/DD/YYYY string into a Date object
+const parseToDate = (year: string, month: string, day: string): Date => {
+  return new Date(`${year}-${month}-${day}`);
+};
+
 const CertificationOfDeathCard: React.FC = () => {
   const { control, watch, setValue } =
-    useFormContext<DeathCertificateFormValues>(); // Destructure watch and setValue
+    useFormContext<DeathCertificateFormValues>();
 
   // Watch reviewedBy.name field
   const watchedName = watch('certification.reviewedBy.name');
@@ -43,8 +49,8 @@ const CertificationOfDeathCard: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Certification of Death</CardTitle>
+      <CardHeader className='pb-3'>
+        <h3 className='text-sm font-semibold'>Certification of Death</h3>
       </CardHeader>
       <CardContent className='space-y-4'>
         {/* Has Attended Switch */}
@@ -60,8 +66,10 @@ const CertificationOfDeathCard: React.FC = () => {
               </div>
               <FormControl>
                 <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
+                  checked={field.value === 'true'}
+                  onCheckedChange={(checked) =>
+                    field.onChange(checked ? 'true' : 'false')
+                  }
                 />
               </FormControl>
             </FormItem>
@@ -69,22 +77,27 @@ const CertificationOfDeathCard: React.FC = () => {
         />
 
         {/* Death Date and Time */}
-        <FormField
-          control={control}
-          name='certification.deathDateTime'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date and Time of Death</FormLabel>
-              <FormControl>
-                <Input {...field} type='datetime-local' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <FormField
+            control={control}
+            name='timeOfDeath'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Time of Death</FormLabel>
+                <FormControl>
+                  <TimePicker
+                    value={field.value || ''}
+                    onChange={(value) => field.onChange(value)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         {/* Signature and Name */}
-        <div className='grid grid-cols-2 gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <FormField
             control={control}
             name='certification.signature'
@@ -92,7 +105,11 @@ const CertificationOfDeathCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Signature</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input
+                    className='h-10'
+                    placeholder='Enter signature'
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -100,12 +117,12 @@ const CertificationOfDeathCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='certification.nameInPrint'
+            name='certification.name'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input className='h-10' placeholder='Enter name' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -114,43 +131,80 @@ const CertificationOfDeathCard: React.FC = () => {
         </div>
 
         {/* Title and Address */}
-        <FormField
-          control={control}
-          name='certification.titleOfPosition'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title or Position</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name='certification.address'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Address</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <FormField
+            control={control}
+            name='certification.title'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title or Position</FormLabel>
+                <FormControl>
+                  <Input
+                    className='h-10'
+                    placeholder='Enter title'
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name='certification.address'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Address</FormLabel>
+                <FormControl>
+                  <Input
+                    className='h-10'
+                    placeholder='Enter address'
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         {/* Certification Date */}
         <FormField
           control={control}
           name='certification.date'
-          render={({ field }) => (
-            <FormItem>
-              <DatePickerField field={field} label='Date' />
-              <FormMessage />
-            </FormItem>
-          )}
+          render={({ field }) => {
+            // Parse the MM/DD/YYYY string into Date object
+            const dateValue = field.value
+              ? (() => {
+                  const [month, day, year] = field.value.split('/');
+                  return parseToDate(year, month, day);
+                })()
+              : undefined;
+
+            return (
+              <FormItem>
+                <DatePickerField
+                  field={{
+                    value: dateValue || undefined,
+                    onChange: (date) => {
+                      if (date) {
+                        const month = (date.getMonth() + 1)
+                          .toString()
+                          .padStart(2, '0');
+                        const day = date.getDate().toString().padStart(2, '0');
+                        const year = date.getFullYear();
+                        field.onChange(`${month}/${day}/${year}`);
+                      } else {
+                        field.onChange('');
+                      }
+                    },
+                  }}
+                  label='Date'
+                  placeholder='Select date'
+                />
+              </FormItem>
+            );
+          }}
         />
 
         {/* Reviewed By - Name */}
@@ -224,23 +278,36 @@ const CertificationOfDeathCard: React.FC = () => {
           control={control}
           name='certification.reviewedBy.date'
           render={({ field }) => {
-            const dateValue = field.value ? new Date(field.value) : new Date();
+            // Parse the MM/DD/YYYY string into Date object
+            const dateValue = field.value
+              ? (() => {
+                  const [month, day, year] = field.value.split('/');
+                  return parseToDate(year, month, day);
+                })()
+              : undefined;
 
             return (
-              <DatePickerField
-                field={{
-                  value: dateValue,
-                  onChange: (date) => {
-                    if (date) {
-                      field.onChange(date.toISOString());
-                    } else {
-                      field.onChange(new Date().toISOString());
-                    }
-                  },
-                }}
-                label='Date (Reviewed By)'
-                placeholder='Select date'
-              />
+              <FormItem>
+                <DatePickerField
+                  field={{
+                    value: dateValue || undefined,
+                    onChange: (date) => {
+                      if (date) {
+                        const month = (date.getMonth() + 1)
+                          .toString()
+                          .padStart(2, '0');
+                        const day = date.getDate().toString().padStart(2, '0');
+                        const year = date.getFullYear();
+                        field.onChange(`${month}/${day}/${year}`);
+                      } else {
+                        field.onChange('');
+                      }
+                    },
+                  }}
+                  label='Date (Reviewed By)'
+                  placeholder='Select date'
+                />
+              </FormItem>
             );
           }}
         />
