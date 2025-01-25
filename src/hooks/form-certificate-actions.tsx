@@ -229,20 +229,32 @@ export async function createMarriageCertificate(
 }
 
 // Death Certificate Server Action
+
 export async function createDeathCertificate(
   data: DeathCertificateFormValues,
   ignoreDuplicate: boolean = false
 ) {
   try {
-    // 1. Validate registry number format
-    if (!/^\d{4}-\d+$/.test(data.registryNumber)) {
+    // Parse and validate death and birth dates
+    const dateOfDeath = new Date(data.personalInfo.dateOfDeath);
+    if (isNaN(dateOfDeath.getTime())) {
+      return { success: false, error: 'Invalid date of death' };
+    }
+
+    const dateOfBirth = new Date(data.personalInfo.dateOfBirth);
+    if (isNaN(dateOfBirth.getTime())) {
+      return { success: false, error: 'Invalid date of birth' };
+    }
+
+    // Validate registry number format before checking in DB
+    if (!/\d{4}-\d{5}/.test(data.registryNumber)) {
       return {
         success: false,
-        error: 'Registry number must be in the format YYYY-numbers',
+        error: 'Registry number must be in the format YYYY-#####',
       };
     }
 
-    // 2. Check for duplicate registry number
+    // Validate registry number does not already exist
     const existingRegistry = await prisma.baseRegistryForm.findFirst({
       where: {
         registryNumber: data.registryNumber,
@@ -257,7 +269,7 @@ export async function createDeathCertificate(
       };
     }
 
-    // 3. Check for duplicate deceased information (if not ignoring duplicates)
+    // Check for duplicate deceased information
     if (!ignoreDuplicate) {
       const existingDeceased = await prisma.deathCertificateForm.findFirst({
         where: {
@@ -275,7 +287,7 @@ export async function createDeathCertificate(
               },
             },
             {
-              dateOfDeath: new Date(data.personalInfo.dateOfDeath),
+              dateOfDeath: dateOfDeath,
             },
             {
               placeOfDeath: {
@@ -298,26 +310,7 @@ export async function createDeathCertificate(
       }
     }
 
-    // 4. Validate dates
-    const dateOfDeath = new Date(data.personalInfo.dateOfDeath);
-    const dateOfBirth = new Date(data.personalInfo.dateOfBirth);
-
-    if (isNaN(dateOfDeath.getTime()) || isNaN(dateOfBirth.getTime())) {
-      return {
-        success: false,
-        error: 'Invalid date of death or date of birth',
-      };
-    }
-
-    // 5. Validate death date is after birth date
-    if (dateOfDeath < dateOfBirth) {
-      return {
-        success: false,
-        error: 'Date of death cannot be before date of birth',
-      };
-    }
-
-    // 6. Validate preparer exists
+    // Validate preparer exists
     const user = await prisma.user.findFirst({
       where: {
         name: data.preparedBy.name,
@@ -328,7 +321,7 @@ export async function createDeathCertificate(
       return { success: false, error: 'Preparer not found' };
     }
 
-    // 7. Create the death certificate
+    // Create the death certificate
     const baseForm = await prisma.baseRegistryForm.create({
       data: {
         formNumber: '103',
@@ -354,8 +347,8 @@ export async function createDeathCertificate(
               lastName: data.personalInfo.lastName.trim(),
             },
             sex: data.personalInfo.sex,
-            dateOfDeath: dateOfDeath,
-            dateOfBirth: dateOfBirth,
+            dateOfDeath,
+            dateOfBirth,
             placeOfDeath: {
               province: data.personalInfo.placeOfDeath.province.trim(),
               cityMunicipality:
@@ -364,8 +357,7 @@ export async function createDeathCertificate(
                 data.personalInfo.placeOfDeath.specificAddress?.trim() || '',
             },
             placeOfBirth: {
-              // Add placeOfBirth (required by Prisma model)
-              province: data.personalInfo.placeOfDeath.province.trim(), // Use the same as placeOfDeath or adjust as needed
+              province: data.personalInfo.placeOfDeath.province.trim(),
               cityMunicipality:
                 data.personalInfo.placeOfDeath.cityMunicipality.trim(),
               specificAddress:
@@ -391,69 +383,73 @@ export async function createDeathCertificate(
 
             // Medical Information
             causesOfDeath: {
-              immediate: data.medicalCertificate.causesOfDeath.immediate.trim(),
-              antecedent:
-                data.medicalCertificate.causesOfDeath.antecedent.trim(),
-              underlying:
-                data.medicalCertificate.causesOfDeath.underlying.trim(),
+              immediate: data.medicalCertificate.causesOfDeath.immediate,
+              antecedent: data.medicalCertificate.causesOfDeath.antecedent,
+              underlying: data.medicalCertificate.causesOfDeath.underlying,
               contributingConditions:
-                data.medicalCertificate.causesOfDeath.contributingConditions?.trim() ||
+                data.medicalCertificate.causesOfDeath.contributingConditions ||
                 '',
             },
             deathInterval: {
-              // Add deathInterval (required by Prisma model)
-              interval: 'N/A', // Adjust based on your form data
+              interval: data.personalInfo.ageAtDeath.years,
             },
-            pregnancy: data.medicalCertificate.maternalCondition ? true : false, // Map maternalCondition to pregnancy
-            attendedByPhysician: true, // Set based on your logic
-            mannerOfDeath:
-              data.medicalCertificate.externalCauses.mannerOfDeath.trim(),
+            pregnancy: false,
+            attendedByPhysician: data.certification.hasAttended === 'Yes',
+            mannerOfDeath: data.medicalCertificate.externalCauses.mannerOfDeath,
             placeOfOccurrence:
-              data.medicalCertificate.externalCauses.placeOfOccurrence.trim(),
+              data.medicalCertificate.externalCauses.placeOfOccurrence,
 
             // Certification
-            certificationType: 'STANDARD', // Add certificationType (required by Prisma model)
+            certificationType: 'STANDARD',
             certifier: {
-              name: data.certification.name.trim(),
-              title: data.certification.title.trim(),
-              address: data.certification.address.trim(),
+              name: data.certification.name,
+              title: data.certification.title,
+              address: data.certification.address,
               date: new Date(data.certification.date),
             },
 
             // Disposal Information
             disposalDetails: {
-              method: data.disposal.method.trim(),
+              method: data.disposal.method,
               burialPermit: {
-                number: data.disposal.burialPermit.number.trim(),
+                number: data.disposal.burialPermit.number,
                 dateIssued: new Date(data.disposal.burialPermit.dateIssued),
               },
               transferPermit: data.disposal.transferPermit.number
                 ? {
-                    number: data.disposal.transferPermit.number.trim(),
+                    number: data.disposal.transferPermit.number,
                     dateIssued: data.disposal.transferPermit.dateIssued
                       ? new Date(data.disposal.transferPermit.dateIssued)
                       : null,
                   }
                 : null,
-              cemeteryAddress: data.disposal.cemeteryAddress.trim(),
+              cemeteryAddress: data.disposal.cemeteryAddress,
             },
 
             // Informant Details
             informant: {
-              name: data.informant.name.trim(),
-              relationship: data.informant.relationship.trim(),
-              address: data.informant.address.trim(),
+              name: data.informant.name,
+              relationship: data.informant.relationship,
+              address: data.informant.address,
               date: new Date(data.informant.date),
             },
 
-            // Administrative Information
+            // Preparer Details
             preparer: {
-              name: data.preparedBy.name.trim(),
-              title: data.preparedBy.title.trim(),
+              name: data.preparedBy.name,
+              title: data.preparedBy.title,
               date: new Date(data.preparedBy.date),
             },
           },
         },
+        // Additional base form fields
+        receivedBy: data.receivedBy.name.trim(),
+        receivedByPosition: data.receivedBy.title.trim(),
+        receivedDate: new Date(data.receivedBy.date),
+        registeredBy: data.registeredAtCivilRegistrar.name.trim(),
+        registeredByPosition: data.registeredAtCivilRegistrar.title.trim(),
+        registrationDate: new Date(data.registeredAtCivilRegistrar.date),
+        remarks: data.remarks?.trim(),
       },
     });
 
@@ -464,6 +460,7 @@ export async function createDeathCertificate(
       message: 'Death certificate created successfully',
     };
   } catch (error) {
+    console.error('Error creating death certificate:', error);
     return {
       success: false,
       error:
@@ -473,7 +470,6 @@ export async function createDeathCertificate(
     };
   }
 }
-
 // ------------------------------- Birth Certificate Server Action -------------------------------//
 
 export async function createBirthCertificate(

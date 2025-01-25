@@ -1,9 +1,6 @@
 'use client';
 
-import {
-  ConfirmationDialog,
-  shouldSkipAlert,
-} from '@/components/custom/confirmation-dialog/confirmation-dialog';
+import { ConfirmationDialog } from '@/components/custom/confirmation-dialog/confirmation-dialog';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -13,6 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { createDeathCertificate } from '@/hooks/form-certificate-actions';
 import {
   DeathCertificateFormProps,
@@ -65,29 +63,29 @@ export default function DeathCertificateForm({
       const result = await createDeathCertificate(values);
 
       if (result.success) {
-        toast.success('Death certificate has been registered successfully');
+        toast.success('Death Certificate Registration', {
+          description: 'Death certificate has been registered successfully',
+        });
         onOpenChange(false);
         form.reset();
       } else if (result.warning) {
         setPendingSubmission(values);
         setShowAlert(true);
       } else {
-        throw new Error(result.error);
+        toast.error('Registration Error', {
+          description: result.error || 'Failed to register death certificate',
+        });
       }
     } catch (error) {
-      console.error('Submission error:', error);
-      toast.error('Failed to register death certificate. Please try again.');
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'An unexpected error occurred. Please try again.';
+      toast.error('Registration Error', {
+        description: errorMessage,
+      });
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleSubmit = (values: DeathCertificateFormValues) => {
-    if (shouldSkipAlert('skipDeathCertificateAlert')) {
-      onSubmit(values);
-    } else {
-      setPendingSubmission(values);
-      setShowAlert(true);
     }
   };
 
@@ -98,68 +96,30 @@ export default function DeathCertificateForm({
         const result = await createDeathCertificate(pendingSubmission, true);
 
         if (result.success) {
-          toast.success('Death certificate has been registered successfully');
+          toast.success('Death Certificate Registration', {
+            description: 'Death certificate has been registered successfully',
+          });
           onOpenChange(false);
           form.reset();
         } else {
-          throw new Error(result.error);
+          toast.error('Registration Error', {
+            description: result.error || 'Failed to register death certificate',
+          });
         }
       } catch (error) {
-        console.error('Submission error:', error);
-        toast.error('Failed to register death certificate. Please try again.');
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred. Please try again.';
+        toast.error('Registration Error', {
+          description: errorMessage,
+        });
       } finally {
         setIsSubmitting(false);
         setShowAlert(false);
         setPendingSubmission(null);
       }
     }
-  };
-
-  const transformFormDataForPreview = (
-    data: Partial<DeathCertificateFormValues> | null
-  ): Partial<DeathCertificateFormValues> => {
-    if (!data) return {};
-
-    return {
-      // Registry Information
-      registryNumber: data.registryNumber,
-      province: data.province,
-      cityMunicipality: data.cityMunicipality,
-
-      // Death Information
-      timeOfDeath: data.timeOfDeath,
-
-      // Personal Information
-      personalInfo: data.personalInfo,
-
-      // Family Information
-      familyInfo: data.familyInfo,
-
-      // Medical Certificate
-      medicalCertificate: data.medicalCertificate,
-
-      // Attendant Information
-      attendant: data.attendant,
-
-      // Certification
-      certification: data.certification,
-
-      // Disposal Information
-      disposal: data.disposal,
-
-      // Informant Details
-      informant: data.informant,
-
-      // Administrative Information
-      preparedBy: data.preparedBy,
-      receivedBy: data.receivedBy,
-
-      // Registered at Civil Registrar
-      registeredAtCivilRegistrar: data.registeredAtCivilRegistrar,
-
-      // Remarks
-      remarks: data.remarks,
-    };
   };
 
   const handleError = () => {
@@ -181,9 +141,7 @@ export default function DeathCertificateForm({
     }
 
     // Default error message
-    toast.warning('Please fill in all required fields', {
-      description: 'Some required information is missing or incorrect.',
-    });
+    toast.error('Please check all required fields and try again');
   };
 
   return (
@@ -199,103 +157,106 @@ export default function DeathCertificateForm({
           <div className='flex flex-1 overflow-hidden'>
             {/* Left Side - Form */}
             <div className='w-1/2 border-r'>
-              <div className='h-[calc(95vh-120px)] overflow-y-auto p-6'>
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(handleSubmit, handleError)}
-                    className='space-y-6'
-                  >
-                    {/* Registry Information */}
-                    <RegistryInformationCard />
+              <ScrollArea className='h-[calc(95vh-120px)]'>
+                <div className='p-6'>
+                  <Form {...form}>
+                    <form
+                      onSubmit={form.handleSubmit(onSubmit, handleError)}
+                      className='space-y-6'
+                    >
+                      {/* Registry Information */}
+                      <RegistryInformationCard />
 
-                    {/* Personal Information */}
-                    <PersonalInformationCard />
+                      {/* Personal Information */}
+                      <PersonalInformationCard />
 
-                    {/* Medical Certificate */}
-                    <MedicalCertificateCard />
+                      {/* Medical Certificate */}
+                      <MedicalCertificateCard />
 
-                    {/* Causes of Death */}
-                    <CausesOfDeathCard />
+                      {/* Causes of Death */}
+                      <CausesOfDeathCard />
 
-                    {/* Maternal Condition */}
-                    <MaternalConditionCard />
+                      {/* Maternal Condition */}
+                      <MaternalConditionCard />
 
-                    {/* Death by External Causes */}
-                    <DeathByExternalCausesCard />
+                      {/* Death by External Causes */}
+                      <DeathByExternalCausesCard />
 
-                    {/* Attendant Information */}
-                    <AttendantInformationCard />
+                      {/* Attendant Information */}
+                      <AttendantInformationCard />
 
-                    {/* Certification of Death */}
-                    <CertificationOfDeathCard />
+                      {/* Certification of Death */}
+                      <CertificationOfDeathCard />
 
-                    {/* Disposal Information */}
-                    <DisposalInformationCard />
+                      {/* Disposal Information */}
+                      <DisposalInformationCard />
 
-                    {/* Informant Information */}
-                    <CertificationInformantCard />
+                      {/* Informant Information */}
+                      <CertificationInformantCard />
 
-                    {/* Prepared By */}
-                    <PreparedByCard />
+                      {/* Prepared By */}
+                      <PreparedByCard />
 
-                    {/* Received By */}
-                    <ReceivedByCard />
+                      {/* Received By */}
+                      <ReceivedByCard />
 
-                    {/* Registered at Civil Registrar */}
-                    <RegisteredAtOfficeCard />
+                      {/* Registered at Civil Registrar */}
+                      <RegisteredAtOfficeCard />
 
-                    {/* Remarks */}
-                    <RemarksCard />
+                      {/* Remarks */}
+                      <RemarksCard />
 
-                    <DialogFooter>
-                      <Button
-                        type='button'
-                        variant='outline'
-                        className='h-10'
-                        onClick={onCancel}
-                        disabled={isSubmitting}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        type='submit'
-                        className='h-10 ml-2'
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                            Saving...
-                          </>
-                        ) : (
-                          <>
-                            <Save className='mr-2 h-4 w-4' />
-                            Save Registration
-                          </>
-                        )}
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
+                      <DialogFooter>
+                        <Button
+                          type='button'
+                          variant='outline'
+                          className='h-10'
+                          onClick={onCancel}
+                          disabled={isSubmitting}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type='submit'
+                          className='h-10 ml-2'
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <Save className='mr-2 h-4 w-4' />
+                              Save Registration
+                            </>
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
 
-                <ConfirmationDialog
-                  open={showAlert}
-                  onOpenChange={setShowAlert}
-                  onConfirm={confirmSubmit}
-                  isSubmitting={isSubmitting}
-                  formType='DEATH'
-                  localStorageKey='skipDeathCertificateAlert'
-                />
-              </div>
+                  <ConfirmationDialog
+                    open={showAlert}
+                    onOpenChange={setShowAlert}
+                    onConfirm={confirmSubmit}
+                    isSubmitting={isSubmitting}
+                    formType='DEATH'
+                    title='Duplicate Record Detected'
+                    description='A similar death record already exists. Do you want to proceed with saving this record?'
+                    confirmButtonText='Proceed'
+                    cancelButtonText='Cancel'
+                  />
+                </div>
+              </ScrollArea>
             </div>
 
             {/* Right Side - Preview */}
             <div className='w-1/2'>
               <div className='h-[calc(95vh-120px)] p-6'>
                 <PDFViewer width='100%' height='100%'>
-                  <DeathCertificatePDF
-                    data={transformFormDataForPreview(form.watch()) || {}}
-                  />
+                  <DeathCertificatePDF data={form.watch()} />
                 </PDFViewer>
               </div>
             </div>
