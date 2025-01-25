@@ -1,7 +1,16 @@
 // src\lib\types\zod-form-certificate\birth-certificate-form-schema.ts
 
 import { z } from 'zod';
-
+import {
+  addressSchema,
+  cityMunicipalitySchema,
+  dateSchema,
+  nameSchema,
+  provinceSchema,
+  registryNumberSchema,
+  signatureSchema,
+  timeSchema,
+} from './form-certificates-shared-schema';
 export interface BirthCertificateFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -10,77 +19,21 @@ export interface BirthCertificateFormProps {
 
 export const birthCertificateSchema = z.object({
   // Registry Information
-  registryNumber: z
-    .string()
-    .regex(
-      /^\d{4}-\d+$/, // Enforces YYYY- followed by one or more digits
-      'Registry number must be in the format: YYYY-numbers (e.g., 2025-123456).'
-    )
-    .refine(
-      (value) => {
-        const year = parseInt(value.split('-')[0]);
-        const currentYear = new Date().getFullYear();
-        return year >= 1945 && year <= currentYear;
-      },
-      {
-        message: 'The year must be between 1945 and the current year.',
-      }
-    )
-    .refine(
-      (value) => {
-        const sequenceNumber = parseInt(value.split('-')[1]);
-        return sequenceNumber > 0; // Enforce positive numbers only
-      },
-      {
-        message: 'The sequence number must be a positive number.',
-      }
-    ),
-  province: z
-    .string()
-    .min(1, 'Please select a province.')
-    .max(100, 'Province name is too long.'),
-  cityMunicipality: z
-    .string()
-    .min(1, 'Please select a city or municipality.')
-    .max(100, 'City/Municipality name is too long.'),
+  registryNumber: registryNumberSchema,
+  province: provinceSchema,
+  cityMunicipality: cityMunicipalitySchema,
 
   // Child Information
   childInfo: z.object({
-    firstName: z
-      .string()
-      .min(1, 'First name is required')
-      .max(100, 'First name is too long'),
-    middleName: z.string().optional(),
-    lastName: z
-      .string()
-      .min(1, 'Last name is required')
-      .max(100, 'Last name is too long'),
+    firstName: nameSchema.shape.firstName,
+    middleName: nameSchema.shape.middleName,
+    lastName: nameSchema.shape.lastName,
     sex: z.string().min(1, 'Please select a sex'),
-    dateOfBirth: z
-      .string()
-      .min(1, 'Birth date is required')
-      .refine(
-        (value) => {
-          if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return false;
-          const [month, day, year] = value.split('/').map(Number);
-          const date = new Date(year, month - 1, day);
-          return (
-            date instanceof Date &&
-            !isNaN(date.getTime()) &&
-            date.getMonth() === month - 1 &&
-            date.getDate() === day &&
-            date.getFullYear() === year &&
-            date <= new Date()
-          );
-        },
-        {
-          message: 'Please enter a valid birth date in MM/DD/YYYY format.',
-        }
-      ),
+    dateOfBirth: dateSchema,
     placeOfBirth: z.object({
       hospital: z.string().min(1, 'Hospital/Clinic name is required'),
-      cityMunicipality: z.string().min(1, 'City/Municipality is required'),
-      province: z.string().min(1, 'Province is required'),
+      cityMunicipality: cityMunicipalitySchema,
+      province: provinceSchema,
     }),
     typeOfBirth: z.string().min(1, 'Please select type of birth'),
     multipleBirthOrder: z.string().optional(),
@@ -90,9 +43,9 @@ export const birthCertificateSchema = z.object({
 
   // Mother Information
   motherInfo: z.object({
-    firstName: z.string().min(1, 'First name is required'),
-    middleName: z.string().optional(),
-    lastName: z.string().min(1, 'Last name is required'),
+    firstName: nameSchema.shape.firstName,
+    middleName: nameSchema.shape.middleName,
+    lastName: nameSchema.shape.lastName,
     citizenship: z.string().min(1, 'Citizenship is required'),
     religion: z.string().min(1, 'Religion is required'),
     occupation: z.string().min(1, 'Occupation is required'),
@@ -100,57 +53,27 @@ export const birthCertificateSchema = z.object({
     totalChildrenBornAlive: z.string().min(1, 'Required'),
     childrenStillLiving: z.string().min(1, 'Required'),
     childrenNowDead: z.string().min(1, 'Required'),
-    residence: z.object({
-      address: z.string().min(1, 'Address is required'),
-      cityMunicipality: z.string().min(1, 'City/Municipality is required'),
-      province: z.string().min(1, 'Province is required'),
-      country: z.string().min(1, 'Country is required'),
-    }),
+    residence: addressSchema,
   }),
 
   // Father Information
   fatherInfo: z.object({
-    firstName: z.string().min(1, 'First name is required'),
-    middleName: z.string().optional(),
-    lastName: z.string().min(1, 'Last name is required'),
+    firstName: nameSchema.shape.firstName,
+    middleName: nameSchema.shape.middleName,
+    lastName: nameSchema.shape.lastName,
     citizenship: z.string().min(1, 'Citizenship is required'),
     religion: z.string().min(1, 'Religion is required'),
     occupation: z.string().min(1, 'Occupation is required'),
     age: z.string().min(1, 'Age is required'),
-    residence: z.object({
-      address: z.string().min(1, 'Address is required'),
-      cityMunicipality: z.string().min(1, 'City/Municipality is required'),
-      province: z.string().min(1, 'Province is required'),
-      country: z.string().min(1, 'Country is required'),
-    }),
+    residence: addressSchema,
   }),
 
   // Marriage of Parents
   parentMarriage: z.object({
-    date: z
-      .string()
-      .min(1, 'Marriage date is required')
-      .refine(
-        (value) => {
-          if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return false;
-          const [month, day, year] = value.split('/').map(Number);
-          const date = new Date(year, month - 1, day);
-          return (
-            date instanceof Date &&
-            !isNaN(date.getTime()) &&
-            date.getMonth() === month - 1 &&
-            date.getDate() === day &&
-            date.getFullYear() === year &&
-            date <= new Date()
-          );
-        },
-        {
-          message: 'Please enter a valid marriage date in MM/DD/YYYY format.',
-        }
-      ),
+    date: dateSchema,
     place: z.object({
-      cityMunicipality: z.string().min(1, 'City/Municipality is required'),
-      province: z.string().min(1, 'Province is required'),
+      cityMunicipality: cityMunicipalitySchema,
+      province: provinceSchema,
       country: z.string().min(1, 'Country is required'),
     }),
   }),
@@ -159,157 +82,36 @@ export const birthCertificateSchema = z.object({
   attendant: z.object({
     type: z.string().min(1, 'Please select attendant type'),
     certification: z.object({
-      time: z
-        .string()
-        .min(1, 'Time of birth is required')
-        .refine((value) => /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value), {
-          message: 'Please enter a valid time in HH:MM format (e.g., 14:30).',
-        }),
-      signature: z.string().optional(),
-      name: z.string().min(1, 'Name is required'),
-      title: z.string().min(1, 'Title is required'),
-      address: z.string().min(1, 'Address is required'),
-      date: z
-        .string()
-        .min(1, 'Date is required')
-        .refine(
-          (value) => {
-            if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return false;
-            const [month, day, year] = value.split('/').map(Number);
-            const date = new Date(year, month - 1, day);
-            return (
-              date instanceof Date &&
-              !isNaN(date.getTime()) &&
-              date.getMonth() === month - 1 &&
-              date.getDate() === day &&
-              date.getFullYear() === year &&
-              date <= new Date()
-            );
-          },
-          {
-            message: 'Please enter a valid date in MM/DD/YYYY format.',
-          }
-        ),
+      time: timeSchema,
+      signature: signatureSchema.shape.signature,
+      name: signatureSchema.shape.name,
+      title: signatureSchema.shape.title,
+      address: addressSchema.shape.address,
+      date: dateSchema,
     }),
   }),
 
   // Informant
   informant: z.object({
-    signature: z.string().optional(),
-    name: z.string().min(1, 'Name is required'),
+    signature: signatureSchema.shape.signature,
+    name: signatureSchema.shape.name,
     relationship: z.string().min(1, 'Relationship is required'),
-    address: z.string().min(1, 'Address is required'),
-    date: z
-      .string()
-      .min(1, 'Date is required')
-      .refine(
-        (value) => {
-          if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return false;
-          const [month, day, year] = value.split('/').map(Number);
-          const date = new Date(year, month - 1, day);
-          return (
-            date instanceof Date &&
-            !isNaN(date.getTime()) &&
-            date.getMonth() === month - 1 &&
-            date.getDate() === day &&
-            date.getFullYear() === year &&
-            date <= new Date()
-          );
-        },
-        {
-          message: 'Please enter a valid date in MM/DD/YYYY format.',
-        }
-      ),
+    address: addressSchema.shape.address,
+    date: dateSchema,
   }),
 
   // Prepared By
-  preparedBy: z.object({
-    signature: z.string().optional(),
-    name: z.string().min(1, 'Name is required'),
-    title: z.string().min(1, 'Title is required'),
-    date: z
-      .string()
-      .min(1, 'Date is required')
-      .refine(
-        (value) => {
-          if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return false;
-          const [month, day, year] = value.split('/').map(Number);
-          const date = new Date(year, month - 1, day);
-          return (
-            date instanceof Date &&
-            !isNaN(date.getTime()) &&
-            date.getMonth() === month - 1 &&
-            date.getDate() === day &&
-            date.getFullYear() === year &&
-            date <= new Date()
-          );
-        },
-        {
-          message: 'Please enter a valid date in MM/DD/YYYY format.',
-        }
-      ),
-  }),
+  preparedBy: signatureSchema,
 
   // Received By
-  receivedBy: z.object({
-    signature: z.string().optional(),
-    name: z.string().min(1, 'Name is required'),
-    title: z.string().min(1, 'Title is required'),
-    date: z
-      .string()
-      .min(1, 'Date is required')
-      .refine(
-        (value) => {
-          if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return false;
-          const [month, day, year] = value.split('/').map(Number);
-          const date = new Date(year, month - 1, day);
-          return (
-            date instanceof Date &&
-            !isNaN(date.getTime()) &&
-            date.getMonth() === month - 1 &&
-            date.getDate() === day &&
-            date.getFullYear() === year &&
-            date <= new Date()
-          );
-        },
-        {
-          message: 'Please enter a valid date in MM/DD/YYYY format.',
-        }
-      ),
-  }),
+  receivedBy: signatureSchema,
 
   // Registered By Civil Registry
-  registeredByOffice: z.object({
-    signature: z.string().optional(),
-    name: z.string().min(1, 'Name is required'),
-    title: z.string().min(1, 'Title is required'),
-    date: z
-      .string()
-      .min(1, 'Date is required')
-      .refine(
-        (value) => {
-          if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return false;
-          const [month, day, year] = value.split('/').map(Number);
-          const date = new Date(year, month - 1, day);
-          return (
-            date instanceof Date &&
-            !isNaN(date.getTime()) &&
-            date.getMonth() === month - 1 &&
-            date.getDate() === day &&
-            date.getFullYear() === year &&
-            date <= new Date()
-          );
-        },
-        {
-          message: 'Please enter a valid date in MM/DD/YYYY format.',
-        }
-      ),
-  }),
+  registeredByOffice: signatureSchema,
 
   remarks: z.string().optional(),
 });
 
-// Type inference
 export type BirthCertificateFormValues = z.infer<typeof birthCertificateSchema>;
 
 export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
@@ -433,7 +235,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
   remarks: '',
 };
 
-//For testing purposes
+// For testing purposes
 
 // export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
 //   // Registry Information
