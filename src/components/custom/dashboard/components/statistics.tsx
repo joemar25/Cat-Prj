@@ -1,36 +1,11 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import {
-  TrendingUp,
-  TrendingDown,
-  PieChart as PieChartIcon,
-} from "lucide-react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  XAxis,
-  ResponsiveContainer,
-  Label,
-  Pie,
-  PieChart,
-} from "recharts";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { getRegistryMetrics } from "@/hooks/count-metrics";
+import { useEffect, useMemo, useState } from "react"
+import { getRegistryMetrics } from "@/hooks/count-metrics"
+import { TrendingUp, TrendingDown, PieChart as PieChartIcon } from "lucide-react"
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Area, AreaChart, CartesianGrid, XAxis, ResponsiveContainer, Label, Pie, PieChart } from "recharts"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 const areaChartConfig = {
   birth: {
@@ -45,59 +20,58 @@ const areaChartConfig = {
     label: "Marriage",
     color: "hsl(var(--chart-3))",
   },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 const pieChartConfig = {
   marriage: {
     label: "Marriages",
     color: "hsl(var(--chart-3))",
   },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 interface AreaChartProps {
-  data: { month: string; birth: number; death: number; marriage: number }[];
+  data: { month: string; birth: number; death: number; marriage: number }[]
 }
 
 export default function RegistryStatisticsDashboard() {
-  const [chartData, setChartData] = React.useState<AreaChartProps["data"]>([]);
-  const [trend, setTrend] = React.useState({ percentage: "0", isUp: true });
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [chartData, setChartData] = useState<AreaChartProps["data"]>([])
+  const [trend, setTrend] = useState({ percentage: "0", isUp: true })
+  const [isLoading, setIsLoading] = useState(true)
 
   // Calculate total marriages from the data
-  const totalMarriages = React.useMemo(() => {
-    return chartData.reduce((sum, item) => sum + item.marriage, 0);
-  }, [chartData]);
+  const totalMarriages = useMemo(() => {
+    return chartData.reduce((sum, item) => sum + item.marriage, 0)
+  }, [chartData])
 
   // Transform data for pie chart
-  const pieData = React.useMemo(() => {
+  const pieData = useMemo(() => {
     return chartData.map((item) => ({
       name: item.month,
       value: item.marriage,
-      fill: `hsl(var(--chart-3) / ${
-        (item.marriage / Math.max(...chartData.map((d) => d.marriage))) * 0.9 +
+      fill: `hsl(var(--chart-3) / ${(item.marriage / Math.max(...chartData.map((d) => d.marriage))) * 0.9 +
         0.1
-      })`,
-    }));
-  }, [chartData]);
+        })`,
+    }))
+  }, [chartData])
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
-        const { monthlyData, trend } = await getRegistryMetrics();
-        setChartData(monthlyData);
-        setTrend(trend);
+        const { monthlyData, trend } = await getRegistryMetrics()
+        setChartData(monthlyData)
+        setTrend(trend)
       } catch (error) {
-        console.error("Error fetching metrics:", error);
+        console.error("Error fetching metrics:", error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   if (isLoading) {
-    return <div>Loading statistics...</div>;
+    return <div>Loading statistics...</div>
   }
 
   return (
@@ -232,7 +206,7 @@ export default function RegistryStatisticsDashboard() {
                               Total Marriages
                             </tspan>
                           </text>
-                        );
+                        )
                       }
                     }}
                   />
@@ -252,5 +226,5 @@ export default function RegistryStatisticsDashboard() {
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }
