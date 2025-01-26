@@ -77,6 +77,11 @@ import {
     Cross,
     Scan,
     Home,
+    UserPlus,
+    Cake,
+    Gem,
+    NotebookText,
+    ChartArea,
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
 } from 'lucide-react'
@@ -189,6 +194,11 @@ export const Icons = {
     x: Cross,
     scan: Scan,
     home: Home,
+    userPlus: UserPlus,
+    cake: Cake,
+    gem: Gem,
+    notebookText: NotebookText,
+    report: ChartArea
 } as const
 
 export type IconsType = typeof Icons

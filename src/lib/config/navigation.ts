@@ -177,6 +177,13 @@ export const navigationConfig: NavigationConfiguration = {
             iconName: 'lifeBuoy',
         },
         {
+            id: 'reports',
+            type: 'main',
+            title: 'Report Generation',
+            url: '/reports',
+            iconName: 'report',
+        },
+        {
             id: 'feedback',
             type: 'main',
             title: 'Feedback',
