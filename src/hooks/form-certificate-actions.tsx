@@ -474,19 +474,16 @@ export async function createDeathCertificate(
 
 export async function createBirthCertificate(
   data: BirthCertificateFormValues,
-  ignoreDuplicateChild: boolean = false // Add this flag
+  ignoreDuplicateChild: boolean = false
 ) {
   try {
-    // Parse and validate child date of birth
-    const dateOfBirth = new Date(data.childInfo.dateOfBirth);
-    if (isNaN(dateOfBirth.getTime())) {
-      return { success: false, error: 'Invalid date of birth' };
+    // No need to parse dates since they're already Date objects
+    if (!data.childInfo.dateOfBirth) {
+      return { success: false, error: 'Date of birth is required' };
     }
 
-    // Parse and validate parent marriage date
-    const parentMarriageDate = new Date(data.parentMarriage.date);
-    if (isNaN(parentMarriageDate.getTime())) {
-      return { success: false, error: 'Invalid parent marriage date' };
+    if (!data.parentMarriage.date) {
+      return { success: false, error: 'Parent marriage date is required' };
     }
 
     // Validate registry number format before checking in DB
@@ -512,7 +509,7 @@ export async function createBirthCertificate(
       };
     }
 
-    // Check for existing child information in the database (only if ignoreDuplicateChild is false)
+    // Check for existing child information in the database
     if (!ignoreDuplicateChild) {
       const existingChild = await prisma.birthCertificateForm.findFirst({
         where: {
@@ -530,7 +527,7 @@ export async function createBirthCertificate(
               },
             },
             {
-              dateOfBirth: dateOfBirth,
+              dateOfBirth: data.childInfo.dateOfBirth, // Now directly use the Date object
             },
             {
               placeOfBirth: {
@@ -576,7 +573,7 @@ export async function createBirthCertificate(
       return { success: false, error: 'Preparer not found' };
     }
 
-    // Create the birth certificate
+    // Create the birth certificate with direct Date objects
     const baseForm = await prisma.baseRegistryForm.create({
       data: {
         formNumber: '102',
@@ -601,7 +598,7 @@ export async function createBirthCertificate(
               lastName: data.childInfo.lastName.trim(),
             },
             sex: data.childInfo.sex,
-            dateOfBirth: dateOfBirth,
+            dateOfBirth: data.childInfo.dateOfBirth, // Direct Date object
             placeOfBirth: {
               hospital: data.childInfo.placeOfBirth.hospital.trim(),
               province: data.childInfo.placeOfBirth.province.trim(),
@@ -650,7 +647,7 @@ export async function createBirthCertificate(
               country: data.fatherInfo.residence.country.trim(),
             },
             parentMarriage: {
-              date: parentMarriageDate,
+              date: data.parentMarriage.date, // Direct Date object
               place: {
                 cityMunicipality:
                   data.parentMarriage.place.cityMunicipality.trim(),
@@ -666,7 +663,7 @@ export async function createBirthCertificate(
                 name: data.attendant.certification.name.trim(),
                 title: data.attendant.certification.title.trim(),
                 address: data.attendant.certification.address.trim(),
-                date: new Date(data.attendant.certification.date),
+                date: data.attendant.certification.date, // Direct Date object
               },
             },
             informant: {
@@ -674,23 +671,23 @@ export async function createBirthCertificate(
               name: data.informant.name.trim(),
               relationship: data.informant.relationship.trim(),
               address: data.informant.address.trim(),
-              date: new Date(data.informant.date),
+              date: data.informant.date, // Direct Date object
             },
             preparer: {
               signature: data.preparedBy.signature || '',
               name: data.preparedBy.name.trim(),
               title: data.preparedBy.title.trim(),
-              date: new Date(data.preparedBy.date),
+              date: data.preparedBy.date, // Direct Date object
             },
             hasAffidavitOfPaternity: false,
           },
         },
         receivedBy: data.receivedBy.name.trim(),
         receivedByPosition: data.receivedBy.title.trim(),
-        receivedDate: new Date(data.receivedBy.date),
+        receivedDate: data.receivedBy.date, // Direct Date object
         registeredBy: data.registeredByOffice.name.trim(),
         registeredByPosition: data.registeredByOffice.title.trim(),
-        registrationDate: new Date(data.registeredByOffice.date),
+        registrationDate: data.registeredByOffice.date, // Direct Date object
         remarks: data.remarks?.trim(),
       },
     });

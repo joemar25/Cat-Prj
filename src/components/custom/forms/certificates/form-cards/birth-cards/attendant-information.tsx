@@ -161,36 +161,16 @@ const AttendantInformationCard: React.FC = () => {
               <FormField
                 control={control}
                 name='attendant.certification.date'
-                render={({ field }) => {
-                  const dateValue = field.value
-                    ? new Date(field.value.split('/').reverse().join('-'))
-                    : undefined;
-
-                  return (
-                    <DatePickerField
-                      field={{
-                        value: dateValue,
-                        onChange: (date) => {
-                          if (date) {
-                            const month = (date.getMonth() + 1)
-                              .toString()
-                              .padStart(2, '0');
-                            const day = date
-                              .getDate()
-                              .toString()
-                              .padStart(2, '0');
-                            const year = date.getFullYear();
-                            field.onChange(`${month}/${day}/${year}`);
-                          } else {
-                            field.onChange('');
-                          }
-                        },
-                      }}
-                      label='Date'
-                      placeholder='Select date'
-                    />
-                  );
-                }}
+                render={({ field }) => (
+                  <DatePickerField
+                    field={{
+                      value: field.value,
+                      onChange: field.onChange,
+                    }}
+                    label='Date'
+                    placeholder='Select date'
+                  />
+                )}
               />
             </div>
           </CardContent>

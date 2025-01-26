@@ -10,6 +10,7 @@ import {
   registryNumberSchema,
   signatureSchema,
   timeSchema,
+  WithNullableDates,
 } from './form-certificates-shared-schema';
 export interface BirthCertificateFormProps {
   open: boolean;
@@ -112,248 +113,250 @@ export const birthCertificateSchema = z.object({
   remarks: z.string().optional(),
 });
 
-export type BirthCertificateFormValues = z.infer<typeof birthCertificateSchema>;
-
-export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
-  // Registry Information
-  registryNumber: '',
-  province: '',
-  cityMunicipality: '',
-
-  // Child Information
-  childInfo: {
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    sex: '',
-    dateOfBirth: '',
-    placeOfBirth: {
-      hospital: '',
-      cityMunicipality: '',
-      province: '',
-    },
-    typeOfBirth: '',
-    multipleBirthOrder: '',
-    birthOrder: '',
-    weightAtBirth: '',
-  },
-
-  // Mother Information
-  motherInfo: {
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    citizenship: '',
-    religion: '',
-    occupation: '',
-    age: '',
-    totalChildrenBornAlive: '',
-    childrenStillLiving: '',
-    childrenNowDead: '',
-    residence: {
-      address: '',
-      cityMunicipality: '',
-      province: '',
-      country: '',
-    },
-  },
-
-  // Father Information
-  fatherInfo: {
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    citizenship: '',
-    religion: '',
-    occupation: '',
-    age: '',
-    residence: {
-      address: '',
-      cityMunicipality: '',
-      province: '',
-      country: '',
-    },
-  },
-
-  // Marriage of Parents
-  parentMarriage: {
-    date: '',
-    place: {
-      cityMunicipality: '',
-      province: '',
-      country: '',
-    },
-  },
-
-  // Birth Attendant
-  attendant: {
-    type: '',
-    certification: {
-      time: '',
-      signature: '',
-      name: '',
-      title: '',
-      address: '',
-      date: '',
-    },
-  },
-
-  // Informant
-  informant: {
-    signature: '',
-    name: '',
-    relationship: '',
-    address: '',
-    date: '',
-  },
-
-  // Prepared By
-  preparedBy: {
-    signature: '',
-    name: '',
-    title: '',
-    date: '',
-  },
-
-  // Received By
-  receivedBy: {
-    signature: '',
-    name: '',
-    title: '',
-    date: '',
-  },
-
-  // Registered By Civil Registry
-  registeredByOffice: {
-    signature: '',
-    name: '',
-    title: '',
-    date: '',
-  },
-
-  // Remarks
-  remarks: '',
-};
-
-// For testing purposes
+export type BirthCertificateFormValues = WithNullableDates<
+  z.infer<typeof birthCertificateSchema>
+>;
 
 // export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
 //   // Registry Information
-//   registryNumber: '2023-123456',
-//   province: 'Metro Manila',
-//   cityMunicipality: 'Manila',
+//   registryNumber: '',
+//   province: '',
+//   cityMunicipality: '',
 
 //   // Child Information
 //   childInfo: {
-//     firstName: 'Juan',
-//     middleName: 'Dela',
-//     lastName: 'Cruz',
-//     sex: 'Male',
-//     dateOfBirth: '01/15/2023',
+//     firstName: '',
+//     middleName: '',
+//     lastName: '',
+//     sex: '',
+//     dateOfBirth: null,
 //     placeOfBirth: {
-//       hospital: 'Manila General Hospital',
-//       cityMunicipality: 'Manila',
-//       province: 'Metro Manila',
+//       hospital: '',
+//       cityMunicipality: '',
+//       province: '',
 //     },
-//     typeOfBirth: 'Single',
+//     typeOfBirth: '',
 //     multipleBirthOrder: '',
-//     birthOrder: '1',
-//     weightAtBirth: '3.5',
+//     birthOrder: '',
+//     weightAtBirth: '',
 //   },
 
 //   // Mother Information
 //   motherInfo: {
-//     firstName: 'Maria',
-//     middleName: 'Santos',
-//     lastName: 'Dela Cruz',
-//     citizenship: 'Filipino',
-//     religion: 'Roman Catholic',
-//     occupation: 'Teacher',
-//     age: '30',
-//     totalChildrenBornAlive: '2',
-//     childrenStillLiving: '2',
-//     childrenNowDead: '0',
+//     firstName: '',
+//     middleName: '',
+//     lastName: '',
+//     citizenship: '',
+//     religion: '',
+//     occupation: '',
+//     age: '',
+//     totalChildrenBornAlive: '',
+//     childrenStillLiving: '',
+//     childrenNowDead: '',
 //     residence: {
-//       address: '123 Main Street',
-//       cityMunicipality: 'Manila',
-//       province: 'Metro Manila',
-//       country: 'Philippines',
+//       address: '',
+//       cityMunicipality: '',
+//       province: '',
+//       country: '',
 //     },
 //   },
 
 //   // Father Information
 //   fatherInfo: {
-//     firstName: 'Pedro',
-//     middleName: 'Dela',
-//     lastName: 'Cruz',
-//     citizenship: 'Filipino',
-//     religion: 'Roman Catholic',
-//     occupation: 'Engineer',
-//     age: '35',
+//     firstName: '',
+//     middleName: '',
+//     lastName: '',
+//     citizenship: '',
+//     religion: '',
+//     occupation: '',
+//     age: '',
 //     residence: {
-//       address: '123 Main Street',
-//       cityMunicipality: 'Manila',
-//       province: 'Metro Manila',
-//       country: 'Philippines',
+//       address: '',
+//       cityMunicipality: '',
+//       province: '',
+//       country: '',
 //     },
 //   },
 
 //   // Marriage of Parents
 //   parentMarriage: {
-//     date: '06/20/2015',
+//     date: null, // Default to null
 //     place: {
-//       cityMunicipality: 'Manila',
-//       province: 'Metro Manila',
-//       country: 'Philippines',
+//       cityMunicipality: '',
+//       province: '',
+//       country: '',
 //     },
 //   },
 
 //   // Birth Attendant
 //   attendant: {
-//     type: 'Physician',
+//     type: '',
 //     certification: {
-//       time: '14:30',
+//       time: '',
 //       signature: '',
-//       name: 'Dr. John Smith',
-//       title: 'MD',
-//       address: '456 Hospital Road, Manila',
-//       date: '01/15/2023',
+//       name: '',
+//       title: '',
+//       address: '',
+//       date: null, // Default to null
 //     },
 //   },
 
 //   // Informant
 //   informant: {
 //     signature: '',
-//     name: 'Maria Dela Cruz',
-//     relationship: 'Mother',
-//     address: '123 Main Street, Manila',
-//     date: '01/16/2023',
+//     name: '',
+//     relationship: '',
+//     address: '',
+//     date: null, // Default to null
 //   },
 
 //   // Prepared By
 //   preparedBy: {
 //     signature: '',
-//     name: 'Clerk John Doe',
-//     title: 'Civil Registry Clerk',
-//     date: '01/16/2023',
+//     name: '',
+//     title: '',
+//     date: null, // Default to null
 //   },
 
 //   // Received By
 //   receivedBy: {
 //     signature: '',
-//     name: 'Officer Jane Doe',
-//     title: 'Civil Registry Officer',
-//     date: '01/16/2023',
+//     name: '',
+//     title: '',
+//     date: null, // Default to null
 //   },
 
 //   // Registered By Civil Registry
 //   registeredByOffice: {
 //     signature: '',
-//     name: 'Registrar Juan Dela Cruz',
-//     title: 'Civil Registrar',
-//     date: '01/16/2023',
+//     name: '',
+//     title: '',
+//     date: null, // Default to null
 //   },
 
 //   // Remarks
-//   remarks: 'No remarks.',
+//   remarks: '',
 // };
+
+// For testing purposes
+
+export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
+  // Registry Information
+  registryNumber: '2024-00001',
+  province: 'Metro Manila',
+  cityMunicipality: 'Quezon City',
+
+  // Child Information
+  childInfo: {
+    firstName: 'Juan',
+    middleName: 'Santos',
+    lastName: 'Dela Cruz',
+    sex: 'Male',
+    dateOfBirth: new Date('2024-01-15'),
+    placeOfBirth: {
+      hospital: "St. Luke's Medical Center",
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
+    },
+    typeOfBirth: 'Single',
+    multipleBirthOrder: '',
+    birthOrder: '1',
+    weightAtBirth: '3.2',
+  },
+
+  // Mother Information
+  motherInfo: {
+    firstName: 'Maria',
+    middleName: 'Garcia',
+    lastName: 'Santos',
+    citizenship: 'Filipino',
+    religion: 'Roman Catholic',
+    occupation: 'Teacher',
+    age: '28',
+    totalChildrenBornAlive: '1',
+    childrenStillLiving: '1',
+    childrenNowDead: '0',
+    residence: {
+      address: '123 Maginhawa Street',
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
+      country: 'Philippines',
+    },
+  },
+
+  // Father Information
+  fatherInfo: {
+    firstName: 'Jose',
+    middleName: 'Martinez',
+    lastName: 'Dela Cruz',
+    citizenship: 'Filipino',
+    religion: 'Roman Catholic',
+    occupation: 'Software Engineer',
+    age: '30',
+    residence: {
+      address: '123 Maginhawa Street',
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
+      country: 'Philippines',
+    },
+  },
+
+  // Marriage of Parents
+  parentMarriage: {
+    date: new Date('2022-06-15'),
+    place: {
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
+      country: 'Philippines',
+    },
+  },
+
+  // Birth Attendant
+  attendant: {
+    type: 'Physician',
+    certification: {
+      time: '14:30',
+      signature: 'DrSantos',
+      name: 'Dr. Ana Santos',
+      title: 'OB-GYN',
+      address: "St. Luke's Medical Center, Quezon City",
+      date: new Date('2024-01-15'),
+    },
+  },
+
+  // Informant
+  informant: {
+    signature: 'JoseDC',
+    name: 'Jose Dela Cruz',
+    relationship: 'Father',
+    address: '123 Maginhawa Street, Quezon City',
+    date: new Date('2024-01-16'),
+  },
+
+  // Prepared By
+  preparedBy: {
+    signature: 'Staff3',
+    name: 'Staff User 3',
+    title: 'Registration Officer',
+    date: new Date('2024-01-16'),
+  },
+
+  // Received By
+  receivedBy: {
+    signature: 'Staff4',
+    name: 'Staff User 4',
+    title: 'Document Processing Officer',
+    date: new Date('2024-01-16'),
+  },
+
+  // Registered By Civil Registry
+  registeredByOffice: {
+    signature: 'Admin1',
+    name: 'Admin User 1',
+    title: 'Civil Registrar',
+    date: new Date('2024-01-16'),
+  },
+
+  // Remarks
+  remarks: 'No special remarks',
+};

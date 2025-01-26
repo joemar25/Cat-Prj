@@ -1,4 +1,3 @@
-// DatePickerField.tsx
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -14,23 +13,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { formatDateTime } from '@/utils/date';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 interface DatePickerFieldProps {
   field: {
-    value: Date | undefined;
-    onChange: (date: Date | undefined) => void;
+    value: Date | null; // Changed to allow null
+    onChange: (date: Date | null) => void; // Changed to allow null
   };
   label: string;
   placeholder?: string;
@@ -41,45 +32,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
   label,
   placeholder = 'Pick a date',
 }) => {
-  const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [calendarOpen, setCalendarOpen] = useState(false);
-
-  useEffect(() => {
-    if (field.value instanceof Date && !isNaN(field.value.getTime())) {
-      setCurrentDate(field.value);
-    } else {
-      setCurrentDate(new Date());
-    }
-  }, [field.value]);
-
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth();
-
-  const years = Array.from(
-    { length: new Date().getFullYear() - 1900 + 1 },
-    (_, i) => new Date().getFullYear() - i
-  );
-
-  const handleMonthChange = (month: number) => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(month);
-    setCurrentDate(newDate);
-  };
-
-  const handleYearChange = (year: number) => {
-    const newDate = new Date(currentDate);
-    newDate.setFullYear(year);
-    setCurrentDate(newDate);
-  };
-
-  // Format date using your utility function
-  const formatDateForDisplay = (date: Date) => {
-    return formatDateTime(date, {
-      monthFormat: '2-digit',
-      dayFormat: '2-digit',
-      yearFormat: 'numeric',
-    });
-  };
 
   return (
     <FormItem>
@@ -102,7 +55,7 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
                 )}
               >
                 {field.value ? (
-                  formatDateForDisplay(field.value)
+                  format(field.value, 'MM/dd/yyyy')
                 ) : (
                   <span>{placeholder}</span>
                 )}
@@ -111,56 +64,16 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
             </FormControl>
           </PopoverTrigger>
           <PopoverContent className='w-auto p-0' align='start'>
-            <div className='border-b border-border p-3'>
-              <div className='flex items-center justify-between space-x-2'>
-                <Select
-                  value={currentMonth.toString()}
-                  onValueChange={(value) => handleMonthChange(parseInt(value))}
-                >
-                  <SelectTrigger className='w-[140px] h-8'>
-                    <SelectValue>
-                      {format(currentDate, 'M')} - {format(currentDate, 'MMMM')}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent position='popper'>
-                    {Array.from({ length: 12 }, (_, i) => (
-                      <SelectItem key={i} value={i.toString()}>
-                        {i + 1} - {format(new Date(2000, i, 1), 'MMMM')}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={currentYear.toString()}
-                  onValueChange={(value) => handleYearChange(parseInt(value))}
-                >
-                  <SelectTrigger className='w-[95px] h-8'>
-                    <SelectValue>{currentYear}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent position='popper'>
-                    {years.map((year) => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
             <Calendar
               mode='single'
-              selected={field.value}
-              month={currentDate}
-              onMonthChange={setCurrentDate}
+              selected={field.value || undefined} // Convert null to undefined for Calendar
               onSelect={(date) => {
-                field.onChange(date);
+                field.onChange(date || null); // Convert undefined to null
                 setCalendarOpen(false);
               }}
-              disabled={(date) =>
-                date > new Date() || date < new Date('1900-01-01')
-              }
+              disabled={(date) => date > new Date()} // Disable future dates
               initialFocus
-              className='rounded-b-md'
+              className='rounded-md'
             />
           </PopoverContent>
         </Popover>

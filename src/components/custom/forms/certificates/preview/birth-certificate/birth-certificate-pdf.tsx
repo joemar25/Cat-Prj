@@ -1,4 +1,4 @@
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { formatDateTime } from '@/utils/date';
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import React from 'react';
@@ -330,9 +330,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <View style={styles.rightGrid}>
                 <View style={styles.registryNoContainer}>
                   <Text style={styles.label}>Registry No.:</Text>
-                  <Text style={styles.value}>
-                    {data.registryNumber || ''}
-                  </Text>
+                  <Text style={styles.value}>{data.registryNumber || ''}</Text>
                 </View>
               </View>
             </View>
@@ -391,13 +389,20 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       </View>
                       <View style={styles.dateInputContainer}>
                         <Text style={styles.dateInput}>
-                          {data.childInfo?.dateOfBirth?.month || ''}
+                          {data.childInfo?.dateOfBirth
+                            ? new Date(data.childInfo.dateOfBirth).getMonth() +
+                              1
+                            : ''}
                         </Text>
                         <Text style={styles.dateInput}>
-                          {data.childInfo?.dateOfBirth?.day || ''}
+                          {data.childInfo?.dateOfBirth
+                            ? new Date(data.childInfo.dateOfBirth).getDate()
+                            : ''}
                         </Text>
                         <Text style={styles.dateInput}>
-                          {data.childInfo?.dateOfBirth?.year || ''}
+                          {data.childInfo?.dateOfBirth
+                            ? new Date(data.childInfo.dateOfBirth).getFullYear()
+                            : ''}
                         </Text>
                       </View>
                     </View>
@@ -507,7 +512,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Citizenship:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.motherCitizenship || ''}
+                        {data.motherInfo?.citizenship || ''}
                       </Text>
                     </View>
                   </View>
@@ -520,7 +525,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Religion:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.motherReligion || ''}
+                        {data.motherInfo?.religion || ''}
                       </Text>
                     </View>
                   </View>
@@ -570,7 +575,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Occupation:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.motherOccupation || ''}
+                        {data.motherInfo?.occupation || ''}
                       </Text>
                     </View>
                   </View>
@@ -585,7 +590,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         Age at time of this birth(completed years):
                       </Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.motherAge || ''}
+                        {data.motherInfo?.age || ''}
                       </Text>
                     </View>
                   </View>
@@ -701,7 +706,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Citizenship:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.fatherCitizenship || ''}
+                        {data.fatherInfo?.citizenship || ''}
                       </Text>
                     </View>
                   </View>
@@ -714,7 +719,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Religion:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.fatherReligion || ''}
+                        {data.fatherInfo?.religion || ''}
                       </Text>
                     </View>
                   </View>
@@ -727,7 +732,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Occupation:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.fatherOccupation || ''}
+                        {data.fatherInfo?.occupation || ''}
                       </Text>
                     </View>
                   </View>
@@ -742,7 +747,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         Age at time of this birth(completed years):
                       </Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.fatherAge || ''}
+                        {data.fatherInfo?.age || ''}
                       </Text>
                     </View>
                   </View>
@@ -812,10 +817,10 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
             </View>
           </View>
 
-          {/* Marriage of Parents */}
           <View style={styles.sectionGrid}>
             <Text style={styles.title}>Marriage of Parents</Text>
             <View style={styles.marriageGridContainer}>
+              {/* Left Grid: Date */}
               <View style={styles.marriageLeftGrid}>
                 <Text style={styles.label}>Date:</Text>
                 <View style={styles.dateInputContainer}>
@@ -825,16 +830,24 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 </View>
                 <View style={styles.dateInputContainer}>
                   <Text style={styles.dateInput}>
-                    {data.parentMarriage?.date?.month || ''}
+                    {data.parentMarriage?.date
+                      ? new Date(data.parentMarriage.date).getMonth() + 1 // Months are 0-indexed, so add 1
+                      : ''}
                   </Text>
                   <Text style={styles.dateInput}>
-                    {data.parentMarriage?.date?.day || ''}
+                    {data.parentMarriage?.date
+                      ? new Date(data.parentMarriage.date).getDate()
+                      : ''}
                   </Text>
                   <Text style={styles.dateInput}>
-                    {data.parentMarriage?.date?.year || ''}
+                    {data.parentMarriage?.date
+                      ? new Date(data.parentMarriage.date).getFullYear()
+                      : ''}
                   </Text>
                 </View>
               </View>
+
+              {/* Right Grid: Place */}
               <View style={styles.marriageRightGrid}>
                 <Text style={styles.label}>Place:</Text>
                 <View style={styles.dateInputContainer}>

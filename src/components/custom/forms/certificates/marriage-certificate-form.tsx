@@ -1,10 +1,6 @@
-// src\components\custom\forms\certificates\marriage-certificate-form.tsx
 'use client';
 
-import {
-  ConfirmationDialog,
-  shouldSkipAlert,
-} from '@/components/custom/confirmation-dialog/confirmation-dialog';
+import { ConfirmationDialog } from '@/components/custom/confirmation-dialog/confirmation-dialog';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -22,10 +18,8 @@ import {
   MarriageCertificateFormValues,
   marriageCertificateSchema,
 } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
-import { MarriageFormData } from '@/types/marriage-certificate';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PDFViewer } from '@react-pdf/renderer';
-import { format } from 'date-fns';
 import { Loader2, Save } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -66,188 +60,88 @@ export function MarriageCertificateForm({
       const result = await createMarriageCertificate(values);
 
       if (result.success) {
-        toast.success('Marriage certificate has been registered successfully');
-        onOpenChange(false); // Close the dialog
-        form.reset(); // Reset the form
+        toast.success('Marriage Certificate Registration', {
+          description: 'Marriage certificate has been registered successfully',
+        });
+        onOpenChange(false);
+        form.reset();
+      } else if (result.warning) {
+        setPendingSubmission(values);
+        setShowAlert(true);
       } else {
-        throw new Error(result.error);
+        toast.error('Registration Error', {
+          description:
+            result.error || 'Failed to register marriage certificate',
+        });
       }
     } catch (error) {
-      console.error('Submission error:', error);
-      toast.error('Failed to register marriage certificate. Please try again.');
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'An unexpected error occurred. Please try again.';
+      toast.error('Registration Error', {
+        description: errorMessage,
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleSubmit = (values: MarriageCertificateFormValues) => {
-    if (shouldSkipAlert('skipMarriageCertificateAlert')) {
-      onSubmit(values);
-    } else {
-      setPendingSubmission(values);
-      setShowAlert(true);
-    }
-  };
-
-  const confirmSubmit = () => {
+  const confirmSubmit = async () => {
     if (pendingSubmission) {
-      onSubmit(pendingSubmission);
-      setShowAlert(false);
-      setPendingSubmission(null);
+      try {
+        setIsSubmitting(true);
+        const result = await createMarriageCertificate(pendingSubmission);
+
+        if (result.success) {
+          toast.success('Marriage Certificate Registration', {
+            description:
+              'Marriage certificate has been registered successfully',
+          });
+          onOpenChange(false);
+          form.reset();
+        } else {
+          toast.error('Registration Error', {
+            description:
+              result.error || 'Failed to register marriage certificate',
+          });
+        }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred. Please try again.';
+        toast.error('Registration Error', {
+          description: errorMessage,
+        });
+      } finally {
+        setIsSubmitting(false);
+        setShowAlert(false);
+        setPendingSubmission(null);
+      }
     }
-  };
-
-  const transformFormDataForPreview = (
-    formData: Partial<MarriageCertificateFormValues>
-  ): Partial<MarriageFormData> => {
-    if (!formData) return {};
-
-    const data: Partial<MarriageFormData> = {
-      ...formData,
-
-      registryNo: formData.registryNumber || 'N/A',
-      // Transform dates to string format
-      husbandDateOfBirth: formData.husbandDateOfBirth
-        ? format(new Date(formData.husbandDateOfBirth), 'yyyy-MM-dd')
-        : null,
-      wifeDateOfBirth: formData.wifeDateOfBirth
-        ? format(new Date(formData.wifeDateOfBirth), 'yyyy-MM-dd')
-        : null,
-      dateOfMarriage: formData.dateOfMarriage
-        ? format(new Date(formData.dateOfMarriage), 'yyyy-MM-dd')
-        : null,
-
-      // Transform place of birth structures
-      husbandPlaceOfBirth: formData.husbandPlaceOfBirth
-        ? {
-            cityMunicipality: formData.husbandPlaceOfBirth.cityMunicipality,
-            province: formData.husbandPlaceOfBirth.province,
-            country: formData.husbandPlaceOfBirth.country || 'Philippines',
-          }
-        : undefined,
-
-      wifePlaceOfBirth: formData.wifePlaceOfBirth
-        ? {
-            cityMunicipality: formData.wifePlaceOfBirth.cityMunicipality,
-            province: formData.wifePlaceOfBirth.province,
-            country: formData.wifePlaceOfBirth.country || 'Philippines',
-          }
-        : undefined,
-
-      // Transform place of marriage
-      placeOfMarriage: formData.placeOfMarriage
-        ? {
-            office: formData.placeOfMarriage.office,
-            cityMunicipality: formData.placeOfMarriage.cityMunicipality,
-            province: formData.placeOfMarriage.province,
-            country: 'Philippines',
-          }
-        : undefined,
-
-      // Transform solemnizing officer
-      solemnizingOfficer: formData.solemnizingOfficer
-        ? {
-            ...formData.solemnizingOfficer,
-            registryNoExpiryDate:
-              formData.solemnizingOfficer.registryNoExpiryDate,
-          }
-        : undefined,
-
-      // Transform witnesses array
-      witnesses: {
-        husband: Array.isArray(formData.witnesses?.husband)
-          ? formData.witnesses.husband.map((witness) => ({
-              name: witness?.name || '',
-              signature: witness?.signature || '',
-            }))
-          : [{ name: '', signature: '' }],
-        wife: Array.isArray(formData.witnesses?.wife)
-          ? formData.witnesses.wife.map((witness) => ({
-              name: witness?.name || '',
-              signature: witness?.signature || '',
-            }))
-          : [{ name: '', signature: '' }],
-      },
-
-      // Transform consent information
-      husbandConsentPerson:
-        formData.husbandConsentGivenBy && formData.husbandConsentRelationship
-          ? {
-              name: formData.husbandConsentGivenBy,
-              relationship: formData.husbandConsentRelationship,
-              residence: formData.husbandConsentResidence || '',
-            }
-          : null,
-
-      wifeConsentPerson:
-        formData.wifeConsentGivenBy && formData.wifeConsentRelationship
-          ? {
-              name: formData.wifeConsentGivenBy,
-              relationship: formData.wifeConsentRelationship,
-              residence: formData.wifeConsentResidence || '',
-            }
-          : null,
-
-      // Transform marriage license details
-      marriageLicenseDetails: formData.marriageLicenseDetails
-        ? {
-            number: formData.marriageLicenseDetails.number,
-            dateIssued: formData.marriageLicenseDetails.dateIssued,
-            placeIssued: formData.marriageLicenseDetails.placeIssued,
-          }
-        : undefined,
-
-      // Transform signatures
-      contractingPartiesSignature: {
-        husband: formData.contractingPartiesSignature?.husband ?? '',
-        wife: formData.contractingPartiesSignature?.wife ?? '',
-      },
-
-      receivedBy: formData.receivedBy
-        ? {
-            signature: formData.receivedBy.signature || 'N/A',
-            name: formData.receivedBy.name || 'N/A',
-            title: formData.receivedBy.title || 'N/A',
-            date: formData.receivedBy.date
-              ? format(new Date(formData.receivedBy.date), 'MMMM dd, yyyy')
-              : 'N/A',
-          }
-        : {
-            signature: 'N/A',
-            name: 'N/A',
-            title: 'N/A',
-            date: 'N/A',
-          },
-
-      registeredAtCivilRegistrar: formData.registeredAtCivilRegistrar
-        ? {
-            signature: formData.registeredAtCivilRegistrar.signature || 'N/A',
-            name: formData.registeredAtCivilRegistrar.name || 'N/A',
-            title: formData.registeredAtCivilRegistrar.title || 'N/A',
-            date: formData.registeredAtCivilRegistrar.date
-              ? format(
-                  new Date(formData.registeredAtCivilRegistrar.date),
-                  'MMMM dd, yyyy'
-                ) // Month Day, Year format
-              : 'N/A',
-          }
-        : {
-            signature: 'N/A',
-            name: 'N/A',
-            title: 'N/A',
-            date: 'N/A',
-          },
-
-      remarks: formData.remarks || 'N/A',
-    };
-
-    return data;
   };
 
   const handleError = () => {
-    toast.warning('Please fill in all required fields', {
-      description: 'Some required information is missing or incorrect.',
-    });
+    const errors = form.formState.errors;
+
+    if (errors.registryNumber) {
+      toast.error(errors.registryNumber.message);
+      return;
+    }
+
+    if (errors.husbandInfo) {
+      toast.error("Please check the husband's information section for errors");
+      return;
+    }
+
+    if (errors.wifeInfo) {
+      toast.error("Please check the wife's information section for errors");
+      return;
+    }
+
+    // Default error message
+    toast.error('Please check all required fields and try again');
   };
 
   return (
@@ -261,12 +155,13 @@ export function MarriageCertificateForm({
           </DialogHeader>
 
           <div className='flex flex-1 overflow-hidden'>
+            {/* Left Side - Form */}
             <div className='w-1/2 border-r'>
               <ScrollArea className='h-[calc(95vh-120px)]'>
                 <div className='p-6'>
                   <Form {...form}>
                     <form
-                      onSubmit={form.handleSubmit(handleSubmit, handleError)}
+                      onSubmit={form.handleSubmit(onSubmit, handleError)}
                       className='space-y-6'
                     >
                       <RegistryInfoCard />
@@ -281,8 +176,6 @@ export function MarriageCertificateForm({
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard />
                       <RemarksCard />
-                      {/* <HusbandConsentInfoCard />
-                      <WifeConsentInfoCard /> */}
 
                       <DialogFooter>
                         <Button
@@ -320,17 +213,22 @@ export function MarriageCertificateForm({
                     onOpenChange={setShowAlert}
                     onConfirm={confirmSubmit}
                     isSubmitting={isSubmitting}
-                    localStorageKey='skipMarriageCertificateAlert'
+                    formType='MARRIAGE'
+                    title='Duplicate Record Detected'
+                    description='A similar marriage record already exists. Do you want to proceed with saving this record?'
+                    confirmButtonText='Proceed'
+                    cancelButtonText='Cancel'
                   />
                 </div>
               </ScrollArea>
             </div>
 
+            {/* Right Side - Preview */}
             <div className='w-1/2'>
               <div className='h-[calc(95vh-120px)] p-6'>
                 <PDFViewer width='100%' height='100%'>
                   <MarriageCertificatePDF
-                    data={transformFormDataForPreview(form.watch())}
+                    data={form.watch()} // Pass the current form data directly to the PDF preview
                   />
                 </PDFViewer>
               </div>

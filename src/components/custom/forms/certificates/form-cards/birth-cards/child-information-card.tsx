@@ -166,36 +166,16 @@ const ChildInformationCard: React.FC = () => {
             <FormField
               control={control}
               name='childInfo.dateOfBirth'
-              render={({ field }) => {
-                const dateValue = field.value
-                  ? new Date(field.value.split('/').reverse().join('-'))
-                  : undefined;
-
-                return (
-                  <DatePickerField
-                    field={{
-                      value: dateValue,
-                      onChange: (date) => {
-                        if (date) {
-                          const month = (date.getMonth() + 1)
-                            .toString()
-                            .padStart(2, '0');
-                          const day = date
-                            .getDate()
-                            .toString()
-                            .padStart(2, '0');
-                          const year = date.getFullYear();
-                          field.onChange(`${month}/${day}/${year}`);
-                        } else {
-                          field.onChange('');
-                        }
-                      },
-                    }}
-                    label='Birth Date'
-                    placeholder='Select birth date'
-                  />
-                );
-              }}
+              render={({ field }) => (
+                <DatePickerField
+                  field={{
+                    value: field.value,
+                    onChange: field.onChange,
+                  }}
+                  label='Birth Date'
+                  placeholder='Select birth date'
+                />
+              )}
             />
           </CardContent>
         </Card>

@@ -108,8 +108,6 @@ export const formatFormDate = (
 
 // ------------------------------------------//
 
-// shared-schema.ts
-
 // Helper schemas
 export const nameSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -124,26 +122,14 @@ export const placeOfBirthSchema = z.object({
 });
 
 export const dateSchema = z
-  .string()
-  .min(1, 'Date is required')
-  .refine(
-    (value) => {
-      if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return false;
-      const [month, day, year] = value.split('/').map(Number);
-      const date = new Date(year, month - 1, day);
-      return (
-        date instanceof Date &&
-        !isNaN(date.getTime()) &&
-        date.getMonth() === month - 1 &&
-        date.getDate() === day &&
-        date.getFullYear() === year &&
-        date <= new Date()
-      );
-    },
-    {
-      message: 'Please enter a valid date in MM/DD/YYYY format.',
-    }
-  );
+  .date({
+    required_error: 'Date is required',
+    invalid_type_error: 'Please provide a valid date',
+  })
+  .nullable()
+  .refine((val) => val !== null, {
+    message: 'Date is required',
+  });
 
 export const timeSchema = z
   .string()
@@ -201,3 +187,11 @@ export const addressSchema = z.object({
   province: z.string().min(1, 'Province is required'),
   country: z.string().min(1, 'Country is required'),
 });
+
+export type WithNullableDates<T> = {
+  [P in keyof T]: T[P] extends Date
+    ? Date | null
+    : T[P] extends object
+    ? WithNullableDates<T[P]>
+    : T[P];
+};
