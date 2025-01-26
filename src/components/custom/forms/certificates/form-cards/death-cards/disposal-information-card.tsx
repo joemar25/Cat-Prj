@@ -12,7 +12,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import { parseToDate } from '@/utils/date';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -65,44 +64,22 @@ const DisposalInformationCard: React.FC = () => {
                 </FormItem>
               )}
             />
+            {/* Burial Permit Date Issued */}
             <FormField
               control={control}
               name='disposal.burialPermit.dateIssued'
-              render={({ field }) => {
-                const dateValue = field.value
-                  ? (() => {
-                      const [month, day, year] = field.value.split('/');
-                      return parseToDate(year, month, day);
-                    })()
-                  : undefined;
-
-                return (
-                  <FormItem>
-                    <DatePickerField
-                      field={{
-                        value: dateValue || undefined,
-                        onChange: (date) => {
-                          if (date) {
-                            const month = (date.getMonth() + 1)
-                              .toString()
-                              .padStart(2, '0');
-                            const day = date
-                              .getDate()
-                              .toString()
-                              .padStart(2, '0');
-                            const year = date.getFullYear();
-                            field.onChange(`${month}/${day}/${year}`);
-                          } else {
-                            field.onChange('');
-                          }
-                        },
-                      }}
-                      label='Date Issued'
-                      placeholder='Select date issued'
-                    />
-                  </FormItem>
-                );
-              }}
+              render={({ field }) => (
+                <FormItem>
+                  <DatePickerField
+                    field={{
+                      value: field.value,
+                      onChange: field.onChange,
+                    }}
+                    label='Date Issued'
+                    placeholder='Select date issued'
+                  />
+                </FormItem>
+              )}
             />
           </div>
 
@@ -126,45 +103,23 @@ const DisposalInformationCard: React.FC = () => {
                 </FormItem>
               )}
             />
+            {/* Transfer Permit Date Issued */}
             <FormField
               control={control}
               name='disposal.transferPermit.dateIssued'
-              render={({ field }) => {
-                const dateValue = field.value
-                  ? (() => {
-                      const [month, day, year] = field.value.split('/');
-                      return parseToDate(year, month, day);
-                    })()
-                  : undefined;
-
-                return (
-                  <FormItem>
-                    <DatePickerField
-                      field={{
-                        value: dateValue || undefined,
-                        onChange: (date) => {
-                          if (date) {
-                            const month = (date.getMonth() + 1)
-                              .toString()
-                              .padStart(2, '0');
-                            const day = date
-                              .getDate()
-                              .toString()
-                              .padStart(2, '0');
-                            const year = date.getFullYear();
-                            field.onChange(`${month}/${day}/${year}`);
-                          } else {
-                            field.onChange('');
-                          }
-                        },
-                      }}
-                      label='Date Issued'
-                      placeholder='Select date issued'
-                    />
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
+              render={({ field }) => (
+                <FormItem>
+                  <DatePickerField
+                    field={{
+                      value: field.value ?? null, // Convert undefined to null
+                      onChange: (date) => field.onChange(date),
+                    }}
+                    label='Date Issued'
+                    placeholder='Select date issued'
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
         </div>

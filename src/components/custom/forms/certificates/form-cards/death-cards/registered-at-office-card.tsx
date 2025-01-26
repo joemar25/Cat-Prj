@@ -19,7 +19,6 @@ import {
 } from '@/components/ui/select';
 import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import { parseToDate } from '@/utils/date';
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -44,19 +43,6 @@ const RegisteredAtOfficeCard: React.FC = () => {
       });
     }
   }, [selectedName, setValue, isSubmitted]);
-
-  // Set default date to today when component mounts
-  useEffect(() => {
-    if (!watch('registeredAtCivilRegistrar.date')) {
-      const today = new Date();
-      const month = (today.getMonth() + 1).toString().padStart(2, '0');
-      const day = today.getDate().toString().padStart(2, '0');
-      const year = today.getFullYear();
-      setValue('registeredAtCivilRegistrar.date', `${month}/${day}/${year}`, {
-        shouldValidate: false, // Don't validate on initial set
-      });
-    }
-  }, [setValue, watch]);
 
   return (
     <Card>
@@ -118,46 +104,23 @@ const RegisteredAtOfficeCard: React.FC = () => {
             )}
           />
 
-          {/* Date */}
+          {/* Registered At Civil Registrar Date */}
           <FormField
             control={control}
             name='registeredAtCivilRegistrar.date'
-            render={({ field }) => {
-              const dateValue = field.value
-                ? (() => {
-                    const [month, day, year] = field.value.split('/');
-                    return parseToDate(year, month, day);
-                  })()
-                : undefined;
-
-              return (
-                <FormItem>
-                  <DatePickerField
-                    field={{
-                      value: dateValue || undefined,
-                      onChange: (date) => {
-                        if (date) {
-                          const month = (date.getMonth() + 1)
-                            .toString()
-                            .padStart(2, '0');
-                          const day = date
-                            .getDate()
-                            .toString()
-                            .padStart(2, '0');
-                          const year = date.getFullYear();
-                          field.onChange(`${month}/${day}/${year}`);
-                        } else {
-                          field.onChange('');
-                        }
-                      },
-                    }}
-                    label='Date'
-                    placeholder='Select date'
-                  />
-                  <FormMessage />
-                </FormItem>
-              );
-            }}
+            render={({ field }) => (
+              <FormItem>
+                <DatePickerField
+                  field={{
+                    value: field.value ?? null,
+                    onChange: field.onChange,
+                  }}
+                  label='Date'
+                  placeholder='Select date'
+                />
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
       </CardContent>

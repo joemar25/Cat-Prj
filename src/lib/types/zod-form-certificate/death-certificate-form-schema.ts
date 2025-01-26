@@ -4,10 +4,12 @@ import {
   cityMunicipalitySchema,
   dateSchema,
   nameSchema,
+  parseTimeStringToDate,
   provinceSchema,
   registryNumberSchema,
   signatureSchema,
   timeSchema,
+  WithNullableDates,
 } from './form-certificates-shared-schema';
 
 export interface DeathCertificateFormProps {
@@ -78,7 +80,7 @@ export const deathCertificateSchema = z.object({
     civilStatus: z.string().min(1, 'Please select civil status'),
     religion: z.string().min(1, 'Religion is required'),
     citizenship: z.string().min(1, 'Citizenship is required'),
-    residence: z.string().min(1, 'Residence is required'),
+    residence: addressSchema,
     occupation: z.string().min(1, 'Occupation is required'),
   }),
 
@@ -118,7 +120,7 @@ export const deathCertificateSchema = z.object({
     signature: signatureSchema.shape.signature,
     name: signatureSchema.shape.name,
     title: signatureSchema.shape.title,
-    address: addressSchema.shape.address,
+    address: addressSchema,
     date: dateSchema,
     reviewedBy: z.object({
       name: signatureSchema.shape.name,
@@ -128,7 +130,7 @@ export const deathCertificateSchema = z.object({
     }),
   }),
 
-  // Disposal Information
+  // In the schema, change the transferPermit definition:
   disposal: z.object({
     method: z.string().min(1, 'Disposal method is required'),
     burialPermit: z.object({
@@ -137,7 +139,7 @@ export const deathCertificateSchema = z.object({
     }),
     transferPermit: z.object({
       number: z.string().optional(),
-      dateIssued: dateSchema.optional(),
+      dateIssued: dateSchema.optional().nullable(), // Add nullable() here
     }),
     cemeteryAddress: z.string().min(1, 'Cemetery address is required'),
   }),
@@ -147,7 +149,7 @@ export const deathCertificateSchema = z.object({
     signature: signatureSchema.shape.signature,
     name: signatureSchema.shape.name,
     relationship: z.string().min(1, 'Relationship to deceased is required'),
-    address: addressSchema.shape.address,
+    address: addressSchema,
     date: dateSchema,
   }),
 
@@ -158,279 +160,157 @@ export const deathCertificateSchema = z.object({
 
   remarks: z.string().optional(),
 });
-
-export type DeathCertificateFormValues = z.infer<typeof deathCertificateSchema>;
+export type DeathCertificateFormValues = WithNullableDates<
+  z.infer<typeof deathCertificateSchema>
+>;
 
 export const defaultDeathCertificateFormValues: DeathCertificateFormValues = {
   // Registry Information
-  registryNumber: '',
-  province: '',
-  cityMunicipality: '',
+  registryNumber: '2024-00001',
+  province: 'Metro Manila',
+  cityMunicipality: 'Quezon City',
 
   // Death Information
-  timeOfDeath: '',
+  timeOfDeath: parseTimeStringToDate('14:30'),
 
   // Personal Information
   personalInfo: {
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    sex: '',
-    dateOfDeath: '',
-    dateOfBirth: '',
+    firstName: 'Juan',
+    middleName: 'Santos',
+    lastName: 'Dela Cruz',
+    sex: 'Male',
+    dateOfDeath: new Date('2024-01-20'),
+    dateOfBirth: new Date('1950-05-15'),
     ageAtDeath: {
-      years: '',
-      months: '',
-      days: '',
-      hours: '',
+      years: '73',
+      months: '8',
+      days: '5',
+      hours: '3',
     },
     placeOfDeath: {
-      province: '',
-      cityMunicipality: '',
-      specificAddress: '',
+      province: 'Metro Manila',
+      cityMunicipality: 'Quezon City',
+      specificAddress: "St. Luke's Medical Center, E Rodriguez Sr. Ave",
     },
-    civilStatus: '',
-    religion: '',
-    citizenship: '',
-    residence: '',
-    occupation: '',
+    civilStatus: 'Married',
+    religion: 'Roman Catholic',
+    citizenship: 'Filipino',
+    residence: {
+      address: '123 Maginhawa Street, Teachers Village',
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
+      country: 'Philippines',
+    },
+    occupation: 'Retired Teacher',
   },
 
   // Family Information
   familyInfo: {
     father: {
-      firstName: '',
-      middleName: '',
-      lastName: '',
+      firstName: 'Pedro',
+      middleName: 'Martinez',
+      lastName: 'Dela Cruz',
     },
     mother: {
-      firstName: '',
-      middleName: '',
-      lastName: '',
+      firstName: 'Maria',
+      middleName: 'Santos',
+      lastName: 'Garcia',
     },
   },
 
   // Medical Certificate
   medicalCertificate: {
     causesOfDeath: {
-      immediate: '',
-      antecedent: '',
-      underlying: '',
-      contributingConditions: '',
+      immediate: 'Cardiac Arrest',
+      antecedent: 'Acute Myocardial Infarction',
+      underlying: 'Coronary Artery Disease',
+      contributingConditions: 'Diabetes Mellitus, Type 2',
     },
     maternalCondition: '',
     externalCauses: {
-      mannerOfDeath: '',
-      placeOfOccurrence: '',
+      mannerOfDeath: 'Natural',
+      placeOfOccurrence: 'Hospital',
     },
   },
 
   // Medical Attendance
   attendant: {
-    type: '',
+    type: 'Physician',
     attendance: {
-      from: '',
-      to: '',
+      from: new Date('2024-01-18'),
+      to: new Date('2024-01-20'),
     },
   },
 
   // Certification
   certification: {
-    hasAttended: '',
-    signature: '',
-    name: '',
-    title: '',
-    address: '',
-    date: '',
+    hasAttended: 'Yes',
+    signature: 'DrSantos',
+    name: 'Dr. Ana Santos',
+    title: 'Attending Physician',
+    address: {
+      address: "St. Luke's Medical Center, E Rodriguez Sr. Ave",
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
+      country: 'Philippines',
+    },
+    date: new Date('2024-01-20'),
     reviewedBy: {
-      name: '',
-      title: '',
-      position: '',
-      date: '',
+      name: 'Dr. Jose Reyes',
+      title: 'Chief of Hospital',
+      position: 'Department Head',
+      date: new Date('2024-01-20'),
     },
   },
 
   // Disposal Information
   disposal: {
-    method: '',
+    method: 'Burial',
     burialPermit: {
-      number: '',
-      dateIssued: '',
+      number: 'BP-2024-001',
+      dateIssued: new Date('2024-01-21'),
     },
     transferPermit: {
       number: '',
-      dateIssued: '',
+      dateIssued: null,
     },
-    cemeteryAddress: '',
+    cemeteryAddress: 'Himlayang Pilipino Memorial Park, Quezon City',
   },
 
   // Informant Details
   informant: {
-    signature: '',
-    name: '',
-    relationship: '',
-    address: '',
-    date: '',
+    signature: 'MCruz',
+    name: 'Maria Cruz',
+    relationship: 'Spouse',
+    address: {
+      address: '123 Maginhawa Street, Teachers Village',
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
+      country: 'Philippines',
+    },
+    date: new Date('2024-01-20'),
   },
 
   // Administrative Information
   preparedBy: {
-    signature: '',
-    name: '',
-    title: '',
-    date: '',
+    signature: 'Staff3',
+    name: 'Staff User 3',
+    title: 'Registration Officer',
+    date: new Date('2024-01-21'),
   },
-
   receivedBy: {
-    signature: '',
-    name: '',
-    title: '',
-    date: '',
+    signature: 'Staff4',
+    name: 'Staff User 4',
+    title: 'Document Processing Officer',
+    date: new Date('2024-01-21'),
   },
-
   registeredAtCivilRegistrar: {
-    name: '',
-    title: '',
-    date: '',
+    signature: 'Admin1',
+    name: 'Admin User 1',
+    title: 'Civil Registrar',
+    date: new Date('2024-01-21'),
   },
 
   // Remarks
-  remarks: '',
+  remarks: 'Document processed and verified.',
 };
-
-// export const defaultDeathCertificateFormValues: DeathCertificateFormValues = {
-//   // Registry Information
-//   registryNumber: '2023-123456',
-//   province: 'Metro Manila',
-//   cityMunicipality: 'Quezon City',
-
-//   // Death Information
-//   timeOfDeath: '14:30',
-
-//   // Personal Information
-//   personalInfo: {
-//     firstName: 'Juan',
-//     middleName: 'Dela',
-//     lastName: 'Cruz',
-//     sex: 'Male',
-//     dateOfDeath: '10/15/2023',
-//     dateOfBirth: '05/20/1950',
-//     ageAtDeath: {
-//       years: '73',
-//       months: '4',
-//       days: '25',
-//       hours: '12',
-//     },
-//     placeOfDeath: {
-//       province: 'Metro Manila',
-//       cityMunicipality: 'Quezon City',
-//       specificAddress: '123 Main Street',
-//     },
-//     civilStatus: 'Married',
-//     religion: 'Roman Catholic',
-//     citizenship: 'Filipino',
-//     residence: '456 Elm Street, Quezon City',
-//     occupation: 'Retired Teacher',
-//   },
-
-//   // Family Information
-//   familyInfo: {
-//     father: {
-//       firstName: 'Pedro',
-//       middleName: 'Sanchez',
-//       lastName: 'Cruz',
-//     },
-//     mother: {
-//       firstName: 'Maria',
-//       middleName: 'Dela',
-//       lastName: 'Cruz',
-//     },
-//   },
-
-//   // Medical Certificate
-//   medicalCertificate: {
-//     causesOfDeath: {
-//       immediate: 'Cardiac Arrest',
-//       antecedent: 'Hypertension',
-//       underlying: 'Diabetes Mellitus',
-//       contributingConditions: 'Obesity',
-//     },
-//     maternalCondition: 'N/A',
-//     externalCauses: {
-//       mannerOfDeath: 'Natural',
-//       placeOfOccurrence: 'Home',
-//     },
-//   },
-
-//   // Medical Attendance
-//   attendant: {
-//     type: 'Physician',
-//     attendance: {
-//       from: '10/10/2023',
-//       to: '10/15/2023',
-//     },
-//   },
-
-//   // Certification
-//   certification: {
-//     hasAttended: 'Yes',
-//     signature: 'Dr. John Doe',
-//     name: 'Dr. John Doe',
-//     title: 'Medical Doctor',
-//     address: '789 Health Center, Quezon City',
-//     date: '10/16/2023',
-//     reviewedBy: {
-//       name: 'Dr. Jane Smith',
-//       title: 'Chief Medical Officer',
-//       position: 'Head of Department',
-//       date: '10/16/2023',
-//     },
-//   },
-
-//   // Disposal Information
-//   disposal: {
-//     method: 'Burial',
-//     burialPermit: {
-//       number: 'BP-2023-123',
-//       dateIssued: '10/16/2023',
-//     },
-//     transferPermit: {
-//       number: 'TP-2023-456',
-//       dateIssued: '10/16/2023',
-//     },
-//     cemeteryAddress: 'Heavenly Gardens Memorial Park, Quezon City',
-//   },
-
-//   // Informant Details
-//   informant: {
-//     signature: 'Maria Cruz',
-//     name: 'Maria Cruz',
-//     relationship: 'Spouse',
-//     address: '456 Elm Street, Quezon City',
-//     date: '10/16/2023',
-//   },
-
-//   // Administrative Information
-//   preparedBy: {
-//     signature: 'Juan Dela Cruz Jr.',
-//     name: 'Juan Dela Cruz Jr.',
-//     title: 'Son',
-//     date: '10/16/2023',
-//   },
-
-//   receivedBy: {
-//     signature: 'Officer Juan',
-//     name: 'Officer Juan',
-//     title: 'Civil Registrar',
-//     date: '10/16/2023',
-//   },
-
-//   registeredAtCivilRegistrar: {
-//     name: 'Quezon City Civil Registry',
-//     title: 'Civil Registry Office',
-//     date: '10/16/2023',
-//   },
-
-//   // Remarks
-//   remarks: 'Deceased was a respected member of the community.',
-// };

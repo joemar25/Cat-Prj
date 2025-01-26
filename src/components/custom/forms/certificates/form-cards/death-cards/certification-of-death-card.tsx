@@ -24,11 +24,6 @@ import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/dea
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-// Helper function to parse MM/DD/YYYY string into a Date object
-const parseToDate = (year: string, month: string, day: string): Date => {
-  return new Date(`${year}-${month}-${day}`);
-};
-
 const CertificationOfDeathCard: React.FC = () => {
   const { control, watch, setValue } =
     useFormContext<DeathCertificateFormValues>();
@@ -86,8 +81,8 @@ const CertificationOfDeathCard: React.FC = () => {
                 <FormLabel>Time of Death</FormLabel>
                 <FormControl>
                   <TimePicker
-                    value={field.value || ''}
-                    onChange={(value) => field.onChange(value)}
+                    value={field.value || null} // Ensure value is Date | null
+                    onChange={(value) => field.onChange(value)} // Pass Date | null directly
                   />
                 </FormControl>
                 <FormMessage />
@@ -151,14 +146,14 @@ const CertificationOfDeathCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='certification.address'
+            name='certification.address.address'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Address</FormLabel>
                 <FormControl>
                   <Input
                     className='h-10'
-                    placeholder='Enter address'
+                    placeholder='Enter Full Address'
                     {...field}
                   />
                 </FormControl>
@@ -172,39 +167,18 @@ const CertificationOfDeathCard: React.FC = () => {
         <FormField
           control={control}
           name='certification.date'
-          render={({ field }) => {
-            // Parse the MM/DD/YYYY string into Date object
-            const dateValue = field.value
-              ? (() => {
-                  const [month, day, year] = field.value.split('/');
-                  return parseToDate(year, month, day);
-                })()
-              : undefined;
-
-            return (
-              <FormItem>
-                <DatePickerField
-                  field={{
-                    value: dateValue || undefined,
-                    onChange: (date) => {
-                      if (date) {
-                        const month = (date.getMonth() + 1)
-                          .toString()
-                          .padStart(2, '0');
-                        const day = date.getDate().toString().padStart(2, '0');
-                        const year = date.getFullYear();
-                        field.onChange(`${month}/${day}/${year}`);
-                      } else {
-                        field.onChange('');
-                      }
-                    },
-                  }}
-                  label='Date'
-                  placeholder='Select date'
-                />
-              </FormItem>
-            );
-          }}
+          render={({ field }) => (
+            <FormItem>
+              <DatePickerField
+                field={{
+                  value: field.value,
+                  onChange: field.onChange,
+                }}
+                label='Date'
+                placeholder='Select date'
+              />
+            </FormItem>
+          )}
         />
 
         {/* Reviewed By - Name */}
@@ -277,39 +251,18 @@ const CertificationOfDeathCard: React.FC = () => {
         <FormField
           control={control}
           name='certification.reviewedBy.date'
-          render={({ field }) => {
-            // Parse the MM/DD/YYYY string into Date object
-            const dateValue = field.value
-              ? (() => {
-                  const [month, day, year] = field.value.split('/');
-                  return parseToDate(year, month, day);
-                })()
-              : undefined;
-
-            return (
-              <FormItem>
-                <DatePickerField
-                  field={{
-                    value: dateValue || undefined,
-                    onChange: (date) => {
-                      if (date) {
-                        const month = (date.getMonth() + 1)
-                          .toString()
-                          .padStart(2, '0');
-                        const day = date.getDate().toString().padStart(2, '0');
-                        const year = date.getFullYear();
-                        field.onChange(`${month}/${day}/${year}`);
-                      } else {
-                        field.onChange('');
-                      }
-                    },
-                  }}
-                  label='Date (Reviewed By)'
-                  placeholder='Select date'
-                />
-              </FormItem>
-            );
-          }}
+          render={({ field }) => (
+            <FormItem>
+              <DatePickerField
+                field={{
+                  value: field.value,
+                  onChange: field.onChange,
+                }}
+                label='Date (Reviewed By)'
+                placeholder='Select date'
+              />
+            </FormItem>
+          )}
         />
       </CardContent>
     </Card>

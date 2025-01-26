@@ -9,12 +9,32 @@ import { Clock } from 'lucide-react';
 import { useState } from 'react';
 
 interface TimePickerProps {
-  value: string; // HH:MM format
-  onChange: (value: string) => void;
+  value: Date | null; // Date object or null
+  onChange: (value: Date | null) => void;
 }
 
 const TimePicker: React.FC<TimePickerProps> = ({ value, onChange }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
+  // Convert Date object to HH:MM string format
+  const formatDateToTimeString = (date: Date | null): string => {
+    if (!date) return '';
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
+
+  // Convert HH:MM string format to Date object
+  const parseTimeStringToDate = (time: string): Date | null => {
+    if (!time) return null;
+    const [hours, minutes] = time.split(':');
+    const date = new Date();
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date;
+  };
 
   // Convert 24-hour format (HH:MM) to 12-hour format (HH:MM AM/PM)
   const formatTimeTo12Hour = (time: string) => {
@@ -28,7 +48,9 @@ const TimePicker: React.FC<TimePickerProps> = ({ value, onChange }) => {
 
   // Handle time change
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
+    const timeString = e.target.value;
+    const date = parseTimeStringToDate(timeString);
+    onChange(date);
   };
 
   return (
@@ -39,13 +61,15 @@ const TimePicker: React.FC<TimePickerProps> = ({ value, onChange }) => {
           className='w-full justify-start text-left font-normal'
         >
           <Clock className='mr-2 h-4 w-4' />
-          {value ? formatTimeTo12Hour(value) : 'Select time'}
+          {value
+            ? formatTimeTo12Hour(formatDateToTimeString(value))
+            : 'Select time'}
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-auto p-2'>
         <Input
           type='time'
-          value={value}
+          value={formatDateToTimeString(value)}
           onChange={handleTimeChange}
           className='border-0'
         />

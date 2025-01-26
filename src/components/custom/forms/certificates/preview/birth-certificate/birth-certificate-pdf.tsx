@@ -888,8 +888,14 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               I hereby certify that I attended the birth of the child who was
               born alive at{' '}
               <Text style={{ textDecoration: 'underline' }}>
-                {data.attendant?.certification?.time || ''}
-              </Text>{' '}
+                {data.attendant?.certification?.time
+                  ? new Intl.DateTimeFormat('en-US', {
+                      hour: 'numeric', // Use numeric hour (e.g., 1, 2, 3)
+                      minute: '2-digit', // Use 2-digit minutes (e.g., 05, 30)
+                      hour12: true, // Use 12-hour format (e.g., 2:30 PM)
+                    }).format(new Date(data.attendant.certification.time))
+                  : ''}
+              </Text>
               on the date of birth specified above.
             </Text>
             <View style={{ flexDirection: 'row', marginTop: 3 }}>

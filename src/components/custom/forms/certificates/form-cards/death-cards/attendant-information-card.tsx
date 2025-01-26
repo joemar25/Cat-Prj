@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import { parseToDate } from '@/utils/date';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -67,84 +66,36 @@ const AttendantInformationCard: React.FC = () => {
           <FormField
             control={control}
             name='attendant.attendance.from'
-            render={({ field }) => {
-              // Parse the MM/DD/YYYY string into Date object
-              const dateValue = field.value
-                ? (() => {
-                    const [month, day, year] = field.value.split('/');
-                    return parseToDate(year, month, day);
-                  })()
-                : undefined;
-
-              return (
-                <FormItem>
-                  <DatePickerField
-                    field={{
-                      value: dateValue || undefined,
-                      onChange: (date) => {
-                        if (date) {
-                          const month = (date.getMonth() + 1)
-                            .toString()
-                            .padStart(2, '0');
-                          const day = date
-                            .getDate()
-                            .toString()
-                            .padStart(2, '0');
-                          const year = date.getFullYear();
-                          field.onChange(`${month}/${day}/${year}`);
-                        } else {
-                          field.onChange('');
-                        }
-                      },
-                    }}
-                    label='From'
-                    placeholder='Select start date'
-                  />
-                </FormItem>
-              );
-            }}
+            render={({ field }) => (
+              <FormItem>
+                <DatePickerField
+                  field={{
+                    value: field.value,
+                    onChange: field.onChange,
+                  }}
+                  label='From'
+                  placeholder='Select start date'
+                />
+              </FormItem>
+            )}
           />
 
           {/* To Date */}
           <FormField
             control={control}
             name='attendant.attendance.to'
-            render={({ field }) => {
-              // Parse the MM/DD/YYYY string into Date object
-              const dateValue = field.value
-                ? (() => {
-                    const [month, day, year] = field.value.split('/');
-                    return parseToDate(year, month, day);
-                  })()
-                : undefined;
-
-              return (
-                <FormItem>
-                  <DatePickerField
-                    field={{
-                      value: dateValue || undefined,
-                      onChange: (date) => {
-                        if (date) {
-                          const month = (date.getMonth() + 1)
-                            .toString()
-                            .padStart(2, '0');
-                          const day = date
-                            .getDate()
-                            .toString()
-                            .padStart(2, '0');
-                          const year = date.getFullYear();
-                          field.onChange(`${month}/${day}/${year}`);
-                        } else {
-                          field.onChange('');
-                        }
-                      },
-                    }}
-                    label='To'
-                    placeholder='Select end date'
-                  />
-                </FormItem>
-              );
-            }}
+            render={({ field }) => (
+              <FormItem>
+                <DatePickerField
+                  field={{
+                    value: field.value,
+                    onChange: field.onChange,
+                  }}
+                  label='To'
+                  placeholder='Select end date'
+                />
+              </FormItem>
+            )}
           />
         </div>
       </CardContent>

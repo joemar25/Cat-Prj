@@ -21,7 +21,6 @@ import {
   getAllProvinces,
   getCitiesMunicipalities,
 } from '@/lib/utils/location-helpers';
-import { parseToDate } from '@/utils/date';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -178,43 +177,18 @@ const PersonalInformationCard = () => {
                 <FormField
                   control={control}
                   name='personalInfo.dateOfDeath'
-                  rules={{ required: 'Date of death is required' }}
-                  render={({ field }) => {
-                    // Parse the MM/DD/YYYY string into a Date object
-                    const dateValue = field.value
-                      ? (() => {
-                          const [month, day, year] = field.value.split('/');
-                          return parseToDate(year, month, day); // Use your parseToDate function
-                        })()
-                      : undefined;
-
-                    return (
-                      <FormItem>
-                        <DatePickerField
-                          field={{
-                            value: dateValue || undefined,
-                            onChange: (date) => {
-                              if (date) {
-                                const month = (date.getMonth() + 1)
-                                  .toString()
-                                  .padStart(2, '0');
-                                const day = date
-                                  .getDate()
-                                  .toString()
-                                  .padStart(2, '0');
-                                const year = date.getFullYear();
-                                field.onChange(`${month}/${day}/${year}`); // Format as MM/DD/YYYY
-                              } else {
-                                field.onChange('');
-                              }
-                            },
-                          }}
-                          label='Date of Death'
-                          placeholder='Select date of death'
-                        />
-                      </FormItem>
-                    );
-                  }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <DatePickerField
+                        field={{
+                          value: field.value,
+                          onChange: field.onChange,
+                        }}
+                        label='Date of Death'
+                        placeholder='Select date of death'
+                      />
+                    </FormItem>
+                  )}
                 />
 
                 {/* Time of Death */}
@@ -239,43 +213,18 @@ const PersonalInformationCard = () => {
               <FormField
                 control={control}
                 name='personalInfo.dateOfBirth'
-                rules={{ required: 'Date of birth is required' }}
-                render={({ field }) => {
-                  // Parse the MM/DD/YYYY string into a Date object
-                  const dateValue = field.value
-                    ? (() => {
-                        const [month, day, year] = field.value.split('/');
-                        return parseToDate(year, month, day); // Use your parseToDate function
-                      })()
-                    : undefined;
-
-                  return (
-                    <FormItem>
-                      <DatePickerField
-                        field={{
-                          value: dateValue || undefined,
-                          onChange: (date) => {
-                            if (date) {
-                              const month = (date.getMonth() + 1)
-                                .toString()
-                                .padStart(2, '0');
-                              const day = date
-                                .getDate()
-                                .toString()
-                                .padStart(2, '0');
-                              const year = date.getFullYear();
-                              field.onChange(`${month}/${day}/${year}`); // Format as MM/DD/YYYY
-                            } else {
-                              field.onChange('');
-                            }
-                          },
-                        }}
-                        label='Date of Birth'
-                        placeholder='Select date of birth'
-                      />
-                    </FormItem>
-                  );
-                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <DatePickerField
+                      field={{
+                        value: field.value,
+                        onChange: field.onChange,
+                      }}
+                      label='Date of Birth'
+                      placeholder='Select date of birth'
+                    />
+                  </FormItem>
+                )}
               />
             </div>
           </CardContent>
@@ -686,12 +635,15 @@ const PersonalInformationCard = () => {
               {/* Residence */}
               <FormField
                 control={control}
-                name='personalInfo.residence'
+                name='personalInfo.residence.address'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Residence</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder='Enter residence' />
+                      <Input
+                        {...field}
+                        placeholder='Enter complete residence address'
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -1,8 +1,4 @@
-import {
-  formatDateTime,
-  parseToDate,
-  type DateFormatOptions,
-} from '@/utils/date';
+import { parseToDate, type DateFormatOptions } from '@/utils/date';
 import { z } from 'zod';
 
 interface DateSchemaOptions {
@@ -45,33 +41,6 @@ export const createDateSchema = (options: DateSchemaOptions = {}) => {
   );
 };
 
-// Pre-configured schemas for common use cases
-// export const dateSchema = {
-//   past: createDateSchema({
-//     allowFuture: false,
-//     formatOptions: { monthFormat: '2-digit', dayFormat: '2-digit' },
-//   }),
-
-//   any: createDateSchema({
-//     allowFuture: true,
-//     formatOptions: { monthFormat: '2-digit', dayFormat: '2-digit' },
-//   }),
-
-//   birthDate: createDateSchema({
-//     minYear: 1900,
-//     allowFuture: false,
-//     customMessage: 'Please enter a valid birth date in MM/DD/YYYY format',
-//     formatOptions: { monthFormat: '2-digit', dayFormat: '2-digit' },
-//   }),
-
-//   documentDate: createDateSchema({
-//     minYear: 1900,
-//     allowFuture: false,
-//     customMessage: 'Please enter a valid document date in MM/DD/YYYY format',
-//     formatOptions: { monthFormat: '2-digit', dayFormat: '2-digit' },
-//   }),
-// };
-
 // Helper function for form date string to Date object conversion
 export const parseFormDate = (dateString: string): Date | undefined => {
   if (!dateString) return undefined;
@@ -81,29 +50,12 @@ export const parseFormDate = (dateString: string): Date | undefined => {
   return date || undefined;
 };
 
-// Helper function for Date object to form string conversion
-export const formatFormDate = (
-  date: Date | undefined,
-  options?: DateFormatOptions
-): string => {
-  if (!date) return '';
-
-  // Use formatDateTime with specific format for form fields
-  const defaultFormatOptions: DateFormatOptions = {
-    monthFormat: '2-digit',
-    dayFormat: '2-digit',
-    yearFormat: 'numeric',
-    locale: 'en-US',
-  };
-
-  const formattedDate = formatDateTime(date, {
-    ...defaultFormatOptions,
-    ...options,
-  });
-
-  // Ensure MM/DD/YYYY format
-  const [month, day, year] = formattedDate.split('/');
-  return `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
+export const parseTimeStringToDate = (timeString: string): Date | null => {
+  if (!timeString) return null;
+  const [hours, minutes] = timeString.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0); // Set hours and minutes, reset seconds and milliseconds
+  return date;
 };
 
 // ------------------------------------------//
@@ -132,11 +84,25 @@ export const dateSchema = z
   });
 
 export const timeSchema = z
-  .string()
-  .min(1, 'Time is required')
-  .refine((value) => /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value), {
-    message: 'Please enter a valid time in HH:MM format (e.g., 14:30).',
-  });
+  .date({
+    required_error: 'Time is required',
+    invalid_type_error: 'Please provide a valid time',
+  })
+  .nullable()
+  .refine((val) => val !== null, {
+    message: 'Time is required',
+  })
+  .refine(
+    (val) => {
+      if (!val) return false;
+      const hours = val.getHours();
+      const minutes = val.getMinutes();
+      return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
+    },
+    {
+      message: 'Please provide a valid time in HH:MM format (e.g., 14:30).',
+    }
+  );
 
 export const registryNumberSchema = z
   .string()

@@ -93,8 +93,10 @@ const AttendantInformationCard: React.FC = () => {
                     <FormLabel>Time of Birth</FormLabel>
                     <FormControl>
                       <TimePicker
-                        value={field.value}
-                        onChange={(value) => field.onChange(value)}
+                        value={field.value} // field.value is Date | null
+                        onChange={(value) => {
+                          field.onChange(value); // Pass Date | null directly
+                        }}
                       />
                     </FormControl>
                     <FormMessage />

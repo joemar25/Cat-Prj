@@ -6,6 +6,7 @@ import {
   cityMunicipalitySchema,
   dateSchema,
   nameSchema,
+  parseTimeStringToDate,
   provinceSchema,
   registryNumberSchema,
   signatureSchema,
@@ -315,7 +316,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
   attendant: {
     type: 'Physician',
     certification: {
-      time: '14:30',
+      time: parseTimeStringToDate('14:30'),
       signature: 'DrSantos',
       name: 'Dr. Ana Santos',
       title: 'OB-GYN',

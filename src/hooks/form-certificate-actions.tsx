@@ -235,15 +235,13 @@ export async function createDeathCertificate(
   ignoreDuplicate: boolean = false
 ) {
   try {
-    // Parse and validate death and birth dates
-    const dateOfDeath = new Date(data.personalInfo.dateOfDeath);
-    if (isNaN(dateOfDeath.getTime())) {
-      return { success: false, error: 'Invalid date of death' };
+    // Check for required dates
+    if (!data.personalInfo.dateOfDeath) {
+      return { success: false, error: 'Date of death is required' };
     }
 
-    const dateOfBirth = new Date(data.personalInfo.dateOfBirth);
-    if (isNaN(dateOfBirth.getTime())) {
-      return { success: false, error: 'Invalid date of birth' };
+    if (!data.personalInfo.dateOfBirth) {
+      return { success: false, error: 'Date of birth is required' };
     }
 
     // Validate registry number format before checking in DB
@@ -287,7 +285,7 @@ export async function createDeathCertificate(
               },
             },
             {
-              dateOfDeath: dateOfDeath,
+              dateOfDeath: data.personalInfo.dateOfDeath, // Now directly use the Date object
             },
             {
               placeOfDeath: {
@@ -347,8 +345,8 @@ export async function createDeathCertificate(
               lastName: data.personalInfo.lastName.trim(),
             },
             sex: data.personalInfo.sex,
-            dateOfDeath,
-            dateOfBirth,
+            dateOfDeath: data.personalInfo.dateOfDeath,
+            dateOfBirth: data.personalInfo.dateOfBirth,
             placeOfDeath: {
               province: data.personalInfo.placeOfDeath.province.trim(),
               cityMunicipality:
@@ -366,7 +364,12 @@ export async function createDeathCertificate(
             civilStatus: data.personalInfo.civilStatus,
             religion: data.personalInfo.religion,
             citizenship: data.personalInfo.citizenship,
-            residence: data.personalInfo.residence,
+            residence: {
+              address: data.personalInfo.residence.address,
+              cityMunicipality: data.personalInfo.residence.cityMunicipality,
+              province: data.personalInfo.residence.province,
+              country: data.personalInfo.residence.country,
+            },
             occupation: data.personalInfo.occupation,
 
             // Family Information
@@ -405,7 +408,7 @@ export async function createDeathCertificate(
               name: data.certification.name,
               title: data.certification.title,
               address: data.certification.address,
-              date: new Date(data.certification.date),
+              date: data.certification.date,
             },
 
             // Disposal Information
@@ -413,14 +416,12 @@ export async function createDeathCertificate(
               method: data.disposal.method,
               burialPermit: {
                 number: data.disposal.burialPermit.number,
-                dateIssued: new Date(data.disposal.burialPermit.dateIssued),
+                dateIssued: data.disposal.burialPermit.dateIssued,
               },
               transferPermit: data.disposal.transferPermit.number
                 ? {
                     number: data.disposal.transferPermit.number,
-                    dateIssued: data.disposal.transferPermit.dateIssued
-                      ? new Date(data.disposal.transferPermit.dateIssued)
-                      : null,
+                    dateIssued: data.disposal.transferPermit.dateIssued || null,
                   }
                 : null,
               cemeteryAddress: data.disposal.cemeteryAddress,
@@ -431,24 +432,24 @@ export async function createDeathCertificate(
               name: data.informant.name,
               relationship: data.informant.relationship,
               address: data.informant.address,
-              date: new Date(data.informant.date),
+              date: data.informant.date,
             },
 
             // Preparer Details
             preparer: {
               name: data.preparedBy.name,
               title: data.preparedBy.title,
-              date: new Date(data.preparedBy.date),
+              date: data.preparedBy.date,
             },
           },
         },
         // Additional base form fields
         receivedBy: data.receivedBy.name.trim(),
         receivedByPosition: data.receivedBy.title.trim(),
-        receivedDate: new Date(data.receivedBy.date),
+        receivedDate: data.receivedBy.date,
         registeredBy: data.registeredAtCivilRegistrar.name.trim(),
         registeredByPosition: data.registeredAtCivilRegistrar.title.trim(),
-        registrationDate: new Date(data.registeredAtCivilRegistrar.date),
+        registrationDate: data.registeredAtCivilRegistrar.date,
         remarks: data.remarks?.trim(),
       },
     });

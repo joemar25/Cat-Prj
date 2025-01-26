@@ -191,7 +191,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           <View style={styles.residence}>
             <Text style={styles.label}>10. RESIDENCE:</Text>
             <Text style={styles.data1}>
-              {data.personalInfo?.residence || ''}
+              {data.personalInfo?.residence?.address || ''}
             </Text>
           </View>
         </View>
@@ -539,7 +539,25 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
               <View style={styles.fieldContainer}>
                 <Text style={styles.label12}>Address:</Text>
                 <Text style={styles.value12}>
-                  {data.informant?.address || ''}
+                  {data.informant?.address?.address || ''}
+                </Text>
+              </View>
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label12}>City/Municipality:</Text>
+                <Text style={styles.value12}>
+                  {data.informant?.address?.cityMunicipality || ''}
+                </Text>
+              </View>
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label12}>Province:</Text>
+                <Text style={styles.value12}>
+                  {data.informant?.address?.province || ''}
+                </Text>
+              </View>
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label12}>Country:</Text>
+                <Text style={styles.value12}>
+                  {data.informant?.address?.country || ''}
                 </Text>
               </View>
               <View style={styles.fieldContainer}>
