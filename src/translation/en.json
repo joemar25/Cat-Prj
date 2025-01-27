@@ -122,6 +122,16 @@
   "birth": "Birth",
   "expired": "Expired",
   "verified": "Verified",
+  "Search feedback...": "Search feedback...",
+  "Submitted By": "Submitted By",
+  "User": "User",
+  "Feedback": "Feedback",
+  "Submitted At": "Submitted At",
+  "Last Updated": "Last Updated",
+  "updatedAt": "Updated At",
+  "Actions": "Actions",
+  "Known User": "Known User",
+  "Anonymous": "Anonymous",
   "formDetails": {
     "title": "Form Details",
     "description": "View the details of the selected form",
@@ -138,5 +148,8 @@
         "go_to_previous_page": "Go to previous page",
         "go_to_next_page": "Go to next page",
         "go_to_last_page": "Go to last page"
-    }
+    },
+    "No results found": "No results found",
+    "Try adjusting your filters or search terms": "Try adjusting your filters or search terms",
+    "No requests have been added yet": "No requests have been added yet"
 }

@@ -30,6 +30,7 @@ import { DataTableToolbar } from './data-table-toolbar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Icons } from '@/components/ui/icons'
 import { ExtendedBaseRegistryForm } from './columns'
+import { useTranslation } from 'react-i18next'
 
 interface DataTableProps {
     columns: ColumnDef<ExtendedBaseRegistryForm>[]
@@ -43,6 +44,7 @@ export function DataTable({
     data,
     selection = true,
 }: DataTableProps) {
+    const { t } = useTranslation() // Initialize translation hook
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -119,11 +121,13 @@ export function DataTable({
                                             <div className="rounded-full bg-muted p-3">
                                                 <Icons.search className="h-6 w-6" />
                                             </div>
-                                            <p className="text-lg font-semibold">No results found</p>
+                                            <p className="text-lg font-semibold">
+                                                {t('No results found')}
+                                            </p>
                                             <p className="text-sm text-muted-foreground">
                                                 {columnFilters.length > 0
-                                                    ? 'Try adjusting your filters or search terms'
-                                                    : 'No forms have been added yet'}
+                                                    ? t('Try adjusting your filters or search terms')
+                                                    : t('No forms have been added yet')}
                                             </p>
                                         </CardContent>
                                     </Card>

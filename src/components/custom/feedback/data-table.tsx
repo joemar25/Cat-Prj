@@ -1,4 +1,3 @@
-// src\components\custom\feedback\data-table.tsx
 'use client'
 
 import React from 'react'
@@ -31,6 +30,7 @@ import { DataTablePagination } from '@/components/custom/table/data-table-pagina
 import { DataTableToolbar } from './data-table-toolbar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Icons } from '@/components/ui/icons'
+import { useTranslation } from 'react-i18next'
 
 type FeedbackValue = string | number | boolean | Date | null | undefined
 
@@ -46,6 +46,7 @@ export function DataTable<TData extends Feedback & { user: { name: string; email
     data,
     selection = true,
 }: DataTableProps<TData>) {
+    const { t } = useTranslation() // Initialize translation hook
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -116,11 +117,13 @@ export function DataTable<TData extends Feedback & { user: { name: string; email
                                             <div className="rounded-full bg-muted p-3">
                                                 <Icons.search className="h-6 w-6" />
                                             </div>
-                                            <p className="text-lg font-semibold">No results found</p>
+                                            <p className="text-lg font-semibold">
+                                                {t('No results found')}
+                                            </p>
                                             <p className="text-sm text-muted-foreground">
                                                 {columnFilters.length > 0
-                                                    ? 'Try adjusting your filters or search terms'
-                                                    : 'No feedback has been submitted yet'}
+                                                    ? t('Try adjusting your filters or search terms')
+                                                    : t('No feedback has been submitted yet')}
                                             </p>
                                         </CardContent>
                                     </Card>

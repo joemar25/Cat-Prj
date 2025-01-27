@@ -122,6 +122,8 @@
   "expired": "Nag-expire",
   "verified": "Nai-verify",
   "deleting": "Binubura...",
+  "Search feedback...": "Maghanap ng feedback...",
+  "Submitted By": "Ipinasa Ni",
   "formDetails": {
     "title": "Mga Detalye ng Form",
     "description": "Tingnan ang mga detalye ng napiling form",
@@ -138,5 +140,23 @@
         "go_to_previous_page": "Pumunta sa nakaraang pahina",
         "go_to_next_page": "Pumunta sa susunod na pahina",
         "go_to_last_page": "Pumunta sa huling pahina"
-    }
+    },
+
+  "User": "Gumagamit",
+  "user": "gumagamit",
+  "Feedback": "Puna",
+  "Submitted At": "Ipinasa Noong",
+  "Last Updated": "Huling Nai-update",
+  "Actions": "Mga Aksyon",
+  "Known User": "Kilalang Gumagamit",
+  "Anonymous": "Hindi Kilala",
+  "submittedBy": "Ipinasa ni",
+  "updatedAt": "Nai-update",
+  
+  "No results found": "Walang nahanap na resulta",
+  "Try adjusting your filters or search terms": "Subukang i-adjust ang iyong mga filter o paghahanap",
+  "No requests have been added yet": "Wala pang naidagdag na mga kahilingan"
+
+  
+  
 }

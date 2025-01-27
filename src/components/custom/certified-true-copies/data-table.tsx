@@ -1,4 +1,3 @@
-// src/components/custom/users/data-table.tsx
 'use client'
 
 import React from 'react'
@@ -31,6 +30,7 @@ import { DataTablePagination } from '@/components/custom/table/data-table-pagina
 import { DataTableToolbar } from './data-table-toolbar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Icons } from '@/components/ui/icons'
+import { useTranslation } from 'react-i18next'
 
 interface DataTableProps<TData extends CertifiedCopy> {
     columns: ColumnDef<TData>[]
@@ -44,6 +44,7 @@ export function DataTable<TData extends CertifiedCopy>({
     data,
     selection = true,
 }: DataTableProps<TData>) {
+    const { t } = useTranslation() // Initialize the translation hook
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -120,11 +121,13 @@ export function DataTable<TData extends CertifiedCopy>({
                                             <div className="rounded-full bg-muted p-3">
                                                 <Icons.search className="h-6 w-6" />
                                             </div>
-                                            <p className="text-lg font-semibold">No results found</p>
+                                            <p className="text-lg font-semibold">
+                                                {t('No results found')}
+                                            </p>
                                             <p className="text-sm text-muted-foreground">
                                                 {columnFilters.length > 0
-                                                    ? 'Try adjusting your filters or search terms'
-                                                    : 'No requests have been added yet'}
+                                                    ? t('Try adjusting your filters or search terms')
+                                                    : t('No requests have been added yet')}
                                             </p>
                                         </CardContent>
                                     </Card>
