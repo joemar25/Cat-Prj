@@ -34,7 +34,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             <Text style={styles.headerNote1}>Revised August 2016</Text>
           </View>
           <View style={styles.republic}>
-            <Text style={styles.headerSubtitle}>
+            <Text style={styles.headerSubtitle}> 
               Republic of the Philippines
             </Text>
             <Text style={styles.headerSubtitle}>
