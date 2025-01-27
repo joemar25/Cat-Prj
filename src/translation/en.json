@@ -1,0 +1,51 @@
+{
+  "summary_view": "Summary View",
+  "dashboard_description": "This dashboard provides a summary of the charts and metrics. For more detailed reports or to generate custom reports, navigate to the",
+  "reports_section": "Reports section",
+  "metrics": {
+    "total_registrations": "Total Registrations",
+    "birth_certificates": "Birth Certificates",
+    "death_certificates": "Death Certificates",
+    "marriage_certificates": "Marriage Certificates",
+    "from_last_month": "from last month",
+    "fetch_error": "Failed to fetch metrics data"
+  },
+  "registry_statistics": "Registry Statistics",
+  "monthly_registration_trends": "Monthly registration trends for the past 6 months",
+  "trending_up": "Trending up by {percentage}% this month",
+  "trending_down": "Trending down by {percentage}% this month",
+  "showing_registration_data": "Showing registration data for the last 6 months",
+  "marriage_distribution": "Marriage Distribution",
+  "past_six_months_marriage_statistics": "Past 6 Months Marriage Statistics",
+  "total_marriages": "Total Marriages",
+  "marriage_registration_distribution": "Marriage Registration Distribution",
+  "monthly_breakdown_marriages": "Monthly breakdown of marriages for the past 6 months",
+  "loading_statistics": "Loading statistics...",
+  
+    "greeting_morning": "Good morning,",
+    "greeting_afternoon": "Good afternoon,",
+    "greeting_evening": "Good evening,",
+    "dashboard_root": "Dashboard",
+    "time_format": "{{time}}",
+    "date_format": "{{date}}",
+
+  "gender_distribution": "Gender Distribution",
+  "birth_registrations_by_gender": "Birth registrations by gender",
+  "male": "Male",
+  "female": "Female",
+  "count": "Count",
+  "conclusion_more_male": "More male births than female from 2019-2023.",
+  "conclusion_more_female": "More female births than male from 2019-2023.",
+  "conclusion_equal": "Equal number of male and female births from 2019-2023.",
+  "last_6_months": "Showing total registrations for the last 6 months",
+
+  "recent_registrations": "Recent Registrations",
+  "last_10_days": "Last 10 days",
+  "name": "Name",
+  "type": "Type",
+  "registration_date": "Registration Date",
+  "total": "Total",
+  "updated": "Updated"
+  
+
+}

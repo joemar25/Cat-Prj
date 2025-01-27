@@ -1,0 +1,50 @@
+{
+  "summary_view": "Buod ng Tanawin",
+  "dashboard_description": "Ang dashboard na ito ay nagbibigay ng buod ng mga tsart at metrics. Para sa mas detalyadong mga ulat o upang makabuo ng mga pasadyang ulat, pumunta sa",
+  "reports_section": "Seksyon ng Mga Ulat",
+  "metrics": {
+    "total_registrations": "Kabuuang Mga Rehistro",
+    "birth_certificates": "Mga Sertipiko ng Kapanganakan",
+    "death_certificates": "Mga Sertipiko ng Kamatayan",
+    "marriage_certificates": "Mga Sertipiko ng Kasal",
+    "from_last_month": "mula noong nakaraang buwan",
+    "fetch_error": "Nabigo na makuha ang data ng metrics"
+  },
+  "registry_statistics": "Mga Estadistika ng Rehistro",
+  "monthly_registration_trends": "Buwanang mga trend ng rehistro sa nakaraang 6 na buwan",
+  "trending_up": "Tumaas ng {percentage}% ngayong buwan",
+  "trending_down": "Bumaba ng {percentage}% ngayong buwan",
+  "showing_registration_data": "Ipinapakita ang data ng rehistro para sa huling 6 na buwan",
+  "marriage_distribution": "Pamamahagi ng Kasal",
+  "past_six_months_marriage_statistics": "Mga Estadistika ng Kasal sa Nakaraang 6 na Buwan",
+  "total_marriages": "Kabuuang Mga Kasal",
+  "marriage_registration_distribution": "Pamamahagi ng Rehistro ng Kasal",
+  "monthly_breakdown_marriages": "Buwanang paghahati ng mga kasal sa nakaraang 6 na buwan",
+  "loading_statistics": "Naglo-load ng mga estadistika...",
+
+  "greeting_morning": "Magandang umaga,",
+  "greeting_afternoon": "Magandang hapon,",
+  "greeting_evening": "Magandang gabi,",
+  "dashboard_root": "Dashboard",
+  "time_format": "{{time}}",
+  "date_format": "{{date}}",
+
+  "gender_distribution": "Pamamahagi ng Kasarian",
+  "birth_registrations_by_gender": "Pagpaparehistro ng kapanganakan ayon sa kasarian",
+  "male": "Lalaki",
+  "female": "Babae",
+  "count": "Bilang",
+  "conclusion_more_male": "Mas maraming lalaki ang ipinanganak kaysa babae mula 2019-2023.",
+  "conclusion_more_female": "Mas maraming babae ang ipinanganak kaysa lalaki mula 2019-2023.",
+  "conclusion_equal": "Pantay ang bilang ng lalaki at babaeng ipinanganak mula 2019-2023.",
+  "last_6_months": "Ipinapakita ang kabuuang mga pagpaparehistro ng huling 6 na buwan",
+
+  "recent_registrations": "Pinakahuling Pagpaparehistro",
+  "last_10_days": "Huling 10 araw",
+  "name": "Pangalan",
+  "type": "Uri",
+  "registration_date": "Petsa ng Pagpaparehistro",
+  "total": "Kabuuan",
+  "updated": "Na-update"
+
+}

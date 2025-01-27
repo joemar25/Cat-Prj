@@ -1,4 +1,3 @@
-// src/components/dashboard/dashboard-header-client.tsx
 'use client'
 
 import { formatDateTime } from '@/utils/date'
@@ -15,11 +14,13 @@ import { ThemeChange } from '@/components/theme/theme-change'
 import { LanguageSelector } from '@/components/custom/language/language-selector'
 import { FullscreenToggle } from '@/components/custom/fullscreen/fullscreen-toggle'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
+import { useTranslation } from 'react-i18next' // Import the useTranslation hook
 
 export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeaderProps) {
     const [currentTime, setCurrentTime] = useState<Date | null>(null)
     const pathname = usePathname()
     const isDashboardRoot = pathname === '/dashboard'
+    const { t } = useTranslation() // Initialize the translation hook
 
     useEffect(() => {
         setCurrentTime(new Date())
@@ -40,9 +41,9 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
 
     const getGreeting = () => {
         const hour = currentTime?.getHours() || 0
-        if (hour < 12) return 'Good morning,'
-        if (hour < 17) return 'Good afternoon,'
-        return 'Good evening,'
+        if (hour < 12) return t('greeting_morning') // Translate morning greeting
+        if (hour < 17) return t('greeting_afternoon') // Translate afternoon greeting
+        return t('greeting_evening') // Translate evening greeting
     }
 
     return (
@@ -95,9 +96,9 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                             className="flex items-center gap-2 h-9 px-4 py-2 bg-card"
                         >
                             <CalendarIcon className="h-4 w-4" />
-                            <span>{formatDateTime(currentTime)}</span>
+                            <span>{t('date_format', { date: formatDateTime(currentTime) })}</span>
                             <span className="tabular-nums border-l pl-2 ml-2">
-                                {formatTime(currentTime)}
+                                {t('time_format', { time: formatTime(currentTime) })}
                             </span>
                         </Button>
                     </div>

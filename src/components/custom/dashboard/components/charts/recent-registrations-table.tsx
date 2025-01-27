@@ -3,6 +3,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useTranslation } from 'react-i18next'
 
 interface RecentRegistration {
     id: string
@@ -16,12 +17,14 @@ interface RecentRegistrationsTableProps {
 }
 
 export const RecentRegistrationsTable: React.FC<RecentRegistrationsTableProps> = ({ recentRegistrations }) => {
+    const { t } = useTranslation()
+
     return (
         <Card className="lg:col-span-2 flex flex-col min-h-[400px]">
             <CardHeader className="flex items-center justify-between">
                 <div>
-                    <CardTitle>Recent Registrations</CardTitle>
-                    <CardDescription>Last 10 days</CardDescription>
+                    <CardTitle>{t('recent_registrations')}</CardTitle>
+                    <CardDescription>{t('last_10_days')}</CardDescription>
                 </div>
             </CardHeader>
             <CardContent className="flex-1 overflow-hidden">
@@ -29,9 +32,9 @@ export const RecentRegistrationsTable: React.FC<RecentRegistrationsTableProps> =
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Registration Date</TableHead>
+                                <TableHead>{t('name')}</TableHead>
+                                <TableHead>{t('type')}</TableHead>
+                                <TableHead>{t('registration_date')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -48,9 +51,9 @@ export const RecentRegistrationsTable: React.FC<RecentRegistrationsTableProps> =
             </CardContent>
             <CardFooter className="flex justify-between text-sm text-muted-foreground">
                 <div>
-                    Total: {recentRegistrations.length}
+                    {t('total')}: {recentRegistrations.length}
                 </div>
-                <div>Updated: {new Date().toLocaleDateString()}</div>
+                <div>{t('updated')}: {new Date().toLocaleDateString()}</div>
             </CardFooter>
         </Card>
     )

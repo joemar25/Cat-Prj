@@ -3,6 +3,7 @@
 import { Cell, Pie, PieChart } from "recharts"
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { useTranslation } from 'react-i18next'
 
 interface GenderDistributionChartProps {
     totalMale: number
@@ -18,23 +19,25 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
     totalFemale,
     totalRegistrations,
 }) => {
+    const { t } = useTranslation()
+
     // Data for the donut chart
     const chartData = [
-        { gender: "Male", count: totalMale, fill: MALE_COLOR },
-        { gender: "Female", count: totalFemale, fill: FEMALE_COLOR },
+        { gender: t('male'), count: totalMale, fill: MALE_COLOR },
+        { gender: t('female'), count: totalFemale, fill: FEMALE_COLOR },
     ]
 
     // Chart configuration
     const chartConfig = {
         count: {
-            label: "Count",
+            label: t('count'),
         },
         Male: {
-            label: "Male",
+            label: t('male'),
             color: MALE_COLOR,
         },
         Female: {
-            label: "Female",
+            label: t('female'),
             color: FEMALE_COLOR,
         },
     } satisfies ChartConfig
@@ -46,17 +49,17 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
     // Determine the conclusion
     const conclusion =
         totalMale > totalFemale
-            ? `More male births than female from 2019-2023.`
+            ? t('conclusion_more_male')
             : totalFemale > totalMale
-                ? `More female births than male from 2019-2023.`
-                : `Equal number of male and female births from 2019-2023.`
+                ? t('conclusion_more_female')
+                : t('conclusion_equal')
 
     return (
         <Card className="lg:col-span-3 flex flex-col min-h-[400px]">
             <CardHeader className="flex items-center justify-between">
-                <CardTitle className="text-lg">Gender Distribution</CardTitle>
+                <CardTitle className="text-lg">{t('gender_distribution')}</CardTitle>
                 <CardDescription className="text-sm">
-                    Birth registrations by gender
+                    {t('birth_registrations_by_gender')}
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col justify-center">
@@ -71,7 +74,6 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
                             dataKey="count"
                             nameKey="gender"
                             innerRadius={60}
-                            // outerRadius={100}
                             label
                         >
                             {chartData.map((entry, index) => (
@@ -89,7 +91,7 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
                             style={{ backgroundColor: MALE_COLOR }}
                         />
                         <span className="text-muted-foreground">
-                            Male: {malePercentage}% ({totalMale.toLocaleString()})
+                            {t('male')}: {malePercentage}% ({totalMale.toLocaleString()})
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -98,18 +100,18 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
                             style={{ backgroundColor: FEMALE_COLOR }}
                         />
                         <span className="text-muted-foreground">
-                            Female: {femalePercentage}% ({totalFemale.toLocaleString()})
+                            {t('female')}: {femalePercentage}% ({totalFemale.toLocaleString()})
                         </span>
                     </div>
                 </div>
             </CardContent>
             <CardFooter className="p-4 pt-0 flex-col gap-1 text-sm">
                 <div className="leading-none text-muted-foreground">
-                    Showing total registrations for the last 6 months
+                    {t('last_6_months')}
                 </div>
                 {/* Conclusion */}
                 <div className="text-center text-sm text-muted-foreground">
-                    <strong>Conclusion:</strong> {conclusion}
+                    <strong>{t('conclusion')}:</strong> {conclusion}
                 </div>
             </CardFooter>
         </Card>
