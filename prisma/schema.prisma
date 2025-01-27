@@ -60,7 +60,7 @@ model BaseRegistryForm {
   id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   formNumber              String                   @db.VarChar(3)
   formType                FormType
-  registryNumber          String @unique
+  registryNumber          String                   @unique
   province                String
   cityMunicipality        String
   pageNumber              String
@@ -154,41 +154,41 @@ model MarriageCertificateForm {
 /// * BirthCertificateForm Model (Form 102)
 /// * @model
 model BirthCertificateForm {
-  id                      String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseFormId              String           @unique @db.Uuid
-  childName               Json
-  sex                     String
-  dateOfBirth             DateTime
-  placeOfBirth            Json
-  typeOfBirth             String
-  multipleBirthOrder      String?
-  birthOrder              String?
-  weightAtBirth           Float
-  motherMaidenName        Json
-  motherCitizenship       String
-  motherReligion          String?
-  motherOccupation        String?
-  motherAge               Int
-  motherResidence         Json
-  totalChildrenBornAlive  Int?
-  childrenStillLiving     Int?
-  childrenNowDead         Int?
-  fatherName              Json
-  fatherCitizenship       String
-  fatherReligion          String?
-  fatherOccupation        String?
-  fatherAge               Int
-  fatherResidence         Json
-  parentMarriage          Json?
-  attendant               Json
-  informant               Json
-  preparer                Json
-  hasAffidavitOfPaternity Boolean          @default(false)
-  affidavitOfPaternityDetails Json? // For the first affidavit
+  id                             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId                     String           @unique @db.Uuid
+  childName                      Json
+  sex                            String
+  dateOfBirth                    DateTime
+  placeOfBirth                   Json
+  typeOfBirth                    String
+  multipleBirthOrder             String?
+  birthOrder                     String?
+  weightAtBirth                  Float
+  motherMaidenName               Json
+  motherCitizenship              String
+  motherReligion                 String?
+  motherOccupation               String?
+  motherAge                      Int
+  motherResidence                Json
+  totalChildrenBornAlive         Int?
+  childrenStillLiving            Int?
+  childrenNowDead                Int?
+  fatherName                     Json
+  fatherCitizenship              String
+  fatherReligion                 String?
+  fatherOccupation               String?
+  fatherAge                      Int
+  fatherResidence                Json
+  parentMarriage                 Json?
+  attendant                      Json
+  informant                      Json
+  preparer                       Json
+  hasAffidavitOfPaternity        Boolean          @default(false)
+  affidavitOfPaternityDetails    Json? // For the first affidavit
   affidavitOfDelayedRegistration Json? // For the second affidavit
-  isDelayedRegistration Boolean @default(false)
-  reasonForDelay String?
-  baseForm                BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
+  isDelayedRegistration          Boolean          @default(false)
+  reasonForDelay                 String?
+  baseForm                       BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
 
   @@index([dateOfBirth])
   @@map("birth_certificate_form")
