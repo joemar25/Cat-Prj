@@ -21,9 +21,9 @@ if (typeof window !== 'undefined' && DEBUG) {
 }
 
 // Transform functions
-export function transformToMainNavItem(item: NavConfig, role: UserRole): NavMainItem {
+export function transformToMainNavItem(item: NavConfig, role: UserRole, t: Function): NavMainItem {
     const baseItem: NavMainItem = {
-        title: item.title,
+        title: t(item.id),  // Translate title using the 't' function
         url: item.url,
         notViewedCount: item.notViewedCount
     }
@@ -60,7 +60,7 @@ export function transformToMainNavItem(item: NavConfig, role: UserRole): NavMain
                 return false
             })
             .map(subItem => ({
-                title: subItem.title,
+                title: t(subItem.id),  // Translate title for sub-items
                 url: subItem.url,
                 notViewedCount: subItem.notViewedCount
             }))
@@ -74,9 +74,9 @@ export function transformToMainNavItem(item: NavConfig, role: UserRole): NavMain
     return baseItem
 }
 
-export function transformToSecondaryNavItem(item: NavConfig): NavSecondaryItem {
+export function transformToSecondaryNavItem(item: NavConfig, t: Function): NavSecondaryItem {
     const baseItem: NavSecondaryItem = {
-        title: item.title,
+        title: t(item.id),  // Translate title using the 't' function
         url: item.url,
         notViewedCount: item.notViewedCount
     }
@@ -145,34 +145,10 @@ export const navigationConfig: NavigationConfiguration = {
             url: '/civil-registry',
             iconName: 'briefcase',
         },
-        // {
-        //     id: 'requests',
-        //     type: 'main',
-        //     title: 'Manage Requests',
-        //     url: '/requests',
-        //     iconName: 'tag',
-        //     items: [
-        //         {
-        //             id: 'birth',
-        //             title: 'Birth Cert',
-        //             url: '/requests/birth-cert',
-        //         },
-        //         {
-        //             id: 'marriage',
-        //             title: 'Marriage Cert',
-        //             url: '/requests/marriage-cert',
-        //         },
-        //         {
-        //             id: 'death',
-        //             title: 'Death Cert',
-        //             url: '/requests/death-cert',
-        //         },
-        //     ],
-        // },
         {
             id: 'certified-true-copies',
             type: 'main',
-            title: 'Mangage CTC',
+            title: 'Manage CTC',
             url: '/certified-true-copies',
             iconName: 'lifeBuoy',
         },

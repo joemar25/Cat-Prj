@@ -9,6 +9,7 @@ import { Icons } from '@/components/ui/icons'
 import { Feedback } from '@prisma/client'
 import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
 import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
+import { useTranslation } from 'react-i18next' // Import useTranslation
 
 interface DataTableToolbarProps<TData extends Feedback> {
     table: Table<TData>
@@ -22,6 +23,8 @@ const submittedByOptions = [
 export function DataTableToolbar<TData extends Feedback>({
     table,
 }: DataTableToolbarProps<TData>) {
+    const { t } = useTranslation() // Initialize the translation hook
+
     const isFiltered = table.getState().columnFilters.length > 0
     const feedbackColumn = table.getColumn('feedback')
     const submittedByColumn = table.getColumn('submittedBy')
@@ -63,7 +66,7 @@ export function DataTableToolbar<TData extends Feedback>({
                 <div className="relative">
                     <Icons.search className="absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     <Input
-                        placeholder="Search feedback..."
+                        placeholder={t('Search feedback...')}
                         value={(feedbackColumn?.getFilterValue() as string) ?? ''}
                         onChange={(event) => handleSearch(event.target.value)}
                         className="h-10 w-[200px] lg:w-[300px] pl-10"
@@ -73,7 +76,7 @@ export function DataTableToolbar<TData extends Feedback>({
                 {submittedByColumn && (
                     <DataTableFacetedFilter
                         column={submittedByColumn}
-                        title="Submitted By"
+                        title={t('Submitted By')}
                         options={submittedByOptions}
                     />
                 )}
@@ -84,7 +87,7 @@ export function DataTableToolbar<TData extends Feedback>({
                         onClick={handleResetFilters}
                         className="h-10 px-3"
                     >
-                        Reset
+                        {t('Reset')}
                         <Cross2Icon className="ml-2 h-5 w-5" />
                     </Button>
                 )}
@@ -97,7 +100,7 @@ export function DataTableToolbar<TData extends Feedback>({
                     onClick={handleExport}
                 >
                     <Icons.download className="mr-2 h-4 w-4" />
-                    Export
+                    {t('Export')} {/* Translated Export text */}
                 </Button>
 
                 <DataTableViewOptions table={table} />

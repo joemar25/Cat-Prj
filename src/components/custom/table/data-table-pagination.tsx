@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import {
     ChevronLeftIcon,
     ChevronRightIcon,
@@ -26,6 +27,8 @@ export function DataTablePagination<TData>({
     table,
     showSelected = true,
 }: DataTablePaginationProps<TData>) {
+    const { t } = useTranslation() // Use i18n hook
+
     const selectedRowCount = table.getFilteredSelectedRowModel().rows.length
     const totalRowCount = table.getFilteredRowModel().rows.length
 
@@ -35,14 +38,17 @@ export function DataTablePagination<TData>({
                 {showSelected && (
                     <span>
                         {selectedRowCount > 0
-                            ? `${selectedRowCount} of ${totalRowCount} row(s) selected.`
-                            : `No rows selected.`}
+                            ? t('datatable.selected_rows', {
+                                  selected: selectedRowCount,
+                                  total: totalRowCount,
+                              })
+                            : t('datatable.no_rows_selected')}
                     </span>
                 )}
             </div>
             <div className='flex items-center space-x-6 lg:space-x-8'>
                 <div className='flex items-center space-x-2'>
-                    <p className='text-sm font-medium'>Rows per page</p>
+                    <p className='text-sm font-medium'>{t('datatable.rows_per_page')}</p>
                     <Select
                         value={`${table.getState().pagination.pageSize}`}
                         onValueChange={(value) => {
@@ -62,8 +68,10 @@ export function DataTablePagination<TData>({
                     </Select>
                 </div>
                 <div className='flex w-[100px] items-center justify-center text-sm font-medium'>
-                    Page {table.getState().pagination.pageIndex + 1} of{' '}
-                    {table.getPageCount()}
+                    {t('datatable.page_info', {
+                        current: table.getState().pagination.pageIndex + 1,
+                        total: table.getPageCount(),
+                    })}
                 </div>
                 <div className='flex items-center space-x-2'>
                     <Button
@@ -72,7 +80,7 @@ export function DataTablePagination<TData>({
                         onClick={() => table.setPageIndex(0)}
                         disabled={!table.getCanPreviousPage()}
                     >
-                        <span className='sr-only'>Go to first page</span>
+                        <span className='sr-only'>{t('datatable.go_to_first_page')}</span>
                         <DoubleArrowLeftIcon className='h-4 w-4' />
                     </Button>
                     <Button
@@ -81,7 +89,7 @@ export function DataTablePagination<TData>({
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
                     >
-                        <span className='sr-only'>Go to previous page</span>
+                        <span className='sr-only'>{t('datatable.go_to_previous_page')}</span>
                         <ChevronLeftIcon className='h-4 w-4' />
                     </Button>
                     <Button
@@ -90,7 +98,7 @@ export function DataTablePagination<TData>({
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
                     >
-                        <span className='sr-only'>Go to next page</span>
+                        <span className='sr-only'>{t('datatable.go_to_next_page')}</span>
                         <ChevronRightIcon className='h-4 w-4' />
                     </Button>
                     <Button
@@ -99,7 +107,7 @@ export function DataTablePagination<TData>({
                         onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                         disabled={!table.getCanNextPage()}
                     >
-                        <span className='sr-only'>Go to last page</span>
+                        <span className='sr-only'>{t('datatable.go_to_last_page')}</span>
                         <DoubleArrowRightIcon className='h-4 w-4' />
                     </Button>
                 </div>

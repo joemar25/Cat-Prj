@@ -1,6 +1,6 @@
 'use client';
 
-import MarriageAnnotationForm from '@/components/custom/forms//annotations/marriage-annotation-form';
+import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form';
 import BirthAnnotationForm from '@/components/custom/forms/annotations/birthcert';
 import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation-form';
 import { Badge } from '@/components/ui/badge';
@@ -33,8 +33,8 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { EditCivilRegistryFormDialog } from './actions/edit-civil-registry-form-dialog';
-// import { ScanFormDialog } from './actions/scan-form-dialog'
 import { FileUploadDialog } from './components/file-upload';
+import { useTranslation } from 'react-i18next';
 
 interface DataTableRowActionsProps {
   row: Row<BaseRegistryFormWithRelations>;
@@ -64,6 +64,7 @@ export function DataTableRowActions({
   row,
   onUpdateAction,
 }: DataTableRowActionsProps) {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const form = row.original;
   const [isLoading, setIsLoading] = useState(false);
@@ -239,19 +240,19 @@ export function DataTableRowActions({
       return (
         <>
           <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>Husband</span>
+            <span className='font-medium'>{t('husband')}</span>
             <span className='col-span-3'>
               {`${form.marriageCertificateForm.husbandFirstName} ${form.marriageCertificateForm.husbandLastName}`}
             </span>
           </div>
           <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>Wife</span>
+            <span className='font-medium'>{t('wife')}</span>
             <span className='col-span-3'>
               {`${form.marriageCertificateForm.wifeFirstName} ${form.marriageCertificateForm.wifeLastName}`}
             </span>
           </div>
           <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>Date of Marriage</span>
+            <span className='font-medium'>{t('dateOfMarriage')}</span>
             <span className='col-span-3'>
               {new Date(
                 form.marriageCertificateForm.dateOfMarriage
@@ -264,13 +265,13 @@ export function DataTableRowActions({
       return (
         <>
           <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>Child Name</span>
+            <span className='font-medium'>{t('childName')}</span>
             <span className='col-span-3'>
               {formatName(form.birthCertificateForm.childName)}
             </span>
           </div>
           <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>Date of Birth</span>
+            <span className='font-medium'>{t('dateOfBirth')}</span>
             <span className='col-span-3'>
               {new Date(
                 form.birthCertificateForm.dateOfBirth
@@ -278,7 +279,7 @@ export function DataTableRowActions({
             </span>
           </div>
           <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>Sex</span>
+            <span className='font-medium'>{t('sex')}</span>
             <span className='col-span-3'>{form.birthCertificateForm.sex}</span>
           </div>
         </>
@@ -287,13 +288,13 @@ export function DataTableRowActions({
       return (
         <>
           <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>Deceased Name</span>
+            <span className='font-medium'>{t('deceasedName')}</span>
             <span className='col-span-3'>
               {formatName(form.deathCertificateForm.deceasedName)}
             </span>
           </div>
           <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>Date of Death</span>
+            <span className='font-medium'>{t('dateOfDeath')}</span>
             <span className='col-span-3'>
               {new Date(
                 form.deathCertificateForm.dateOfDeath
@@ -301,7 +302,7 @@ export function DataTableRowActions({
             </span>
           </div>
           <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>Sex</span>
+            <span className='font-medium'>{t('sex')}</span>
             <span className='col-span-3'>{form.deathCertificateForm.sex}</span>
           </div>
         </>
@@ -330,15 +331,15 @@ export function DataTableRowActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end' className='w-[160px]'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setViewDetailsOpen(true)}>
             <Icons.eye className='mr-2 h-4 w-4' />
-            View Details
+            {t('viewDetails')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
             <Icons.add className='mr-2 h-4 w-4' />
-            Import Document
+            {t('importDocument')}
           </DropdownMenuItem>
           {form.documentUrl && (
             <DropdownMenuItem
@@ -347,15 +348,12 @@ export function DataTableRowActions({
               }
             >
               <Icons.download className='mr-2 h-4 w-4' />
-              Export Document
+              {t('exportDocument')}
             </DropdownMenuItem>
           )}
-          {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-            <ScanFormDialog />
-          </DropdownMenuItem> */}
           <DropdownMenuItem onClick={handleOpenForm}>
             <Icons.file className='mr-2 h-4 w-4' />
-            Issue Certificate
+            {t('issueCertificate')}
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={(e) => e.preventDefault()}
@@ -364,7 +362,7 @@ export function DataTableRowActions({
             className='text-destructive focus:text-destructive'
           >
             <Icons.trash className='mr-2 h-4 w-4' />
-            {isLoading ? 'Deleting...' : 'Delete'}
+            {isLoading ? t('deleting') : t('delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -381,98 +379,32 @@ export function DataTableRowActions({
       <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
         <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
-            <DialogTitle>Form Details</DialogTitle>
-            <DialogDescription>
-              Detailed information about the civil registry form.
-            </DialogDescription>
+            <DialogTitle>{t('formDetails.title')}</DialogTitle>
+            <DialogDescription>{t('formDetails.description')}</DialogDescription>
           </DialogHeader>
           <div className='grid gap-4 py-4'>
             <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Form Type</span>
+              <span className='font-medium'>{t('formDetails.formType')}</span>
               <span className='col-span-3'>
                 {formTypeLabels[form.formType]}
               </span>
             </div>
             <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Registry No.</span>
+              <span className='font-medium'>{t('formDetails.registryNo')}</span>
               <span className='col-span-3'>{form.registryNumber}</span>
             </div>
             <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Status</span>
+              <span className='font-medium'>{t('formDetails.status')}</span>
               <span className='col-span-3'>
                 <Badge variant={statusVariants[form.status].variant}>
                   {statusVariants[form.status].label}
                 </Badge>
               </span>
             </div>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Location</span>
-              <span className='col-span-3'>
-                {form.cityMunicipality}, {form.province}
-              </span>
-            </div>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Filing Info</span>
-              <span className='col-span-3'>
-                Book {form.bookNumber}, Page {form.pageNumber}
-              </span>
-            </div>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Prepared By</span>
-              <span className='col-span-3'>
-                {form.preparedBy?.name || 'N/A'}
-              </span>
-            </div>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Verified By</span>
-              <span className='col-span-3'>
-                {form.verifiedBy?.name || 'N/A'}
-              </span>
-            </div>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Registration</span>
-              <span className='col-span-3'>
-                {new Date(form.dateOfRegistration).toLocaleDateString()}
-              </span>
-            </div>
-
-            {/* Form-specific details */}
             {getSpecificFormDetails()}
-
-            {form.remarks && (
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <span className='font-medium'>Remarks</span>
-                <span className='col-span-3'>{form.remarks}</span>
-              </div>
-            )}
-            {form.lcroNotations && (
-              <div className='grid grid-cols-4 items-center gap-4'>
-                <span className='font-medium'>LCRO Notations</span>
-                <span className='col-span-3'>{form.lcroNotations}</span>
-              </div>
-            )}
           </div>
         </DialogContent>
       </Dialog>
-
-      <BirthAnnotationForm
-        open={birthFormOpen}
-        onOpenChange={setBirthFormOpen}
-        onCancel={() => setBirthFormOpen(false)}
-        row={row}
-      />
-      <DeathAnnotationForm
-        open={deathFormOpen}
-        onOpenChange={setDeathFormOpen}
-        onCancel={() => setDeathFormOpen(false)}
-        row={row}
-      />
-      <MarriageAnnotationForm
-        open={marriageFormOpen}
-        onOpenChange={setMarriageFormOpen}
-        onCancel={() => setMarriageFormOpen(false)}
-        row={row}
-      />
     </>
   );
 }

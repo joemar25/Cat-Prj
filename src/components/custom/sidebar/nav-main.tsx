@@ -24,12 +24,14 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Icons } from '@/components/ui/icons'
 import { type NavMainItem } from '@/lib/types/navigation'
+import { useTranslation } from 'react-i18next'
 
 interface NavMainProps {
   items: Array<NavMainItem & { icon?: LucideIcon }>
 }
 
 export function NavMain({ items }: NavMainProps) {
+  const { t } = useTranslation()
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
 
@@ -43,7 +45,7 @@ export function NavMain({ items }: NavMainProps) {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>{t('platform')}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
           const hasActiveSubItem = item.items?.some(subItem => pathname === subItem.url)
