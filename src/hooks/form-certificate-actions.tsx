@@ -478,7 +478,7 @@ export async function createBirthCertificate(
   ignoreDuplicateChild: boolean = false
 ) {
   try {
-    // No need to parse dates since they're already Date objects
+    // Validate required dates
     if (!data.childInfo.dateOfBirth) {
       return { success: false, error: 'Date of birth is required' };
     }
@@ -487,7 +487,7 @@ export async function createBirthCertificate(
       return { success: false, error: 'Parent marriage date is required' };
     }
 
-    // Validate registry number format before checking in DB
+    // Validate registry number format
     if (!/\d{4}-\d{5}/.test(data.registryNumber)) {
       return {
         success: false,
@@ -495,7 +495,7 @@ export async function createBirthCertificate(
       };
     }
 
-    // Validate registry number does not already exist
+    // Check for existing registry number
     const existingRegistry = await prisma.baseRegistryForm.findFirst({
       where: {
         registryNumber: data.registryNumber,
@@ -510,7 +510,7 @@ export async function createBirthCertificate(
       };
     }
 
-    // Check for existing child information in the database
+    // Check for duplicate child
     if (!ignoreDuplicateChild) {
       const existingChild = await prisma.birthCertificateForm.findFirst({
         where: {
@@ -528,7 +528,7 @@ export async function createBirthCertificate(
               },
             },
             {
-              dateOfBirth: data.childInfo.dateOfBirth, // Now directly use the Date object
+              dateOfBirth: data.childInfo.dateOfBirth,
             },
             {
               placeOfBirth: {
@@ -574,7 +574,7 @@ export async function createBirthCertificate(
       return { success: false, error: 'Preparer not found' };
     }
 
-    // Create the birth certificate with direct Date objects
+    // Create the birth certificate
     const baseForm = await prisma.baseRegistryForm.create({
       data: {
         formNumber: '102',
@@ -593,13 +593,14 @@ export async function createBirthCertificate(
         },
         birthCertificateForm: {
           create: {
+            // Child Information
             childName: {
               firstName: data.childInfo.firstName.trim(),
               middleName: data.childInfo.middleName?.trim() || '',
               lastName: data.childInfo.lastName.trim(),
             },
             sex: data.childInfo.sex,
-            dateOfBirth: data.childInfo.dateOfBirth, // Direct Date object
+            dateOfBirth: data.childInfo.dateOfBirth,
             placeOfBirth: {
               hospital: data.childInfo.placeOfBirth.hospital.trim(),
               province: data.childInfo.placeOfBirth.province.trim(),
@@ -610,6 +611,8 @@ export async function createBirthCertificate(
             multipleBirthOrder: data.childInfo.multipleBirthOrder || null,
             birthOrder: data.childInfo.birthOrder || null,
             weightAtBirth: parseFloat(data.childInfo.weightAtBirth),
+
+            // Mother Information
             motherMaidenName: {
               firstName: data.motherInfo.firstName.trim(),
               middleName: data.motherInfo.middleName?.trim() || '',
@@ -631,6 +634,8 @@ export async function createBirthCertificate(
             ),
             childrenStillLiving: parseInt(data.motherInfo.childrenStillLiving),
             childrenNowDead: parseInt(data.motherInfo.childrenNowDead),
+
+            // Father Information
             fatherName: {
               firstName: data.fatherInfo.firstName.trim(),
               middleName: data.fatherInfo.middleName?.trim() || '',
@@ -647,8 +652,10 @@ export async function createBirthCertificate(
                 data.fatherInfo.residence.cityMunicipality.trim(),
               country: data.fatherInfo.residence.country.trim(),
             },
+
+            // Marriage Information
             parentMarriage: {
-              date: data.parentMarriage.date, // Direct Date object
+              date: data.parentMarriage.date,
               place: {
                 cityMunicipality:
                   data.parentMarriage.place.cityMunicipality.trim(),
@@ -656,6 +663,8 @@ export async function createBirthCertificate(
                 country: data.parentMarriage.place.country.trim(),
               },
             },
+
+            // Attendant Information
             attendant: {
               type: data.attendant.type,
               certification: {
@@ -664,31 +673,150 @@ export async function createBirthCertificate(
                 name: data.attendant.certification.name.trim(),
                 title: data.attendant.certification.title.trim(),
                 address: data.attendant.certification.address.trim(),
-                date: data.attendant.certification.date, // Direct Date object
+                date: data.attendant.certification.date,
               },
             },
+
+            // Informant Information
             informant: {
               signature: data.informant.signature || '',
               name: data.informant.name.trim(),
               relationship: data.informant.relationship.trim(),
               address: data.informant.address.trim(),
-              date: data.informant.date, // Direct Date object
+              date: data.informant.date,
             },
+
+            // Preparer Information
             preparer: {
               signature: data.preparedBy.signature || '',
               name: data.preparedBy.name.trim(),
               title: data.preparedBy.title.trim(),
-              date: data.preparedBy.date, // Direct Date object
+              date: data.preparedBy.date,
             },
-            hasAffidavitOfPaternity: false,
+
+            // Affidavit of Paternity
+            hasAffidavitOfPaternity: data.hasAffidavitOfPaternity,
+            affidavitOfPaternityDetails: data.hasAffidavitOfPaternity
+              ? {
+                  father: {
+                    signature:
+                      data.affidavitOfPaternityDetails?.father?.signature ?? '',
+                    name:
+                      data.affidavitOfPaternityDetails?.father?.name?.trim() ??
+                      '',
+                    title:
+                      data.affidavitOfPaternityDetails?.father?.title?.trim() ??
+                      '',
+                  },
+                  mother: {
+                    signature:
+                      data.affidavitOfPaternityDetails?.mother?.signature ?? '',
+                    name:
+                      data.affidavitOfPaternityDetails?.mother?.name?.trim() ??
+                      '',
+                    title:
+                      data.affidavitOfPaternityDetails?.mother?.title?.trim() ??
+                      '',
+                  },
+                  dateSworn:
+                    data.affidavitOfPaternityDetails?.dateSworn ?? null,
+                  adminOfficer: {
+                    signature:
+                      data.affidavitOfPaternityDetails?.adminOfficer
+                        ?.signature ?? '',
+                    name:
+                      data.affidavitOfPaternityDetails?.adminOfficer?.name?.trim() ??
+                      '',
+                    position:
+                      data.affidavitOfPaternityDetails?.adminOfficer?.position?.trim() ??
+                      '',
+                  },
+                  ctcInfo: {
+                    number:
+                      data.affidavitOfPaternityDetails?.ctcInfo?.number?.trim() ??
+                      '',
+                    dateIssued:
+                      data.affidavitOfPaternityDetails?.ctcInfo?.dateIssued ??
+                      null,
+                    placeIssued:
+                      data.affidavitOfPaternityDetails?.ctcInfo?.placeIssued?.trim() ??
+                      '',
+                  },
+                }
+              : undefined, // Use undefined instead of null
+
+            // Delayed Registration
+            isDelayedRegistration: data.isDelayedRegistration,
+            affidavitOfDelayedRegistration: data.isDelayedRegistration
+              ? {
+                  affiant: {
+                    name:
+                      data.affidavitOfDelayedRegistration?.affiant?.name?.trim() ??
+                      '',
+                    address: {
+                      address:
+                        data.affidavitOfDelayedRegistration?.affiant?.address?.address?.trim() ??
+                        '',
+                      cityMunicipality:
+                        data.affidavitOfDelayedRegistration?.affiant?.address?.cityMunicipality?.trim() ??
+                        '',
+                      province:
+                        data.affidavitOfDelayedRegistration?.affiant?.address?.province?.trim() ??
+                        '',
+                      country:
+                        data.affidavitOfDelayedRegistration?.affiant?.address?.country?.trim() ??
+                        '',
+                    },
+                    civilStatus:
+                      data.affidavitOfDelayedRegistration?.affiant
+                        ?.civilStatus ?? '',
+                    citizenship:
+                      data.affidavitOfDelayedRegistration?.affiant
+                        ?.citizenship ?? '',
+                  },
+                  registrationType:
+                    data.affidavitOfDelayedRegistration?.registrationType ??
+                    'SELF',
+                  parentMaritalStatus:
+                    data.affidavitOfDelayedRegistration?.parentMaritalStatus ??
+                    'MARRIED',
+                  reasonForDelay:
+                    data.affidavitOfDelayedRegistration?.reasonForDelay?.trim() ??
+                    '',
+                  dateSworn:
+                    data.affidavitOfDelayedRegistration?.dateSworn ?? null,
+                  adminOfficer: {
+                    signature:
+                      data.affidavitOfDelayedRegistration?.adminOfficer
+                        ?.signature ?? '',
+                    name:
+                      data.affidavitOfDelayedRegistration?.adminOfficer?.name?.trim() ??
+                      '',
+                    position:
+                      data.affidavitOfDelayedRegistration?.adminOfficer?.position?.trim() ??
+                      '',
+                  },
+                  ctcInfo: {
+                    number:
+                      data.affidavitOfDelayedRegistration?.ctcInfo?.number?.trim() ??
+                      '',
+                    dateIssued:
+                      data.affidavitOfDelayedRegistration?.ctcInfo
+                        ?.dateIssued ?? null,
+                    placeIssued:
+                      data.affidavitOfDelayedRegistration?.ctcInfo?.placeIssued?.trim() ??
+                      '',
+                  },
+                }
+              : undefined, // Use undefined instead of null
           },
         },
         receivedBy: data.receivedBy.name.trim(),
         receivedByPosition: data.receivedBy.title.trim(),
-        receivedDate: data.receivedBy.date, // Direct Date object
+        receivedDate: data.receivedBy.date,
         registeredBy: data.registeredByOffice.name.trim(),
         registeredByPosition: data.registeredByOffice.title.trim(),
-        registrationDate: data.registeredByOffice.date, // Direct Date object
+        registrationDate: data.registeredByOffice.date,
         remarks: data.remarks?.trim(),
       },
     });

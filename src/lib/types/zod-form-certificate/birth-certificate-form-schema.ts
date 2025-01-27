@@ -111,6 +111,52 @@ export const birthCertificateSchema = z.object({
   // Registered By Civil Registry
   registeredByOffice: signatureSchema,
 
+  hasAffidavitOfPaternity: z.boolean().default(false),
+  affidavitOfPaternityDetails: z
+    .object({
+      father: signatureSchema.omit({ date: true }),
+      mother: signatureSchema.omit({ date: true }),
+      dateSworn: dateSchema,
+      adminOfficer: z.object({
+        signature: z.string(),
+        name: z.string().min(1, 'Officer name is required'),
+        position: z.string().min(1, 'Position is required'),
+      }),
+      ctcInfo: z.object({
+        number: z.string().min(1, 'CTC number is required'),
+        dateIssued: dateSchema,
+        placeIssued: z.string().min(1, 'Place issued is required'),
+      }),
+    })
+    .optional(),
+
+  // Add this to your birthCertificateSchema
+  isDelayedRegistration: z.boolean().default(false),
+  affidavitOfDelayedRegistration: z
+    .object({
+      affiant: z.object({
+        name: z.string().min(1, 'Affiant name is required'),
+        address: addressSchema,
+        civilStatus: z.string().min(1, 'Civil status is required'),
+        citizenship: z.string().min(1, 'Citizenship is required'),
+      }),
+      registrationType: z.enum(['SELF', 'OTHER']),
+      parentMaritalStatus: z.enum(['MARRIED', 'NOT_MARRIED']),
+      reasonForDelay: z.string().min(1, 'Reason for delay is required'),
+      dateSworn: dateSchema,
+      adminOfficer: z.object({
+        signature: z.string(),
+        name: z.string().min(1, 'Officer name is required'),
+        position: z.string().min(1, 'Position is required'),
+      }),
+      ctcInfo: z.object({
+        number: z.string().min(1, 'CTC number is required'),
+        dateIssued: dateSchema,
+        placeIssued: z.string().min(1, 'Place issued is required'),
+      }),
+    })
+    .optional(),
+
   remarks: z.string().optional(),
 });
 
@@ -356,6 +402,62 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     name: 'Admin User 1',
     title: 'Civil Registrar',
     date: new Date('2024-01-16'),
+  },
+
+  // Affidavit of Paternity
+  hasAffidavitOfPaternity: false,
+  affidavitOfPaternityDetails: {
+    father: {
+      signature: 'JoseDC',
+      name: 'Jose Dela Cruz',
+      title: 'Father',
+    },
+    mother: {
+      signature: 'MariaS',
+      name: 'Maria Santos',
+      title: 'Mother',
+    },
+    dateSworn: new Date('2024-01-16'),
+    adminOfficer: {
+      signature: 'AdminSign',
+      name: 'Administrator Name',
+      position: 'Notary Public',
+    },
+    ctcInfo: {
+      number: '12345-2024',
+      dateIssued: new Date('2024-01-16'),
+      placeIssued: 'Quezon City',
+    },
+  },
+
+  // Delayed Registration
+  isDelayedRegistration: false,
+  affidavitOfDelayedRegistration: {
+    affiant: {
+      name: 'Jose Dela Cruz',
+      address: {
+        address: '123 Maginhawa Street',
+        cityMunicipality: 'Quezon City',
+        province: 'Metro Manila',
+        country: 'Philippines',
+      },
+      civilStatus: 'Married',
+      citizenship: 'Filipino',
+    },
+    registrationType: 'SELF',
+    parentMaritalStatus: 'MARRIED',
+    reasonForDelay: 'Documentation processing delay',
+    dateSworn: new Date('2024-01-16'),
+    adminOfficer: {
+      signature: 'AdminSign',
+      name: 'Administrator Name',
+      position: 'Notary Public',
+    },
+    ctcInfo: {
+      number: '12345-2024',
+      dateIssued: new Date('2024-01-16'),
+      placeIssued: 'Quezon City',
+    },
   },
 
   // Remarks

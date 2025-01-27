@@ -50,7 +50,7 @@ model User {
 /// *
 /// * BaseRegistryForm Model
 /// * @model
-/// * Central model for all civil registry forms that stores common data and relationships
+/// * Central model for all municipal forms that stores common data and relationships
 /// * Common model for Form 97 (Marriage), Form 102 (Birth), and Form 103 (Death)
 /// * Features:
 /// * - Common fields across all civil registry forms
@@ -184,6 +184,10 @@ model BirthCertificateForm {
   informant               Json
   preparer                Json
   hasAffidavitOfPaternity Boolean          @default(false)
+  affidavitOfPaternityDetails Json? // For the first affidavit
+  affidavitOfDelayedRegistration Json? // For the second affidavit
+  isDelayedRegistration Boolean @default(false)
+  reasonForDelay String?
   baseForm                BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
 
   @@index([dateOfBirth])

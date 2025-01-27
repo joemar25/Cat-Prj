@@ -36,6 +36,7 @@ import ReceivedByCard from '@/components/custom/forms/certificates/form-cards/bi
 import RegisteredAtOfficeCard from '@/components/custom/forms/certificates/form-cards/birth-cards/registered-at-office-card';
 import RegistryInformationCard from '@/components/custom/forms/certificates/form-cards/birth-cards/registry-information-card';
 import RemarksCard from '@/components/custom/forms/certificates/form-cards/birth-cards/remarks';
+import AffidavitFormsCard from './form-cards/birth-cards/affidavit-form-card';
 import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
 
 export default function BirthCertificateForm({
@@ -182,6 +183,9 @@ export default function BirthCertificateForm({
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard />
                       <RemarksCard />
+
+                      {/* Back Page Part */}
+                      <AffidavitFormsCard />
 
                       <DialogFooter>
                         <Button
