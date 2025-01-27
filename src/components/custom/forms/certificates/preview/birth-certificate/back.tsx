@@ -3,6 +3,7 @@ import { StyleSheet } from "@react-pdf/renderer";
 export const back = StyleSheet.create({
   page: {
     padding: 10,
+    backgroundColor: '#E4E4E4',
   },
   container: {
     border: "1px solid #000",
@@ -12,10 +13,10 @@ export const back = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    fontSize: 11,
+    fontSize: 10,
   },
   headerTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: "Helvetica-Bold",
     fontWeight: "extrabold",
     marginBottom: 5,
@@ -41,7 +42,7 @@ export const back = StyleSheet.create({
     gap: 5,
   },
   textStyle: {
-    fontSize: 11,
+    fontSize: 10,
   },
   signatureText: {
     width: "100%",
@@ -55,8 +56,8 @@ export const back = StyleSheet.create({
   formRow: {
     display: "flex",
     flexDirection: "row",
+    alignItems: "center",
     marginTop: 5,
-    flexWrap: "wrap",
   },
   formField: {
     marginLeft: 10,
@@ -75,5 +76,15 @@ export const back = StyleSheet.create({
     width: "100%",
     borderBottom: "1px solid #000",
     textAlign: "center",
+  },
+  radio: {
+    width: 16,
+    height: 16,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#000",
+    marginRight: 6,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

@@ -50,7 +50,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 </Text>
               </View>
             </View>
-            <View style={[back.formRow, { marginTop: 25 }]}>
+            <View style={[back.formRow, { marginTop: 15 }]}>
               <Text style={[back.textStyle, { marginLeft: 40 }]}>I/We,</Text>
               <Text style={[back.textStyle, back.formField]}>{"Jane Doe"}</Text>
               <Text style={[back.textStyle, { marginLeft: 12 }]}>and</Text>
@@ -96,7 +96,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 of acknowledgement my/our child.
               </Text>
             </View>
-            <View style={[back.rowContainer, { marginTop: 25 }]}>
+            <View style={[back.rowContainer, { marginTop: 15 }]}>
               <View style={back.signatureBlock}>
                 <Text style={[back.textStyle, back.signatureText]}>
                   {"Jane Doe"}
@@ -114,7 +114,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 </Text>
               </View>
             </View>
-            <View style={[back.formRow, { marginTop: 25 }]}>
+            <View style={[back.formRow, { marginTop: 15 }]}>
               <Text
                 style={[back.textStyle, { marginRight: 20, marginLeft: 40 }]}
               >
@@ -185,17 +185,16 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               >
                 {"Jane Doe"}
               </Text>
-              <Text style={[back.textStyle, { marginLeft: 10 }]}>
-                issued on
-              </Text>
+              <Text style={[back.textStyle, { marginLeft: 10 }]}>issued on  </Text>
               <Text
-                style={[back.textStyle, back.signatureText, { width: "30%" }]}
+                style={[back.textStyle, back.signatureText, { width: "40%" }]}
               >
                 {"Jane Doe"}
               </Text>
-              <Text style={[back.textStyle]}>at</Text>
+
             </View>
             <View style={[back.formRow]}>
+              <Text style={[back.textStyle]}>at  </Text>
               <Text
                 style={[back.textStyle, back.signatureText, { width: "40%" }]}
               >
@@ -251,7 +250,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 old or over.)
               </Text>
             </View>
-            <View style={[back.formRow, { marginTop: 25 }]}>
+            <View style={[back.formRow, { marginTop: 15 }]}>
               <Text style={[back.textStyle, { marginLeft: 40 }]}>I </Text>
               <Text style={[back.textStyle, back.formField]}>{"Jane Doe"}</Text>
               <Text style={[back.textStyle, { marginLeft: 12 }]}>
@@ -259,10 +258,16 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </Text>
             </View>
             <View style={[back.formRow]}>
-              <Text style={[back.textStyle, { paddingRight: 12 }]}>
+              <Text style={[back.textStyle, { paddingRight: 10 }]}>
                 residence and postal address at
               </Text>
-              <Text style={[back.textStyle, back.formField, { width: "80%" }]}>
+              <Text
+                style={[
+                  back.textStyle,
+                  back.formField,
+                  { width: "80%", flexWrap: "wrap" },
+                ]}
+              >
                 {"Jane Doe"}
               </Text>
             </View>
@@ -272,27 +277,227 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 depose and say:
               </Text>
             </View>
-            <View style={[back.columnContainer, { marginLeft: 40 }]}>
-              <View style={[back.columnContainer]}>
+            <View
+              style={[
+                back.columnContainer,
+                { marginLeft: 40, marginTop: 15, alignItems: "flex-start" },
+              ]}
+            >
+              <View style={[back.columnContainer, { alignItems: "flex-start" },]}>
                 <Text style={[back.textStyle]}>
                   1. That I am the applicant for the delayed registration of:
                 </Text>
-                <View style={back.formRow}>
+                <View style={[back.formRow, { marginLeft: 20 }]}>
+                  <View style={back.radio}>
+                    {/* If this option is selected, uncomment the below View to fill the circle */}
+                  </View>
                   <Text style={[back.textStyle]}>My birth in</Text>
                   <Text
-                    style={[
-                      back.textStyle,
-                      back.signatureText,
-                      { marginLeft: 12 },
-                    ]}
+                    style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%" },]}
                   >
                     {"Jane Doe"}
                   </Text>
-                  <Text style={[back.textStyle, { marginLeft: 12 }]}>at</Text>
-                  <Text style={[back.textStyle, back.formFieldWider]}>
+                  <Text style={[back.textStyle, { paddingRight: 12 }]}>on</Text>
+                  <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%", paddingRight: 12 }]}>
                     {"Jane Doe"}
                   </Text>
                 </View>
+                <View style={[back.formRow, { marginLeft: 20 }]}>
+                  <View style={back.radio}>
+                    {/* If this option is selected, uncomment the below View to fill the circle */}
+                  </View>
+                  <Text style={[back.textStyle]}>the birth of</Text>
+                  <Text
+                    style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%" },]}
+                  >
+                    {"Jane Doe"}
+                  </Text>
+                  <Text style={[back.textStyle, { paddingRight: 12 }]}>who was born in</Text>
+                  <Text style={[back.textStyle, back.signatureText, { flexWrap: "wrap", width: "25%", paddingRight: 12 }]}>
+                    {"Jane Doe"}
+                  </Text>
+
+                </View>
+                <View style={[back.formRow, { marginLeft: 20 }]}>
+                  <Text style={[back.textStyle, { paddingRight: 12 }]}>on</Text>
+                  <Text style={[back.textStyle, back.signatureText, { flexWrap: "wrap", width: "35%", paddingRight: 12 }]}>
+                    {"Jane Doe"}
+                  </Text>
+                </View>
+                <View style={[back.formRow, { alignItems: "flex-start", flexWrap: "wrap", },]}>
+                  <Text style={[back.textStyle]}>
+                    2. That I/he/she was attended at birth by
+                  </Text>
+                  <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "55%", paddingRight: 12 }]}>
+                    {"Jane Doe"}
+                  </Text>
+                </View>
+                <View style={[back.formRow, { flexWrap: "wrap", paddingLeft: 20 },]}>
+                  <Text style={[back.textStyle]}>
+                    who resides at
+                  </Text>
+                  <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "60%", paddingRight: 12 }]}>
+                    {"Jane Doe"}
+                  </Text>
+                </View>
+                <View style={[back.formRow, { alignItems: "flex-start", flexWrap: "wrap", },]}>
+                  <Text style={[back.textStyle]}>
+                    3. That I am /he/she is a citizen of
+                  </Text>
+                  <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "55%", paddingRight: 12 }]}>
+                    {"Jane Doe"}
+                  </Text>
+                </View>
+                <View style={[back.formRow, { flexWrap: "wrap", },]}>
+                  <Text style={[back.textStyle]}>
+                    4. That my/his/her parents were
+                  </Text>
+                  <View style={[back.formRow, { marginLeft: 20 }]}>
+                    <View style={back.radio}>
+                      {/* If this option is selected, uncomment the below View to fill the circle */}
+                    </View>
+                    <Text style={[back.textStyle]}>married on</Text>
+                    <Text
+                      style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%" },]}
+                    >
+                      {"Jane Doe"}
+                    </Text>
+                    <Text style={[back.textStyle, { paddingRight: 12 }]}>at</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%", paddingRight: 12 }]}>
+                      {"Jane Doe"}
+                    </Text>
+                  </View>
+                  <View style={[back.formRow, { marginLeft: 20 }]}>
+                    <View style={back.radio}>
+                      {/* If this option is selected, uncomment the below View to fill the circle */}
+                    </View>
+                    <Text style={[back.textStyle]}>not marriead but I/he/she was acknowledged/not acknowledged by my/his/her  </Text>
+
+                  </View>
+                  <View style={[back.formRow, { marginLeft: 20 }]}>
+                    <Text style={[back.textStyle, { paddingRight: 12 }]}>father whose name is</Text>
+                    <Text
+                      style={[back.textStyle, back.signatureText, { flexWrap: "wrap", width: "70%" },]}
+                    >
+                      {"Jane Doe"}
+                    </Text>
+                  </View>
+                  <View style={[back.formRow, { marginTop: 15, alignItems: "flex-start", flexWrap: "wrap", },]}>
+                    <Text style={[back.textStyle]}>
+                      5. That the reason for the delay in registering my/his/her birth was
+                    </Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "90%" }]}>
+                      {"Jane Doe"}
+                    </Text>
+                  </View>
+                  <View style={[back.formRow, { justifyContent: "center", alignItems: "flex-end" },]}>
+                    <Text style={[back.textStyle]}>
+                      6. (For the applicant only) That I am married to
+                    </Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "45%" }]}>
+                      {""}
+                    </Text>
+                  </View>
+
+                  <View style={[back.formRow, { marginTop: 10, alignItems: "flex-end", flexWrap: "wrap" }]}>
+                    <Text style={[back.textStyle]}>
+                      (If the applicant is other than the document owner) That I am the
+                    </Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "30%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>of the said person.</Text>
+                  </View>
+
+                  <View style={[back.formRow, { marginTop: 15, paddingRight: 12, alignItems: "flex-end", flexWrap: "wrap" }]}>
+                    <Text style={[back.textStyle]}>
+                      7. That I am executing this affidavit to attest to the truthfulness of the foregoing statements for all legal
+                    </Text>
+                    <Text style={back.textStyle}>intents and purposes.</Text>
+                  </View>
+
+                  <View style={[back.formRow, { flexWrap: "wrap", alignItems: "flex-end" }]}>
+                    <Text style={[back.textStyle]}>In truth whereof, I have affixed my signature below this</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "10%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>day of</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "25%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>at</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "30%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>, Philippines.</Text>
+                  </View>
+
+                  <View style={[back.formRow, { justifyContent: "space-between", marginTop: 40 }]}>
+                    <View style={{ alignItems: "center", width: "45%", }}>
+ 
+                    </View>
+                    <View style={{ alignItems: "center", width: "45%" }}>
+                      <Text style={[back.textStyle, back.signatureText, { width: "100%", textAlign: "center" }]}>
+                        {""}
+                      </Text>
+                      <Text style={[back.textStyle, { fontSize: 8, textAlign: "center" }]}>
+                        Signature of the Administering Officer
+                      </Text>
+                    </View>
+
+                  </View>
+
+
+                  <View style={[back.formRow, { flexWrap: "wrap", alignItems: "flex-end" }]}>
+                    <Text style={[back.textStyle]}>SUBSCRIBED AND SWORN to before me this</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "10%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>day of</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "25%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>at</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "30%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>, Philippines, affiant who exhibited to me his/her C.T.C/valid ID</Text>
+                  </View>
+
+                  <View style={[back.formRow, { marginTop: 10, alignItems: "flex-end", flexWrap: "wrap" }]}>
+                    <Text style={[back.textStyle]}>issued on</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "30%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>at</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "40%" }]}>
+                      {""}
+                    </Text>
+                  </View>
+
+                  <View style={[back.formRow, { justifyContent: "space-between", marginTop: 40 }]}>
+                    <View style={{ alignItems: "center", width: "45%" }}>
+                      <Text style={[back.textStyle, back.signatureText, { width: "100%", textAlign: "center" }]}>
+                        {""}
+                      </Text>
+                      <Text style={[back.textStyle, { fontSize: 8, textAlign: "center" }]}>
+                        Signature of the Administering Officer
+                      </Text>
+                    </View>
+                    <View style={{ alignItems: "center", width: "45%" }}>
+                      <Text style={[back.textStyle, back.signatureText, { width: "100%", textAlign: "center" }]}>
+                        {""}
+                      </Text>
+                      <Text style={[back.textStyle, { fontSize: 8, textAlign: "center" }]}>
+                        Position / Title / Designation
+                      </Text>
+                    </View>
+                  </View>
+
+
+
+                </View>
+
               </View>
             </View>
           </View>
@@ -404,7 +609,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         <Text style={styles.dateInput}>
                           {data.childInfo?.dateOfBirth
                             ? new Date(data.childInfo.dateOfBirth).getMonth() +
-                              1
+                            1
                             : ""}
                         </Text>
                         <Text style={styles.dateInput}>
@@ -903,10 +1108,10 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <Text style={{ textDecoration: "underline" }}>
                 {data.attendant?.certification?.time
                   ? new Intl.DateTimeFormat("en-US", {
-                      hour: "numeric", // Use numeric hour (e.g., 1, 2, 3)
-                      minute: "2-digit", // Use 2-digit minutes (e.g., 05, 30)
-                      hour12: true, // Use 12-hour format (e.g., 2:30 PM)
-                    }).format(new Date(data.attendant.certification.time))
+                    hour: "numeric", // Use numeric hour (e.g., 1, 2, 3)
+                    minute: "2-digit", // Use 2-digit minutes (e.g., 05, 30)
+                    hour12: true, // Use 12-hour format (e.g., 2:30 PM)
+                  }).format(new Date(data.attendant.certification.time))
                   : ""}
               </Text>
               on the date of birth specified above.
@@ -951,10 +1156,10 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 <Text style={[styles.value, { fontSize: 10 }]}>
                   {data.attendant?.certification?.date
                     ? formatDateTime(data.attendant.certification.date, {
-                        monthFormat: "numeric",
-                        dayFormat: "numeric",
-                        yearFormat: "numeric",
-                      })
+                      monthFormat: "numeric",
+                      dayFormat: "numeric",
+                      yearFormat: "numeric",
+                    })
                     : ""}
                 </Text>
               </View>
@@ -1019,8 +1224,8 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   <Text style={[styles.value, { fontSize: 10 }]}>
                     {data.informant?.date
                       ? formatDateTime(data.informant.date, {
-                          monthFormat: "numeric",
-                        })
+                        monthFormat: "numeric",
+                      })
                       : ""}
                   </Text>
                 </View>
@@ -1063,8 +1268,8 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   <Text style={[styles.value, { fontSize: 10 }]}>
                     {data.preparedBy?.date
                       ? formatDateTime(data.preparedBy.date, {
-                          monthFormat: "numeric",
-                        })
+                        monthFormat: "numeric",
+                      })
                       : ""}
                   </Text>
                 </View>
@@ -1112,8 +1317,8 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   <Text style={[styles.value, { fontSize: 10 }]}>
                     {data.receivedBy?.date
                       ? formatDateTime(data.receivedBy.date, {
-                          monthFormat: "numeric",
-                        })
+                        monthFormat: "numeric",
+                      })
                       : ""}
                   </Text>
                 </View>
@@ -1158,8 +1363,8 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   <Text style={[styles.value, { fontSize: 10 }]}>
                     {data.registeredByOffice?.date
                       ? formatDateTime(data.registeredByOffice.date, {
-                          monthFormat: "numeric",
-                        })
+                        monthFormat: "numeric",
+                      })
                       : ""}
                   </Text>
                 </View>
