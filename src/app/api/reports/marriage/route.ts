@@ -1,6 +1,6 @@
 // src/app/api/reports/marriage/route.ts
-import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { NextResponse } from 'next/server'
 import { MarriageDataSchema } from '@/app/(dashboard)/reports/schemas/reports-schema'
 
 export async function GET(request: Request) {
