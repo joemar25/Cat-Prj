@@ -151,5 +151,14 @@
     },
     "No results found": "No results found",
     "Try adjusting your filters or search terms": "Try adjusting your filters or search terms",
-    "No requests have been added yet": "No requests have been added yet"
+    "No requests have been added yet": "No requests have been added yet",
+
+  "Create New Form": "Create New Form",
+  "Select Form Type": "Select Form Type",
+  "Certificate of Live Birth": "Certificate of Live Birth",
+  "Certificate of Death": "Certificate of Death",
+  "Certificate of Marriage": "Certificate of Marriage",
+  "(Municipal Form No. 102)": "(Municipal Form No. 102)",
+  "(Municipal Form No. 103)": "(Municipal Form No. 103)",
+  "(Municipal Form No. 97)": "(Municipal Form No. 97)"
 }
