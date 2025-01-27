@@ -20,7 +20,7 @@ export const DebugInfo = ({ dataLength, loading, error, debugInfo }: DebugInfoPr
                 <CardTitle>Debug Information</CardTitle>
             </CardHeader>
             <CardContent>
-                <pre className="text-sm bg-gray-100 p-2 rounded-md">
+                <pre className="text-sm p-2 rounded-md">
                     {JSON.stringify(
                         {
                             dataLength,

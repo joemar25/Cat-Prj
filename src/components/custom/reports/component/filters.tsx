@@ -1,28 +1,43 @@
-// src/components/custom/reports/component/filters.tsx
 "use client"
 
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
+import { ExportDialog } from "@/components/custom/reports/component/export-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-interface FiltersProps {
+interface FiltersProps<T> {
     yearFrom: number
     yearTo: number
     setYearFromAction: (year: number) => void
     setYearToAction: (year: number) => void
-    fetchDataAction: (startYear: number, endYear: number) => Promise<void>
+    data: T[]
+    chartType: string
+    setChartTypeAction: (type: string) => void
+    dataKeyX: keyof T
+    dataKeysY: (keyof T)[]
 }
 
-export const Filters = ({ yearFrom, yearTo, setYearFromAction, setYearToAction, fetchDataAction }: FiltersProps) => {
+export const Filters = <T extends { year: number }>({
+    yearFrom,
+    yearTo,
+    setYearFromAction,
+    setYearToAction,
+    data,
+    chartType,
+    setChartTypeAction,
+    dataKeyX,
+    dataKeysY,
+}: FiltersProps<T>) => {
     const years = Array.from({ length: 30 }, (_, i) => 2000 + i)
 
     return (
         <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {/* Grid layout for Year selection and Export Dialog */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                {/* Year From */}
                 <div>
                     <Label htmlFor="yearFrom">Year From</Label>
                     <Select
-                        onValueChange={(value) => setYearFromAction(Number(value))} // Updated prop name
+                        onValueChange={(value) => setYearFromAction(Number(value))}
                         defaultValue={yearFrom.toString()}
                     >
                         <SelectTrigger>
@@ -37,10 +52,12 @@ export const Filters = ({ yearFrom, yearTo, setYearFromAction, setYearToAction, 
                         </SelectContent>
                     </Select>
                 </div>
+
+                {/* Year To */}
                 <div>
                     <Label htmlFor="yearTo">Year To</Label>
                     <Select
-                        onValueChange={(value) => setYearToAction(Number(value))} // Updated prop name
+                        onValueChange={(value) => setYearToAction(Number(value))}
                         defaultValue={yearTo.toString()}
                     >
                         <SelectTrigger>
@@ -55,9 +72,17 @@ export const Filters = ({ yearFrom, yearTo, setYearFromAction, setYearToAction, 
                         </SelectContent>
                     </Select>
                 </div>
-            </div>
-            <div className="flex gap-4">
-                <Button onClick={() => fetchDataAction(yearFrom, yearTo)}>Fetch Data</Button>
+
+                {/* Export Dialog */}
+                <div className="flex justify-start sm:justify-end">
+                    <ExportDialog
+                        data={data}
+                        chartType={chartType}
+                        setChartTypeAction={setChartTypeAction}
+                        dataKeyX={dataKeyX}
+                        dataKeysY={dataKeysY}
+                    />
+                </div>
             </div>
         </div>
     )
