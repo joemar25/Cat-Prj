@@ -26,6 +26,8 @@ import { DataTableFacetedFilter } from "@/components/custom/table/data-table-fac
 import { AddCivilRegistryFormDialog } from "@/components/custom/civil-registry/actions/add-form-dialog";
 // import { AddCivilRegistryFormDialogPdf } from '@/components/custom/civil-registry/actions/upload-pdf-dialog'
 
+import { useTranslation } from "react-i18next"; // Import useTranslation
+
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>;
 }
@@ -37,6 +39,7 @@ const formTypes = [
 ];
 
 export function DataTableToolbar({ table }: DataTableToolbarProps) {
+  const { t } = useTranslation(); // Initialize translation hook
   const isFiltered = table.getState().columnFilters.length > 0;
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [availableYears, setAvailableYears] = useState<
@@ -88,8 +91,8 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 
   // Status options with proper typing matching the component interface
   const statusOptions = [
-    { label: "Pending", value: "PENDING", icon: Icons.clock },
-    { label: "Verified", value: "VERIFIED", icon: Icons.check },
+    { label: t("Pending"), value: "PENDING", icon: Icons.clock },
+    { label: t("Verified"), value: "VERIFIED", icon: Icons.check },
   ];
 
   // Get unique preparer options
@@ -167,7 +170,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     try {
       const tableData = table.getCoreRowModel().rows.map((row) => row.original);
       if (tableData.length === 0) {
-        toast.error("No data available to export");
+        toast.error(t("No data available to export"));
         return;
       }
       const headers = Object.keys(tableData[0]).join(",");
@@ -187,9 +190,9 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      toast.success("Data exported successfully");
+      toast.success(t("Data exported successfully"));
     } catch (error) {
-      toast.error("Failed to export data");
+      toast.error(t("Failed to export data"));
       console.error("Export Error:", error);
     }
   };
@@ -203,26 +206,26 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
           <CardContent className="p-4">
             <Tabs defaultValue="basic" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="basic">Basic Search</TabsTrigger>
-                <TabsTrigger value="advanced">Name Search</TabsTrigger>
+                <TabsTrigger value="basic">{t("Basic Search")}</TabsTrigger>
+                <TabsTrigger value="advanced">{t("Name Search")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="basic" className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-3">
                   <Input
-                    placeholder="Search forms..."
+                    placeholder={t("Search forms...")}
                     onChange={(event) =>
                       table.setGlobalFilter(event.target.value)
                     }
                     className="w-full"
                   />
                   <Input
-                    placeholder="Page number..."
+                    placeholder={t("Page number...")}
                     value={pageSearch}
                     onChange={(event) => handlePageSearch(event.target.value)}
                   />
                   <Input
-                    placeholder="Book number..."
+                    placeholder={t("Book number...")}
                     value={bookSearch}
                     onChange={(event) => handleBookSearch(event.target.value)}
                   />
@@ -232,7 +235,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               <TabsContent value="advanced">
                 <div className="grid gap-4 md:grid-cols-3">
                   <Input
-                    placeholder="First name"
+                    placeholder={t("First name")}
                     value={firstNameSearch}
                     onChange={(event) => {
                       setFirstNameSearch(event.target.value);
@@ -246,7 +249,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                     }}
                   />
                   <Input
-                    placeholder="Middle name"
+                    placeholder={t("Middle name")}
                     value={middleNameSearch}
                     onChange={(event) => {
                       setMiddleNameSearch(event.target.value);
@@ -260,7 +263,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                     }}
                   />
                   <Input
-                    placeholder="Last name"
+                    placeholder={t("Last name")}
                     value={lastNameSearch}
                     onChange={(event) => {
                       setLastNameSearch(event.target.value);
@@ -290,7 +293,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                   onClick={handleExport}
                 >
                   <Icons.download className="mr-2 h-4 w-4" />
-                  Export
+                  {t("Export")}
                 </Button>
                 <DataTableViewOptions table={table} />
               </div>
@@ -310,7 +313,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
           {formTypeColumn && (
             <DataTableFacetedFilter
               column={formTypeColumn}
-              title="Form Type"
+              title={t("Form Type")}
               options={formTypes.map((type) => ({
                 label: type.label,
                 value: type.value,
@@ -326,28 +329,28 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
           {statusColumn && (
             <DataTableFacetedFilter
               column={statusColumn}
-              title="Status"
+              title={t("Status")}
               options={statusOptions}
             />
           )}
           {yearColumn && availableYears.length > 0 && (
             <DataTableFacetedFilter
               column={yearColumn}
-              title="Year"
+              title={t("Year")}
               options={availableYears}
             />
           )}
           {preparedByColumn && preparerOptions.length > 0 && (
             <DataTableFacetedFilter
               column={preparedByColumn}
-              title="Prepared By"
+              title={t("Prepared By")}
               options={preparerOptions}
             />
           )}
           {verifiedByColumn && verifierOptions.length > 0 && (
             <DataTableFacetedFilter
               column={verifiedByColumn}
-              title="Verified By"
+              title={t("Verified By")}
               options={verifierOptions}
             />
           )}
@@ -375,7 +378,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                     format(dateRange.from, "LLL dd, y")
                   )
                 ) : (
-                  <span>Pick a date range</span>
+                  <span>{t("Pick a date range")}</span>
                 )}
               </Button>
             </PopoverTrigger>
@@ -393,7 +396,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 
           {isFiltered && (
             <Button variant="ghost" onClick={handleReset} size="sm">
-              Reset
+              {t("Reset")}
               <Cross2Icon className="ml-2 h-4 w-4" />
             </Button>
           )}

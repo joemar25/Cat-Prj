@@ -1,7 +1,8 @@
 'use client'
 
-import Image from 'next/image'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next' // Import translation hook
+import Image from 'next/image'
 import { toast } from 'sonner'
 import { NavMain } from './nav-main'
 import { UserRole } from '@prisma/client'
@@ -10,11 +11,7 @@ import { NavSecondary } from './nav-secondary'
 import { Button } from '@/components/ui/button'
 import { handleSignOut } from '@/hooks/auth-actions'
 import { useNavigationStore } from '@/lib/stores/navigation'
-import {
-  navigationConfig,
-  transformToMainNavItem,
-  transformToSecondaryNavItem,
-} from '@/lib/config/navigation'
+import { navigationConfig, transformToMainNavItem, transformToSecondaryNavItem } from '@/lib/config/navigation'
 import {
   Sidebar,
   SidebarContent,
@@ -31,6 +28,7 @@ type AppSidebarProps = {
 }
 
 export function AppSidebar({ role, ...props }: AppSidebarProps) {
+  const { t } = useTranslation() // Use translation hook
   const { visibleMainItems, visibleSecondaryItems } = useNavigationStore()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
@@ -39,30 +37,30 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const visibleMainNav = useMemo(() => {
     return navigationConfig.mainNav
       .filter(item => visibleMainItems.includes(item.id)) // Filter by visible items
-      .map(item => transformToMainNavItem(item, role)) // Transform to NavMainItem
-      .filter(item => !item.hidden); // Filter out hidden items
-  }, [visibleMainItems, role])
+      .map(item => {
+        const translatedItem = { ...item, title: t(item.id) } // Translate title
+        return transformToMainNavItem(translatedItem, role, t) // Pass t as the third argument
+      })
+      .filter(item => !item.hidden) // Filter out hidden items
+  }, [visibleMainItems, role, t])
 
   const visibleSecondaryNav = useMemo(() => {
     return navigationConfig.secondaryNav
       .filter(item => visibleSecondaryItems.includes(item.id)) // Filter by visible items
-      .map(transformToSecondaryNavItem); // Transform to NavSecondaryItem
-  }, [visibleSecondaryItems])
+      .map(item => {
+        const translatedItem = { ...item, title: t(item.id) } // Translate title
+        return transformToSecondaryNavItem(translatedItem, t) // Pass t as the second argument
+      })
+  }, [visibleSecondaryItems, t])
 
   const closeLogout = () => setIsLogoutOpen(false)
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
     await handleSignOut()
-    toast.success('Successfully logged out', { duration: 3000 })
+    toast.success(t('logging-out'), { duration: 3000 }) // Use translated text for logging out
     setIsLoggingOut(false)
     closeLogout()
-  }
-
-  const roleLabel = {
-    ADMIN: 'Administrator',
-    STAFF: 'Staff',
-    USER: 'User',
   }
 
   return (
@@ -74,14 +72,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
             <SidebarMenuButton size="lg" asChild>
               <div className="flex items-center gap-3 ">
                 {/* Logo */}
-                <Image
-                  src={"/images/new.png"}
-                  alt="Logo"
-                  width={45}
-                  height={45}
-                  priority
-                  className="rounded-full flex-shrink-0"
-                />
+                <Image src={"/images/new.png"} alt="Logo" width={45} height={45} priority className="rounded-full flex-shrink-0" />
 
                 {/* Title */}
                 <div className="flex-1 overflow-hidden">
@@ -98,7 +89,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       {/* Role Panel */}
       <div className="p-4 border-b bg-muted">
         <div className="text-sm font-medium text-muted-foreground">
-          {roleLabel[role]} Panel
+          {t('panel')} {t(role)} {/* Use translated role */}
         </div>
       </div>
 
@@ -110,6 +101,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
 
       {/* Sidebar Footer */}
       <SidebarFooter>
+        {/* Logout Dialog */}
         <Dialog open={isLogoutOpen} onOpenChange={setIsLogoutOpen}>
           <DialogTrigger asChild>
             <div className="flex pb-4 cursor-pointer">
@@ -122,15 +114,15 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
                 ) : (
                   <Icons.logout className="mr-2 h-4 w-4" />
                 )}
-                {isLoggingOut ? "Logging out..." : "Log out"}
+                {isLoggingOut ? t('logging-out') : t('log-out')}
               </button>
             </div>
           </DialogTrigger>
           <DialogContent className="flex flex-col items-center justify-center text-center space-y-6 p-8 max-w-sm mx-auto rounded-lg">
             <DialogHeader className="flex flex-col items-center">
-              <DialogTitle className="text-lg font-semibold">Confirm Logout</DialogTitle>
+              <DialogTitle className="text-lg font-semibold">{t('confirm-logout')}</DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
-                Are you sure you want to log out?
+                {t('are-you-sure')}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="flex justify-center space-x-4 mt-4">
@@ -140,7 +132,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
                 className="px-4 py-2 text-sm rounded-md"
                 disabled={isLoggingOut}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button
                 onClick={handleLogout}
@@ -150,10 +142,10 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
                 {isLoggingOut ? (
                   <>
                     <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                    Logging out...
+                    {t('logging-out')}
                   </>
                 ) : (
-                  "Log out"
+                  t('log-out')
                 )}
               </Button>
             </DialogFooter>
