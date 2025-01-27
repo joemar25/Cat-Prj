@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { REGIONS } from '@/lib/constants/locations';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 

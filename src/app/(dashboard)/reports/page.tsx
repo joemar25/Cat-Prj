@@ -1,6 +1,6 @@
-import { BirthReport } from './components/birth-report'
-import { DeathReport } from './components/death-report'
-import { MarriageReport } from './components/marriage-report'
+import { BirthReport } from '../../../components/custom/reports/birth-report'
+import { DeathReport } from '../../../components/custom/reports/death-report'
+import { MarriageReport } from '../../../components/custom/reports/marriage-report'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 
 export default function ProfilePage() {

@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 

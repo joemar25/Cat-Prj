@@ -1,7 +1,7 @@
 // src/app/api/reports/birth/route.ts
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
-import { BirthDataSchema } from '@/app/(dashboard)/reports/schemas/reports-schema'
+import { BirthDataSchema } from '@/lib/types/reports'
 
 export async function GET(request: Request) {
     try {

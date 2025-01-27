@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { checkRegistryNumberExists } from '@/hooks/form-certificate-actions';
 import { REGIONS } from '@/lib/constants/locations';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
 import { FormType } from '@prisma/client';
 import debounce from 'lodash/debounce';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
