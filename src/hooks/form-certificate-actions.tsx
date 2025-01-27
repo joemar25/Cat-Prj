@@ -4,7 +4,7 @@
 import { prisma } from '@/lib/prisma';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
 import { FormType } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
@@ -420,9 +420,9 @@ export async function createDeathCertificate(
               },
               transferPermit: data.disposal.transferPermit.number
                 ? {
-                    number: data.disposal.transferPermit.number,
-                    dateIssued: data.disposal.transferPermit.dateIssued || null,
-                  }
+                  number: data.disposal.transferPermit.number,
+                  dateIssued: data.disposal.transferPermit.dateIssued || null,
+                }
                 : null,
               cemeteryAddress: data.disposal.cemeteryAddress,
             },
@@ -698,116 +698,116 @@ export async function createBirthCertificate(
             hasAffidavitOfPaternity: data.hasAffidavitOfPaternity,
             affidavitOfPaternityDetails: data.hasAffidavitOfPaternity
               ? {
-                  father: {
-                    signature:
-                      data.affidavitOfPaternityDetails?.father?.signature ?? '',
-                    name:
-                      data.affidavitOfPaternityDetails?.father?.name?.trim() ??
-                      '',
-                    title:
-                      data.affidavitOfPaternityDetails?.father?.title?.trim() ??
-                      '',
-                  },
-                  mother: {
-                    signature:
-                      data.affidavitOfPaternityDetails?.mother?.signature ?? '',
-                    name:
-                      data.affidavitOfPaternityDetails?.mother?.name?.trim() ??
-                      '',
-                    title:
-                      data.affidavitOfPaternityDetails?.mother?.title?.trim() ??
-                      '',
-                  },
-                  dateSworn:
-                    data.affidavitOfPaternityDetails?.dateSworn ?? null,
-                  adminOfficer: {
-                    signature:
-                      data.affidavitOfPaternityDetails?.adminOfficer
-                        ?.signature ?? '',
-                    name:
-                      data.affidavitOfPaternityDetails?.adminOfficer?.name?.trim() ??
-                      '',
-                    position:
-                      data.affidavitOfPaternityDetails?.adminOfficer?.position?.trim() ??
-                      '',
-                  },
-                  ctcInfo: {
-                    number:
-                      data.affidavitOfPaternityDetails?.ctcInfo?.number?.trim() ??
-                      '',
-                    dateIssued:
-                      data.affidavitOfPaternityDetails?.ctcInfo?.dateIssued ??
-                      null,
-                    placeIssued:
-                      data.affidavitOfPaternityDetails?.ctcInfo?.placeIssued?.trim() ??
-                      '',
-                  },
-                }
+                father: {
+                  signature:
+                    data.affidavitOfPaternityDetails?.father?.signature ?? '',
+                  name:
+                    data.affidavitOfPaternityDetails?.father?.name?.trim() ??
+                    '',
+                  title:
+                    data.affidavitOfPaternityDetails?.father?.title?.trim() ??
+                    '',
+                },
+                mother: {
+                  signature:
+                    data.affidavitOfPaternityDetails?.mother?.signature ?? '',
+                  name:
+                    data.affidavitOfPaternityDetails?.mother?.name?.trim() ??
+                    '',
+                  title:
+                    data.affidavitOfPaternityDetails?.mother?.title?.trim() ??
+                    '',
+                },
+                dateSworn:
+                  data.affidavitOfPaternityDetails?.dateSworn ?? null,
+                adminOfficer: {
+                  signature:
+                    data.affidavitOfPaternityDetails?.adminOfficer
+                      ?.signature ?? '',
+                  name:
+                    data.affidavitOfPaternityDetails?.adminOfficer?.name?.trim() ??
+                    '',
+                  position:
+                    data.affidavitOfPaternityDetails?.adminOfficer?.position?.trim() ??
+                    '',
+                },
+                ctcInfo: {
+                  number:
+                    data.affidavitOfPaternityDetails?.ctcInfo?.number?.trim() ??
+                    '',
+                  dateIssued:
+                    data.affidavitOfPaternityDetails?.ctcInfo?.dateIssued ??
+                    null,
+                  placeIssued:
+                    data.affidavitOfPaternityDetails?.ctcInfo?.placeIssued?.trim() ??
+                    '',
+                },
+              }
               : undefined, // Use undefined instead of null
 
             // Delayed Registration
             isDelayedRegistration: data.isDelayedRegistration,
             affidavitOfDelayedRegistration: data.isDelayedRegistration
               ? {
-                  affiant: {
-                    name:
-                      data.affidavitOfDelayedRegistration?.affiant?.name?.trim() ??
-                      '',
-                    address: {
-                      address:
-                        data.affidavitOfDelayedRegistration?.affiant?.address?.address?.trim() ??
-                        '',
-                      cityMunicipality:
-                        data.affidavitOfDelayedRegistration?.affiant?.address?.cityMunicipality?.trim() ??
-                        '',
-                      province:
-                        data.affidavitOfDelayedRegistration?.affiant?.address?.province?.trim() ??
-                        '',
-                      country:
-                        data.affidavitOfDelayedRegistration?.affiant?.address?.country?.trim() ??
-                        '',
-                    },
-                    civilStatus:
-                      data.affidavitOfDelayedRegistration?.affiant
-                        ?.civilStatus ?? '',
-                    citizenship:
-                      data.affidavitOfDelayedRegistration?.affiant
-                        ?.citizenship ?? '',
-                  },
-                  registrationType:
-                    data.affidavitOfDelayedRegistration?.registrationType ??
-                    'SELF',
-                  parentMaritalStatus:
-                    data.affidavitOfDelayedRegistration?.parentMaritalStatus ??
-                    'MARRIED',
-                  reasonForDelay:
-                    data.affidavitOfDelayedRegistration?.reasonForDelay?.trim() ??
+                affiant: {
+                  name:
+                    data.affidavitOfDelayedRegistration?.affiant?.name?.trim() ??
                     '',
-                  dateSworn:
-                    data.affidavitOfDelayedRegistration?.dateSworn ?? null,
-                  adminOfficer: {
-                    signature:
-                      data.affidavitOfDelayedRegistration?.adminOfficer
-                        ?.signature ?? '',
-                    name:
-                      data.affidavitOfDelayedRegistration?.adminOfficer?.name?.trim() ??
+                  address: {
+                    address:
+                      data.affidavitOfDelayedRegistration?.affiant?.address?.address?.trim() ??
                       '',
-                    position:
-                      data.affidavitOfDelayedRegistration?.adminOfficer?.position?.trim() ??
+                    cityMunicipality:
+                      data.affidavitOfDelayedRegistration?.affiant?.address?.cityMunicipality?.trim() ??
                       '',
-                  },
-                  ctcInfo: {
-                    number:
-                      data.affidavitOfDelayedRegistration?.ctcInfo?.number?.trim() ??
+                    province:
+                      data.affidavitOfDelayedRegistration?.affiant?.address?.province?.trim() ??
                       '',
-                    dateIssued:
-                      data.affidavitOfDelayedRegistration?.ctcInfo
-                        ?.dateIssued ?? null,
-                    placeIssued:
-                      data.affidavitOfDelayedRegistration?.ctcInfo?.placeIssued?.trim() ??
+                    country:
+                      data.affidavitOfDelayedRegistration?.affiant?.address?.country?.trim() ??
                       '',
                   },
-                }
+                  civilStatus:
+                    data.affidavitOfDelayedRegistration?.affiant
+                      ?.civilStatus ?? '',
+                  citizenship:
+                    data.affidavitOfDelayedRegistration?.affiant
+                      ?.citizenship ?? '',
+                },
+                registrationType:
+                  data.affidavitOfDelayedRegistration?.registrationType ??
+                  'SELF',
+                parentMaritalStatus:
+                  data.affidavitOfDelayedRegistration?.parentMaritalStatus ??
+                  'MARRIED',
+                reasonForDelay:
+                  data.affidavitOfDelayedRegistration?.reasonForDelay?.trim() ??
+                  '',
+                dateSworn:
+                  data.affidavitOfDelayedRegistration?.dateSworn ?? null,
+                adminOfficer: {
+                  signature:
+                    data.affidavitOfDelayedRegistration?.adminOfficer
+                      ?.signature ?? '',
+                  name:
+                    data.affidavitOfDelayedRegistration?.adminOfficer?.name?.trim() ??
+                    '',
+                  position:
+                    data.affidavitOfDelayedRegistration?.adminOfficer?.position?.trim() ??
+                    '',
+                },
+                ctcInfo: {
+                  number:
+                    data.affidavitOfDelayedRegistration?.ctcInfo?.number?.trim() ??
+                    '',
+                  dateIssued:
+                    data.affidavitOfDelayedRegistration?.ctcInfo
+                      ?.dateIssued ?? null,
+                  placeIssued:
+                    data.affidavitOfDelayedRegistration?.ctcInfo?.placeIssued?.trim() ??
+                    '',
+                },
+              }
               : undefined, // Use undefined instead of null
           },
         },

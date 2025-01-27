@@ -1,4 +1,4 @@
-// src/app/(dashboard)/reports/store/use-reports-store.ts
+// src\state\use-reports-store.ts
 import { create } from 'zustand'
 
 interface ReportsState {

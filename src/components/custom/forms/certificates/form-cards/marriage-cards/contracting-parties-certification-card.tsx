@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-import type { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import type { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
 
 interface ContractingPartiesCertificationProps {
   className?: string;

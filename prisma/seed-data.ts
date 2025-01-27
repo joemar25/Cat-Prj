@@ -43,17 +43,27 @@ const generateTimeString = (): string => {
 }
 
 /**
- * Generate a random Philippine location
+ * Generate a random Philippine location in the specified format
  * @returns Object containing city/municipality, province, and region
  */
 const generatePhLocation = () => {
+
+  // This follow this format: (House No., Street, Barangay, City/Municipality, Province, Country)
+
   const region = faker.helpers.arrayElement(REGIONS)
   const province = faker.helpers.arrayElement(region.provinces)
   const cityMunicipality = faker.helpers.arrayElement(province.citiesMunicipalities)
+  const barangay = faker.location.street()
+  const street = faker.location.streetAddress()
+  const houseNo = faker.location.buildingNumber()
+
   return {
     cityMunicipality,
     province: province.name,
     region: region.name,
+    barangay,
+    street,
+    houseNo,
   }
 }
 
@@ -231,6 +241,9 @@ const generateMarriageCertificate = (userIds: string[]) => {
   const husbandBirthDate = randomDate(new Date(1970, 0, 1), new Date(2000, 0, 1))
   const wifeBirthDate = randomDate(new Date(1970, 0, 1), new Date(2000, 0, 1))
 
+  const husbandResidenceLocation = generatePhLocation()
+  const wifeResidenceLocation = generatePhLocation()
+
   return {
     baseForm: generateBaseRegistryForm(FormType.MARRIAGE, userIds),
     marriageCertificateForm: {
@@ -242,7 +255,7 @@ const generateMarriageCertificate = (userIds: string[]) => {
       husbandPlaceOfBirth: generatePhLocation(),
       husbandSex: 'Male',
       husbandCitizenship: 'Filipino',
-      husbandResidence: faker.location.streetAddress(),
+      husbandResidence: `${husbandResidenceLocation.houseNo}, ${husbandResidenceLocation.street}, ${husbandResidenceLocation.barangay}, ${husbandResidenceLocation.cityMunicipality}, ${husbandResidenceLocation.province}, Philippines`,
       husbandReligion: faker.helpers.arrayElement(['Catholic', 'Protestant', 'Islam', 'Buddhism']),
       husbandCivilStatus: faker.helpers.arrayElement(['Single', 'Widowed', 'Divorced']),
       husbandFatherName: generatePersonName(),
@@ -258,7 +271,7 @@ const generateMarriageCertificate = (userIds: string[]) => {
       wifePlaceOfBirth: generatePhLocation(),
       wifeSex: 'Female',
       wifeCitizenship: 'Filipino',
-      wifeResidence: faker.location.streetAddress(),
+      wifeResidence: `${wifeResidenceLocation.houseNo}, ${wifeResidenceLocation.street}, ${wifeResidenceLocation.barangay}, ${wifeResidenceLocation.cityMunicipality}, ${wifeResidenceLocation.province}, Philippines`,
       wifeReligion: faker.helpers.arrayElement(['Catholic', 'Protestant', 'Islam', 'Buddhism']),
       wifeCivilStatus: faker.helpers.arrayElement(['Single', 'Widowed', 'Divorced']),
       wifeFatherName: generatePersonName(),
@@ -312,6 +325,9 @@ const generateBirthCertificate = (userIds: string[]) => {
   const motherAge = faker.number.int({ min: 18, max: 45 })
   const fatherAge = faker.number.int({ min: 20, max: 50 })
 
+  const motherResidenceLocation = generatePhLocation()
+  const fatherResidenceLocation = generatePhLocation()
+
   return {
     baseForm: generateBaseRegistryForm(FormType.BIRTH, userIds),
     birthCertificateForm: {
@@ -325,7 +341,6 @@ const generateBirthCertificate = (userIds: string[]) => {
           'Philippine General Hospital',
           'Asian Hospital',
         ]),
-        houseNo: faker.location.streetAddress(),
         ...generatePhLocation(),
       },
       typeOfBirth: faker.helpers.arrayElement(['Single', 'Twin', 'Triplet']),
@@ -337,11 +352,7 @@ const generateBirthCertificate = (userIds: string[]) => {
       motherReligion: faker.helpers.arrayElement(['Catholic', 'Protestant', 'Islam']),
       motherOccupation: faker.person.jobTitle(),
       motherAge,
-      motherResidence: {
-        houseNo: faker.location.streetAddress(),
-        ...generatePhLocation(),
-        country: 'Philippines',
-      },
+      motherResidence: `${motherResidenceLocation.houseNo}, ${motherResidenceLocation.street}, ${motherResidenceLocation.barangay}, ${motherResidenceLocation.cityMunicipality}, ${motherResidenceLocation.province}, Philippines`,
 
       totalChildrenBornAlive: faker.number.int({ min: 1, max: 5 }),
       childrenStillLiving: faker.number.int({ min: 1, max: 5 }),
@@ -352,11 +363,7 @@ const generateBirthCertificate = (userIds: string[]) => {
       fatherReligion: faker.helpers.arrayElement(['Catholic', 'Protestant', 'Islam']),
       fatherOccupation: faker.person.jobTitle(),
       fatherAge,
-      fatherResidence: {
-        houseNo: faker.location.streetAddress(),
-        ...generatePhLocation(),
-        country: 'Philippines',
-      },
+      fatherResidence: `${fatherResidenceLocation.houseNo}, ${fatherResidenceLocation.street}, ${fatherResidenceLocation.barangay}, ${fatherResidenceLocation.cityMunicipality}, ${fatherResidenceLocation.province}, Philippines`,
 
       parentMarriage: {
         date: randomDate(new Date(2015, 0, 1), birthDate),
@@ -402,6 +409,8 @@ const generateDeathCertificate = (userIds: string[]) => {
   const deathDate = randomDate(new Date(2020, 0, 1), new Date())
   const birthDate = randomDate(new Date(1940, 0, 1), new Date(2000, 0, 1))
 
+  const residenceLocation = generatePhLocation()
+
   return {
     baseForm: generateBaseRegistryForm(FormType.DEATH, userIds),
     deathCertificateForm: {
@@ -410,7 +419,6 @@ const generateDeathCertificate = (userIds: string[]) => {
       sex: faker.helpers.arrayElement(['Male', 'Female']),
       dateOfDeath: deathDate,
       placeOfDeath: {
-        houseNo: faker.location.streetAddress(),
         ...generatePhLocation(),
       },
       dateOfBirth: birthDate,
@@ -418,10 +426,7 @@ const generateDeathCertificate = (userIds: string[]) => {
       civilStatus: faker.helpers.arrayElement(['Single', 'Married', 'Widowed', 'Divorced']),
       religion: faker.helpers.arrayElement(['Catholic', 'Protestant', 'Islam']),
       citizenship: 'Filipino',
-      residence: {
-        houseNo: faker.location.streetAddress(),
-        ...generatePhLocation(),
-      },
+      residence: `${residenceLocation.houseNo}, ${residenceLocation.street}, ${residenceLocation.barangay}, ${residenceLocation.cityMunicipality}, ${residenceLocation.province}, Philippines`,
       occupation: faker.person.jobTitle(),
       nameOfFather: generatePersonName(),
       nameOfMother: generatePersonName(),
@@ -803,3 +808,9 @@ export const generateTestData = async (prisma: PrismaClient, userIds: string[]) 
   await seedFeedbackData(prisma, userIds)
   await seedNotificationData(prisma, userIds)
 }
+
+// commands:
+// pnpm prisma db push
+// npx prisma db push --force-reset
+// pnpm prisma:seed
+// pnpm prisma studio

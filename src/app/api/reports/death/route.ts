@@ -1,7 +1,7 @@
 // src/app/api/reports/death/route.ts
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
-import { DeathDataSchema } from '@/app/(dashboard)/reports/schemas/reports-schema'
+import { DeathDataSchema } from '@/lib/types/reports'
 
 export async function GET(request: Request) {
     try {

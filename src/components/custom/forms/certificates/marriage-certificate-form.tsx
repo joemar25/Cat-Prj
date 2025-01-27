@@ -17,7 +17,7 @@ import {
   MarriageCertificateFormProps,
   MarriageCertificateFormValues,
   marriageCertificateSchema,
-} from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+} from '@/lib/types/zod-form-certificate/form-schema-certificate';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PDFViewer } from '@react-pdf/renderer';
 import { Loader2, Save } from 'lucide-react';

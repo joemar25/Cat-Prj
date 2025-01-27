@@ -20,7 +20,7 @@ import React, { useState } from 'react';
 
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { REGIONS } from '@/lib/constants/locations';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
 import {
   getCitiesByProvince,
   getProvincesByRegion,
