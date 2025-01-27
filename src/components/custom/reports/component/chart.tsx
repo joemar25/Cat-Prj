@@ -1,7 +1,7 @@
 "use client"
 
 import {
-    BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, Tooltip, Legend, XAxis, YAxis, CartesianGrid
+    BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, Tooltip, Legend, XAxis, YAxis, CartesianGrid, AreaChart, Area
 } from "recharts"
 
 // Chart props
@@ -58,7 +58,7 @@ export const Chart = <T,>({
                     <PieChart width={400} height={400}>
                         <Pie
                             data={data}
-                            dataKey={dataKeysY[0] as string} // Use only the first key for Pie Chart
+                            dataKey={dataKeysY[0] as string}
                             nameKey={dataKeyX as string}
                             cx="50%"
                             cy="50%"
@@ -73,6 +73,25 @@ export const Chart = <T,>({
                         <Tooltip />
                         <Legend />
                     </PieChart>
+                )}
+                {chartType === "Area Chart" && (
+                    <AreaChart width={600} height={300} data={data}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey={dataKeyX as string} />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        {dataKeysY.map((key, index) => (
+                            <Area
+                                key={key as string}
+                                type="monotone"
+                                dataKey={key as string}
+                                stroke={COLORS[index % COLORS.length]}
+                                fill={COLORS[index % COLORS.length]}
+                                fillOpacity={0.3}
+                            />
+                        ))}
+                    </AreaChart>
                 )}
             </div>
         </div>

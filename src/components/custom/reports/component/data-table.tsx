@@ -1,4 +1,3 @@
-// src/components/custom/reports/component/data-table.tsx
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
