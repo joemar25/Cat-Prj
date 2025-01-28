@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from 'react-i18next'; // Import the hook
 import { Label } from "@/components/ui/label"
 import { ExportDialog } from "@/components/custom/reports/component/export-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -27,6 +28,8 @@ export const Filters = <T extends { year: number }>({
     dataKeyX,
     dataKeysY,
 }: FiltersProps<T>) => {
+    const { t } = useTranslation(); // Get the translation function
+
     const years = Array.from({ length: 30 }, (_, i) => 2000 + i)
 
     return (
@@ -35,13 +38,13 @@ export const Filters = <T extends { year: number }>({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
                 {/* Year From */}
                 <div>
-                    <Label htmlFor="yearFrom">Year From</Label>
+                    <Label htmlFor="yearFrom">{t('filters.yearFrom')}</Label> {/* Translated string */}
                     <Select
                         onValueChange={(value) => setYearFromAction(Number(value))}
                         defaultValue={yearFrom.toString()}
                     >
                         <SelectTrigger>
-                            <SelectValue placeholder="Select Year" />
+                            <SelectValue placeholder={t('filters.selectYear')} /> {/* Translated placeholder */}
                         </SelectTrigger>
                         <SelectContent>
                             {years.map((year) => (
@@ -55,13 +58,13 @@ export const Filters = <T extends { year: number }>({
 
                 {/* Year To */}
                 <div>
-                    <Label htmlFor="yearTo">Year To</Label>
+                    <Label htmlFor="yearTo">{t('filters.yearTo')}</Label> {/* Translated string */}
                     <Select
                         onValueChange={(value) => setYearToAction(Number(value))}
                         defaultValue={yearTo.toString()}
                     >
                         <SelectTrigger>
-                            <SelectValue placeholder="Select Year" />
+                            <SelectValue placeholder={t('filters.selectYear')} /> {/* Translated placeholder */}
                         </SelectTrigger>
                         <SelectContent>
                             {years.map((year) => (

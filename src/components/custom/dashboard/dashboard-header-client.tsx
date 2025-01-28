@@ -70,14 +70,14 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                                             <>
                                                 <BreadcrumbItem className='hidden md:block'>
                                                     <BreadcrumbLink href={breadcrumb.href || '#'}>
-                                                        {breadcrumb.label}
+                                                        {t(breadcrumb.label)} {/* Apply translation here */}
                                                     </BreadcrumbLink>
                                                 </BreadcrumbItem>
                                                 <BreadcrumbSeparator className='hidden md:block' />
                                             </>
                                         ) : (
                                             <BreadcrumbItem>
-                                                <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
+                                                <BreadcrumbPage>{t(breadcrumb.label)}</BreadcrumbPage> {/* Apply translation here */}
                                             </BreadcrumbItem>
                                         )}
                                     </Fragment>

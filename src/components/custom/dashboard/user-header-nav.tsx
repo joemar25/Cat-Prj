@@ -11,8 +11,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
+import { useTranslation } from 'react-i18next' // Import the useTranslation hook
 
 export function UserHeaderNav({ user }: UserHeaderNavProps) {
+  const { t } = useTranslation(); // Initialize the translation hook
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -27,7 +29,7 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
   const handleLogout = async () => {
     setIsLoggingOut(true)
     await handleSignOut()
-    toast.success('Successfully logged out', { duration: 3000 })
+    toast.success(t('success_logout'), { duration: 3000 }) // Translate "Successfully logged out"
     setIsLoggingOut(false)
     closeLogout()
   }
@@ -51,25 +53,17 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-2">
               <p className="text-base font-semibold leading-tight">
-                {user?.name || 'Guest User'}
+                {user?.name || t('guest_user')} {/* Translate "Guest User" */}
               </p>
               <p className="text-xs leading-normal text-gray-600">
-                <span className="font-medium">{user?.role || 'Guest'}</span> | {user?.email || 'No email'}
+                <span className="font-medium">{user?.role || t('guest_role')}</span> | {user?.email || t('no_email')}
               </p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link href="/profile">Profile</Link>
+            <Link href="/profile">{t('profile')}</Link> {/* Translate "Profile" */}
           </DropdownMenuItem>
-              {/* <DropdownMenuItem
-                onSelect={(e) => {
-                  e.preventDefault()
-                  setIsDropdownOpen(true) 
-                }}
-              >
-                Settings
-              </DropdownMenuItem> */}
           <DropdownMenuItem
             className="text-destructive"
             onSelect={(e) => {
@@ -77,7 +71,7 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
               setIsLogoutOpen(true)
             }}
           >
-            Sign out
+            {t('sign_out')} {/* Translate "Sign out" */}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -85,9 +79,9 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
       <Dialog open={isLogoutOpen} onOpenChange={setIsLogoutOpen}>
         <DialogContent className="flex flex-col items-center justify-center text-center space-y-6 p-8 max-w-sm mx-auto rounded-lg">
           <DialogHeader className="flex flex-col items-center">
-            <DialogTitle className="text-lg font-semibold">Confirm Logout</DialogTitle>
+            <DialogTitle className="text-lg font-semibold">{t('confirm_logout')}</DialogTitle> {/* Translate "Confirm Logout" */}
             <DialogDescription className="text-sm text-muted-foreground">
-              Are you sure you want to log out?
+              {t('confirm_logout_message')} {/* Translate "Are you sure you want to log out?" */}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex justify-center space-x-4 mt-4">
@@ -97,7 +91,7 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
               className="px-4 py-2 text-sm rounded-md"
               disabled={isLoggingOut}
             >
-              Cancel
+              {t('cancel')} {/* Translate "Cancel" */}
             </Button>
             <Button
               onClick={handleLogout}
@@ -107,10 +101,10 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
               {isLoggingOut ? (
                 <>
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                  Logging out...
+                  {t('logging_out')} {/* Translate "Logging out..." */}
                 </>
               ) : (
-                "Log out"
+                t('log_out') // Translate "Log out"
               )}
             </Button>
           </DialogFooter>

@@ -1,11 +1,13 @@
 "use client"
 
+import { useTranslation } from 'react-i18next' // Import the translation hook
 import { useReportsStore } from '@/state/use-reports-store'
 import { MarriageData } from '@/lib/types/reports'
 import { TableCell } from '@/components/ui/table'
 import { ReportComponent } from './component/report'
 
 export const MarriageReport = () => {
+    const { t } = useTranslation() // Use the translation hook
     const { marriageData, loading, error, fetchMarriageData } = useReportsStore()
 
     const calculatePercentage = (part: number, total: number) => {
@@ -15,12 +17,19 @@ export const MarriageReport = () => {
 
     return (
         <ReportComponent<MarriageData[0]>
-            title="Marriage Registrations"
+            title={t('marriageReport.title')} // Use translation here
             data={marriageData}
             loading={loading}
             error={error}
             fetchDataAction={fetchMarriageData}
-            tableHeaders={['Year', 'Total Marriages', 'Residents', 'Non-Residents', 'Resident %', 'Non-Resident %']}
+            tableHeaders={[
+                t('marriageReport.year'),
+                t('marriageReport.totalMarriages'),
+                t('marriageReport.residents'),
+                t('marriageReport.nonResidents'),
+                t('marriageReport.residentPercentage'),
+                t('marriageReport.nonResidentPercentage')
+            ]}
             renderTableRowAction={(entry) => {
                 const residentPercentage = calculatePercentage(entry.residents, entry.totalMarriages)
                 const nonResidentPercentage = calculatePercentage(entry.nonResidents, entry.totalMarriages)
