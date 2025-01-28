@@ -26,7 +26,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
   return (
     <Document>
       {/* Front Page */}
-      <Page size={[612, 936]} style={styles.page}>
+      <Page size="LEGAL" style={styles.page}>
         {/* Parent Grid Container */}
         <View style={{ border: "1px solid #000" }}>
           <View style={[styles.header, { padding: 5 }]}>
@@ -905,7 +905,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
         </View>
       </Page>
       {/* Back Page */}
-      <Page size={[612, 936]} style={[back.page]}>
+      <Page size="LEGAL" style={[back.page]}>
         <View style={back.container}>
           <View style={[back.container, back.page]}>
             <View style={back.columnContainer}>

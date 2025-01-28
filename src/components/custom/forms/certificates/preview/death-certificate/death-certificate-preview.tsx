@@ -15,7 +15,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
   if (!data || Object.keys(data).length === 0) {
     return (
       <Document>
-        <Page size={[612, 936]} style={styles.page}>
+        <Page size='LEGAL' style={styles.page}>
           <View style={styles.section}>
             <Text>No data available for preview.</Text>
           </View>
@@ -26,7 +26,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
 
   return (
     <Document>
-      <Page size={[612, 936]} style={styles.page}>
+      <Page size='LEGAL' style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.municipal}>

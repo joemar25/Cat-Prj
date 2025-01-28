@@ -47,418 +47,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
 
   return (
     <Document>
-      <Page style={back.page} size={[612, 936]}>
-        <View key={'secondPage'} style={[back.parentBorder, { padding: 0 }]}>
-          <View style={[back.gridColumnParent, back.parentBorder]}>
-            <Text style={back.title}>20b. WITNESSES (Print name and signature)</Text>
-            <View style={back.gridRowParent}>
-              <Text style={back.value2}>{" "}</Text>
-              <Text style={back.value2}>{" "}</Text>
-              <Text style={back.value2}>{" "}</Text>
-              <Text style={back.value2}>{" "}</Text>
-            </View>
-            <View style={back.gridRowParent}>
-              <Text style={back.value2}>{" "}</Text>
-              <Text style={back.value2}>{" "}</Text>
-              <Text style={back.value2}>{" "}</Text>
-              <Text style={back.value2}>{" "}</Text>
-            </View>
-          </View>
-          <View style={[back.parentBorder]}>
-            <View style={back.centeredText}>
-              <Text style={back.headerTitle}>Affidavit of solemnizing officer</Text>
-            </View>
-            <View style={[back.gridRowParent, back.paddingLeft]}>
-              <Text style={[back.normalTitle, { flex: .5 }]}>I,  </Text>
-              <Text style={back.value}>{" "}</Text>
-              <Text style={back.title}>of legal age, Solemnizing Officer of</Text>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={[back.value]}>{" "}</Text>
-              <Text style={[back.normalTitle, { width: 200 }]}>with address at</Text>
-              <Text style={back.value}>{" "}</Text>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={back.title}>after having sworn to in accordane with law, do hereby depose and say:</Text>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={[back.normalTitle, back.longTitle]}>1. That I have solemnized the marriage between: </Text>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={back.value}>{" "}</Text>
-              <Text style={back.normalTitle}>and  </Text>
-              <Text style={back.value}>{" "}</Text>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={back.title}>after having sworn to in accordane with law, do hereby depose and say:</Text>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={back.normalTitle}>2.</Text>
-              <View style={[back.gridColumnParent, { width: '3%', gap: 15 }]}>
-                <Text style={back.radioBox}>{" "}</Text>
-                <Text style={back.radioBox}>{" "}</Text>
-                <Text style={back.radioBox}>{" "}</Text>
-                <Text style={back.radioBox}>{" "}</Text>
-                <Text style={back.radioBox}>{" "}</Text>
-              </View>
-              <View style={[back.gridColumnParent, { alignItems: 'flex-start' }]}>
-                <Text style={back.title}>
-                  a. That I have ascertained the qualifications of the contracting parties and have found
-                  no legal impediment for them to marry as required by the Article 34 of the Family Code
-                </Text>
-                <Text style={[back.title, { marginTop: 5 }]}>b. That this marriage was performed in articulo mortis or at the point of death</Text>
-                <View style={back.gridColumnChild}>
-                  <View style={[back.gridRowChild, { paddingBottom: 0, marginTop: 5 }]}>
-                    <Text style={[back.normalTitle, { width: 450, }]}>c. That the contracting party/ies</Text>
-                    <Text style={back.value}>{"asd "}</Text>
-                    <View style={back.gridRowChild}>
-                      <Text style={back.normalTitle}>and</Text>
-                      <Text style={back.value}>{"asd "}</Text>
-                    </View>
-                  </View>
-                  <Text style={[back.normalTitle, { marginTop: -5 }]}>
-                    being at the point of death and physically unable to sign
-                    the foregoing certificate or marriage by signature or mark, one of the witnesses to the marriage; sign for
-                    him or her by writing the dying party's name and beneath it, the witness' own signature preceded by
-                    the preposition "By";
-                  </Text>
-                </View>
-                <Text style={back.title}>
-                  d. That the residence of either party is so located that there is no means of transportation to enable
-                  concerned party/parties to appear personallay before the civil registrar
-                </Text>
-                <Text style={back.title}>
-                  e. That the marriage was among Muslims or among members of Ethnic Cultural Communities and thath the
-                  marriage was solemnized in accordance with tehir custom and practices
-                </Text>
-              </View>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={back.normalTitle}>
-                3. That I took the necessary steps tp ascertain the ages and relationship of
-                the contracting parties and that neither of them are under any legal impediment to marry each other.
-              </Text>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={back.normalTitle}>
-                4. That I am executing this affidavit to attest to the truthfulness of the foregoing statements for all legal intents and purposes.
-              </Text>
-            </View>
-            <View style={[back.gridRowParent, back.marginLeft, { width: 'auto', marginTop: 10 }]}>
-              <Text style={[back.title, { width: 'auto' }]}>
-                In the truth whereof, I have affixed my signature below this
-              </Text>
-              <Text style={[back.value, back.marginLeft, { width: '50%' }]}>{" "}</Text>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={[back.normalTitle, { width: 100 }]}>
-                day of
-              </Text>
-              <Text style={back.value}>{" "}</Text>
-              <Text style={[back.normalTitle, { width: 20 }]}>at  </Text>
-              <Text style={back.value}>{" "}</Text>
-              <Text style={[back.normalTitle, { width: 200 }]}>
-                Philippines.
-              </Text>
-            </View>
-            <View style={[back.gridRowParent, { justifyContent: "space-between", marginTop: 20 }]}>
-              <View style={{ alignItems: "center", width: "45%", }}>
-
-              </View>
-              <View style={{ alignItems: "center", width: "45%" }}>
-                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
-                  {""}
-                </Text>
-                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
-                  Signature of the Administering Officer
-                </Text>
-              </View>
-            </View>
-            <View style={[back.gridRowParent, {marginTop: 15}]}>
-              <View style={[back.gridRowChild, back.paddingLeft, {gap: 15}]}>
-                <Text style={[back.normalTitle, back.titleBold, {}]}>
-                  SUBSCRIBE AND SWORN  
-                </Text>
-                <Text style={back.normalTitle}>
-                  to before me this
-                </Text>
-              </View>
-              <Text style={[back.value, { width: '45%' }]}>{" "}</Text>
-              <Text style={[back.normalTitle, { width: 100 }]}>day of</Text>
-              <Text style={[back.value, { width: '60%' }]}>{" "}</Text>
-            </View>
-            <View style={back.gridRowParent}>
-              <Text style={back.normalTitle}>at  </Text>
-              <Text style={[back.value, { width: '80%' }]}>{" "}</Text>
-              <Text style={back.title}>Philippines, affiant who exhibited to me his/her CTC/ valid ID</Text>
-            </View>
-            <View style={back.gridRowParent}>
-              <Text style={back.value}>{" "}</Text>
-              <Text style={[back.normalTitle, { width: 200 }]}>issued on  </Text>
-              <Text style={back.value}>{" "}</Text>
-              <Text style={back.normalTitle}>at</Text>
-              <Text style={back.value}>{" "}</Text>
-            </View>
-            <View style={[back.gridRowParent, { justifyContent: "space-between", marginTop: 20 }]}>
-              <View style={{ alignItems: "center", width: "45%", }}>
-                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
-                  {""}
-                </Text>
-                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
-                  Signature of the Administering Officer
-                </Text>
-              </View>
-              <View style={{ alignItems: "center", width: "45%" }}>
-                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
-                  {""}
-                </Text>
-                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
-                  Position/Title/Designation
-                </Text>
-              </View>
-            </View>
-            <View style={[back.gridRowParent, { justifyContent: "space-between", marginTop: 20 }]}>
-              <View style={{ alignItems: "center", width: "45%", }}>
-                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
-                  {""}
-                </Text>
-                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
-                  Name in Print
-                </Text>
-              </View>
-              <View style={{ alignItems: "center", width: "45%" }}>
-                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
-                  {""}
-                </Text>
-                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
-                  Address
-                </Text>
-              </View>
-
-            </View>
-          </View>
-          <View style={back.parentBorder}>
-            <View style={back.centeredText}>
-              <Text style={back.headerTitle}>Affidavit for delayed registration of marriage </Text>
-            </View>
-
-            {/* Opening paragraph */}
-            <View style={[back.gridRowParent, back.paddingLeft]}>
-              <Text style={[back.normalTitle, { flex: .5 }]}>I,  </Text>
-              <Text style={[back.value, { minWidth: '20%' }]}>{" "}</Text>
-              <Text style={back.title}>of legal age, single/married/divorced/widow/widower, </Text>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={[back.normalTitle, { flex: 1 }]}>with redsidence and postal address</Text>
-              <Text style={[back.value, { flex: 1 }]}>{" "}</Text>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={[back.normalTitle, { width: 200, flex: 1 }]}>Philippines. affiant wgi exhibited to me his/her CTC/valid ID</Text>
-              <Text style={[back.value, { flex: 1 }]}>{" "}</Text>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={[back.normalTitle, { width: 150 }]}>issued on</Text>
-              <Text style={back.value}>{" "}</Text>
-              <Text style={[back.normalTitle, { width: 70 }]}>at</Text>
-              <Text style={back.value}>{" "}</Text>
-            </View>
-
-            {/* Section 1 */}
-            <View style={back.gridColumnParent}>
-              <View style={back.gridRowParent}>
-                <Text style={back.title}>1. That I am the applicant for the delayed registration of</Text>
-              </View>
-
-              <View style={[back.gridRowParent, back.paddingLeft, { alignItems: 'flex-end' }]}>
-                <View style={{ width: 50 }}>
-                  <View style={back.radioBox}></View>
-                </View>
-                <Text style={[back.normalTitle, { width: 200 }]}>my marriage with</Text>
-                <View style={[back.value, { width: 250 }]}></View>
-                <Text style={[back.normalTitle, { width: 50 }]}>in</Text>
-                <View style={[back.value, { width: 250 }]}></View>
-                <Text style={[back.normalTitle, { width: 50 }]}>on</Text>
-                <View style={[back.value, { width: 250 }]}></View>
-              </View>
-
-              <View style={[back.gridRowParent, back.paddingLeft, { alignItems: 'flex-end' }]}>
-                <View style={{ width: 20, }}>
-                  <View style={back.radioBox}></View>
-                </View>
-                <Text style={[back.normalTitle,]}>the marriage between</Text>
-                <View style={[back.value, { flex: 1 }]}></View>
-                <Text style={back.normalTitle}>and</Text>
-                <View style={[back.value, { flex: 1 }]}></View>
-              </View>
-
-              <View style={[back.gridRowParent, back.marginLeft]}>
-                <Text style={[back.normalTitle, { width: 20 }]}>in</Text>
-                <View style={[back.value]}></View>
-                <Text style={[back.normalTitle, { width: 20 }]}>on</Text>
-                <View style={[back.value]}></View>
-              </View>
-            </View>
-
-            {/* Section 2 */}
-            <View style={back.gridColumnParent}>
-              <View style={back.gridRowParent}>
-                <Text style={back.normalTitle}>2. That said marriage was solemnized by</Text>
-                <View style={[back.value, { width: 150 }]}>{"Juan De la Cruz"}</View>
-                <Text style={back.normalTitle}>(Solemnizing Officer's name) under</Text>
-              </View>
-
-              <View style={[back.gridRowParent, back.paddingLeft]}>
-                <View style={back.radioBox}></View>
-                <Text style={back.normalTitle}>religious ceremony</Text>
-                <View style={back.radioBox}></View>
-                <Text style={back.normalTitle}>civil ceremony</Text>
-                <View style={back.radioBox}></View>
-                <Text style={back.normalTitle}>Muslim rites</Text>
-                <View style={back.radioBox}></View>
-                <Text style={back.normalTitle}>tribal rites</Text>
-              </View>
-            </View>
-
-            {/* Section 3 */}
-            <View style={back.gridColumnParent}>
-              <Text style={back.normalTitle}>3. That the marriage was solemnized:</Text>
-              <View style={[back.gridRowParent, back.paddingLeft, { alignItems: 'flex-end' }]}>
-                <View style={{ width: 30, }}>
-                  <View style={back.radioBox}></View>
-                </View>
-                <Text style={[back.normalTitle, { width: 225 }]}>a. with marriage license no.</Text>
-                <View style={[back.value, { width: 125 }]}>{" "}</View>
-                <Text style={[back.normalTitle, { width: 80 }]}>issued on </Text>
-                <View style={[back.value, { width: 125 }]}>{" "}</View>
-                <Text style={back.normalTitle}>at </Text>
-                <View style={[back.value, { width: 125 }]}>{" "}</View>
-              </View>
-              <View style={[back.gridRowParent, back.paddingLeft, { alignItems: 'flex-end' }]}>
-                <View style={{ width: 20, }}>
-                  <View style={back.radioBox}></View>
-                </View>
-                <Text style={[back.normalTitle, { width: 80 }]}>b. under Article</Text>
-                <View style={[back.value, { width: 250 }]}>{" "}</View>
-                <Text style={back.normalTitle}>(marriages of exceptional character);</Text>
-              </View>
-            </View>
-
-            {/* Section 4 */}
-            <View style={back.gridColumnParent}>
-              <View style={back.gridRowParent}>
-                <Text style={back.normalTitle}>4. (If the applicant is either the wife or husband) That I am a citizen of </Text>
-                <View style={[back.value, { width: 200 }]}>{" "}</View>
-              </View>
-              <View style={back.gridRowParent}>
-                <Text style={back.normalTitle}>and my spouse is a citizen of  </Text>
-                <View style={[back.value, { width: '80%' }]}>{" "}</View>
-              </View>
-            </View>
-            <View style={back.gridColumnParent}>
-              <View style={back.gridRowParent}>
-                <Text style={back.normalTitle}>4. (If the applicant is other than the wife or husband) That the wife is a citizen of </Text>
-                <View style={[back.value, { width: 150 }]}>{" "}</View>
-              </View>
-              <View style={back.gridRowParent}>
-                <Text style={back.normalTitle}>and the husband is a citizen of</Text>
-                <View style={[back.value, { width: '75%' }]}>{" "}</View>
-              </View>
-            </View>
-
-            {/* Section 5 */}
-            <View style={back.gridColumnParent}>
-              <View style={back.gridRowParent}>
-                <Text style={back.normalTitle}>5. That the reason for the delay in registering our/their marriage is</Text>
-              </View>
-              <View style={back.value}>{" "}</View>
-            </View>
-
-            {/* Section 6 */}
-            <View style={back.gridColumnParent}>
-              <Text style={back.normalTitle}>6. That I am executing this affidavit to attest to the truthfulness of the foregoing statements for all legal intents and purposes.</Text>
-            </View>
-
-            {/* Footer */}
-            <View style={[back.gridRowParent, back.marginLeft, { width: 'auto', marginTop: 10 }]}>
-              <Text style={[back.title, { width: 'auto' }]}>
-                In the truth whereof, I have affixed my signature below this
-              </Text>
-              <Text style={[back.value, back.marginLeft, { width: '50%' }]}>{" "}</Text>
-            </View>
-            <View style={[back.gridRowParent]}>
-              <Text style={[back.normalTitle, { width: 70 }]}>
-                day of
-              </Text>
-              <Text style={back.value}>{" "}</Text>
-              <Text style={[back.normalTitle, { width: 30 }]}>at</Text>
-              <Text style={back.value}>{" "}</Text>
-              <Text style={[back.normalTitle, { width: 150 }]}>
-                Philippines.
-              </Text>
-            </View>
-
-            <View style={[back.gridRowParent, { justifyContent: "space-between", marginTop: 20 }]}>
-              <View style={{ alignItems: "center", width: "45%", }}>
-
-              </View>
-              <View style={{ alignItems: "center", width: "45%" }}>
-                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
-                  {""}
-                </Text>
-                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
-                  Signature of the Administering Officer
-                </Text>
-              </View>
-            </View>
-            <View style={[back.gridRowParent, {marginTop: 15}]}>
-              <View style={[back.gridRowChild, back.paddingLeft, {gap: 15}]}>
-                <Text style={[back.normalTitle, back.titleBold, {}]}>
-                  SUBSCRIBE AND SWORN  
-                </Text>
-                <Text style={back.normalTitle}>
-                  to before me this
-                </Text>
-              </View>
-              <Text style={[back.value, { width: '45%' }]}>{" "}</Text>
-              <Text style={[back.normalTitle, { width: 100 }]}>day of</Text>
-              <Text style={[back.value, { width: '60%' }]}>{" "}</Text>
-            </View>
-            <View style={back.gridRowParent}>
-              <Text style={back.normalTitle}>at  </Text>
-              <Text style={[back.value, { width: '80%' }]}>{" "}</Text>
-              <Text style={back.title}>Philippines, affiant who exhibited to me his/her CTC/ valid ID</Text>
-            </View>
-            <View style={back.gridRowParent}>
-              <Text style={back.value}>{" "}</Text>
-              <Text style={[back.normalTitle, { width: 200 }]}>issued on  </Text>
-              <Text style={back.value}>{" "}</Text>
-              <Text style={back.normalTitle}>at</Text>
-              <Text style={back.value}>{" "}</Text>
-            </View>
-            <View style={[back.gridRowParent, { justifyContent: "space-between", marginTop: 20 }]}>
-              <View style={{ alignItems: "center", width: "45%", }}>
-                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
-                  {""}
-                </Text>
-                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
-                  Signature of the Administering Officer
-                </Text>
-              </View>
-              <View style={{ alignItems: "center", width: "45%" }}>
-                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
-                  {""}
-                </Text>
-                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
-                  Position/Title/Designation
-                </Text>
-              </View>
-            </View>
-
-          </View>
-        </View>
-      </Page>
-
-      <Page size={[612, 936]} style={styles.page}>
+      <Page size="LEGAL" style={styles.page}>
         <View>
           <View key={'husbandInfo'}>
             {/* Header */}
@@ -1611,6 +1200,416 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
               <Text style={styles.value}>{data.remarks || ''}</Text>
             </View>
           </View>,
+        </View>
+      </Page>
+      <Page style={back.page} size="LEGAL">
+        <View key={'secondPage'} style={[back.parentBorder, { padding: 0 }]}>
+          <View style={[back.gridColumnParent, back.parentBorder]}>
+            <Text style={back.title}>20b. WITNESSES (Print name and signature)</Text>
+            <View style={back.gridRowParent}>
+              <Text style={back.value2}>{" "}</Text>
+              <Text style={back.value2}>{" "}</Text>
+              <Text style={back.value2}>{" "}</Text>
+              <Text style={back.value2}>{" "}</Text>
+            </View>
+            <View style={back.gridRowParent}>
+              <Text style={back.value2}>{" "}</Text>
+              <Text style={back.value2}>{" "}</Text>
+              <Text style={back.value2}>{" "}</Text>
+              <Text style={back.value2}>{" "}</Text>
+            </View>
+          </View>
+          <View style={[back.parentBorder]}>
+            <View style={back.centeredText}>
+              <Text style={back.headerTitle}>Affidavit of solemnizing officer</Text>
+            </View>
+            <View style={[back.gridRowParent, back.paddingLeft]}>
+              <Text style={[back.normalTitle, { flex: .5 }]}>I,  </Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={back.title}>of legal age, Solemnizing Officer of</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={[back.value]}>{" "}</Text>
+              <Text style={[back.normalTitle, { width: 200 }]}>with address at</Text>
+              <Text style={back.value}>{" "}</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={back.title}>after having sworn to in accordane with law, do hereby depose and say:</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={[back.normalTitle, back.longTitle]}>1. That I have solemnized the marriage between: </Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={back.normalTitle}>and  </Text>
+              <Text style={back.value}>{" "}</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={back.title}>after having sworn to in accordane with law, do hereby depose and say:</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={back.normalTitle}>2.</Text>
+              <View style={[back.gridColumnParent, { width: '3%', gap: 15 }]}>
+                <Text style={back.radioBox}>{" "}</Text>
+                <Text style={back.radioBox}>{" "}</Text>
+                <Text style={back.radioBox}>{" "}</Text>
+                <Text style={back.radioBox}>{" "}</Text>
+                <Text style={back.radioBox}>{" "}</Text>
+              </View>
+              <View style={[back.gridColumnParent, { alignItems: 'flex-start' }]}>
+                <Text style={back.title}>
+                  a. That I have ascertained the qualifications of the contracting parties and have found
+                  no legal impediment for them to marry as required by the Article 34 of the Family Code
+                </Text>
+                <Text style={[back.title, { marginTop: 5 }]}>b. That this marriage was performed in articulo mortis or at the point of death</Text>
+                <View style={back.gridColumnChild}>
+                  <View style={[back.gridRowChild, { paddingBottom: 0, marginTop: 5 }]}>
+                    <Text style={[back.normalTitle, { width: 450, }]}>c. That the contracting party/ies</Text>
+                    <Text style={back.value}>{"asd "}</Text>
+                    <View style={back.gridRowChild}>
+                      <Text style={back.normalTitle}>and</Text>
+                      <Text style={back.value}>{"asd "}</Text>
+                    </View>
+                  </View>
+                  <Text style={[back.normalTitle, { marginTop: -5 }]}>
+                    being at the point of death and physically unable to sign
+                    the foregoing certificate or marriage by signature or mark, one of the witnesses to the marriage; sign for
+                    him or her by writing the dying party's name and beneath it, the witness' own signature preceded by
+                    the preposition "By";
+                  </Text>
+                </View>
+                <Text style={back.title}>
+                  d. That the residence of either party is so located that there is no means of transportation to enable
+                  concerned party/parties to appear personallay before the civil registrar
+                </Text>
+                <Text style={back.title}>
+                  e. That the marriage was among Muslims or among members of Ethnic Cultural Communities and thath the
+                  marriage was solemnized in accordance with tehir custom and practices
+                </Text>
+              </View>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={back.normalTitle}>
+                3. That I took the necessary steps tp ascertain the ages and relationship of
+                the contracting parties and that neither of them are under any legal impediment to marry each other.
+              </Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={back.normalTitle}>
+                4. That I am executing this affidavit to attest to the truthfulness of the foregoing statements for all legal intents and purposes.
+              </Text>
+            </View>
+            <View style={[back.gridRowParent, back.marginLeft, { width: 'auto', marginTop: 10 }]}>
+              <Text style={[back.title, { width: 'auto' }]}>
+                In the truth whereof, I have affixed my signature below this
+              </Text>
+              <Text style={[back.value, back.marginLeft, { width: '50%' }]}>{" "}</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={[back.normalTitle, { width: 100 }]}>
+                day of
+              </Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={[back.normalTitle, { width: 20 }]}>at  </Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={[back.normalTitle, { width: 200 }]}>
+                Philippines.
+              </Text>
+            </View>
+            <View style={[back.gridRowParent, { justifyContent: "space-between", marginTop: 20 }]}>
+              <View style={{ alignItems: "center", width: "45%", }}>
+
+              </View>
+              <View style={{ alignItems: "center", width: "45%" }}>
+                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
+                  {""}
+                </Text>
+                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
+                  Signature of the Administering Officer
+                </Text>
+              </View>
+            </View>
+            <View style={[back.gridRowParent, {marginTop: 15}]}>
+              <View style={[back.gridRowChild, back.paddingLeft, {gap: 15}]}>
+                <Text style={[back.normalTitle, back.titleBold, {}]}>
+                  SUBSCRIBE AND SWORN  
+                </Text>
+                <Text style={back.normalTitle}>
+                  to before me this
+                </Text>
+              </View>
+              <Text style={[back.value, { width: '45%' }]}>{" "}</Text>
+              <Text style={[back.normalTitle, { width: 100 }]}>day of</Text>
+              <Text style={[back.value, { width: '60%' }]}>{" "}</Text>
+            </View>
+            <View style={back.gridRowParent}>
+              <Text style={back.normalTitle}>at  </Text>
+              <Text style={[back.value, { width: '80%' }]}>{" "}</Text>
+              <Text style={back.title}>Philippines, affiant who exhibited to me his/her CTC/ valid ID</Text>
+            </View>
+            <View style={back.gridRowParent}>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={[back.normalTitle, { width: 200 }]}>issued on  </Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={back.normalTitle}>at</Text>
+              <Text style={back.value}>{" "}</Text>
+            </View>
+            <View style={[back.gridRowParent, { justifyContent: "space-between", marginTop: 20 }]}>
+              <View style={{ alignItems: "center", width: "45%", }}>
+                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
+                  {""}
+                </Text>
+                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
+                  Signature of the Administering Officer
+                </Text>
+              </View>
+              <View style={{ alignItems: "center", width: "45%" }}>
+                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
+                  {""}
+                </Text>
+                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
+                  Position/Title/Designation
+                </Text>
+              </View>
+            </View>
+            <View style={[back.gridRowParent, { justifyContent: "space-between", marginTop: 20 }]}>
+              <View style={{ alignItems: "center", width: "45%", }}>
+                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
+                  {""}
+                </Text>
+                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
+                  Name in Print
+                </Text>
+              </View>
+              <View style={{ alignItems: "center", width: "45%" }}>
+                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
+                  {""}
+                </Text>
+                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
+                  Address
+                </Text>
+              </View>
+
+            </View>
+          </View>
+          <View style={back.parentBorder}>
+            <View style={back.centeredText}>
+              <Text style={back.headerTitle}>Affidavit for delayed registration of marriage </Text>
+            </View>
+
+            {/* Opening paragraph */}
+            <View style={[back.gridRowParent, back.paddingLeft]}>
+              <Text style={[back.normalTitle, { flex: .5 }]}>I,  </Text>
+              <Text style={[back.value, { minWidth: '20%' }]}>{" "}</Text>
+              <Text style={back.title}>of legal age, single/married/divorced/widow/widower, </Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={[back.normalTitle, { flex: 1 }]}>with redsidence and postal address</Text>
+              <Text style={[back.value, { flex: 1 }]}>{" "}</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={[back.normalTitle, { width: 200, flex: 1 }]}>Philippines. affiant wgi exhibited to me his/her CTC/valid ID</Text>
+              <Text style={[back.value, { flex: 1 }]}>{" "}</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={[back.normalTitle, { width: 150 }]}>issued on</Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={[back.normalTitle, { width: 70 }]}>at</Text>
+              <Text style={back.value}>{" "}</Text>
+            </View>
+
+            {/* Section 1 */}
+            <View style={back.gridColumnParent}>
+              <View style={back.gridRowParent}>
+                <Text style={back.title}>1. That I am the applicant for the delayed registration of</Text>
+              </View>
+
+              <View style={[back.gridRowParent, back.paddingLeft, { alignItems: 'flex-end' }]}>
+                <View style={{ width: 50 }}>
+                  <View style={back.radioBox}></View>
+                </View>
+                <Text style={[back.normalTitle, { width: 200 }]}>my marriage with</Text>
+                <View style={[back.value, { width: 250 }]}></View>
+                <Text style={[back.normalTitle, { width: 50 }]}>in</Text>
+                <View style={[back.value, { width: 250 }]}></View>
+                <Text style={[back.normalTitle, { width: 50 }]}>on</Text>
+                <View style={[back.value, { width: 250 }]}></View>
+              </View>
+
+              <View style={[back.gridRowParent, back.paddingLeft, { alignItems: 'flex-end' }]}>
+                <View style={{ width: 20, }}>
+                  <View style={back.radioBox}></View>
+                </View>
+                <Text style={[back.normalTitle,]}>the marriage between</Text>
+                <View style={[back.value, { flex: 1 }]}></View>
+                <Text style={back.normalTitle}>and</Text>
+                <View style={[back.value, { flex: 1 }]}></View>
+              </View>
+
+              <View style={[back.gridRowParent, back.marginLeft]}>
+                <Text style={[back.normalTitle, { width: 20 }]}>in</Text>
+                <View style={[back.value]}></View>
+                <Text style={[back.normalTitle, { width: 20 }]}>on</Text>
+                <View style={[back.value]}></View>
+              </View>
+            </View>
+
+            {/* Section 2 */}
+            <View style={back.gridColumnParent}>
+              <View style={back.gridRowParent}>
+                <Text style={back.normalTitle}>2. That said marriage was solemnized by</Text>
+                <View style={[back.value, { width: 150 }]}>{"Juan De la Cruz"}</View>
+                <Text style={back.normalTitle}>(Solemnizing Officer's name) under</Text>
+              </View>
+
+              <View style={[back.gridRowParent, back.paddingLeft]}>
+                <View style={back.radioBox}></View>
+                <Text style={back.normalTitle}>religious ceremony</Text>
+                <View style={back.radioBox}></View>
+                <Text style={back.normalTitle}>civil ceremony</Text>
+                <View style={back.radioBox}></View>
+                <Text style={back.normalTitle}>Muslim rites</Text>
+                <View style={back.radioBox}></View>
+                <Text style={back.normalTitle}>tribal rites</Text>
+              </View>
+            </View>
+
+            {/* Section 3 */}
+            <View style={back.gridColumnParent}>
+              <Text style={back.normalTitle}>3. That the marriage was solemnized:</Text>
+              <View style={[back.gridRowParent, back.paddingLeft, { alignItems: 'flex-end' }]}>
+                <View style={{ width: 30, }}>
+                  <View style={back.radioBox}></View>
+                </View>
+                <Text style={[back.normalTitle, { width: 225 }]}>a. with marriage license no.</Text>
+                <View style={[back.value, { width: 125 }]}>{" "}</View>
+                <Text style={[back.normalTitle, { width: 80 }]}>issued on </Text>
+                <View style={[back.value, { width: 125 }]}>{" "}</View>
+                <Text style={back.normalTitle}>at </Text>
+                <View style={[back.value, { width: 125 }]}>{" "}</View>
+              </View>
+              <View style={[back.gridRowParent, back.paddingLeft, { alignItems: 'flex-end' }]}>
+                <View style={{ width: 20, }}>
+                  <View style={back.radioBox}></View>
+                </View>
+                <Text style={[back.normalTitle, { width: 80 }]}>b. under Article</Text>
+                <View style={[back.value, { width: 250 }]}>{" "}</View>
+                <Text style={back.normalTitle}>(marriages of exceptional character);</Text>
+              </View>
+            </View>
+
+            {/* Section 4 */}
+            <View style={back.gridColumnParent}>
+              <View style={back.gridRowParent}>
+                <Text style={back.normalTitle}>4. (If the applicant is either the wife or husband) That I am a citizen of </Text>
+                <View style={[back.value, { width: 200 }]}>{" "}</View>
+              </View>
+              <View style={back.gridRowParent}>
+                <Text style={back.normalTitle}>and my spouse is a citizen of  </Text>
+                <View style={[back.value, { width: '80%' }]}>{" "}</View>
+              </View>
+            </View>
+            <View style={back.gridColumnParent}>
+              <View style={back.gridRowParent}>
+                <Text style={back.normalTitle}>4. (If the applicant is other than the wife or husband) That the wife is a citizen of </Text>
+                <View style={[back.value, { width: 150 }]}>{" "}</View>
+              </View>
+              <View style={back.gridRowParent}>
+                <Text style={back.normalTitle}>and the husband is a citizen of</Text>
+                <View style={[back.value, { width: '75%' }]}>{" "}</View>
+              </View>
+            </View>
+
+            {/* Section 5 */}
+            <View style={back.gridColumnParent}>
+              <View style={back.gridRowParent}>
+                <Text style={back.normalTitle}>5. That the reason for the delay in registering our/their marriage is</Text>
+              </View>
+              <View style={back.value}>{" "}</View>
+            </View>
+
+            {/* Section 6 */}
+            <View style={back.gridColumnParent}>
+              <Text style={back.normalTitle}>6. That I am executing this affidavit to attest to the truthfulness of the foregoing statements for all legal intents and purposes.</Text>
+            </View>
+
+            {/* Footer */}
+            <View style={[back.gridRowParent, back.marginLeft, { width: 'auto', marginTop: 10 }]}>
+              <Text style={[back.title, { width: 'auto' }]}>
+                In the truth whereof, I have affixed my signature below this
+              </Text>
+              <Text style={[back.value, back.marginLeft, { width: '50%' }]}>{" "}</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={[back.normalTitle, { width: 70 }]}>
+                day of
+              </Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={[back.normalTitle, { width: 30 }]}>at</Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={[back.normalTitle, { width: 150 }]}>
+                Philippines.
+              </Text>
+            </View>
+
+            <View style={[back.gridRowParent, { justifyContent: "space-between", marginTop: 20 }]}>
+              <View style={{ alignItems: "center", width: "45%", }}>
+
+              </View>
+              <View style={{ alignItems: "center", width: "45%" }}>
+                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
+                  {""}
+                </Text>
+                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
+                  Signature of the Administering Officer
+                </Text>
+              </View>
+            </View>
+            <View style={[back.gridRowParent, {marginTop: 15}]}>
+              <View style={[back.gridRowChild, back.paddingLeft, {gap: 15}]}>
+                <Text style={[back.normalTitle, back.titleBold, {}]}>
+                  SUBSCRIBE AND SWORN  
+                </Text>
+                <Text style={back.normalTitle}>
+                  to before me this
+                </Text>
+              </View>
+              <Text style={[back.value, { width: '45%' }]}>{" "}</Text>
+              <Text style={[back.normalTitle, { width: 100 }]}>day of</Text>
+              <Text style={[back.value, { width: '60%' }]}>{" "}</Text>
+            </View>
+            <View style={back.gridRowParent}>
+              <Text style={back.normalTitle}>at  </Text>
+              <Text style={[back.value, { width: '80%' }]}>{" "}</Text>
+              <Text style={back.title}>Philippines, affiant who exhibited to me his/her CTC/ valid ID</Text>
+            </View>
+            <View style={back.gridRowParent}>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={[back.normalTitle, { width: 200 }]}>issued on  </Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={back.normalTitle}>at</Text>
+              <Text style={back.value}>{" "}</Text>
+            </View>
+            <View style={[back.gridRowParent, { justifyContent: "space-between", marginTop: 20 }]}>
+              <View style={{ alignItems: "center", width: "45%", }}>
+                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
+                  {""}
+                </Text>
+                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
+                  Signature of the Administering Officer
+                </Text>
+              </View>
+              <View style={{ alignItems: "center", width: "45%" }}>
+                <Text style={[back.value, { width: "100%", textAlign: "center" }]}>
+                  {""}
+                </Text>
+                <Text style={[styles.label, { fontSize: 9, textAlign: "center" }]}>
+                  Position/Title/Designation
+                </Text>
+              </View>
+            </View>
+
+          </View>
         </View>
       </Page>
     </Document>
