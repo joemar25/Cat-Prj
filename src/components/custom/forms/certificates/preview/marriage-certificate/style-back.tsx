@@ -14,14 +14,19 @@ export const back = StyleSheet.create({
         width: '100%',
         flexDirection: 'column',
         border: '1px solid #000',
-        padding: 10,
+        padding: 5,
     },
     headerTitle:{
-        fontSize: 15,
+        fontSize: 12,
         fontFamily: "Helvetica-Bold",
         fontWeight: "extrabold",
-        marginBottom: 5,
+        marginBottom: 3,
         textTransform: 'uppercase',
+    },
+    titleBold:{
+        fontFamily: "Helvetica-Bold",
+        fontSize:10,
+
     },
     centeredText:{
         display: 'flex',
@@ -32,37 +37,37 @@ export const back = StyleSheet.create({
     gridRowParent:{
         display: 'flex',
         flexDirection: 'row',
-        gap: 5,
-        paddingTop: 5,
+        gap: 3,
+
         width: '100%',
     },
     gridRowChild:{
         display: 'flex',
         flexDirection: 'row',
-        gap: 5,
+        gap: 3,
         width: '100%',
     },
     gridColumnParent:{
         display: 'flex',
         flexDirection: 'column',
-        padding: 10,
-        gap: 5,
+        gap: 3,
         width: '100%',
     },
     gridColumnChild:{
         display: 'flex',
         flexDirection: 'column',
-        gap: 5,
+        gap: 3,
         width: '100%',
     },
     title:{
-        fontSize: 11,
+        fontSize: 9,
         fontWeight: 'bold',
         width: '100%',
     },
     normalTitle:{
-        fontSize: 11,
+        fontSize: 9,
         fontWeight: 'bold',
+        width: 'auto'
     },
     longTitle:{
         width: '100%',
@@ -70,15 +75,25 @@ export const back = StyleSheet.create({
     value:{
         width: '100%',
         borderBottom: '1px solid #000',
-        fontSize: 11,
+        fontSize: 8,
+        textAlign: 'center',
+    },
+    value2:{
+        width: '100%',
+        borderBottom: '1px solid #000',
+        borderStyle: 'dashed',
+        fontSize: 8,
         textAlign: 'center',
     },
     radioBox:{
-        height:20,
-        width:20,
+        height:15,
+        width:15,
         border: '1px solid #000',
     },
     paddingLeft:{
         paddingLeft: 40,
+    },
+    marginLeft:{
+        marginLeft: 40,
     }
 });
