@@ -1,6 +1,5 @@
-// src\app\api\download\route.ts
+// src/app/api/preview/route.ts
 import path from 'path'
-
 import { readFile } from 'fs/promises'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -19,7 +18,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse(fileBuffer, {
         headers: {
             'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename="${path.basename(filePath)}"`,
+            'Content-Disposition': 'inline',
             'Cache-Control': 'no-store'
         },
     })

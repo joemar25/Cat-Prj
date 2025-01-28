@@ -155,5 +155,3 @@ export async function createBaseRegistryForm(data: {
     return { success: false, message: "Failed to create form" };
   }
 }
-
-
