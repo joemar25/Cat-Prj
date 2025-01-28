@@ -13,7 +13,7 @@ import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { useDeleteFormAction } from '@/components/custom/civil-registry/actions/delete-form-action'
 import { ViewDetailsDialog } from '@/components/custom/civil-registry/components/view-details-dialog'
-import { useExportDocumentAction } from '@/components/custom/civil-registry/actions/export-document-action'
+import { usePrintDocumentAction } from '@/components/custom/civil-registry/actions/print-document-action'
 import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
@@ -37,7 +37,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
 
   const { handleDelete, isLoading } = useDeleteFormAction({ form, onUpdateAction })
-  const { handleExportDocument } = useExportDocumentAction({
+  const { handlePrintDocument } = usePrintDocumentAction({
     documentUrl: form.documentUrl,
     registryNumber: form.registryNumber,
   })
@@ -75,9 +75,9 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             {t('importDocument')}
           </DropdownMenuItem>
           {form.documentUrl && (
-            <DropdownMenuItem onClick={handleExportDocument}>
-              <Icons.download className='mr-2 h-4 w-4' />
-              {t('exportDocument')}
+            <DropdownMenuItem onClick={handlePrintDocument}>
+              <Icons.printer className='mr-2 h-4 w-4' />
+              {t('Print Document')}
             </DropdownMenuItem>
           )}
           <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
