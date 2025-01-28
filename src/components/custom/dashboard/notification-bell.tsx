@@ -134,44 +134,44 @@ export function NotificationBell({ userId }: { userId: string }) {
             <div className='p-4 text-sm text-center text-destructive'>
               {error}
             </div>
-          ) : notifications.length === 0 ? (
+          ) : notifications.filter((notification) => !notification.read).length === 0 ? (
             <div className='p-4 text-sm text-center text-muted-foreground'>
               {t('no_notifications')}
             </div>
           ) : (
             <ScrollArea className='h-[300px]'>
-              {notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`p-2 hover:bg-accent cursor-pointer flex gap-2 items-start ${
-                    notification.read ? 'opacity-70' : ''
-                  }`}
-                  onClick={() => handleNotificationClick(notification)}
-                >
-                  <div className='mt-1.5'>
-                    {notification.read ? (
-                      <Circle className='h-2 w-2 text-muted-foreground' />
-                    ) : (
-                      <CircleDot className='h-2 w-2 text-blue-500' />
-                    )}
+              {notifications
+                .filter((notification) => !notification.read) // Filter out read notifications
+                .map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`p-2 hover:bg-accent cursor-pointer flex gap-2 items-start ${
+                      notification.read ? 'opacity-70' : ''
+                    }`}
+                    onClick={() => handleNotificationClick(notification)}
+                  >
+                    <div className='mt-1.5'>
+                      {notification.read ? (
+                        <Circle className='h-2 w-2 text-muted-foreground' />
+                      ) : (
+                        <CircleDot className='h-2 w-2 text-blue-500' />
+                      )}
+                    </div>
+                    <div className='flex-1'>
+                      <div
+                        className={`text-sm ${notification.read ? 'font-normal' : 'font-medium'}`}
+                      >
+                        {notification.title}
+                      </div>
+                      <div className='text-xs text-muted-foreground line-clamp-2'>
+                        {notification.message}
+                      </div>
+                      <div className='text-[10px] text-muted-foreground mt-1'>
+                        {formatDate(notification.createdAt)}
+                      </div>
+                    </div>
                   </div>
-                  <div className='flex-1'>
-                    <div
-                      className={`text-sm ${
-                        notification.read ? 'font-normal' : 'font-medium'
-                      }`}
-                    >
-                      {notification.title}
-                    </div>
-                    <div className='text-xs text-muted-foreground line-clamp-2'>
-                      {notification.message}
-                    </div>
-                    <div className='text-[10px] text-muted-foreground mt-1'>
-                      {formatDate(notification.createdAt)}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                ))}
             </ScrollArea>
           )}
         </DropdownMenuContent>
