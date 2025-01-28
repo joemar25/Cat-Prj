@@ -26,6 +26,7 @@ import { useNotificationActions } from '@/hooks/notification-actions';
 import { formatDateTime } from '@/utils/date';
 import { BellIcon, Circle, CircleDot, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next'; // Import the useTranslation hook
 
 type NotificationType = 'EMAIL' | 'SYSTEM' | 'SMS';
 
@@ -41,12 +42,11 @@ interface Notification {
 }
 
 export function NotificationBell({ userId }: { userId: string }) {
-  const { notifications, isLoading, error, markAsRead } =
-    useNotificationActions(userId);
-  const [selectedNotification, setSelectedNotification] =
-    useState<Notification | null>(null);
+  const { notifications, isLoading, error, markAsRead } = useNotificationActions(userId);
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { t } = useTranslation(); // Initialize the translation hook
 
   const handleNotificationClick = useCallback(
     async (notification: Notification) => {
@@ -78,15 +78,12 @@ export function NotificationBell({ userId }: { userId: string }) {
         return '';
       }
 
-      const diffInMinutes = Math.floor(
-        (now.getTime() - date.getTime()) / 60000
-      );
+      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / 60000);
 
-      if (diffInMinutes < 1) return 'Just now';
-      if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-      if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-      if (diffInMinutes < 10080)
-        return `${Math.floor(diffInMinutes / 1440)}d ago`;
+      if (diffInMinutes < 1) return t('just_now'); // "Just now"
+      if (diffInMinutes < 60) return `${diffInMinutes} ${t('minutes_ago')}`; // e.g., "5 minutes ago"
+      if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} ${t('hours_ago')}`; // e.g., "2 hours ago"
+      if (diffInMinutes < 10080) return `${Math.floor(diffInMinutes / 1440)} ${t('days_ago')}`; // e.g., "1 day ago"
 
       return formatDateTime(date);
     } catch (error) {
@@ -113,25 +110,25 @@ export function NotificationBell({ userId }: { userId: string }) {
                       {unreadCount}
                     </span>
                   )}
-                  <span className='sr-only'>Notifications</span>
+                  <span className='sr-only'>{t('notifications')}</span> {/* Translate "Notifications" */}
                 </Button>
               </DropdownMenuTrigger>
             </TooltipTrigger>
-            <TooltipContent side='bottom'>Notifications</TooltipContent>
+            <TooltipContent side='bottom'>{t('notifications')}</TooltipContent> {/* Translate "Notifications" */}
           </Tooltip>
         </TooltipProvider>
         <DropdownMenuContent align='end' className='w-80'>
           <DropdownMenuLabel className='flex justify-between items-center'>
-            <span>Notifications</span>
+            <span>{t('notifications')}</span>
             {unreadCount > 0 && (
               <span className='text-xs text-muted-foreground'>
-                {unreadCount} unread
+                {unreadCount} {t('unread')} {/* Translate "unread" */}
               </span>
             )}
           </DropdownMenuLabel>
           {isLoading ? (
             <div className='p-4 text-sm text-center text-muted-foreground'>
-              Loading...
+              {t('loading')}...
             </div>
           ) : error ? (
             <div className='p-4 text-sm text-center text-destructive'>
@@ -139,7 +136,7 @@ export function NotificationBell({ userId }: { userId: string }) {
             </div>
           ) : notifications.length === 0 ? (
             <div className='p-4 text-sm text-center text-muted-foreground'>
-              No notifications
+              {t('no_notifications')}
             </div>
           ) : (
             <ScrollArea className='h-[300px]'>
@@ -183,7 +180,7 @@ export function NotificationBell({ userId }: { userId: string }) {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className='sm:max-w-[500px] p-6'>
           <DialogClose className='absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground'>
-            <span className='sr-only'>Close</span>
+            <span className='sr-only'>{t('close')}</span> {/* Translate "Close" */}
             <X className='h-4 w-4' />
           </DialogClose>
           <DialogHeader className='mt-2'>

@@ -244,5 +244,29 @@
     "marriageForm": "Civil Registry Form No. 3A",
     "marriageAvailable": "(Marriage Available)"
   },
-  "civilRegistry": "Civil Registry"
+  "Civil Registry": "Civil Registry",
+  "Requests": "Request",
+  "Profile": "Profile",
+  "Users": "Users",
+  "Reports": "Reports",
+  
+  "notifications": "Notifications",
+  "unread": "unread",
+  "loading": "Loading",
+  "no_notifications": "No notifications",
+  "close": "Close",
+  "just_now": "Just now",
+  "minutes_ago": "minutes ago",
+  "hours_ago": "hours ago",
+  "days_ago": "days ago",
+
+  "success_logout": "Successfully logged out",
+  "guest_user": "Guest User",
+  "guest_role": "Guest",
+  "no_email": "No email",
+  "sign_out": "Sign out",
+  "confirm_logout": "Confirm Logout",
+  "confirm_logout_message": "Are you sure you want to log out?",
+  "log_out": "Log out",
+  "logging_out": "Logging out..."
 }
