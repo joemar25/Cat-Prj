@@ -4,6 +4,7 @@ import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { sty } from '../death-certificate/stylish';
 import { styles } from './marriage';
 import { Place } from '@/types/marriage-certificate';
+import { back } from './style-back';
 
 // Define styles for the PDF
 
@@ -39,1173 +40,1268 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
     );
   }
 
-  // Split the sections into two groups
-  const firstPageSections = [
-    // Husband's Information
-    <View key={'husbandInfo'}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.municipal}>
-          <Text>Municipal Form No. 97</Text>
-          <Text style={styles.headerNote1}>Revised August 2016</Text>
-        </View>
-        <View style={styles.republic}>
-          <Text style={styles.headerSubtitle}>Republic of the Philippines</Text>
-          <Text style={styles.headerSubtitle}>
-            OFFICE OF THE CIVIL REGISTRAR GENERAL
-          </Text>
-          <Text style={styles.headerTitle}>CERTIFICATE OF MARRIAGE</Text>
-        </View>
-        <View>
-          <Text style={styles.headerNote2}>
-            (To be accomplished in quadruplicate using black ink)
-          </Text>
-        </View>
-      </View>
-
-      {/* Grid Container */}
-      <View>
-        <View style={[sty.gridContainer, { borderBottom: 'none' }]}>
-          {/* Left Grid: Province and City/Municipality */}
-          <View style={sty.leftGrid}>
-            <View style={sty.fieldContainer}>
-              <Text style={sty.label}>Province:</Text>
-              <Text style={sty.value}>{data.province || ''}</Text>
-            </View>
-            <View style={[sty.fieldContainer, { borderBottom: 'none' }]}>
-              <Text style={sty.label}>City/Municipality:</Text>
-              <Text style={sty.value}>{data.cityMunicipality || ''}</Text>
-            </View>
-          </View>
-
-          {/* Right Grid: Registry No. */}
-          <View style={sty.rightGrid}>
-            <View style={sty.registryNoContainer}>
-              <Text style={sty.label}>Registry No.:</Text>
-              <Text style={sty.value}>{data.registryNumber || ''}</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* First Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={styles.gridHeader}>1. Name of Contracting Parties</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', padding: 0 },
-          ]}
-        >
-          <Text style={styles.title}>Husband</Text>
-          <View style={[styles.flexColumn, { padding: 5 }]}>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>First Name:</Text>
-              <Text style={styles.value}>{data.husbandInfo?.firstName || ''}</Text>
-            </View>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Middle Name:</Text>
-              <Text style={styles.value}>{data.husbandInfo?.middleName || ''}</Text>
-            </View>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Last Name:</Text>
-              <Text style={styles.value}>{data.husbandInfo?.lastName || ''}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', padding: 0 },
-          ]}
-        >
-          <Text style={styles.title}>Wife</Text>
-          <View style={[styles.flexColumn, { padding: 5 }]}>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>First Name:</Text>
-              <Text style={styles.value}>{data.wifeInfo?.firstName || ''}</Text>
-            </View>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Middle Name:</Text>
-              <Text style={styles.value}>{data.wifeInfo?.middleName || ''}</Text>
-            </View>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Last Name:</Text>
-              <Text style={styles.value}>{data.wifeInfo?.lastName || ''}</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Second Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={styles.gridHeader}>2a. Date of birth</Text>
-          <Text style={styles.gridHeader}>2b. Age</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', gap: 5 },
-          ]}
-        >
-          <View style={styles.flexRow}>
-            <Text style={styles.gridHeader}>(Day)</Text>
-            <Text style={styles.gridHeader}>(Month)</Text>
-            <Text style={styles.gridHeader}>(Year)</Text>
-            <Text style={styles.gridHeader}>(Age)</Text>
-          </View>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>
-              {data.husbandInfo?.dateOfBirth
-                ? formatDateTime(data.husbandInfo.dateOfBirth, {
-                  monthFormat: 'numeric',
-                  dayFormat: 'numeric',
-                  yearFormat: 'numeric',
-                })
-                : ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.husbandInfo?.age ? `${data.husbandInfo.age} y.o` : ''}
-            </Text>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
-          <View style={styles.flexRow}>
-            <Text style={styles.gridHeader}>(Day)</Text>
-            <Text style={styles.gridHeader}>(Month)</Text>
-            <Text style={styles.gridHeader}>(Year)</Text>
-            <Text style={styles.gridHeader}>(Age)</Text>
-          </View>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>
-              {data.wifeInfo?.dateOfBirth
-                ? formatDateTime(data.wifeInfo.dateOfBirth, {
-                  monthFormat: 'numeric',
-                  dayFormat: 'numeric',
-                  yearFormat: 'numeric',
-                })
-                : ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.wifeInfo?.age ? `${data.wifeInfo.age} y.o` : ''}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Third Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={styles.gridHeader}>3. Place of birth</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', gap: 5 },
-          ]}
-        >
-          <View style={styles.flexRow}>
-            <Text style={styles.gridHeader}>(City/Municipality)</Text>
-            <Text style={styles.gridHeader}>(Province)</Text>
-            <Text style={styles.gridHeader}>(Country)</Text>
-          </View>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>
-              {formatPlace(data.husbandInfo?.placeOfBirth) || ''}
-            </Text>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
-          <View style={styles.flexRow}>
-            <Text style={styles.gridHeader}>(City/Municipality)</Text>
-            <Text style={styles.gridHeader}>(Province)</Text>
-            <Text style={styles.gridHeader}>(Country)</Text>
-          </View>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>
-              {formatPlace(data.wifeInfo?.placeOfBirth) || ''}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Fourth Section */}
-      <View style={[styles.gridContainer, { padding: 0 }]}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000', padding: 5 },
-          ]}
-        >
-          <Text style={styles.gridHeader}>4a. Sex</Text>
-          <Text style={styles.gridHeader}>4b. Citizenship</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', padding: 0 },
-          ]}
-        >
-          <View style={[styles.flexRow, { padding: 0 }]}>
-            <View style={[styles.gridColumn, { padding: 5 }]}>
-              <Text
-                style={[
-                  styles.value,
-                  { textAlign: 'left', textTransform: 'uppercase' },
-                ]}
-              >
-                {data.husbandInfo?.sex || ''}
-              </Text>
-            </View>
-            <View
-              style={[
-                styles.gridColumn,
-                { padding: 5, borderLeft: '1px solid #000' },
-              ]}
-            >
-              <Text style={styles.gridHeader}>(Citizenship)</Text>
-              <Text style={styles.value}>{data.husbandInfo?.citizenship || ''}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, padding: 0 }]}>
-          <View style={[styles.flexRow, { padding: 0 }]}>
-            <View style={[styles.gridColumn, { padding: 5 }]}>
-              <Text
-                style={[
-                  styles.value,
-                  { textAlign: 'left', textTransform: 'uppercase' },
-                ]}
-              >
-                {data.wifeInfo?.sex || ''}
-              </Text>
-            </View>
-            <View
-              style={[
-                styles.gridColumn,
-                { padding: 5, borderLeft: '1px solid #000' },
-              ]}
-            >
-              <Text style={styles.gridHeader}>(Citizenship)</Text>
-              <Text style={styles.value}>{data.wifeInfo?.citizenship || ''}</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Fifth Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={styles.gridHeader}>5. Residence</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', gap: 5 },
-          ]}
-        >
-          <View style={styles.flexRow}>
-            <Text style={[styles.gridHeader, { fontSize: 8 }]}>
-              (House no., St., Brgy, City/Municipality, Province, Country)
-            </Text>
-          </View>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>
-              <Text style={styles.value}>{data.husbandInfo?.residence || ''}</Text>
-            </Text>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
-          <View style={styles.flexRow}>
-            <Text style={[styles.gridHeader, { fontSize: 8 }]}>
-              (House no., St., Brgy, City/Municipality, Province, Country)
-            </Text>
-          </View>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>
-              <Text style={styles.value}>{data.wifeInfo?.residence || ''}</Text>
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Sixth Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={styles.gridHeader}>6. Religion/Religion Sect.</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', gap: 5 },
-          ]}
-        >
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>{data.husbandInfo?.religion || ''}</Text>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>{data.wifeInfo?.religion || ''}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Seventh Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={styles.gridHeader}>7. Civil Status</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', gap: 5 },
-          ]}
-        >
-          <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
-            <Text style={styles.value}>{data.husbandInfo?.civilStatus || ''}</Text>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
-          <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
-            <Text style={styles.value}>{data.wifeInfo?.civilStatus || ''}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Eighth Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={styles.gridHeader}>8. Name of Father</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', gap: 5 },
-          ]}
-        >
-          <View style={styles.flexRow}>
-            <Text style={styles.gridHeader}>(First)</Text>
-            <Text style={styles.gridHeader}>(Middle)</Text>
-            <Text style={styles.gridHeader}>(Last)</Text>
-          </View>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>
-              {data.husbandParents?.father.firstName || ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.husbandParents?.father.middleName || ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.husbandParents?.father.lastName || ''}
-            </Text>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
-          <View style={styles.flexRow}>
-            <Text style={styles.gridHeader}>(First)</Text>
-            <Text style={styles.gridHeader}>(Middle)</Text>
-            <Text style={styles.gridHeader}>(Last)</Text>
-          </View>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>{data.wifeParents?.father.firstName || ''}</Text>
-            <Text style={styles.value}>
-              {data.wifeParents?.father.middleName || ''}
-            </Text>
-            <Text style={styles.value}>{data.wifeParents?.father.lastName || ''}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Ninth Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={styles.gridHeader}>9. Citizenship</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', gap: 5 },
-          ]}
-        >
-          <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
-            <Text style={styles.value}>
-              {data.husbandParents?.fatherCitizenship || ''}
-            </Text>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
-          <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
-            <Text style={styles.value}>{data.wifeParents?.fatherCitizenship || ''}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Tenth Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={styles.gridHeader}>10. Maiden Name of Mother</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', gap: 5 },
-          ]}
-        >
-          <View style={styles.flexRow}>
-            <Text style={styles.gridHeader}>(First)</Text>
-            <Text style={styles.gridHeader}>(Middle)</Text>
-            <Text style={styles.gridHeader}>(Last)</Text>
-          </View>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>
-              {data.husbandParents?.mother.firstName || ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.husbandParents?.mother.middleName || ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.husbandParents?.mother.lastName || ''}
-            </Text>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
-          <View style={styles.flexRow}>
-            <Text style={styles.gridHeader}>(First)</Text>
-            <Text style={styles.gridHeader}>(Middle)</Text>
-            <Text style={styles.gridHeader}>(Last)</Text>
-          </View>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>
-              {data.wifeParents?.mother.firstName || ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.wifeParents?.mother.middleName || ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.wifeParents?.mother.lastName || ''}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Eleventh Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={styles.gridHeader}>11. Citizenship</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', gap: 5 },
-          ]}
-        >
-          <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
-            <Text style={styles.value}>
-              {data.husbandParents?.motherCitizenship || ''}
-            </Text>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
-          <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
-            <Text style={styles.value}>{data.wifeParents?.motherCitizenship || ''}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Twelfth Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={[styles.gridHeader, { fontSize: 10 }]}>
-            12. Wali Who Gave Consent/Advise
-          </Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', gap: 5 },
-          ]}
-        >
-          <View style={styles.flexRow}>
-            <Text style={styles.gridHeader}>(First)</Text>
-            <Text style={styles.gridHeader}>(Middle)</Text>
-            <Text style={styles.gridHeader}>(Last)</Text>
-          </View>
-          <View style={[styles.flexRow]}>
-            <Text style={styles.value}>
-              {data.husbandConsentPerson?.firstName || ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.husbandConsentPerson?.middleName || ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.husbandConsentPerson?.lastName || ''}
-            </Text>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
-          <View style={styles.flexRow}>
-            <Text style={styles.gridHeader}>(First)</Text>
-            <Text style={styles.gridHeader}>(Middle)</Text>
-            <Text style={styles.gridHeader}>(Last)</Text>
-          </View>
-          <View style={[styles.flexRow]}>
-            <Text style={styles.value}>
-              {data.wifeConsentPerson?.firstName || ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.wifeConsentPerson?.middleName || ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.wifeConsentPerson?.lastName || ''}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Thirteenth Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={styles.gridHeader}>13. Relationship</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', gap: 5 },
-          ]}
-        >
-          <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
-            <Text style={styles.value}>
-              {data.husbandConsentPerson?.relationship || ''}
-            </Text>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
-          <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
-            <Text style={styles.value}>
-              {data.wifeConsentPerson?.relationship || ''}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Fourteenth Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={styles.gridHeader}>14. Residence</Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', gap: 5 },
-          ]}
-        >
-          <View style={styles.flexRow}>
-            <Text style={[styles.gridHeader, { fontSize: 8 }]}>
-              (House no., St., Brgy, City/Municipality, Province, Country)
-            </Text>
-          </View>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>
-              <Text style={styles.value}>
-                {data.husbandConsentPerson?.residence || ''}
-              </Text>
-            </Text>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
-          <View style={styles.flexRow}>
-            <Text style={[styles.gridHeader, { fontSize: 8 }]}>
-              (House no., St., Brgy, City/Municipality, Province, Country)
-            </Text>
-          </View>
-          <View style={styles.flexRow}>
-            <Text style={styles.value}>
-              <Text style={styles.value}>
-                {data.wifeConsentPerson?.residence || ''}
-              </Text>
-            </Text>
-          </View>
-        </View>
-      </View>
-    </View>,
-
-    // Wife's Information
-    <View key={'wifeInfo'}>
-      {/* Fifteenth Section */}
-      <View style={styles.gridContainer}>
-        <View style={styles.gridColumn}>
-          <Text style={styles.gridHeader}>15. Place of Marriage: </Text>
-        </View>
-        <View style={styles.gridColumn}>
-          <Text style={styles.value}>
-            {formatPlace(data.marriageDetails?.placeOfMarriage) || ''}
-          </Text>
-        </View>
-      </View>
-
-      {/* Sixteenth and Seventeenth Section */}
-      <View style={[styles.gridContainer, { padding: 0 }]}>
-        {/* First Cell (colspan-2) */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 2, borderRight: '1px solid #000', padding: 0 },
-          ]}
-        >
-          <View
-            style={[
-              styles.flexRow,
-              {
-                textAlign: 'left',
-                alignItems: 'flex-start',
-                justifyContent: 'flex-start',
-              },
-            ]}
-          >
-            <View style={styles.gridColumn}>
-              <Text style={styles.gridHeader}>16. Date of Marriage: </Text>
-            </View>
-            <View style={styles.gridColumn}>
-              <Text style={styles.value}>
-                {data.marriageDetails?.dateOfMarriage
-                  ? formatDateTime(data.marriageDetails?.dateOfMarriage, {
-                    monthFormat: 'numeric',
-                    dayFormat: 'numeric',
-                    yearFormat: 'numeric',
-                  })
-                  : ''}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Second Cell (colspan-1) */}
-        <View style={[styles.gridColumn, { flex: 1.4, padding: 0 }]}>
-          <View
-            style={[
-              styles.flexRow,
-              {
-                textAlign: 'left',
-                alignItems: 'flex-start',
-                justifyContent: 'flex-start',
-              },
-            ]}
-          >
-            <View style={styles.gridColumn}>
-              <Text style={styles.gridHeader}>17. Time of Marriage: </Text>
-            </View>
-            <View style={styles.gridColumn}>
-              <Text style={styles.value}>{data.marriageDetails?.timeOfMarriage?.toString() || ''}</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Eighteenth Section */}
-      {/* Contracting Parties Signature Section */}
-      <View style={styles.gridContainer}>
-        {/* First Column: Title (Certification) */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 200, padding: 0, borderRight: '1px solid #000' },
-          ]}
-        >
-          <View
-            style={[
-              styles.flexRow,
-              {
-                textAlign: 'left',
-                alignItems: 'flex-start',
-                justifyContent: 'flex-start',
-              },
-            ]}
-          >
-            <View style={styles.gridColumn}>
-              <Text style={styles.gridHeader}>
-                18. CERTIFICATION OF THE CONTRACTING PARTIES:{' '}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Second Column: Husband's Signature */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, padding: 0, borderRight: '1px solid #000' },
-          ]}
-        >
-          <View
-            style={[
-              styles.flexRow,
-              {
-                textAlign: 'left',
-                alignItems: 'flex-start',
-                justifyContent: 'flex-start',
-              },
-            ]}
-          >
-            <View style={styles.gridColumn}>
-              <Text style={styles.gridHeader}>(Husband) </Text>
-            </View>
-            <View style={styles.gridColumn}>
-              <Text style={styles.value}>
-                {data.signatures?.contractingParties?.husband}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Third Column: Wife's Signature */}
-        <View style={[styles.gridColumn, { flex: 1, padding: 0 }]}>
-          <View
-            style={[
-              styles.flexRow,
-              {
-                textAlign: 'left',
-                alignItems: 'flex-start',
-                justifyContent: 'flex-start',
-              },
-            ]}
-          >
-            <View style={styles.gridColumn}>
-              <Text style={styles.gridHeader}>(Wife) </Text>
-            </View>
-            <View style={styles.gridColumn}>
-              <Text style={styles.value}>
-                {data.signatures?.contractingParties?.wife}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Nineteenth Section */}
-      <View style={[styles.gridContainer, { padding: 0 }]}>
-        {/* First Cell (fixed width: 200) */}
-        <View style={[styles.gridColumn, { width: 200, padding: 0 }]}>
-          <View
-            style={[
-              styles.flexRow,
-              {
-                textAlign: 'left',
-                alignItems: 'flex-start',
-                justifyContent: 'flex-start',
-              },
-            ]}
-          >
-            <View style={styles.gridColumn}>
-              <Text style={styles.gridHeader}>
-                19. CERTIFICATION OF THE SOLEMNIZING OFFICER:{' '}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Second Cell (flex: 1) */}
-        <View
-          style={[
-            styles.gridColumn,
-            {
-              flex: 1,
-              borderLeft: '1px solid #000',
-              gap: 3,
-              marginLeft: '-1px',
-            },
-          ]}
-        >
-          <View style={styles.flexRow}>
-            <Text style={styles.gridHeader}>(Name) </Text>
-            <Text style={styles.gridHeader}>(Position) </Text>
-            <Text style={styles.gridHeader}>(Religion) </Text>
-            <Text style={styles.gridHeader}>(Signature) </Text>
-          </View>
-
-          <View style={[styles.flexRow, { fontSize: 9 }]}>
-            <Text style={styles.value}>
-              {data.solemnizingOfficer?.name + ', ' || ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.solemnizingOfficer?.position + ', ' || ''}
-            </Text>
-            <Text style={styles.value}>
-              {data.solemnizingOfficer?.religion + ', ' || ''}
-            </Text>
-            <Text style={styles.value}>{''}</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Twentieth Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Numbering */}
-        <View
-          style={[
-            styles.gridColumn,
-            { width: 100, borderRight: '1px solid #000' },
-          ]}
-        >
-          <Text style={[styles.gridHeader, { fontSize: 8 }]}>
-            20a. WITNESSES (Print name and Signature Additional at the back)
-          </Text>
-        </View>
-
-        {/* Column 2: Husband's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', padding: 0 },
-          ]}
-        >
-          <Text style={styles.title}>Husband</Text>
-          <View style={[styles.flexColumn, { padding: 5 }]}>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Name:</Text>
-              <Text style={styles.value}>
-                {data.witnesses?.husband?.[0]?.name || ''}
-              </Text>
-            </View>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Signature:</Text>
-              <Text style={styles.value}>
-                {data.witnesses?.husband?.[0]?.signature || ''}
-              </Text>
-            </View>
-          </View>
-          <View style={[styles.flexColumn, { padding: 5 }]}>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Name:</Text>
-              <Text style={styles.value}>
-                {data.witnesses?.husband?.[1]?.name || ''}
-              </Text>
-            </View>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Signature:</Text>
-              <Text style={styles.value}>
-                {data.witnesses?.husband?.[1]?.signature || ''}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Column 3: Wife's Information */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', padding: 0 },
-          ]}
-        >
-          <Text style={styles.title}>Wife</Text>
-          <View style={[styles.flexColumn, { padding: 5 }]}>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Name:</Text>
-              <Text style={styles.value}>
-                {data.witnesses?.wife?.[0]?.name || ''}
-              </Text>
-            </View>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Signature:</Text>
-              <Text style={styles.value}>
-                {data.witnesses?.wife?.[0]?.signature || ''}
-              </Text>
-            </View>
-          </View>
-          <View style={[styles.flexColumn, { padding: 5 }]}>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Name:</Text>
-              <Text style={styles.value}>
-                {data.witnesses?.wife?.[1]?.name || ''}
-              </Text>
-            </View>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Signature:</Text>
-              <Text style={styles.value}>
-                {data.witnesses?.wife?.[1]?.signature || ''}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Twenty-First Section */}
-      <View style={styles.gridContainer}>
-        {/* Column 1: Received By */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', padding: 0 },
-          ]}
-        >
-          <Text
-            style={[
-              styles.title,
-              { textAlign: 'left', fontSize: 9, padding: 5 },
-            ]}
-          >
-            21. RECEIVED BY
-          </Text>
-          <View style={[styles.flexColumn, { padding: 5 }]}>
-            <View style={[styles.flexColumn, { padding: 5 }]}>
-              <View style={styles.fieldContainer}>
-                <Text style={styles.label}>Signature:</Text>
-                <Text style={styles.value}>
-                  {data.receivedBy?.signature || ''}
-                </Text>
-              </View>
-              <View style={styles.fieldContainer}>
-                <Text style={styles.label}>Name in Print:</Text>
-                <Text style={styles.value}>{data.receivedBy?.name || ''}</Text>
-              </View>
-            </View>
-            <View style={[styles.flexColumn, { padding: 5 }]}>
-              <View style={styles.fieldContainer}>
-                <Text style={styles.label}>Title or Position:</Text>
-                <Text style={styles.value}>{data.receivedBy?.title || ''}</Text>
-              </View>
-              <View style={styles.fieldContainer}>
-                <Text style={styles.label}>Date:</Text>
-                <Text style={styles.value}>
-                  {data.receivedBy?.date
-                    ? formatDateTime(data.receivedBy.date, {
-                      monthFormat: 'numeric',
-                      dayFormat: 'numeric',
-                      yearFormat: 'numeric',
-                    })
-                    : ''}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {/* Column 2: Registered at Civil Registrar */}
-        <View
-          style={[
-            styles.gridColumn,
-            { flex: 1, borderRight: '1px solid #000', padding: 0 },
-          ]}
-        >
-          <Text
-            style={[
-              styles.title,
-              { textAlign: 'left', fontSize: 9, padding: 5 },
-            ]}
-          >
-            22. REGISTERED AT THE OFFICE OF THE CIVIL REGISTRAR
-          </Text>
-          <View style={[styles.flexColumn, { padding: 5 }]}>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Signature:</Text>
-              <Text style={styles.value}>
-                {data.registeredAtCivilRegistrar?.signature || ''}
-              </Text>
-            </View>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Name:</Text>
-              <Text style={styles.value}>
-                {data.registeredAtCivilRegistrar?.name || ''}
-              </Text>
-            </View>
-          </View>
-          <View style={[styles.flexColumn, { padding: 5 }]}>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Title or Position:</Text>
-              <Text style={styles.value}>
-                {data.registeredAtCivilRegistrar?.title || ''}
-              </Text>
-            </View>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Date:</Text>
-              <Text style={styles.value}>
-                {data.registeredAtCivilRegistrar?.date
-                  ? formatDateTime(data.registeredAtCivilRegistrar.date, {
-                    monthFormat: 'numeric',
-                    dayFormat: 'numeric',
-                    yearFormat: 'numeric',
-                  })
-                  : ''}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Footer */}
-      <View
-        style={{
-          flexDirection: 'column',
-          padding: 5,
-          gap: 5,
-          borderBottom: '1px solid #000',
-          borderRight: '1px solid #000',
-          borderLeft: '1px solid #000',
-        }}
-      >
-        <Text
-          style={{
-            textTransform: 'uppercase',
-            fontSize: '8px',
-            fontWeight: 'bold',
-          }}
-        >
-          REMARKS / ANNOTATIONS (FOR LCRO/OCRG USE ONLY)
-        </Text>
-        <Text style={styles.value}>{data.remarks || ''}</Text>
-      </View>
-    </View>,
-  ];
-
+  // 
   const secondPageSections = [
-    <View>
 
-    </View>
   ]
 
   return (
     <Document>
+      <Page style={back.page} size='LEGAL'>
+        <View key={'secondPage'} style={[back.parentBorder, { padding: 0 }]}>
+          <View style={[back.gridColumnParent, back.parentBorder]}>
+            <Text style={back.title}>20b. WITNESSES (Print name and signature)</Text>
+            <View style={back.gridRowParent}>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={back.value}>{" "}</Text>
+            </View>
+            <View style={back.gridRowParent}>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={back.value}>{" "}</Text>
+            </View>
+          </View>
+          <View style={[back.parentBorder]}>
+            <View style={back.centeredText}>
+              <Text style={back.headerTitle}>Affidavit of solemnizing officer</Text>
+            </View>
+            <View style={[back.gridRowParent, back.paddingLeft]}>
+              <Text style={[back.normalTitle, { flex: .5 }]}>I,</Text>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={back.title}>of legal age, Solemnizing Officer of</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={[back.value]}>{" "}</Text>
+              <Text style={[back.normalTitle, { width: 200 }]}>with address at</Text>
+              <Text style={back.value}>{" "}</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={back.title}>after having sworn to in accordane with law, do hereby depose and say:</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={[back.normalTitle, back.longTitle]}>1. That I have solemnized the marriage between: </Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={back.value}>{" "}</Text>
+              <Text style={back.normalTitle}>and  </Text>
+              <Text style={back.value}>{" "}</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={back.title}>after having sworn to in accordane with law, do hereby depose and say:</Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={back.normalTitle}>2.</Text>
+              <View style={[back.gridColumnParent, { width: '3%', gap: 15 }]}>
+                <Text style={back.radioBox}>{" "}</Text>
+                <Text style={back.radioBox}>{" "}</Text>
+                <Text style={back.radioBox}>{" "}</Text>
+                <Text style={back.radioBox}>{" "}</Text>
+                <Text style={back.radioBox}>{" "}</Text>
+              </View>
+              <View style={[back.gridColumnParent, { alignItems: 'flex-start' }]}>
+                <Text style={back.title}>
+                  a. That I have ascertained the qualifications of the contracting parties and have found
+                  no legal impediment for them to marry as required by the Article 34 of the Family Code
+                </Text>
+                <Text style={[back.title, { marginTop: 5 }]}>b. That this marriage was performed in articulo mortis or at the point of death</Text>
+                <View style={back.gridColumnChild}>
+                  <View style={[back.gridRowChild, { paddingBottom: 0, marginTop: 5 }]}>
+                    <Text style={[back.normalTitle, { width: 450, }]}>c. That the contracting party/ies</Text>
+                    <Text style={back.value}>{"asd "}</Text>
+                    <View style={back.gridRowChild}>
+                      <Text style={back.normalTitle}>and</Text>
+                      <Text style={back.value}>{"asd "}</Text>
+                    </View>
+                  </View>
+                  <Text style={[back.normalTitle, { marginTop: -5 }]}>
+                    being at the point of death and physically unable to sign
+                    the foregoing certificate or marriage by signature or mark, one of the witnesses to the marriage; sign for
+                    him or her by writing the dying party's name and beneath it, the witness' own signature preceded by
+                    the preposition "By";
+                  </Text>
+                </View>
+                <Text style={back.title}>
+                  d. That the residence of either party is so located that there is no means of transportation to enable
+                  concerned party/parties to appear personallay before the civil registrar
+                </Text>
+                <Text style={back.title}>
+                  e. That the marriage was among Muslims or among members of Ethnic Cultural Communities and thath the
+                  marriage was solemnized in accordance with tehir custom and practices
+                </Text>
+              </View>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={back.normalTitle}>
+                3. That I took the necessary steps tp ascertain the ages and relationship of
+                the contracting parties and that neither of them are under any legal impediment to marry each other.
+              </Text>
+            </View>
+            <View style={[back.gridRowParent]}>
+              <Text style={back.normalTitle}>
+                4. That I am executing this affidavit to attest to the truthfulness of the foregoing statements for all legal intents and purposes.
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Page>
+
       <Page size='LEGAL' style={styles.page}>
-        {secondPageSections}
-        {firstPageSections}
+        <View>
+          <View key={'husbandInfo'}>
+            {/* Header */}
+            <View style={styles.header}>
+              <View style={styles.municipal}>
+                <Text>Municipal Form No. 97</Text>
+                <Text style={styles.headerNote1}>Revised August 2016</Text>
+              </View>
+              <View style={styles.republic}>
+                <Text style={styles.headerSubtitle}>Republic of the Philippines</Text>
+                <Text style={styles.headerSubtitle}>
+                  OFFICE OF THE CIVIL REGISTRAR GENERAL
+                </Text>
+                <Text style={styles.headerTitle}>CERTIFICATE OF MARRIAGE</Text>
+              </View>
+              <View>
+                <Text style={styles.headerNote2}>
+                  (To be accomplished in quadruplicate using black ink)
+                </Text>
+              </View>
+            </View>
+
+            {/* Grid Container */}
+            <View>
+              <View style={[sty.gridContainer, { borderBottom: 'none' }]}>
+                {/* Left Grid: Province and City/Municipality */}
+                <View style={sty.leftGrid}>
+                  <View style={sty.fieldContainer}>
+                    <Text style={sty.label}>Province:</Text>
+                    <Text style={sty.value}>{data.province || ''}</Text>
+                  </View>
+                  <View style={[sty.fieldContainer, { borderBottom: 'none' }]}>
+                    <Text style={sty.label}>City/Municipality:</Text>
+                    <Text style={sty.value}>{data.cityMunicipality || ''}</Text>
+                  </View>
+                </View>
+
+                {/* Right Grid: Registry No. */}
+                <View style={sty.rightGrid}>
+                  <View style={sty.registryNoContainer}>
+                    <Text style={sty.label}>Registry No.:</Text>
+                    <Text style={sty.value}>{data.registryNumber || ''}</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* First Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={styles.gridHeader}>1. Name of Contracting Parties</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', padding: 0 },
+                ]}
+              >
+                <Text style={styles.title}>Husband</Text>
+                <View style={[styles.flexColumn, { padding: 5 }]}>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>First Name:</Text>
+                    <Text style={styles.value}>{data.husbandInfo?.firstName || ''}</Text>
+                  </View>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Middle Name:</Text>
+                    <Text style={styles.value}>{data.husbandInfo?.middleName || ''}</Text>
+                  </View>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Last Name:</Text>
+                    <Text style={styles.value}>{data.husbandInfo?.lastName || ''}</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', padding: 0 },
+                ]}
+              >
+                <Text style={styles.title}>Wife</Text>
+                <View style={[styles.flexColumn, { padding: 5 }]}>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>First Name:</Text>
+                    <Text style={styles.value}>{data.wifeInfo?.firstName || ''}</Text>
+                  </View>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Middle Name:</Text>
+                    <Text style={styles.value}>{data.wifeInfo?.middleName || ''}</Text>
+                  </View>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Last Name:</Text>
+                    <Text style={styles.value}>{data.wifeInfo?.lastName || ''}</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Second Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={styles.gridHeader}>2a. Date of birth</Text>
+                <Text style={styles.gridHeader}>2b. Age</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', gap: 5 },
+                ]}
+              >
+                <View style={styles.flexRow}>
+                  <Text style={styles.gridHeader}>(Day)</Text>
+                  <Text style={styles.gridHeader}>(Month)</Text>
+                  <Text style={styles.gridHeader}>(Year)</Text>
+                  <Text style={styles.gridHeader}>(Age)</Text>
+                </View>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>
+                    {data.husbandInfo?.dateOfBirth
+                      ? formatDateTime(data.husbandInfo.dateOfBirth, {
+                        monthFormat: 'numeric',
+                        dayFormat: 'numeric',
+                        yearFormat: 'numeric',
+                      })
+                      : ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.husbandInfo?.age ? `${data.husbandInfo.age} y.o` : ''}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
+                <View style={styles.flexRow}>
+                  <Text style={styles.gridHeader}>(Day)</Text>
+                  <Text style={styles.gridHeader}>(Month)</Text>
+                  <Text style={styles.gridHeader}>(Year)</Text>
+                  <Text style={styles.gridHeader}>(Age)</Text>
+                </View>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>
+                    {data.wifeInfo?.dateOfBirth
+                      ? formatDateTime(data.wifeInfo.dateOfBirth, {
+                        monthFormat: 'numeric',
+                        dayFormat: 'numeric',
+                        yearFormat: 'numeric',
+                      })
+                      : ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.wifeInfo?.age ? `${data.wifeInfo.age} y.o` : ''}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Third Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={styles.gridHeader}>3. Place of birth</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', gap: 5 },
+                ]}
+              >
+                <View style={styles.flexRow}>
+                  <Text style={styles.gridHeader}>(City/Municipality)</Text>
+                  <Text style={styles.gridHeader}>(Province)</Text>
+                  <Text style={styles.gridHeader}>(Country)</Text>
+                </View>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>
+                    {formatPlace(data.husbandInfo?.placeOfBirth) || ''}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
+                <View style={styles.flexRow}>
+                  <Text style={styles.gridHeader}>(City/Municipality)</Text>
+                  <Text style={styles.gridHeader}>(Province)</Text>
+                  <Text style={styles.gridHeader}>(Country)</Text>
+                </View>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>
+                    {formatPlace(data.wifeInfo?.placeOfBirth) || ''}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Fourth Section */}
+            <View style={[styles.gridContainer, { padding: 0 }]}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000', padding: 5 },
+                ]}
+              >
+                <Text style={styles.gridHeader}>4a. Sex</Text>
+                <Text style={styles.gridHeader}>4b. Citizenship</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', padding: 0 },
+                ]}
+              >
+                <View style={[styles.flexRow, { padding: 0 }]}>
+                  <View style={[styles.gridColumn, { padding: 5 }]}>
+                    <Text
+                      style={[
+                        styles.value,
+                        { textAlign: 'left', textTransform: 'uppercase' },
+                      ]}
+                    >
+                      {data.husbandInfo?.sex || ''}
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.gridColumn,
+                      { padding: 5, borderLeft: '1px solid #000' },
+                    ]}
+                  >
+                    <Text style={styles.gridHeader}>(Citizenship)</Text>
+                    <Text style={styles.value}>{data.husbandInfo?.citizenship || ''}</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, padding: 0 }]}>
+                <View style={[styles.flexRow, { padding: 0 }]}>
+                  <View style={[styles.gridColumn, { padding: 5 }]}>
+                    <Text
+                      style={[
+                        styles.value,
+                        { textAlign: 'left', textTransform: 'uppercase' },
+                      ]}
+                    >
+                      {data.wifeInfo?.sex || ''}
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.gridColumn,
+                      { padding: 5, borderLeft: '1px solid #000' },
+                    ]}
+                  >
+                    <Text style={styles.gridHeader}>(Citizenship)</Text>
+                    <Text style={styles.value}>{data.wifeInfo?.citizenship || ''}</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Fifth Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={styles.gridHeader}>5. Residence</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', gap: 5 },
+                ]}
+              >
+                <View style={styles.flexRow}>
+                  <Text style={[styles.gridHeader, { fontSize: 8 }]}>
+                    (House no., St., Brgy, City/Municipality, Province, Country)
+                  </Text>
+                </View>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>
+                    <Text style={styles.value}>{data.husbandInfo?.residence || ''}</Text>
+                  </Text>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
+                <View style={styles.flexRow}>
+                  <Text style={[styles.gridHeader, { fontSize: 8 }]}>
+                    (House no., St., Brgy, City/Municipality, Province, Country)
+                  </Text>
+                </View>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>
+                    <Text style={styles.value}>{data.wifeInfo?.residence || ''}</Text>
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Sixth Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={styles.gridHeader}>6. Religion/Religion Sect.</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', gap: 5 },
+                ]}
+              >
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>{data.husbandInfo?.religion || ''}</Text>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>{data.wifeInfo?.religion || ''}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Seventh Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={styles.gridHeader}>7. Civil Status</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', gap: 5 },
+                ]}
+              >
+                <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
+                  <Text style={styles.value}>{data.husbandInfo?.civilStatus || ''}</Text>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
+                <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
+                  <Text style={styles.value}>{data.wifeInfo?.civilStatus || ''}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Eighth Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={styles.gridHeader}>8. Name of Father</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', gap: 5 },
+                ]}
+              >
+                <View style={styles.flexRow}>
+                  <Text style={styles.gridHeader}>(First)</Text>
+                  <Text style={styles.gridHeader}>(Middle)</Text>
+                  <Text style={styles.gridHeader}>(Last)</Text>
+                </View>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>
+                    {data.husbandParents?.father.firstName || ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.husbandParents?.father.middleName || ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.husbandParents?.father.lastName || ''}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
+                <View style={styles.flexRow}>
+                  <Text style={styles.gridHeader}>(First)</Text>
+                  <Text style={styles.gridHeader}>(Middle)</Text>
+                  <Text style={styles.gridHeader}>(Last)</Text>
+                </View>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>{data.wifeParents?.father.firstName || ''}</Text>
+                  <Text style={styles.value}>
+                    {data.wifeParents?.father.middleName || ''}
+                  </Text>
+                  <Text style={styles.value}>{data.wifeParents?.father.lastName || ''}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Ninth Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={styles.gridHeader}>9. Citizenship</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', gap: 5 },
+                ]}
+              >
+                <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
+                  <Text style={styles.value}>
+                    {data.husbandParents?.fatherCitizenship || ''}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
+                <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
+                  <Text style={styles.value}>{data.wifeParents?.fatherCitizenship || ''}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Tenth Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={styles.gridHeader}>10. Maiden Name of Mother</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', gap: 5 },
+                ]}
+              >
+                <View style={styles.flexRow}>
+                  <Text style={styles.gridHeader}>(First)</Text>
+                  <Text style={styles.gridHeader}>(Middle)</Text>
+                  <Text style={styles.gridHeader}>(Last)</Text>
+                </View>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>
+                    {data.husbandParents?.mother.firstName || ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.husbandParents?.mother.middleName || ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.husbandParents?.mother.lastName || ''}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
+                <View style={styles.flexRow}>
+                  <Text style={styles.gridHeader}>(First)</Text>
+                  <Text style={styles.gridHeader}>(Middle)</Text>
+                  <Text style={styles.gridHeader}>(Last)</Text>
+                </View>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>
+                    {data.wifeParents?.mother.firstName || ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.wifeParents?.mother.middleName || ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.wifeParents?.mother.lastName || ''}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Eleventh Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={styles.gridHeader}>11. Citizenship</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', gap: 5 },
+                ]}
+              >
+                <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
+                  <Text style={styles.value}>
+                    {data.husbandParents?.motherCitizenship || ''}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
+                <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
+                  <Text style={styles.value}>{data.wifeParents?.motherCitizenship || ''}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Twelfth Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={[styles.gridHeader, { fontSize: 10 }]}>
+                  12. Wali Who Gave Consent/Advise
+                </Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', gap: 5 },
+                ]}
+              >
+                <View style={styles.flexRow}>
+                  <Text style={styles.gridHeader}>(First)</Text>
+                  <Text style={styles.gridHeader}>(Middle)</Text>
+                  <Text style={styles.gridHeader}>(Last)</Text>
+                </View>
+                <View style={[styles.flexRow]}>
+                  <Text style={styles.value}>
+                    {data.husbandConsentPerson?.firstName || ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.husbandConsentPerson?.middleName || ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.husbandConsentPerson?.lastName || ''}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
+                <View style={styles.flexRow}>
+                  <Text style={styles.gridHeader}>(First)</Text>
+                  <Text style={styles.gridHeader}>(Middle)</Text>
+                  <Text style={styles.gridHeader}>(Last)</Text>
+                </View>
+                <View style={[styles.flexRow]}>
+                  <Text style={styles.value}>
+                    {data.wifeConsentPerson?.firstName || ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.wifeConsentPerson?.middleName || ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.wifeConsentPerson?.lastName || ''}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Thirteenth Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={styles.gridHeader}>13. Relationship</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', gap: 5 },
+                ]}
+              >
+                <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
+                  <Text style={styles.value}>
+                    {data.husbandConsentPerson?.relationship || ''}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
+                <View style={[styles.flexRow, { textTransform: 'uppercase' }]}>
+                  <Text style={styles.value}>
+                    {data.wifeConsentPerson?.relationship || ''}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Fourteenth Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={styles.gridHeader}>14. Residence</Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', gap: 5 },
+                ]}
+              >
+                <View style={styles.flexRow}>
+                  <Text style={[styles.gridHeader, { fontSize: 8 }]}>
+                    (House no., St., Brgy, City/Municipality, Province, Country)
+                  </Text>
+                </View>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>
+                    <Text style={styles.value}>
+                      {data.husbandConsentPerson?.residence || ''}
+                    </Text>
+                  </Text>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View style={[styles.gridColumn, { flex: 1, gap: 5 }]}>
+                <View style={styles.flexRow}>
+                  <Text style={[styles.gridHeader, { fontSize: 8 }]}>
+                    (House no., St., Brgy, City/Municipality, Province, Country)
+                  </Text>
+                </View>
+                <View style={styles.flexRow}>
+                  <Text style={styles.value}>
+                    <Text style={styles.value}>
+                      {data.wifeConsentPerson?.residence || ''}
+                    </Text>
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>,
+
+          // Wife's Information
+          <View key={'wifeInfo'}>
+            {/* Fifteenth Section */}
+            <View style={styles.gridContainer}>
+              <View style={styles.gridColumn}>
+                <Text style={styles.gridHeader}>15. Place of Marriage: </Text>
+              </View>
+              <View style={styles.gridColumn}>
+                <Text style={styles.value}>
+                  {formatPlace(data.marriageDetails?.placeOfMarriage) || ''}
+                </Text>
+              </View>
+            </View>
+
+            {/* Sixteenth and Seventeenth Section */}
+            <View style={[styles.gridContainer, { padding: 0 }]}>
+              {/* First Cell (colspan-2) */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 2, borderRight: '1px solid #000', padding: 0 },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.flexRow,
+                    {
+                      textAlign: 'left',
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-start',
+                    },
+                  ]}
+                >
+                  <View style={styles.gridColumn}>
+                    <Text style={styles.gridHeader}>16. Date of Marriage: </Text>
+                  </View>
+                  <View style={styles.gridColumn}>
+                    <Text style={styles.value}>
+                      {data.marriageDetails?.dateOfMarriage
+                        ? formatDateTime(data.marriageDetails?.dateOfMarriage, {
+                          monthFormat: 'numeric',
+                          dayFormat: 'numeric',
+                          yearFormat: 'numeric',
+                        })
+                        : ''}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Second Cell (colspan-1) */}
+              <View style={[styles.gridColumn, { flex: 1.4, padding: 0 }]}>
+                <View
+                  style={[
+                    styles.flexRow,
+                    {
+                      textAlign: 'left',
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-start',
+                    },
+                  ]}
+                >
+                  <View style={styles.gridColumn}>
+                    <Text style={styles.gridHeader}>17. Time of Marriage: </Text>
+                  </View>
+                  <View style={styles.gridColumn}>
+                    <Text style={styles.value}>{data.marriageDetails?.timeOfMarriage?.toString() || ''}</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Eighteenth Section */}
+            {/* Contracting Parties Signature Section */}
+            <View style={styles.gridContainer}>
+              {/* First Column: Title (Certification) */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 200, padding: 0, borderRight: '1px solid #000' },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.flexRow,
+                    {
+                      textAlign: 'left',
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-start',
+                    },
+                  ]}
+                >
+                  <View style={styles.gridColumn}>
+                    <Text style={styles.gridHeader}>
+                      18. CERTIFICATION OF THE CONTRACTING PARTIES:{' '}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Second Column: Husband's Signature */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, padding: 0, borderRight: '1px solid #000' },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.flexRow,
+                    {
+                      textAlign: 'left',
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-start',
+                    },
+                  ]}
+                >
+                  <View style={styles.gridColumn}>
+                    <Text style={styles.gridHeader}>(Husband) </Text>
+                  </View>
+                  <View style={styles.gridColumn}>
+                    <Text style={styles.value}>
+                      {data.signatures?.contractingParties?.husband}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Third Column: Wife's Signature */}
+              <View style={[styles.gridColumn, { flex: 1, padding: 0 }]}>
+                <View
+                  style={[
+                    styles.flexRow,
+                    {
+                      textAlign: 'left',
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-start',
+                    },
+                  ]}
+                >
+                  <View style={styles.gridColumn}>
+                    <Text style={styles.gridHeader}>(Wife) </Text>
+                  </View>
+                  <View style={styles.gridColumn}>
+                    <Text style={styles.value}>
+                      {data.signatures?.contractingParties?.wife}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Nineteenth Section */}
+            <View style={[styles.gridContainer, { padding: 0 }]}>
+              {/* First Cell (fixed width: 200) */}
+              <View style={[styles.gridColumn, { width: 200, padding: 0 }]}>
+                <View
+                  style={[
+                    styles.flexRow,
+                    {
+                      textAlign: 'left',
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-start',
+                    },
+                  ]}
+                >
+                  <View style={styles.gridColumn}>
+                    <Text style={styles.gridHeader}>
+                      19. CERTIFICATION OF THE SOLEMNIZING OFFICER:{' '}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Second Cell (flex: 1) */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  {
+                    flex: 1,
+                    borderLeft: '1px solid #000',
+                    gap: 3,
+                    marginLeft: '-1px',
+                  },
+                ]}
+              >
+                <View style={styles.flexRow}>
+                  <Text style={styles.gridHeader}>(Name) </Text>
+                  <Text style={styles.gridHeader}>(Position) </Text>
+                  <Text style={styles.gridHeader}>(Religion) </Text>
+                  <Text style={styles.gridHeader}>(Signature) </Text>
+                </View>
+
+                <View style={[styles.flexRow, { fontSize: 9 }]}>
+                  <Text style={styles.value}>
+                    {data.solemnizingOfficer?.name + ', ' || ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.solemnizingOfficer?.position + ', ' || ''}
+                  </Text>
+                  <Text style={styles.value}>
+                    {data.solemnizingOfficer?.religion + ', ' || ''}
+                  </Text>
+                  <Text style={styles.value}>{''}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Twentieth Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Numbering */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { width: 100, borderRight: '1px solid #000' },
+                ]}
+              >
+                <Text style={[styles.gridHeader, { fontSize: 8 }]}>
+                  20a. WITNESSES (Print name and Signature Additional at the back)
+                </Text>
+              </View>
+
+              {/* Column 2: Husband's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', padding: 0 },
+                ]}
+              >
+                <Text style={styles.title}>Husband</Text>
+                <View style={[styles.flexColumn, { padding: 5 }]}>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Name:</Text>
+                    <Text style={styles.value}>
+                      {data.witnesses?.husband?.[0]?.name || ''}
+                    </Text>
+                  </View>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Signature:</Text>
+                    <Text style={styles.value}>
+                      {data.witnesses?.husband?.[0]?.signature || ''}
+                    </Text>
+                  </View>
+                </View>
+                <View style={[styles.flexColumn, { padding: 5 }]}>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Name:</Text>
+                    <Text style={styles.value}>
+                      {data.witnesses?.husband?.[1]?.name || ''}
+                    </Text>
+                  </View>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Signature:</Text>
+                    <Text style={styles.value}>
+                      {data.witnesses?.husband?.[1]?.signature || ''}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Column 3: Wife's Information */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', padding: 0 },
+                ]}
+              >
+                <Text style={styles.title}>Wife</Text>
+                <View style={[styles.flexColumn, { padding: 5 }]}>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Name:</Text>
+                    <Text style={styles.value}>
+                      {data.witnesses?.wife?.[0]?.name || ''}
+                    </Text>
+                  </View>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Signature:</Text>
+                    <Text style={styles.value}>
+                      {data.witnesses?.wife?.[0]?.signature || ''}
+                    </Text>
+                  </View>
+                </View>
+                <View style={[styles.flexColumn, { padding: 5 }]}>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Name:</Text>
+                    <Text style={styles.value}>
+                      {data.witnesses?.wife?.[1]?.name || ''}
+                    </Text>
+                  </View>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Signature:</Text>
+                    <Text style={styles.value}>
+                      {data.witnesses?.wife?.[1]?.signature || ''}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Twenty-First Section */}
+            <View style={styles.gridContainer}>
+              {/* Column 1: Received By */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', padding: 0 },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.title,
+                    { textAlign: 'left', fontSize: 9, padding: 5 },
+                  ]}
+                >
+                  21. RECEIVED BY
+                </Text>
+                <View style={[styles.flexColumn, { padding: 5 }]}>
+                  <View style={[styles.flexColumn, { padding: 5 }]}>
+                    <View style={styles.fieldContainer}>
+                      <Text style={styles.label}>Signature:</Text>
+                      <Text style={styles.value}>
+                        {data.receivedBy?.signature || ''}
+                      </Text>
+                    </View>
+                    <View style={styles.fieldContainer}>
+                      <Text style={styles.label}>Name in Print:</Text>
+                      <Text style={styles.value}>{data.receivedBy?.name || ''}</Text>
+                    </View>
+                  </View>
+                  <View style={[styles.flexColumn, { padding: 5 }]}>
+                    <View style={styles.fieldContainer}>
+                      <Text style={styles.label}>Title or Position:</Text>
+                      <Text style={styles.value}>{data.receivedBy?.title || ''}</Text>
+                    </View>
+                    <View style={styles.fieldContainer}>
+                      <Text style={styles.label}>Date:</Text>
+                      <Text style={styles.value}>
+                        {data.receivedBy?.date
+                          ? formatDateTime(data.receivedBy.date, {
+                            monthFormat: 'numeric',
+                            dayFormat: 'numeric',
+                            yearFormat: 'numeric',
+                          })
+                          : ''}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* Column 2: Registered at Civil Registrar */}
+              <View
+                style={[
+                  styles.gridColumn,
+                  { flex: 1, borderRight: '1px solid #000', padding: 0 },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.title,
+                    { textAlign: 'left', fontSize: 9, padding: 5 },
+                  ]}
+                >
+                  22. REGISTERED AT THE OFFICE OF THE CIVIL REGISTRAR
+                </Text>
+                <View style={[styles.flexColumn, { padding: 5 }]}>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Signature:</Text>
+                    <Text style={styles.value}>
+                      {data.registeredAtCivilRegistrar?.signature || ''}
+                    </Text>
+                  </View>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Name:</Text>
+                    <Text style={styles.value}>
+                      {data.registeredAtCivilRegistrar?.name || ''}
+                    </Text>
+                  </View>
+                </View>
+                <View style={[styles.flexColumn, { padding: 5 }]}>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Title or Position:</Text>
+                    <Text style={styles.value}>
+                      {data.registeredAtCivilRegistrar?.title || ''}
+                    </Text>
+                  </View>
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Date:</Text>
+                    <Text style={styles.value}>
+                      {data.registeredAtCivilRegistrar?.date
+                        ? formatDateTime(data.registeredAtCivilRegistrar.date, {
+                          monthFormat: 'numeric',
+                          dayFormat: 'numeric',
+                          yearFormat: 'numeric',
+                        })
+                        : ''}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Footer */}
+            <View
+              style={{
+                flexDirection: 'column',
+                padding: 5,
+                gap: 5,
+                borderBottom: '1px solid #000',
+                borderRight: '1px solid #000',
+                borderLeft: '1px solid #000',
+              }}
+            >
+              <Text
+                style={{
+                  textTransform: 'uppercase',
+                  fontSize: '8px',
+                  fontWeight: 'bold',
+                }}
+              >
+                REMARKS / ANNOTATIONS (FOR LCRO/OCRG USE ONLY)
+              </Text>
+              <Text style={styles.value}>{data.remarks || ''}</Text>
+            </View>
+          </View>,
+        </View>
       </Page>
     </Document>
   );
