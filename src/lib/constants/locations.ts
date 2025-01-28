@@ -1,5 +1,5 @@
 // src\lib\constants\locations.ts
-export const COUNTRY = 'Philippines'
+export const COUNTRY = 'Philippines';
 
 export const REGIONS = [
   {
@@ -2218,4 +2218,4 @@ export const REGIONS = [
       },
     ],
   },
-]
+];
