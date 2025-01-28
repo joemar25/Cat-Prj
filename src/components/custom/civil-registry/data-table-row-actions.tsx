@@ -1,326 +1,59 @@
-'use client';
+'use client'
 
-import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form';
-import BirthAnnotationForm from '@/components/custom/forms/annotations/birthcert';
-import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation-form';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Icons } from '@/components/ui/icons';
-import {
-  BaseRegistryFormWithRelations,
-  deleteBaseRegistryForm,
-} from '@/hooks/civil-registry-action';
-import { hasPermission } from '@/types/auth';
-import { FormType } from '@prisma/client';
-import { JsonValue } from '@prisma/client/runtime/library';
-import { Row } from '@tanstack/react-table';
-import { useSession } from 'next-auth/react';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { EditCivilRegistryFormDialog } from './actions/edit-civil-registry-form-dialog';
-import { FileUploadDialog } from './components/file-upload';
-import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner'
+import { useState } from 'react'
+import { FormType } from '@prisma/client'
+import { Row } from '@tanstack/react-table'
+import { useSession } from 'next-auth/react'
+import { hasPermission } from '@/types/auth'
+import { Icons } from '@/components/ui/icons'
+import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
+import { useDeleteFormAction } from '@/components/custom/civil-registry/actions/delete-form-action'
+import { ViewDetailsDialog } from '@/components/custom/civil-registry/components/view-details-dialog'
+import { usePrintDocumentAction } from '@/components/custom/civil-registry/actions/print-document-action'
+import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 interface DataTableRowActionsProps {
-  row: Row<BaseRegistryFormWithRelations>;
-  onUpdateAction?: (updatedForm: BaseRegistryFormWithRelations) => void;
+  row: Row<BaseRegistryFormWithRelations>
+  onUpdateAction?: (updatedForm: BaseRegistryFormWithRelations) => void
 }
 
 const formTypeLabels: Record<FormType, string> = {
   MARRIAGE: 'Marriage (Form 97)',
   BIRTH: 'Birth (Form 102)',
   DEATH: 'Death (Form 103)',
-};
+}
 
-const statusVariants: Record<
-  string,
-  {
-    label: string;
-    variant: 'default' | 'secondary' | 'destructive' | 'outline';
-  }
-> = {
-  PENDING: { label: 'Pending', variant: 'secondary' },
-  VERIFIED: { label: 'Verified', variant: 'default' },
-  REJECTED: { label: 'Rejected', variant: 'destructive' },
-  EXPIRED: { label: 'Expired', variant: 'outline' },
-};
+export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActionsProps) {
+  const { t } = useTranslation()
+  const { data: session } = useSession()
+  const form = row.original
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
 
-export function DataTableRowActions({
-  row,
-  onUpdateAction,
-}: DataTableRowActionsProps) {
-  const { t } = useTranslation();
-  const { data: session } = useSession();
-  const form = row.original;
-  const [isLoading, setIsLoading] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
+  const { handleDelete, isLoading } = useDeleteFormAction({ form, onUpdateAction })
+  const { handlePrintDocument } = usePrintDocumentAction({
+    documentUrl: form.documentUrl,
+    registryNumber: form.registryNumber,
+  })
 
-  const [birthFormOpen, setBirthFormOpen] = useState(false);
-  const [deathFormOpen, setDeathFormOpen] = useState(false);
-  const [marriageFormOpen, setMarriageFormOpen] = useState(false);
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-
-  const handleOpenForm = () => {
-    switch (form.formType) {
-      case 'BIRTH':
-        setBirthFormOpen(true);
-        break;
-      case 'DEATH':
-        setDeathFormOpen(true);
-        break;
-      case 'MARRIAGE':
-        setMarriageFormOpen(true);
-        break;
-      default:
-        toast.error('Unknown form type');
-    }
-  };
-
-  const canManageForms = hasPermission(
-    session?.user?.permissions ?? [],
-    'DOCUMENTS_MANAGE'
-  );
-  if (!canManageForms) return null;
-
-  const handleDelete = async () => {
-    setIsLoading(true);
-    try {
-      const result = await deleteBaseRegistryForm(form.id);
-      if (result.success) {
-        toast.success(result.message);
-        onUpdateAction?.(form);
-      } else {
-        toast.error(result.message);
-      }
-    } catch (error) {
-      console.error('Error deleting form:', error);
-      toast.error('An unexpected error occurred');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSave = (updatedForm: BaseRegistryFormWithRelations) => {
-    toast.success(`Form ${updatedForm.id} has been updated successfully!`);
-    onUpdateAction?.(updatedForm);
-    setEditDialogOpen(false);
-  };
-
-  const handleUploadSuccess = (fileUrl: string) => {
-    toast.success(`File uploaded successfully: ${fileUrl}`);
-    onUpdateAction?.({ ...form, documentUrl: fileUrl });
-  };
-
-  const handleExportDocument = async (
-    documentUrl: string | null,
-    registryNumber: string
-  ) => {
-    if (!documentUrl) {
-      return;
-    }
-
-    const cleanUrl = documentUrl.startsWith('/')
-      ? documentUrl.slice(1)
-      : documentUrl;
-    const response = await fetch(
-      `/api/download?path=${encodeURIComponent(cleanUrl)}`
-    );
-    const blob = await response.blob();
-
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const originalFileName = documentUrl.split('/').pop() || 'document.pdf';
-    const fileName = `${registryNumber}_${timestamp}_${originalFileName}`;
-
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-
-    toast.success('File downloaded successfully');
-  };
-
-  interface FullNameFormat {
-    firstName?: string;
-    middleName?: string;
-    lastName?: string;
-  }
-
-  interface ShortNameFormat {
-    first?: string;
-    middle?: string;
-    last?: string;
-  }
-
-  type NameObject = FullNameFormat | ShortNameFormat;
-
-  const isNameObject = (value: unknown): value is NameObject => {
-    if (!value || typeof value !== 'object') return false;
-    const obj = value as Record<string, unknown>;
-    return (
-      (('firstName' in obj || 'first' in obj) &&
-        ('lastName' in obj || 'last' in obj)) ||
-      'middleName' in obj ||
-      'middle' in obj
-    );
-  };
-
-  const formatName = (nameObj: JsonValue | null): string => {
-    if (!nameObj) return '';
-
-    if (typeof nameObj === 'string') {
-      try {
-        const parsed = JSON.parse(nameObj);
-        if (!isNameObject(parsed)) return nameObj;
-
-        const firstName =
-          (parsed as FullNameFormat).firstName ||
-          (parsed as ShortNameFormat).first ||
-          '';
-        const middleName =
-          (parsed as FullNameFormat).middleName ||
-          (parsed as ShortNameFormat).middle ||
-          '';
-        const lastName =
-          (parsed as FullNameFormat).lastName ||
-          (parsed as ShortNameFormat).last ||
-          '';
-
-        return `${firstName} ${
-          middleName ? middleName + ' ' : ''
-        }${lastName}`.trim();
-      } catch {
-        return nameObj;
-      }
-    }
-
-    if (isNameObject(nameObj)) {
-      const firstName =
-        (nameObj as FullNameFormat).firstName ||
-        (nameObj as ShortNameFormat).first ||
-        '';
-      const middleName =
-        (nameObj as FullNameFormat).middleName ||
-        (nameObj as ShortNameFormat).middle ||
-        '';
-      const lastName =
-        (nameObj as FullNameFormat).lastName ||
-        (nameObj as ShortNameFormat).last ||
-        '';
-
-      return `${firstName} ${
-        middleName ? middleName + ' ' : ''
-      }${lastName}`.trim();
-    }
-
-    return String(nameObj);
-  };
-
-  const getSpecificFormDetails = () => {
-    if (form.marriageCertificateForm) {
-      return (
-        <>
-          <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>{t('husband')}</span>
-            <span className='col-span-3'>
-              {`${form.marriageCertificateForm.husbandFirstName} ${form.marriageCertificateForm.husbandLastName}`}
-            </span>
-          </div>
-          <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>{t('wife')}</span>
-            <span className='col-span-3'>
-              {`${form.marriageCertificateForm.wifeFirstName} ${form.marriageCertificateForm.wifeLastName}`}
-            </span>
-          </div>
-          <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>{t('dateOfMarriage')}</span>
-            <span className='col-span-3'>
-              {new Date(
-                form.marriageCertificateForm.dateOfMarriage
-              ).toLocaleDateString()}
-            </span>
-          </div>
-        </>
-      );
-    } else if (form.birthCertificateForm) {
-      return (
-        <>
-          <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>{t('childName')}</span>
-            <span className='col-span-3'>
-              {formatName(form.birthCertificateForm.childName)}
-            </span>
-          </div>
-          <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>{t('dateOfBirth')}</span>
-            <span className='col-span-3'>
-              {new Date(
-                form.birthCertificateForm.dateOfBirth
-              ).toLocaleDateString()}
-            </span>
-          </div>
-          <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>{t('sex')}</span>
-            <span className='col-span-3'>{form.birthCertificateForm.sex}</span>
-          </div>
-        </>
-      );
-    } else if (form.deathCertificateForm) {
-      return (
-        <>
-          <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>{t('deceasedName')}</span>
-            <span className='col-span-3'>
-              {formatName(form.deathCertificateForm.deceasedName)}
-            </span>
-          </div>
-          <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>{t('dateOfDeath')}</span>
-            <span className='col-span-3'>
-              {new Date(
-                form.deathCertificateForm.dateOfDeath
-              ).toLocaleDateString()}
-            </span>
-          </div>
-          <div className='grid grid-cols-4 items-center gap-4'>
-            <span className='font-medium'>{t('sex')}</span>
-            <span className='col-span-3'>{form.deathCertificateForm.sex}</span>
-          </div>
-        </>
-      );
-    }
-    return null;
-  };
+  const canManageForms = hasPermission(session?.user?.permissions ?? [], 'DOCUMENTS_MANAGE')
+  if (!canManageForms) return null
 
   return (
     <>
-      {/* File Upload Dialog */}
       <FileUploadDialog
         open={uploadDialogOpen}
         onOpenChangeAction={setUploadDialogOpen}
-        onUploadSuccess={handleUploadSuccess}
-        formId={form.id} // Pass the ID of the BaseRegistryForm
-        formType={form.formType} // Pass the form type (e.g., 'BIRTH', 'DEATH', 'MARRIAGE')
-        registryNumber={form.registryNumber} // Pass the registryNumber
+        onUploadSuccess={(fileUrl) => onUpdateAction?.({ ...form, documentUrl: fileUrl })}
+        formId={form.id}
+        formType={form.formType}
+        registryNumber={form.registryNumber}
       />
 
       <DropdownMenu>
@@ -342,16 +75,12 @@ export function DataTableRowActions({
             {t('importDocument')}
           </DropdownMenuItem>
           {form.documentUrl && (
-            <DropdownMenuItem
-              onClick={() =>
-                handleExportDocument(form.documentUrl, form.registryNumber)
-              }
-            >
-              <Icons.download className='mr-2 h-4 w-4' />
-              {t('exportDocument')}
+            <DropdownMenuItem onClick={handlePrintDocument}>
+              <Icons.printer className='mr-2 h-4 w-4' />
+              {t('Print Document')}
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={handleOpenForm}>
+          <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
             <Icons.file className='mr-2 h-4 w-4' />
             {t('issueCertificate')}
           </DropdownMenuItem>
@@ -367,44 +96,18 @@ export function DataTableRowActions({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Edit Form Dialog */}
       <EditCivilRegistryFormDialog
         form={form}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
-        onSave={handleSave}
+        onSave={(updatedForm) => {
+          toast.success(`Form ${updatedForm.id} has been updated successfully!`)
+          onUpdateAction?.(updatedForm)
+          setEditDialogOpen(false)
+        }}
       />
 
-      {/* View Details Dialog */}
-      <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
-        <DialogContent className='sm:max-w-[425px]'>
-          <DialogHeader>
-            <DialogTitle>{t('formDetails.title')}</DialogTitle>
-            <DialogDescription>{t('formDetails.description')}</DialogDescription>
-          </DialogHeader>
-          <div className='grid gap-4 py-4'>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>{t('formDetails.formType')}</span>
-              <span className='col-span-3'>
-                {formTypeLabels[form.formType]}
-              </span>
-            </div>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>{t('formDetails.registryNo')}</span>
-              <span className='col-span-3'>{form.registryNumber}</span>
-            </div>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>{t('formDetails.status')}</span>
-              <span className='col-span-3'>
-                <Badge variant={statusVariants[form.status].variant}>
-                  {statusVariants[form.status].label}
-                </Badge>
-              </span>
-            </div>
-            {getSpecificFormDetails()}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ViewDetailsDialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen} form={form} />
     </>
-  );
+  )
 }
