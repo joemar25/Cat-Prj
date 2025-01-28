@@ -69,7 +69,7 @@
   "Search forms...": "Maghanap ng mga form...",
   "Page number...": "Numero ng pahina...",
   "Book number...": "Numero ng aklat...",
-  "First name": "Pangalan",
+  "First name": "Unang Pangalan",
   "Middle name": "Gitnang pangalan",
   "Last name": "Apelyido",
   "Form Type": "Uri ng Form",
@@ -132,16 +132,15 @@
     "status": "Katayuan"
   },
   "datatable": {
-        "selected_rows": "{{selected}} ng {{total}} na hilera ang napili.",
-        "no_rows_selected": "Walang napiling hilera.",
-        "rows_per_page": "Mga hilera bawat pahina",
-        "page_info": "Pahina {{current}} ng {{total}}",
-        "go_to_first_page": "Pumunta sa unang pahina",
-        "go_to_previous_page": "Pumunta sa nakaraang pahina",
-        "go_to_next_page": "Pumunta sa susunod na pahina",
-        "go_to_last_page": "Pumunta sa huling pahina"
-    },
-
+    "selected_rows": "{{selected}} ng {{total}} na hilera ang napili.",
+    "no_rows_selected": "Walang napiling hilera.",
+    "rows_per_page": "Mga hilera bawat pahina",
+    "page_info": "Pahina {{current}} ng {{total}}",
+    "go_to_first_page": "Pumunta sa unang pahina",
+    "go_to_previous_page": "Pumunta sa nakaraang pahina",
+    "go_to_next_page": "Pumunta sa susunod na pahina",
+    "go_to_last_page": "Pumunta sa huling pahina"
+  },
   "User": "Gumagamit",
   "user": "gumagamit",
   "Feedback": "Puna",
@@ -152,11 +151,9 @@
   "Anonymous": "Hindi Kilala",
   "submittedBy": "Ipinasa ni",
   "updatedAt": "Nai-update",
-
   "No results found": "Walang nahanap na resulta",
   "Try adjusting your filters or search terms": "Subukang i-adjust ang iyong mga filter o paghahanap",
   "No requests have been added yet": "Wala pang naidagdag na mga kahilingan",
-
   "Create New Form": "Lumikha ng Bagong Form",
   "Select Form Type": "Piliin ang Uri ng Form",
   "Certificate of Live Birth": "Sertipiko ng Buhay na Kapanganakan",
@@ -164,8 +161,118 @@
   "Certificate of Marriage": "Sertipiko ng Kasal",
   "(Municipal Form No. 102)": "(Pormularyo ng Munisipyo Bilang 102)",
   "(Municipal Form No. 103)": "(Pormularyo ng Munisipyo Bilang 103)",
-  "(Municipal Form No. 97)": "(Pormularyo ng Munisipyo Bilang 97)"
+  "(Municipal Form No. 97)": "(Pormularyo ng Munisipyo Bilang 97)",
+  "role": "Posisyon",
+  "permissions": "Mga Pahintulot",
+  "EmailVerified": "Beripikado na Email",
+  "debugInfo": {
+    "title": "Impormasyon sa Debug",
+    "dataLength": "Haba ng Data",
+    "isLoading": "Naglo-load",
+    "errorMessage": "Mensahe ng Error",
+    "fetchAttempted": "Sinubukang Kunin",
+    "lastFetchTime": "Huling Oras ng Pagkuha"
+  },
+  "birthReport": {
+    "title": "Mga Rehistro ng Kapanganakan",
+    "year": "Taon",
+    "male": "Lalaki",
+    "female": "Babae",
+    "total": "Kabuuan"
+  },
+  "filters": {
+    "yearFrom": "Taon Mula",
+    "yearTo": "Taon Hanggang",
+    "selectYear": "Pumili ng Taon"
+  },
+  "exportDialog": {
+    "export": "I-export",
+    "exportData": "I-export ang Datos",
+    "exportAs": "I-export bilang",
+    "exportChart": "I-export ang Chart",
+    "areaChart": "Chart ng Area",
+    "areaChartDisabled": "Chart ng Area (Para lamang sa Marriage Data)",
+    "selectChartType": "Pumili ng Uri ng Chart",
+    "barChart": "Bar Chart",
+    "lineChart": "Line Chart",
+    "pieChart": "Pie Chart",
+    "downloadChart": "I-download ang Chart bilang PNG"
+  },
+  "deathReport": {
+    "title": "Pagpaparehistro ng Kamatayan",
+    "year": "Taon",
+    "male": "Lalaki",
+    "female": "Babae",
+    "total": "Kabuuan"
+  },
+  "marriageReport": {
+    "title": "Pagpaparehistro ng Kasal",
+    "year": "Taon",
+    "totalMarriages": "Kabuuang Kasal",
+    "residents": "Mga Residente",
+    "nonResidents": "Mga Non-Residente",
+    "residentPercentage": "Porsyento ng Residente",
+    "nonResidentPercentage": "Porsyento ng Non-Residente"
+  },
+  "dataTableToolbar": {
+    "searchPlaceholder": "Maghanap ng mga gumagamit...",
+    "resetFilters": "I-reset",
+    "status": "Katayuan",
+    "scan": "I-scan",
+    "upload": "I-upload"
+  },
+  "dataTable": {
+    "user": "User",
+    "contact": "Kontak",
+    "role": "Tungkulin",
+    "permissions": "Mga Pahintulot",
+    "status": "Status",
+    "activity": "Aktibidad",
+    "verified": "Naka-verify",
+    "unverified": "Hindi naka-verify",
+    "created": "Nilikha",
+    "updated": "Na-update",
+    "morePermissions": "+{{count}} pang mga pahintulot",
+    "username": "Pangalan ng gumagamit",
+    "id": "ID",
+    "no_username": "Walang username"
+  },
+  "formSelection": {
+    "issueCertificate": "Mag-isyu ng Sertipiko",
+    "selectFormType": "Piliin ang Uri ng Form",
+    "birthForm": "Civil Registry Form No. 1A",
+    "birthAvailable": "(Magagamit ang Kapanganakan)",
+    "deathForm": "Civil Registry Form No. 2A",
+    "deathAvailable": "(Magagamit ang Kamatayan)",
+    "marriageForm": "Civil Registry Form No. 3A",
+    "marriageAvailable": "(Magagamit ang Kasal)"
+  },
+  "loadingForms": "Naglo-load ng mga Form",
+  "fetchingForms": "Pakiusap maghintay habang kinukuha namin ang mga form ng civil registry...",
+  "civilRegistry": "Talaan ng mga Pag-aari",
+  "Civil Registry": "Talaan ng mga Pag-aari",
+  "Requests": "Mga Kahilingan",
+  "Profile": "Perpil",
+  "Users": "Mga Gumagamit",
+  "Reports": "Mga Ulat",
 
-  
-  
+  "notifications": "Mga Abiso",
+  "unread": "hindi pa nababasa",
+  "loading": "Naglo-load",
+  "no_notifications": "Walang abiso",
+  "close": "Isara",
+  "just_now": "Katatapos lang",
+  "minutes_ago": "minuto ang nakalipas",
+  "hours_ago": "oras ang nakalipas",
+  "days_ago": "araw ang nakalipas",
+
+  "success_logout": "Matagumpay na nag-logout",
+  "guest_user": "Bisitang Gumagamit",
+  "guest_role": "Bisitante",
+  "no_email": "Walang email",
+  "sign_out": "Mag-logout",
+  "confirm_logout": "Kumpirmahin ang Pag-logout",
+  "confirm_logout_message": "Sigurado ka bang gusto mong mag-logout?",
+  "log_out": "Mag-logout",
+  "logging_out": "Naglo-logout..."
 }
