@@ -8,6 +8,7 @@ import {
   signatureSchema,
   timeSchema,
 } from './form-certificates-shared-schema';
+import WifeConsentInfoCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/wife-consent-info-card';
 
 export interface MarriageCertificateFormProps {
   open: boolean;
@@ -20,6 +21,22 @@ export const marriageCertificateSchema = z.object({
   registryNumber: registryNumberSchema,
   province: provinceSchema,
   cityMunicipality: cityMunicipalitySchema,
+
+  // Consent Information
+  husbandConsentPerson: z.object({
+    firstName: nameSchema.shape.firstName,
+    middleName: nameSchema.shape.middleName,
+    lastName: nameSchema.shape.lastName,
+    relationship: z.string().min(1, 'Relationship is required'),
+    residence: z.string().min(1, 'Residence is required'),
+  }),
+  wifeConsentPerson:z.object({
+    firstName: nameSchema.shape.firstName,
+    middleName: nameSchema.shape.middleName,
+    lastName: nameSchema.shape.lastName,
+    relationship: z.string().min(1, 'Relationship is required'),
+    residence: z.string().min(1, 'Residence is required'),
+  }),
 
   // Husband's Information
   husbandInfo: z.object({

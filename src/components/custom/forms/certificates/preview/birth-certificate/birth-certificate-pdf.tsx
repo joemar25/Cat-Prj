@@ -25,485 +25,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
 
   return (
     <Document>
-      {/* Additional Pages */}
-      <Page size="LEGAL" style={[back.page]}>
-        <View style={back.container}>
-          <View style={[back.container, back.page]}>
-            <View style={back.columnContainer}>
-              <Text style={[back.headerTitle]}>
-                AFFIDAVIT OF ACKNOWLEDGEMENT/ADMISSION OF PATERNITY
-              </Text>
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-evenly",
-                  width: "100%",
-                  fontSize: 8,
-                }}
-              >
-                <Text style={back.headerSubtitle}>
-                  (For births before 3 August 1988)
-                </Text>
-                <Text style={back.headerSubtitle}>
-                  (For births on or after 3 August 1988)
-                </Text>
-              </View>
-            </View>
-            <View style={[back.formRow, { marginTop: 15 }]}>
-              <Text style={[back.textStyle, { marginLeft: 40 }]}>I/We,</Text>
-              <Text style={[back.textStyle, back.formField]}>{"Jane Doe"}</Text>
-              <Text style={[back.textStyle, { marginLeft: 12 }]}>and</Text>
-              <Text style={[back.textStyle, back.formField]}>{"Jane Doe"}</Text>
-              ,
-            </View>
-            <View style={back.formRow}>
-              <Text style={[back.textStyle, { marginRight: 12 }]}>
-                of legal age, am/are the natural mother and/or father off:
-              </Text>
-              <Text style={[back.textStyle, back.formFieldWide]}>
-                {"Jane Doe"}
-              </Text>
-              ,
-              <Text style={[back.textStyle, { marginLeft: 12 }]}>who was </Text>
-            </View>
-            <View style={back.formRow}>
-              <Text style={[back.textStyle, { marginRight: 12 }]}>
-                born on:
-              </Text>
-              <Text
-                style={[back.textStyle, back.signatureText, { marginLeft: 12 }]}
-              >
-                {"Jane Doe"}
-              </Text>
-              <Text style={[back.textStyle, { marginLeft: 12 }]}>at</Text>
-              <Text style={[back.textStyle, back.formFieldWider]}>
-                {"Jane Doe"}
-              </Text>
-            </View>
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                marginTop: 15,
-              }}
-            >
-              <Text style={[back.textStyle, { marginLeft: 40 }]}>
-                I am / We are executing this affidavit to attest to the
-                truthfulness of the foregoing statements and for purposes
-              </Text>
-              <Text style={[back.textStyle]}>
-                of acknowledgement my/our child.
-              </Text>
-            </View>
-            <View style={[back.rowContainer, { marginTop: 15 }]}>
-              <View style={back.signatureBlock}>
-                <Text style={[back.textStyle, back.signatureText]}>
-                  {"Jane Doe"}
-                </Text>
-                <Text style={[back.textStyle, back.captionText]}>
-                  (Signature Over Printed Name of Father)
-                </Text>
-              </View>
-              <View style={back.signatureBlock}>
-                <Text style={[back.textStyle, back.signatureText]}>
-                  {"Jane Doe"}
-                </Text>
-                <Text style={[back.textStyle, back.captionText]}>
-                  (Signature Over Printed Name of Mother)
-                </Text>
-              </View>
-            </View>
-            <View style={[back.formRow, { marginTop: 15 }]}>
-              <Text
-                style={[back.textStyle, { marginRight: 20, marginLeft: 40 }]}
-              >
-                <Text
-                  style={[
-                    back.headerTitle,
-                    { fontSize: 10, textTransform: "uppercase" },
-                  ]}
-                >
-                  Subscribed and sworn
-                </Text>
-                <Text style={[back.textStyle]}> to before me this </Text>
-              </Text>
-              <Text
-                style={[
-                  back.textStyle,
-                  back.signatureText,
-                  { marginLeft: 12, width: 70 },
-                ]}
-              >
-                {"Jane Doe"}
-              </Text>
-              <Text style={[back.textStyle, { marginLeft: 12 }]}>day of</Text>
-              <Text
-                style={[back.textStyle, back.formFieldWider, { width: 150 }]}
-              >
-                {"Jane Doe"}
-              </Text>
-              <Text style={[back.textStyle]}>,</Text>
-              <Text
-                style={[
-                  back.textStyle,
-                  back.signatureText,
-                  { marginLeft: 12, width: 70 },
-                ]}
-              >
-                {"Jane Doe"}
-              </Text>
-            </View>
-            <View style={[back.formRow]}>
-              <Text style={[back.textStyle]}>
-                <Text style={[back.textStyle]}>by </Text>
-              </Text>
-              <Text
-                style={[back.textStyle, back.signatureText, { width: 180 }]}
-              >
-                {"Jane Doe"}
-              </Text>
-              <Text style={[back.textStyle, { marginLeft: 10 }]}>and</Text>
-              <Text
-                style={[
-                  back.textStyle,
-                  back.signatureText,
-                  { marginLeft: 10, width: 180 },
-                ]}
-              >
-                {"Jane Doe"}
-              </Text>
-              <Text style={[back.textStyle]}>,</Text>
-              <Text style={[back.textStyle, { marginLeft: 10 }]}>
-                who exhibited to me his/her
-              </Text>
-            </View>
-            <View style={[back.formRow]}>
-              <Text style={[back.textStyle]}>CTC/valid ID: </Text>
-              <Text
-                style={[back.textStyle, back.signatureText, { width: "30%" }]}
-              >
-                {"Jane Doe"}
-              </Text>
-              <Text style={[back.textStyle, { marginLeft: 10 }]}>issued on  </Text>
-              <Text
-                style={[back.textStyle, back.signatureText, { width: "40%" }]}
-              >
-                {"Jane Doe"}
-              </Text>
-
-            </View>
-            <View style={[back.formRow]}>
-              <Text style={[back.textStyle]}>at  </Text>
-              <Text
-                style={[back.textStyle, back.signatureText, { width: "40%" }]}
-              >
-                {"Jane Doe"}
-              </Text>
-            </View>
-            <View style={[back.rowContainer, { marginTop: 40 }]}>
-              <View style={back.signatureBlock}>
-                <Text style={[back.textStyle, back.signatureText]}>
-                  {"Jane Doe"}
-                </Text>
-                <Text style={[back.textStyle, back.captionText]}>
-                  (Signature of the Administering Officer)
-                </Text>
-              </View>
-              <View style={back.signatureBlock}>
-                <Text style={[back.textStyle, back.signatureText]}>
-                  {"Jane Doe"}
-                </Text>
-                <Text style={[back.textStyle, back.captionText]}>
-                  (Position/Title Designation)
-                </Text>
-              </View>
-            </View>
-            <View style={[back.rowContainer, { marginTop: 20 }]}>
-              <View style={back.signatureBlock}>
-                <Text style={[back.textStyle, back.signatureText]}>
-                  {"Jane Doe"}
-                </Text>
-                <Text style={[back.textStyle, back.captionText]}>
-                  (Name in Print)
-                </Text>
-              </View>
-              <View style={back.signatureBlock}>
-                <Text style={[back.textStyle, back.signatureText]}>
-                  {"Jane Doe"}
-                </Text>
-                <Text style={[back.textStyle, back.captionText]}>
-                  (Address)
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View style={[back.container, back.page]}>
-            <View style={back.columnContainer}>
-              <Text style={[back.headerTitle]}>
-                AFFIDAVIT FOR DELAYED REGISTRATION OF BIRTH
-              </Text>
-
-              <Text style={back.headerSubtitle}>
-                (To be accomplished by the hospital/clinic administrator,
-                father, mother, or guardian or the person himself if 18 years
-                old or over.)
-              </Text>
-            </View>
-            <View style={[back.formRow, { marginTop: 15 }]}>
-              <Text style={[back.textStyle, { marginLeft: 40 }]}>I </Text>
-              <Text style={[back.textStyle, back.formField]}>{"Jane Doe"}</Text>
-              <Text style={[back.textStyle, { marginLeft: 12 }]}>
-                of legal age, single/married/divorced/widow/widower, with
-              </Text>
-            </View>
-            <View style={[back.formRow]}>
-              <Text style={[back.textStyle, { paddingRight: 10 }]}>
-                residence and postal address at
-              </Text>
-              <Text
-                style={[
-                  back.textStyle,
-                  back.formField,
-                  { width: "80%", flexWrap: "wrap" },
-                ]}
-              >
-                {"Jane Doe"}
-              </Text>
-            </View>
-            <View style={back.formRow}>
-              <Text style={[back.textStyle, { paddingRight: 12 }]}>
-                after having been duly sworn in accordance with law, do hereby
-                depose and say:
-              </Text>
-            </View>
-            <View
-              style={[
-                back.columnContainer,
-                { marginLeft: 40, marginTop: 15, alignItems: "flex-start" },
-              ]}
-            >
-              <View style={[back.columnContainer, { alignItems: "flex-start" },]}>
-                <Text style={[back.textStyle]}>
-                  1. That I am the applicant for the delayed registration of:
-                </Text>
-                <View style={[back.formRow, { marginLeft: 20 }]}>
-                  <View style={back.radio}>
-                    {/* If this option is selected, uncomment the below View to fill the circle */}
-                  </View>
-                  <Text style={[back.textStyle]}>My birth in</Text>
-                  <Text
-                    style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%" },]}
-                  >
-                    {"Jane Doe"}
-                  </Text>
-                  <Text style={[back.textStyle, { paddingRight: 12 }]}>on</Text>
-                  <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%", paddingRight: 12 }]}>
-                    {"Jane Doe"}
-                  </Text>
-                </View>
-                <View style={[back.formRow, { marginLeft: 20 }]}>
-                  <View style={back.radio}>
-                    {/* If this option is selected, uncomment the below View to fill the circle */}
-                  </View>
-                  <Text style={[back.textStyle]}>the birth of</Text>
-                  <Text
-                    style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%" },]}
-                  >
-                    {"Jane Doe"}
-                  </Text>
-                  <Text style={[back.textStyle, { paddingRight: 12 }]}>who was born in</Text>
-                  <Text style={[back.textStyle, back.signatureText, { flexWrap: "wrap", width: "25%", paddingRight: 12 }]}>
-                    {"Jane Doe"}
-                  </Text>
-
-                </View>
-                <View style={[back.formRow, { marginLeft: 20 }]}>
-                  <Text style={[back.textStyle, { paddingRight: 12 }]}>on</Text>
-                  <Text style={[back.textStyle, back.signatureText, { flexWrap: "wrap", width: "35%", paddingRight: 12 }]}>
-                    {"Jane Doe"}
-                  </Text>
-                </View>
-                <View style={[back.formRow, { alignItems: "flex-start", flexWrap: "wrap", },]}>
-                  <Text style={[back.textStyle]}>
-                    2. That I/he/she was attended at birth by
-                  </Text>
-                  <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "55%", paddingRight: 12 }]}>
-                    {"Jane Doe"}
-                  </Text>
-                </View>
-                <View style={[back.formRow, { flexWrap: "wrap", paddingLeft: 20 },]}>
-                  <Text style={[back.textStyle]}>
-                    who resides at
-                  </Text>
-                  <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "60%", paddingRight: 12 }]}>
-                    {"Jane Doe"}
-                  </Text>
-                </View>
-                <View style={[back.formRow, { alignItems: "flex-start", flexWrap: "wrap", },]}>
-                  <Text style={[back.textStyle]}>
-                    3. That I am /he/she is a citizen of
-                  </Text>
-                  <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "55%", paddingRight: 12 }]}>
-                    {"Jane Doe"}
-                  </Text>
-                </View>
-                <View style={[back.formRow, { flexWrap: "wrap", },]}>
-                  <Text style={[back.textStyle]}>
-                    4. That my/his/her parents were
-                  </Text>
-                  <View style={[back.formRow, { marginLeft: 20 }]}>
-                    <View style={back.radio}>
-                      {/* If this option is selected, uncomment the below View to fill the circle */}
-                    </View>
-                    <Text style={[back.textStyle]}>married on</Text>
-                    <Text
-                      style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%" },]}
-                    >
-                      {"Jane Doe"}
-                    </Text>
-                    <Text style={[back.textStyle, { paddingRight: 12 }]}>at</Text>
-                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%", paddingRight: 12 }]}>
-                      {"Jane Doe"}
-                    </Text>
-                  </View>
-                  <View style={[back.formRow, { marginLeft: 20 }]}>
-                    <View style={back.radio}>
-                      {/* If this option is selected, uncomment the below View to fill the circle */}
-                    </View>
-                    <Text style={[back.textStyle]}>not marriead but I/he/she was acknowledged/not acknowledged by my/his/her  </Text>
-
-                  </View>
-                  <View style={[back.formRow, { marginLeft: 20 }]}>
-                    <Text style={[back.textStyle, { paddingRight: 12 }]}>father whose name is</Text>
-                    <Text
-                      style={[back.textStyle, back.signatureText, { flexWrap: "wrap", width: "70%" },]}
-                    >
-                      {"Jane Doe"}
-                    </Text>
-                  </View>
-                  <View style={[back.formRow, { marginTop: 15, alignItems: "flex-start", flexWrap: "wrap", },]}>
-                    <Text style={[back.textStyle]}>
-                      5. That the reason for the delay in registering my/his/her birth was
-                    </Text>
-                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "90%" }]}>
-                      {"Jane Doe"}
-                    </Text>
-                  </View>
-                  <View style={[back.formRow, { justifyContent: "center", alignItems: "flex-end" },]}>
-                    <Text style={[back.textStyle]}>
-                      6. (For the applicant only) That I am married to
-                    </Text>
-                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "45%" }]}>
-                      {""}
-                    </Text>
-                  </View>
-
-                  <View style={[back.formRow, { marginTop: 10, alignItems: "flex-end", flexWrap: "wrap" }]}>
-                    <Text style={[back.textStyle]}>
-                      (If the applicant is other than the document owner) That I am the
-                    </Text>
-                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "30%" }]}>
-                      {""}
-                    </Text>
-                    <Text style={[back.textStyle]}>of the said person.</Text>
-                  </View>
-
-                  <View style={[back.formRow, { marginTop: 15, paddingRight: 12, alignItems: "flex-end", flexWrap: "wrap" }]}>
-                    <Text style={[back.textStyle]}>
-                      7. That I am executing this affidavit to attest to the truthfulness of the foregoing statements for all legal
-                    </Text>
-                    <Text style={back.textStyle}>intents and purposes.</Text>
-                  </View>
-
-                  <View style={[back.formRow, { flexWrap: "wrap", alignItems: "flex-end" }]}>
-                    <Text style={[back.textStyle]}>In truth whereof, I have affixed my signature below this</Text>
-                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "10%" }]}>
-                      {""}
-                    </Text>
-                    <Text style={[back.textStyle]}>day of</Text>
-                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "25%" }]}>
-                      {""}
-                    </Text>
-                    <Text style={[back.textStyle]}>at</Text>
-                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "30%" }]}>
-                      {""}
-                    </Text>
-                    <Text style={[back.textStyle]}>, Philippines.</Text>
-                  </View>
-
-                  <View style={[back.formRow, { justifyContent: "space-between", marginTop: 40 }]}>
-                    <View style={{ alignItems: "center", width: "45%", }}>
- 
-                    </View>
-                    <View style={{ alignItems: "center", width: "45%" }}>
-                      <Text style={[back.textStyle, back.signatureText, { width: "100%", textAlign: "center" }]}>
-                        {""}
-                      </Text>
-                      <Text style={[back.textStyle, { fontSize: 8, textAlign: "center" }]}>
-                        Signature of the Administering Officer
-                      </Text>
-                    </View>
-
-                  </View>
-
-
-                  <View style={[back.formRow, { flexWrap: "wrap", alignItems: "flex-end" }]}>
-                    <Text style={[back.textStyle]}>SUBSCRIBED AND SWORN to before me this</Text>
-                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "10%" }]}>
-                      {""}
-                    </Text>
-                    <Text style={[back.textStyle]}>day of</Text>
-                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "25%" }]}>
-                      {""}
-                    </Text>
-                    <Text style={[back.textStyle]}>at</Text>
-                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "30%" }]}>
-                      {""}
-                    </Text>
-                    <Text style={[back.textStyle]}>, Philippines, affiant who exhibited to me his/her C.T.C/valid ID</Text>
-                  </View>
-
-                  <View style={[back.formRow, { marginTop: 10, alignItems: "flex-end", flexWrap: "wrap" }]}>
-                    <Text style={[back.textStyle]}>issued on</Text>
-                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "30%" }]}>
-                      {""}
-                    </Text>
-                    <Text style={[back.textStyle]}>at</Text>
-                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "40%" }]}>
-                      {""}
-                    </Text>
-                  </View>
-
-                  <View style={[back.formRow, { justifyContent: "space-between", marginTop: 40 }]}>
-                    <View style={{ alignItems: "center", width: "45%" }}>
-                      <Text style={[back.textStyle, back.signatureText, { width: "100%", textAlign: "center" }]}>
-                        {""}
-                      </Text>
-                      <Text style={[back.textStyle, { fontSize: 8, textAlign: "center" }]}>
-                        Signature of the Administering Officer
-                      </Text>
-                    </View>
-                    <View style={{ alignItems: "center", width: "45%" }}>
-                      <Text style={[back.textStyle, back.signatureText, { width: "100%", textAlign: "center" }]}>
-                        {""}
-                      </Text>
-                      <Text style={[back.textStyle, { fontSize: 8, textAlign: "center" }]}>
-                        Position / Title / Designation
-                      </Text>
-                    </View>
-                  </View>
-
-
-
-                </View>
-
-              </View>
-            </View>
-          </View>
-        </View>
-      </Page>
-
+      {/* Front Page */}
       <Page size="LEGAL" style={styles.page}>
         {/* Parent Grid Container */}
         <View style={{ border: "1px solid #000" }}>
@@ -1379,6 +901,484 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
             <Text style={[styles.value, { fontSize: 10 }]}>
               {data.remarks || ""}
             </Text>
+          </View>
+        </View>
+      </Page>
+      {/* Back Page */}
+      <Page size="LEGAL" style={[back.page]}>
+        <View style={back.container}>
+          <View style={[back.container, back.page]}>
+            <View style={back.columnContainer}>
+              <Text style={[back.headerTitle]}>
+                AFFIDAVIT OF ACKNOWLEDGEMENT/ADMISSION OF PATERNITY
+              </Text>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-evenly",
+                  width: "100%",
+                  fontSize: 8,
+                }}
+              >
+                <Text style={back.headerSubtitle}>
+                  (For births before 3 August 1988)
+                </Text>
+                <Text style={back.headerSubtitle}>
+                  (For births on or after 3 August 1988)
+                </Text>
+              </View>
+            </View>
+            <View style={[back.formRow, { marginTop: 15 }]}>
+              <Text style={[back.textStyle, { marginLeft: 40 }]}>I/We,</Text>
+              <Text style={[back.textStyle, back.formField]}>{"Jane Doe"}</Text>
+              <Text style={[back.textStyle, { marginLeft: 12 }]}>and</Text>
+              <Text style={[back.textStyle, back.formField]}>{"Jane Doe"}</Text>
+              ,
+            </View>
+            <View style={back.formRow}>
+              <Text style={[back.textStyle, { marginRight: 12 }]}>
+                of legal age, am/are the natural mother and/or father off:
+              </Text>
+              <Text style={[back.textStyle, back.formFieldWide]}>
+                {"Jane Doe"}
+              </Text>
+              ,
+              <Text style={[back.textStyle, { marginLeft: 12 }]}>who was </Text>
+            </View>
+            <View style={back.formRow}>
+              <Text style={[back.textStyle, { marginRight: 12 }]}>
+                born on:
+              </Text>
+              <Text
+                style={[back.textStyle, back.signatureText, { marginLeft: 12 }]}
+              >
+                {"Jane Doe"}
+              </Text>
+              <Text style={[back.textStyle, { marginLeft: 12 }]}>at</Text>
+              <Text style={[back.textStyle, back.formFieldWider]}>
+                {"Jane Doe"}
+              </Text>
+            </View>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                marginTop: 15,
+              }}
+            >
+              <Text style={[back.textStyle, { marginLeft: 40 }]}>
+                I am / We are executing this affidavit to attest to the
+                truthfulness of the foregoing statements and for purposes
+              </Text>
+              <Text style={[back.textStyle]}>
+                of acknowledgement my/our child.
+              </Text>
+            </View>
+            <View style={[back.rowContainer, { marginTop: 15 }]}>
+              <View style={back.signatureBlock}>
+                <Text style={[back.textStyle, back.signatureText]}>
+                  {"Jane Doe"}
+                </Text>
+                <Text style={[back.textStyle, back.captionText]}>
+                  (Signature Over Printed Name of Father)
+                </Text>
+              </View>
+              <View style={back.signatureBlock}>
+                <Text style={[back.textStyle, back.signatureText]}>
+                  {"Jane Doe"}
+                </Text>
+                <Text style={[back.textStyle, back.captionText]}>
+                  (Signature Over Printed Name of Mother)
+                </Text>
+              </View>
+            </View>
+            <View style={[back.formRow, { marginTop: 15 }]}>
+              <Text
+                style={[back.textStyle, { marginRight: 20, marginLeft: 40 }]}
+              >
+                <Text
+                  style={[
+                    back.headerTitle,
+                    { fontSize: 10, textTransform: "uppercase" },
+                  ]}
+                >
+                  Subscribed and sworn
+                </Text>
+                <Text style={[back.textStyle]}> to before me this </Text>
+              </Text>
+              <Text
+                style={[
+                  back.textStyle,
+                  back.signatureText,
+                  { marginLeft: 12, width: 70 },
+                ]}
+              >
+                {"Jane Doe"}
+              </Text>
+              <Text style={[back.textStyle, { marginLeft: 12 }]}>day of</Text>
+              <Text
+                style={[back.textStyle, back.formFieldWider, { width: 150 }]}
+              >
+                {"Jane Doe"}
+              </Text>
+              <Text style={[back.textStyle]}>,</Text>
+              <Text
+                style={[
+                  back.textStyle,
+                  back.signatureText,
+                  { marginLeft: 12, width: 70 },
+                ]}
+              >
+                {"Jane Doe"}
+              </Text>
+            </View>
+            <View style={[back.formRow]}>
+              <Text style={[back.textStyle]}>
+                <Text style={[back.textStyle]}>by </Text>
+              </Text>
+              <Text
+                style={[back.textStyle, back.signatureText, { width: 180 }]}
+              >
+                {"Jane Doe"}
+              </Text>
+              <Text style={[back.textStyle, { marginLeft: 10 }]}>and</Text>
+              <Text
+                style={[
+                  back.textStyle,
+                  back.signatureText,
+                  { marginLeft: 10, width: 180 },
+                ]}
+              >
+                {"Jane Doe"}
+              </Text>
+              <Text style={[back.textStyle]}>,</Text>
+              <Text style={[back.textStyle, { marginLeft: 10 }]}>
+                who exhibited to me his/her
+              </Text>
+            </View>
+            <View style={[back.formRow]}>
+              <Text style={[back.textStyle]}>CTC/valid ID: </Text>
+              <Text
+                style={[back.textStyle, back.signatureText, { width: "30%" }]}
+              >
+                {"Jane Doe"}
+              </Text>
+              <Text style={[back.textStyle, { marginLeft: 10 }]}>issued on  </Text>
+              <Text
+                style={[back.textStyle, back.signatureText, { width: "40%" }]}
+              >
+                {"Jane Doe"}
+              </Text>
+
+            </View>
+            <View style={[back.formRow]}>
+              <Text style={[back.textStyle]}>at  </Text>
+              <Text
+                style={[back.textStyle, back.signatureText, { width: "40%" }]}
+              >
+                {"Jane Doe"}
+              </Text>
+            </View>
+            <View style={[back.rowContainer, { marginTop: 30 }]}>
+              <View style={back.signatureBlock}>
+                <Text style={[back.textStyle, back.signatureText]}>
+                  {"Jane Doe"}
+                </Text>
+                <Text style={[back.textStyle, back.captionText]}>
+                  (Signature of the Administering Officer)
+                </Text>
+              </View>
+              <View style={back.signatureBlock}>
+                <Text style={[back.textStyle, back.signatureText]}>
+                  {"Jane Doe"}
+                </Text>
+                <Text style={[back.textStyle, back.captionText]}>
+                  (Position/Title Designation)
+                </Text>
+              </View>
+            </View>
+            <View style={[back.rowContainer, { marginTop: 30 }]}>
+              <View style={back.signatureBlock}>
+                <Text style={[back.textStyle, back.signatureText]}>
+                  {"Jane Doe"}
+                </Text>
+                <Text style={[back.textStyle, back.captionText]}>
+                  (Name in Print)
+                </Text>
+              </View>
+              <View style={back.signatureBlock}>
+                <Text style={[back.textStyle, back.signatureText]}>
+                  {"Jane Doe"}
+                </Text>
+                <Text style={[back.textStyle, back.captionText]}>
+                  (Address)
+                </Text>
+              </View>
+            </View>
+          </View>
+          <View style={[back.container, back.page]}>
+            <View style={back.columnContainer}>
+              <Text style={[back.headerTitle]}>
+                AFFIDAVIT FOR DELAYED REGISTRATION OF BIRTH
+              </Text>
+
+              <Text style={back.headerSubtitle}>
+                (To be accomplished by the hospital/clinic administrator,
+                father, mother, or guardian or the person himself if 18 years
+                old or over.)
+              </Text>
+            </View>
+            <View style={[back.formRow, { marginTop: 15 }]}>
+              <Text style={[back.textStyle, { marginLeft: 40 }]}>I </Text>
+              <Text style={[back.textStyle, back.formField]}>{"Jane Doe"}</Text>
+              <Text style={[back.textStyle, { marginLeft: 12 }]}>
+                of legal age, single/married/divorced/widow/widower, with
+              </Text>
+            </View>
+            <View style={[back.formRow]}>
+              <Text style={[back.textStyle, { paddingRight: 10 }]}>
+                residence and postal address at
+              </Text>
+              <Text
+                style={[
+                  back.textStyle,
+                  back.formField,
+                  { width: "80%", flexWrap: "wrap" },
+                ]}
+              >
+                {"Jane Doe"}
+              </Text>
+            </View>
+            <View style={back.formRow}>
+              <Text style={[back.textStyle, { paddingRight: 12 }]}>
+                after having been duly sworn in accordance with law, do hereby
+                depose and say:
+              </Text>
+            </View>
+            <View
+              style={[
+                back.columnContainer,
+                { marginLeft: 40, marginTop: 15, alignItems: "flex-start" },
+              ]}
+            >
+              <View style={[back.columnContainer, { alignItems: "flex-start" },]}>
+                <Text style={[back.textStyle]}>
+                  1. That I am the applicant for the delayed registration of:
+                </Text>
+                <View style={[back.formRow, { marginLeft: 20 }]}>
+                  <View style={back.radio}>
+                    {/* If this option is selected, uncomment the below View to fill the circle */}
+                  </View>
+                  <Text style={[back.textStyle]}>My birth in</Text>
+                  <Text
+                    style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%" },]}
+                  >
+                    {"Jane Doe"}
+                  </Text>
+                  <Text style={[back.textStyle, { paddingRight: 12 }]}>on</Text>
+                  <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%", paddingRight: 12 }]}>
+                    {"Jane Doe"}
+                  </Text>
+                </View>
+                <View style={[back.formRow, { marginLeft: 20 }]}>
+                  <View style={back.radio}>
+                    {/* If this option is selected, uncomment the below View to fill the circle */}
+                  </View>
+                  <Text style={[back.textStyle]}>the birth of</Text>
+                  <Text
+                    style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%" },]}
+                  >
+                    {"Jane Doe"}
+                  </Text>
+                  <Text style={[back.textStyle, { paddingRight: 12 }]}>who was born in</Text>
+                  <Text style={[back.textStyle, back.signatureText, { flexWrap: "wrap", width: "25%", paddingRight: 12 }]}>
+                    {"Jane Doe"}
+                  </Text>
+
+                </View>
+                <View style={[back.formRow, { marginLeft: 20 }]}>
+                  <Text style={[back.textStyle, { paddingRight: 12 }]}>on</Text>
+                  <Text style={[back.textStyle, back.signatureText, { flexWrap: "wrap", width: "35%", paddingRight: 12 }]}>
+                    {"Jane Doe"}
+                  </Text>
+                </View>
+                <View style={[back.formRow, { alignItems: "flex-start", flexWrap: "wrap", },]}>
+                  <Text style={[back.textStyle]}>
+                    2. That I/he/she was attended at birth by
+                  </Text>
+                  <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "55%", paddingRight: 12 }]}>
+                    {"Jane Doe"}
+                  </Text>
+                </View>
+                <View style={[back.formRow, { flexWrap: "wrap", paddingLeft: 20 },]}>
+                  <Text style={[back.textStyle]}>
+                    who resides at
+                  </Text>
+                  <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "60%", paddingRight: 12 }]}>
+                    {"Jane Doe"}
+                  </Text>
+                </View>
+                <View style={[back.formRow, { alignItems: "flex-start", flexWrap: "wrap", },]}>
+                  <Text style={[back.textStyle]}>
+                    3. That I am /he/she is a citizen of
+                  </Text>
+                  <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "55%", paddingRight: 12 }]}>
+                    {"Jane Doe"}
+                  </Text>
+                </View>
+                <View style={[back.formRow, { flexWrap: "wrap", },]}>
+                  <Text style={[back.textStyle]}>
+                    4. That my/his/her parents were
+                  </Text>
+                  <View style={[back.formRow, { marginLeft: 20 }]}>
+                    <View style={back.radio}>
+                      {/* If this option is selected, uncomment the below View to fill the circle */}
+                    </View>
+                    <Text style={[back.textStyle]}>married on</Text>
+                    <Text
+                      style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%" },]}
+                    >
+                      {"Jane Doe"}
+                    </Text>
+                    <Text style={[back.textStyle, { paddingRight: 12 }]}>at</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, flexWrap: "wrap", width: "35%", paddingRight: 12 }]}>
+                      {"Jane Doe"}
+                    </Text>
+                  </View>
+                  <View style={[back.formRow, { marginLeft: 20 }]}>
+                    <View style={back.radio}>
+                      {/* If this option is selected, uncomment the below View to fill the circle */}
+                    </View>
+                    <Text style={[back.textStyle]}>not marriead but I/he/she was acknowledged/not acknowledged by my/his/her  </Text>
+
+                  </View>
+                  <View style={[back.formRow, { marginLeft: 20 }]}>
+                    <Text style={[back.textStyle, { paddingRight: 12 }]}>father whose name is</Text>
+                    <Text
+                      style={[back.textStyle, back.signatureText, { flexWrap: "wrap", width: "70%" },]}
+                    >
+                      {"Jane Doe"}
+                    </Text>
+                  </View>
+                  <View style={[back.formRow, { marginTop: 15, alignItems: "flex-start", flexWrap: "wrap", },]}>
+                    <Text style={[back.textStyle]}>
+                      5. That the reason for the delay in registering my/his/her birth was
+                    </Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "90%" }]}>
+                      {"Jane Doe"}
+                    </Text>
+                  </View>
+                  <View style={[back.formRow, { justifyContent: "center", alignItems: "flex-end" },]}>
+                    <Text style={[back.textStyle]}>
+                      6. (For the applicant only) That I am married to
+                    </Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "45%" }]}>
+                      {""}
+                    </Text>
+                  </View>
+
+                  <View style={[back.formRow, { marginTop: 10, alignItems: "flex-end", flexWrap: "wrap" }]}>
+                    <Text style={[back.textStyle]}>
+                      (If the applicant is other than the document owner) That I am the
+                    </Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 12, width: "30%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>of the said person.</Text>
+                  </View>
+
+                  <View style={[back.formRow, { marginTop: 15, paddingRight: 12, alignItems: "flex-end", flexWrap: "wrap" }]}>
+                    <Text style={[back.textStyle]}>
+                      7. That I am executing this affidavit to attest to the truthfulness of the foregoing statements for all legal
+                    </Text>
+                    <Text style={back.textStyle}>intents and purposes.</Text>
+                  </View>
+
+                  <View style={[back.formRow, { flexWrap: "wrap", alignItems: "flex-end" }]}>
+                    <Text style={[back.textStyle]}>In truth whereof, I have affixed my signature below this</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "10%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>day of</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "25%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>at</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "30%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>, Philippines.</Text>
+                  </View>
+
+                  <View style={[back.formRow, { justifyContent: "space-between", marginTop: 40 }]}>
+                    <View style={{ alignItems: "center", width: "45%", }}>
+ 
+                    </View>
+                    <View style={{ alignItems: "center", width: "45%" }}>
+                      <Text style={[back.textStyle, back.signatureText, { width: "100%", textAlign: "center" }]}>
+                        {""}
+                      </Text>
+                      <Text style={[back.textStyle, { fontSize: 8, textAlign: "center" }]}>
+                        Signature of the Administering Officer
+                      </Text>
+                    </View>
+
+                  </View>
+
+
+                  <View style={[back.formRow, { flexWrap: "wrap", alignItems: "flex-end" }]}>
+                    <Text style={[back.textStyle]}>SUBSCRIBED AND SWORN to before me this</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "10%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>day of</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "25%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>at</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "30%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>, Philippines, affiant who exhibited to me his/her C.T.C/valid ID</Text>
+                  </View>
+
+                  <View style={[back.formRow, { marginTop: 10, alignItems: "flex-end", flexWrap: "wrap" }]}>
+                    <Text style={[back.textStyle]}>issued on</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "30%" }]}>
+                      {""}
+                    </Text>
+                    <Text style={[back.textStyle]}>at</Text>
+                    <Text style={[back.textStyle, back.signatureText, { marginLeft: 8, width: "40%" }]}>
+                      {""}
+                    </Text>
+                  </View>
+
+                  <View style={[back.formRow, { justifyContent: "space-between", marginTop: 40 }]}>
+                    <View style={{ alignItems: "center", width: "45%" }}>
+                      <Text style={[back.textStyle, back.signatureText, { width: "100%", textAlign: "center" }]}>
+                        {""}
+                      </Text>
+                      <Text style={[back.textStyle, { fontSize: 8, textAlign: "center" }]}>
+                        Signature of the Administering Officer
+                      </Text>
+                    </View>
+                    <View style={{ alignItems: "center", width: "45%" }}>
+                      <Text style={[back.textStyle, back.signatureText, { width: "100%", textAlign: "center" }]}>
+                        {""}
+                      </Text>
+                      <Text style={[back.textStyle, { fontSize: 8, textAlign: "center" }]}>
+                        Position / Title / Designation
+                      </Text>
+                    </View>
+                  </View>
+
+
+
+                </View>
+
+              </View>
+            </View>
           </View>
         </View>
       </Page>
