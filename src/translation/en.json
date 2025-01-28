@@ -133,26 +133,27 @@
   "Known User": "Known User",
   "Anonymous": "Anonymous",
   "formDetails": {
-    "title": "Form Details",
-    "description": "View the details of the selected form",
-    "formType": "Form Type",
-    "registryNo": "Registry Number",
-    "status": "Status"
+  "title": "Form Details",
+  "description": "View the details of the selected form",
+  "formType": "Form Type",
+  "registryNo": "Registry Number",
+  "status": "Status",
+  "loadingForms": "Loading Forms",
+  "fetchingForms": "Please wait while we fetch the civil registry forms..."
   },
   "datatable": {
-        "selected_rows": "{{selected}} of {{total}} row(s) selected.",
-        "no_rows_selected": "No rows selected.",
-        "rows_per_page": "Rows per page",
-        "page_info": "Page {{current}} of {{total}}",
-        "go_to_first_page": "Go to first page",
-        "go_to_previous_page": "Go to previous page",
-        "go_to_next_page": "Go to next page",
-        "go_to_last_page": "Go to last page"
-    },
-    "No results found": "No results found",
-    "Try adjusting your filters or search terms": "Try adjusting your filters or search terms",
-    "No requests have been added yet": "No requests have been added yet",
-
+    "selected_rows": "{{selected}} of {{total}} row(s) selected.",
+    "no_rows_selected": "No rows selected.",
+    "rows_per_page": "Rows per page",
+    "page_info": "Page {{current}} of {{total}}",
+    "go_to_first_page": "Go to first page",
+    "go_to_previous_page": "Go to previous page",
+    "go_to_next_page": "Go to next page",
+    "go_to_last_page": "Go to last page"
+  },
+  "No results found": "No results found",
+  "Try adjusting your filters or search terms": "Try adjusting your filters or search terms",
+  "No requests have been added yet": "No requests have been added yet",
   "Create New Form": "Create New Form",
   "Select Form Type": "Select Form Type",
   "Certificate of Live Birth": "Certificate of Live Birth",
@@ -160,5 +161,88 @@
   "Certificate of Marriage": "Certificate of Marriage",
   "(Municipal Form No. 102)": "(Municipal Form No. 102)",
   "(Municipal Form No. 103)": "(Municipal Form No. 103)",
-  "(Municipal Form No. 97)": "(Municipal Form No. 97)"
+  "(Municipal Form No. 97)": "(Municipal Form No. 97)",
+  "debugInfo": {
+    "title": "Debug Information",
+    "dataLength": "Data Length",
+    "isLoading": "Is Loading",
+    "errorMessage": "Error Message",
+    "fetchAttempted": "Fetch Attempted",
+    "lastFetchTime": "Last Fetch Time"
+  },
+  "birthReport": {
+    "title": "Mga Rehistro ng Kapanganakan",
+    "year": "Taon",
+    "male": "Lalaki",
+    "female": "Babae",
+    "total": "Kabuuan"
+  },
+  "filters": {
+    "yearFrom": "Year From",
+    "yearTo": "Year To",
+    "selectYear": "Select Year"
+  },
+  "exportDialog": {
+    "export": "Export",
+    "exportData": "Export Data",
+    "exportAs": "Export Data As",
+    "exportChart": "Export Chart",
+    "areaChart": "Area Chart",
+    "areaChartDisabled": "Area Chart (Only for Marriage Data)",
+    "selectChartType": "Select Chart Type",
+    "barChart": "Bar Chart",
+    "lineChart": "Line Chart",
+    "pieChart": "Pie Chart",
+    "downloadChart": "Download Chart as PNG"
+  },
+  "deathReport": {
+    "title": "Death Registrations",
+    "year": "Year",
+    "male": "Male",
+    "female": "Female",
+    "total": "Total"
+  },
+  "marriageReport": {
+    "title": "Marriage Registrations",
+    "year": "Year",
+    "totalMarriages": "Total Marriages",
+    "residents": "Residents",
+    "nonResidents": "Non-Residents",
+    "residentPercentage": "Resident %",
+    "nonResidentPercentage": "Non-Resident %"
+  },
+  "dataTableToolbar": {
+    "searchPlaceholder": "Search users...",
+    "resetFilters": "Reset",
+    "status": "Status",
+    "scan": "Scan",
+    "upload": "Upload"
+  },
+  "dataTable": {
+    "user": "User",
+    "contact": "Contact",
+    "role": "Role",
+    "permissions": "Permissions",
+    "status": "Status",
+    "activity": "Activity",
+    "verified": "Verified",
+    "unverified": "Unverified",
+    "created": "Created",
+    "updated": "Updated",
+    "morePermissions": "+{{count}} more permissions",
+    "username": "Username",
+    "id": "ID",
+    "no_username": "No username"
+  },
+  "formSelection": {
+    "issueCertificate": "Issue Certificate",
+    "selectFormType": "Select Form Type",
+    "birthForm": "Civil Registry Form No. 1A",
+    "birthAvailable": "(Birth Available)",
+    "deathForm": "Civil Registry Form No. 2A",
+    "deathAvailable": "(Death Available)",
+    "marriageForm": "Civil Registry Form No. 3A",
+    "marriageAvailable": "(Marriage Available)"
+  },
+  "civilRegistry": "Civil Registry"
 }

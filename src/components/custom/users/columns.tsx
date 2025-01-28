@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Session } from "next-auth"
+import { useTranslation } from 'react-i18next'  // Import translation hook
 
 const roleVariants: Record<UserRole, { label: string; variant: "default" | "secondary" | "destructive" }> = {
     ADMIN: { label: "Administrator", variant: "destructive" },
@@ -22,6 +23,7 @@ interface UserCellProps {
 }
 
 const UserCell = ({ row }: UserCellProps) => {
+    const { t } = useTranslation()  // Translation hook usage
     const user = row.original
     const initials = user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()
 
@@ -41,7 +43,7 @@ const UserCell = ({ row }: UserCellProps) => {
                             <div className="flex items-center gap-1.5 mt-0.5">
                                 <Icons.user className="h-3 w-3 text-blue-500" />
                                 <span className="text-sm text-muted-foreground">
-                                    @{user.username || 'no username'}
+                                    @{user.username || t('no_username')}
                                 </span>
                             </div>
                         </div>
@@ -49,8 +51,8 @@ const UserCell = ({ row }: UserCellProps) => {
                     <TooltipContent className="w-64">
                         <div className="space-y-1.5">
                             <p>{user.name}</p>
-                            <p>Username: @{user.username || 'no username'}</p>
-                            <p>ID: {user.id}</p>
+                            <p>{t('username')}: @{user.username || t('no_username')}</p>
+                            <p>{t('id')}: {user.id}</p>
                         </div>
                     </TooltipContent>
                 </Tooltip>
@@ -64,6 +66,8 @@ interface EmailCellProps {
 }
 
 const EmailCell = ({ email }: EmailCellProps) => {
+    const { t } = useTranslation()
+
     return (
         <div className="flex flex-col gap-1.5">
             <TooltipProvider>
@@ -86,25 +90,28 @@ const EmailCell = ({ email }: EmailCellProps) => {
 export const createColumns = (
     session: Session | null,
     onUpdateUser?: (user: User) => void
-): ColumnDef<User>[] => [
+): ColumnDef<User>[] => {
+    const { t } = useTranslation() // Translation hook
+
+    return [
         {
             accessorKey: 'name',
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title="User" />
+                <DataTableColumnHeader column={column} title={t('dataTable.user')} /> 
             ),
             cell: ({ row }) => <UserCell row={row} />,
         },
         {
             accessorKey: 'email',
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title="Contact" />
+                <DataTableColumnHeader column={column} title={t('dataTable.contact')} />  
             ),
             cell: ({ row }) => <EmailCell email={row.getValue('email')} />,
         },
         {
             accessorKey: 'role',
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title="Role" />
+                <DataTableColumnHeader column={column} title={t('dataTable.role')} /> 
             ),
             cell: ({ row }) => {
                 const role = row.getValue('role') as UserRole
@@ -122,7 +129,7 @@ export const createColumns = (
         {
             accessorKey: 'permissions',
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title="Permissions" />
+                <DataTableColumnHeader column={column} title={t('dataTable.permissions')} /> 
             ),
             cell: ({ row }) => {
                 const permissions = row.getValue('permissions') as Permission[]
@@ -138,7 +145,7 @@ export const createColumns = (
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Badge variant="outline" className="text-xs">
-                                            +{permissions.length - 2} more
+                                            {t('dataTable.morePermissions', { count: permissions.length - 2 })} 
                                         </Badge>
                                     </TooltipTrigger>
                                     <TooltipContent>
@@ -158,7 +165,7 @@ export const createColumns = (
         {
             accessorKey: 'emailVerified',
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title="Status" />
+                <DataTableColumnHeader column={column} title={t('dataTable.status')} /> 
             ),
             cell: ({ row }) => {
                 const isVerified = row.getValue('emailVerified') as boolean
@@ -166,7 +173,7 @@ export const createColumns = (
                     <div className="flex items-center gap-1.5">
                         <div className={`h-2 w-2 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-gray-300'}`} />
                         <span className={`text-sm ${isVerified ? 'text-emerald-600' : 'text-muted-foreground'}`}>
-                            {isVerified ? 'Verified' : 'Unverified'}
+                            {isVerified ? t('dataTable.verified') : t('dataTable.unverified')} 
                         </span>
                     </div>
                 )
@@ -180,7 +187,7 @@ export const createColumns = (
         {
             id: 'dates',
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title="Activity" />
+                <DataTableColumnHeader column={column} title={t('dataTable.activity')} /> 
             ),
             cell: ({ row }) => {
                 const user = row.original
@@ -189,13 +196,13 @@ export const createColumns = (
                         <div className="flex items-center gap-1.5">
                             <Icons.calendar className="w-3 h-3 text-orange-500" />
                             <span className="text-muted-foreground">
-                                Created {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
+                                {t('dataTable.created')} {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
                             </span>
                         </div>
                         <div className="flex items-center gap-1.5">
                             <Icons.refresh className="w-3 h-3 text-blue-500" />
                             <span className="text-muted-foreground">
-                                Updated {formatDistanceToNow(new Date(user.updatedAt), { addSuffix: true })}
+                                {t('dataTable.updated')} {formatDistanceToNow(new Date(user.updatedAt), { addSuffix: true })}
                             </span>
                         </div>
                     </div>
@@ -207,7 +214,6 @@ export const createColumns = (
             enableSorting: false,
             enableHiding: false,
             cell: ({ row }) => {
-                // Hide actions for current user's row
                 if (session?.user?.email === row.original.email) {
                     return null;
                 }
@@ -215,3 +221,4 @@ export const createColumns = (
             },
         },
     ]
+}

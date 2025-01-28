@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next' // Import useTranslation
 import { Icons } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,6 +15,7 @@ import MarriageAnnotationForm from '@/components/custom/forms/annotations/marria
 import MarriageCertificateForm from '@/components/custom/forms/certificates/marriage-certificate-form'
 
 export function FormSelection() {
+    const { t } = useTranslation() // Access translation function
     const [open, setOpen] = useState(false)
     const [birthFormOpen, setBirthFormOpen] = useState(false)
     const [deathFormOpen, setDeathFormOpen] = useState(false)
@@ -45,37 +47,37 @@ export function FormSelection() {
                 <DialogTrigger asChild>
                     <Button variant={"default"}>
                         <Icons.plus className="mr-2 h-4 w-4" />
-                        Issue Certificate
+                        {t('formSelection.issueCertificate')}
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-4xl">
                     <DialogHeader>
-                        <DialogTitle className="text-center text-xl font-semibold">Select Form Type</DialogTitle>
+                        <DialogTitle className="text-center text-xl font-semibold">{t('formSelection.selectFormType')}</DialogTitle>
                     </DialogHeader>
 
                     <div className="flex gap-4">
                         <Card className="flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border" onClick={() => handleFormSelect('birth-annotation')}>
                             <CardHeader>
-                                <CardTitle className="text-center text-base">Civil Registry Form No. 1A</CardTitle>
+                                <CardTitle className="text-center text-base">{t('formSelection.birthForm')}</CardTitle>
                             </CardHeader>
                             <CardContent className="text-center">
-                                <p className="text-sm text-muted-foreground">(Birth Available)</p>
+                                <p className="text-sm text-muted-foreground">{t('formSelection.birthAvailable')}</p>
                             </CardContent>
                         </Card>
                         <Card className="flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border" onClick={() => handleFormSelect('death-annotation')}>
                             <CardHeader>
-                                <CardTitle className="text-center text-base">Civil Registry Form No. 2A</CardTitle>
+                                <CardTitle className="text-center text-base">{t('formSelection.deathForm')}</CardTitle>
                             </CardHeader>
                             <CardContent className="text-center">
-                                <p className="text-sm text-muted-foreground">(Death Available)</p>
+                                <p className="text-sm text-muted-foreground">{t('formSelection.deathAvailable')}</p>
                             </CardContent>
                         </Card>
                         <Card className="flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border" onClick={() => handleFormSelect('marriage-annotation')}>
                             <CardHeader>
-                                <CardTitle className="text-center text-base">Civil Registry Form No. 3A</CardTitle>
+                                <CardTitle className="text-center text-base">{t('formSelection.marriageForm')}</CardTitle>
                             </CardHeader>
                             <CardContent className="text-center">
-                                <p className="text-sm text-muted-foreground">(Marriage Available)</p>
+                                <p className="text-sm text-muted-foreground">{t('formSelection.marriageAvailable')}</p>
                             </CardContent>
                         </Card>
                     </div>
