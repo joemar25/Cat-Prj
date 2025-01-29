@@ -13,7 +13,7 @@ export interface BaseNavigationItem {
 
 // Main navigation item with possible sub-items
 export interface NavigationItem extends BaseNavigationItem {
-    type: 'main' | 'secondary'
+    type: 'main' | 'secondary' | 'projects'
     items?: Array<Omit<BaseNavigationItem, 'iconName' | 'type'>>
 }
 
@@ -50,6 +50,7 @@ export interface NavSecondaryItem {
 export interface NavigationConfiguration {
     mainNav: NavConfig[]
     secondaryNav: NavConfig[]
+    projectsNav: NavConfig[]
 }
 
 // Type guard for items with sub-items

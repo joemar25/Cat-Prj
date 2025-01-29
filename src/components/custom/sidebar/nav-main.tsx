@@ -1,4 +1,3 @@
-// src/components/custom/sidebar/nav-main.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -53,95 +52,82 @@ export function NavMain({ items }: NavMainProps) {
           const ItemIcon = item.icon
 
           return (
-            <Collapsible
-              key={item.title}
-              defaultOpen={true}
-            >
+            <Collapsible key={item.title} defaultOpen={hasActiveSubItem}>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  onClick={()=>{
-                    if(item.click){
-                      item.click();
-                    }
-                  }}
-                  tooltip={item.title}
-                  className={`
-                    transition-all duration-150 ease-in-out
-                    hover:bg-accent/50 active:scale-[0.98] py-6 px-4
-                    ${isActive ? 'bg-muted/90 text-accent-foreground font-medium' : ''}
-                  `}
-                >
-                  <Link
-                    href={item.url}
-                    className='flex items-center gap-2'
+                <div className="flex items-center w-full justify-between">
+                  {/* Sidebar Button (Left Side) */}
+                  <SidebarMenuButton
+                    asChild
+                    onClick={() => item.click?.()}
+                    tooltip={item.title}
+                    className={`flex-1 flex items-center gap-2 transition-all duration-150 ease-in-out 
+                      hover:bg-accent/50 active:scale-[0.98] py-2 px-2 
+                      ${isActive ? 'bg-muted/90 text-accent-foreground font-medium' : ''}
+                    `}
                   >
-                    {ItemIcon && (
-                      <ItemIcon className={`
-                        w-6 h-6 transition-colors duration-150
-                        ${isActive ? 'text-accent-foreground' : 'text-muted-foreground'}
-                      `} />
-                    )}
-                    <span className={`text-base  ${isActive ? 'text-accent-foreground' : 'text-muted-foreground'}`}>{item.title}</span>
-                    {item.notViewedCount !== undefined && item.notViewedCount > 0 && (
-                      <Badge variant='default' className='text-xs px-1.5 py-0.5'>
-                        {item.notViewedCount}
-                      </Badge>
-                    )}
-                  </Link>
-                </SidebarMenuButton>
+                    <Link href={item.url} className='flex items-center gap-2 w-full'>
+                      {ItemIcon && (
+                        <ItemIcon className={`w-6 h-6 transition-colors duration-150 
+                          ${isActive ? 'text-accent-foreground' : 'text-muted-foreground'}
+                        `} />
+                      )}
+                      <span className={`${isActive ? 'text-accent-foreground' : 'text-muted-foreground'}`}>
+                        {item.title}
+                      </span>
+                      {item.notViewedCount !== undefined && item.notViewedCount > 0 && (
+                        <Badge variant='default' className='text-xs px-1.5 py-0.5'>
+                          {item.notViewedCount}
+                        </Badge>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
 
-                {item.items?.length ? (
-                  <>
+                  {/* Chevron Icon (Right Side) */}
+                  {item.items?.length ? (
                     <CollapsibleTrigger asChild>
                       <SidebarMenuAction
-                        className={`
-                          data-[state=open]:rotate-90 
-                          transition-transform duration-150 ease-in-out
+                        className={`transition-transform duration-150 ease-in-out 
                           hover:bg-accent/30 active:scale-[0.98]
-                          ${hasActiveSubItem ? 'text-accent-foreground' : 'text-muted-foreground'}
+                          ${hasActiveSubItem ? 'text-accent-foreground rotate-90' : 'text-muted-foreground'}
                         `}
                       >
-                        <Icons.chevronRight className='w-4 h-4' />
+                        <Icons.chevronRight className="w-5 h-5" />
                         <span className='sr-only'>Toggle</span>
                       </SidebarMenuAction>
                     </CollapsibleTrigger>
-                    <CollapsibleContent className='transition-all duration-200 ease-in-out'>
-                      <SidebarMenuSub>
-                        {item.items.map((subItem) => {
-                          const isSubActive = pathname === subItem.url
-                          return (
-                            <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton
-                                asChild
-                                onClick={
-                                  ()=>{
-                                    if(subItem.click){
-                                      subItem.click();
-                                    }
-                                  }
-                                }
-                                className={`
-                                  transition-all duration-150 ease-in-out
-                                  hover:bg-accent/50 active:scale-[0.98]
-                                  ${isSubActive ? 'bg-accent/80 text-accent-foreground font-medium' : ''}
-                                `}
-                              >
-                                <Link href={subItem.url}>
-                                  <span>{subItem.title}</span>
-                                  {subItem.notViewedCount !== undefined && subItem.notViewedCount > 0 && (
-                                    <Badge variant='destructive' className='text-xs px-1.5 py-0.5'>
-                                      {subItem.notViewedCount}
-                                    </Badge>
-                                  )}
-                                </Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          )
-                        })}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  </>
+                  ) : null}
+                </div>
+
+                {/* Collapsible Submenu */}
+                {item.items?.length ? (
+                  <CollapsibleContent className='pl-6 transition-all duration-200 ease-in-out'>
+                    <SidebarMenuSub>
+                      {item.items.map((subItem) => {
+                        const isSubActive = pathname === subItem.url
+                        return (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton
+                              asChild
+                              onClick={() => subItem.click?.()}
+                              className={`transition-all duration-150 ease-in-out 
+                                hover:bg-accent/50 active:scale-[0.98]
+                                ${isSubActive ? 'bg-accent/80 text-accent-foreground font-medium' : ''}
+                              `}
+                            >
+                              <Link href={subItem.url} className="flex items-center gap-2">
+                                <span>{subItem.title}</span>
+                                {subItem.notViewedCount !== undefined && subItem.notViewedCount > 0 && (
+                                  <Badge variant='destructive' className='text-xs px-1.5 py-0.5'>
+                                    {subItem.notViewedCount}
+                                  </Badge>
+                                )}
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        )
+                      })}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
                 ) : null}
               </SidebarMenuItem>
             </Collapsible>

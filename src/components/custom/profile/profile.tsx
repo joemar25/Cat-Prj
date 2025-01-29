@@ -1,4 +1,3 @@
-// src/components/custom/profile/profile.tsx
 'use client'
 
 import { toast } from 'sonner'
@@ -10,23 +9,32 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ProfileWithUser } from '@/types/user-profile'
-import { handleUpdateUserProfile, handleChangePassword } from '@/hooks/users-action'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { handleChangePassword } from '@/hooks/users-action'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { profileFormSchema, changePasswordSchema, ProfileFormValues, ChangePasswordFormValues } from '@/lib/validation'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 export default function Profile({ userId, profile }: { userId: string; profile: ProfileWithUser }) {
-    const [isEditing, setIsEditing] = useState(false) // Toggle for editing profile or changing password
-    const [isPasswordMode, setIsPasswordMode] = useState(false) // Toggle between profile and password forms
+    const [isEditing, setIsEditing] = useState(false)
+    const [isPasswordMode, setIsPasswordMode] = useState(false)
     const [showCurrentPassword, setShowCurrentPassword] = useState(false)
     const [showNewPassword, setShowNewPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 
-    // Profile form
+    const { update } = useSession()
+    const router = useRouter()
+
     const profileForm = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
+            username: profile?.user?.username || '',
+            name: profile?.user?.name || '',
+            email: profile?.user?.email || '',
+            dateOfBirth: profile?.dateOfBirth?.toISOString().split('T')[0] || '',
             phoneNumber: profile?.phoneNumber || '',
             address: profile?.address || '',
             city: profile?.city || '',
@@ -40,7 +48,6 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
         },
     })
 
-    // Password change form
     const passwordForm = useForm<ChangePasswordFormValues>({
         resolver: zodResolver(changePasswordSchema),
         defaultValues: {
@@ -50,23 +57,109 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
         },
     })
 
-    // Handle profile update
+    const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (!file) return
+
+        if (!file.type.startsWith('image/')) {
+            toast.error('Please select an image file')
+            return
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('Image must be less than 5MB')
+            return
+        }
+
+        setIsUploadingAvatar(true)
+
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+
+            const response = await fetch('/api/upload-avatar', {
+                method: 'POST',
+                body: formData,
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to upload avatar')
+            }
+
+            const { imageUrl } = await response.json()
+
+            // Update profile with new image URL
+            const profileResponse = await fetch('/api/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    image: imageUrl,
+                    // Include other current profile data
+                    ...profileForm.getValues()
+                }),
+            })
+
+            if (!profileResponse.ok) {
+                throw new Error('Failed to update profile with new avatar')
+            }
+
+            const result = await profileResponse.json()
+
+            if (result.success) {
+                // Update session with new user data
+                await update({
+                    ...result.data.user,
+                    image: imageUrl,
+                })
+
+                toast.success('Avatar updated successfully')
+                router.refresh()
+            }
+        } catch (error) {
+            console.error('Failed to update avatar:', error)
+            toast.error('Failed to update avatar')
+        } finally {
+            setIsUploadingAvatar(false)
+        }
+    }
+
     const onProfileSubmit = async (data: ProfileFormValues) => {
         try {
-            const result = await handleUpdateUserProfile(userId, data)
+            const response = await fetch('/api/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+
+            if (!response.ok) {
+                const error = await response.json()
+                throw new Error(error.error || 'Failed to update profile')
+            }
+
+            const result = await response.json()
+
             if (result.success) {
+                // Update session with new user data
+                await update({
+                    ...result.data.user,
+                })
+
                 toast.success('Profile updated successfully')
                 setIsEditing(false)
+                router.refresh()
             } else {
                 toast.error(result.message)
             }
         } catch (error) {
             console.error('Failed to update profile:', error)
-            toast.error('Failed to update profile')
+            toast.error(error instanceof Error ? error.message : 'Failed to update profile')
         }
     }
 
-    // Handle password change
     const onPasswordSubmit = async (data: ChangePasswordFormValues) => {
         try {
             const result = await handleChangePassword(userId, data)
@@ -84,7 +177,6 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
         }
     }
 
-    // Toggle between profile and password forms
     const toggleEditMode = () => {
         if (isEditing && isPasswordMode) {
             setIsEditing(false)
@@ -99,60 +191,111 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
 
     return (
         <div className="w-full p-6">
-            {/* User Info Section */}
             <div className="flex items-center space-x-4 mb-8">
-                <Avatar className="h-16 w-16">
-                    <AvatarImage src={profile?.user?.image ?? undefined} alt={profile?.user?.name} />
-                    <AvatarFallback>{profile?.user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
-                </Avatar>
+                <div className="relative group">
+                    <Avatar className="h-16 w-16">
+                        <AvatarImage src={profile?.user?.image ?? undefined} alt={profile?.user?.name} />
+                        <AvatarFallback>{profile?.user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
+                        {isEditing && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                <label className="cursor-pointer w-full h-full flex items-center justify-center">
+                                    {isUploadingAvatar ? (
+                                        <Icons.spinner className="h-6 w-6 text-white animate-spin" />
+                                    ) : (
+                                        <Icons.camera className="h-6 w-6 text-white" />
+                                    )}
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={handleAvatarUpload}
+                                        disabled={isUploadingAvatar}
+                                    />
+                                </label>
+                            </div>
+                        )}
+                    </Avatar>
+                </div>
                 <div>
                     <h1 className="text-2xl font-bold">{profile?.user?.name}</h1>
                     <p className="text-sm text-muted-foreground">{profile?.user?.email}</p>
+                    {profile?.user?.username && (
+                        <p className="text-sm text-muted-foreground">@{profile.user.username}</p>
+                    )}
                 </div>
             </div>
 
-            {/* Profile Form */}
             {!isPasswordMode && (
                 <Form {...profileForm}>
                     <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6 mb-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Profile fields */}
-                            {Object.entries(profileFormSchema.shape).map(([key]) => (
-                                <FormField
-                                    key={key}
-                                    control={profileForm.control}
-                                    name={key as keyof ProfileFormValues}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{key.charAt(0).toUpperCase() + key.slice(1)}</FormLabel>
-                                            <FormControl>
-                                                {key === 'gender' ? (
-                                                    <Select
-                                                        onValueChange={field.onChange}
-                                                        value={field.value}
-                                                        disabled={!isEditing}
-                                                    >
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select gender" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="male">Male</SelectItem>
-                                                            <SelectItem value="female">Female</SelectItem>
-                                                            <SelectItem value="other">Other</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                ) : (
-                                                    <Input {...field} disabled={!isEditing} />
-                                                )}
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            ))}
+                            <FormField
+                                control={profileForm.control}
+                                name="username"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Username</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} value={field.value || ''} disabled={!isEditing} placeholder="Choose a username" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
 
-                        {/* Bio Field */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {Object.entries(profileFormSchema.shape)
+                                .filter(([key]) => !['username', 'socialLinks', 'interests', 'website', 'bio'].includes(key))
+                                .map(([key]) => {
+                                    if (key === 'gender') {
+                                        return (
+                                            <FormField
+                                                key={key}
+                                                control={profileForm.control}
+                                                name="gender"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Gender</FormLabel>
+                                                        <Select
+                                                            onValueChange={field.onChange}
+                                                            value={field.value || undefined}
+                                                            disabled={!isEditing}
+                                                        >
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder="Select gender" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="male">Male</SelectItem>
+                                                                <SelectItem value="female">Female</SelectItem>
+                                                                <SelectItem value="other">Other</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        )
+                                    }
+                                    return (
+                                        <FormField
+                                            key={key}
+                                            control={profileForm.control}
+                                            name={key as keyof Omit<ProfileFormValues, 'socialLinks' | 'interests' | 'website' | 'bio'>}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>{key.charAt(0).toUpperCase() + key.slice(1)}</FormLabel>
+                                                    <FormControl>
+                                                        <Input {...field} value={field.value || ''} disabled={!isEditing} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    )
+                                })}
+                        </div>
+
                         <FormField
                             control={profileForm.control}
                             name="bio"
@@ -160,14 +303,13 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                                 <FormItem>
                                     <FormLabel>Bio</FormLabel>
                                     <FormControl>
-                                        <Textarea {...field} disabled={!isEditing} />
+                                        <Textarea {...field} value={field.value || ''} disabled={!isEditing} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
 
-                        {/* Action Buttons */}
                         <div className="flex justify-start gap-2">
                             {isEditing ? (
                                 <>
@@ -190,14 +332,12 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                 </Form>
             )}
 
-            {/* Password Change Section */}
             {isPasswordMode && (
                 <div className="mt-8">
                     <h2 className="text-xl font-bold mb-4">Change Password</h2>
                     <Form {...passwordForm}>
                         <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Current Password */}
                                 <FormField
                                     control={passwordForm.control}
                                     name="currentPassword"
@@ -230,7 +370,6 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                                     )}
                                 />
 
-                                {/* New Password */}
                                 <FormField
                                     control={passwordForm.control}
                                     name="newPassword"
@@ -263,7 +402,6 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                                     )}
                                 />
 
-                                {/* Confirm New Password */}
                                 <FormField
                                     control={passwordForm.control}
                                     name="confirmNewPassword"
@@ -297,7 +435,6 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                                 />
                             </div>
 
-                            {/* Action Buttons */}
                             <div className="flex justify-start gap-2">
                                 <Button type="button" variant="outline" onClick={toggleEditMode}>
                                     Cancel
@@ -312,7 +449,6 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                 </div>
             )}
 
-            {/* Toggle Button for Password Mode */}
             {isEditing && !isPasswordMode && (
                 <div className="mt-4">
                     <Button type="button" variant="outline" onClick={() => setIsPasswordMode(true)}>

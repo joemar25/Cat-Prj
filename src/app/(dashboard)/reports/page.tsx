@@ -17,7 +17,7 @@ export default function ProfilePage() {
                 <DeathReport />
                 <MarriageReport />
                 <Separator />
-                <div className="flex flex-col gap-4">
+                <div>
                     Note:
                     Create detailed reports on civil registry document requests, processing times, and user activity.
                 </div>

@@ -8,11 +8,13 @@ export async function DashboardHeader({
     breadcrumbs = []
 }: Omit<DashboardHeaderProps, 'user'>) {
     const session = await auth()
-    const user = session?.user as (User & {
-        id: string
-        role: UserRole
-        permissions: Permission[]
-    })
 
-    return <DashboardHeaderClient user={user} breadcrumbs={breadcrumbs} />
+    return <DashboardHeaderClient
+        user={session?.user as (User & {
+            id: string
+            role: UserRole
+            permissions: Permission[]
+        })}
+        breadcrumbs={breadcrumbs}
+    />
 }

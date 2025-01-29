@@ -82,6 +82,8 @@ import {
     Gem,
     NotebookText,
     ChartArea,
+    UploadIcon,
+    Camera,
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
 } from 'lucide-react'
@@ -198,7 +200,10 @@ export const Icons = {
     cake: Cake,
     gem: Gem,
     notebookText: NotebookText,
-    report: ChartArea
+    report: ChartArea,
+    more: MoreHorizontal,
+    upload: UploadIcon,
+    camera: Camera,
 } as const
 
 export type IconsType = typeof Icons
