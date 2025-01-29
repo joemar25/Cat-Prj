@@ -200,53 +200,6 @@ export async function deleteUser(userId: string) {
   }
 }
 
-export async function handleUpdateUser(userId: string, data: Partial<User>) {
-  try {
-    const user = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        ...data,
-        updatedAt: new Date(),
-      },
-    })
-
-    revalidatePath('/users')
-    return { success: true, message: 'User updated successfully', data: user }
-  } catch (error) {
-    console.error('Error updating user:', error)
-    return { success: false, message: 'Failed to update user', error }
-  }
-}
-
-export async function handleUpdateUserProfile(
-  userId: string,
-  data: Partial<Profile>
-) {
-  try {
-    const profile = await prisma.profile.upsert({
-      where: { userId },
-      update: {
-        ...data,
-        updatedAt: new Date(),
-      },
-      create: {
-        userId,
-        ...data,
-      },
-    })
-
-    revalidatePath('/profile')
-    return {
-      success: true,
-      message: 'Profile updated successfully',
-      data: profile,
-    }
-  } catch (error) {
-    console.error('Error updating profile:', error)
-    return { success: false, message: 'Failed to update profile', error }
-  }
-}
-
 export async function activateUser(userId: string) {
   try {
     const user = await prisma.user.update({
@@ -346,41 +299,32 @@ export async function createCertifiedCopy(
   }
 }
 
-export async function handleChangePasswordForEditUser(
-  userId: string,
-  data: { newPassword: string; confirmNewPassword: string }
-) {
+export async function handleChangePasswordForEditUser(userId: string, data: { newPassword: string; confirmNewPassword: string }) {
   try {
-    // Validate input data
+    console.log('Received data for password change:', data);
+
     if (data.newPassword !== data.confirmNewPassword) {
-      return { success: false, message: 'Passwords do not match' }
+      console.warn('Passwords do not match');
+      return { success: false, message: 'Passwords do not match' };
     }
 
-    // Fetch the user's account
-    const userAccount = await prisma.account.findFirst({
-      where: { userId },
-    })
-
+    const userAccount = await prisma.account.findFirst({ where: { userId } });
     if (!userAccount) {
-      return { success: false, message: 'User account not found' }
+      console.warn('User account not found');
+      return { success: false, message: 'User account not found' };
     }
 
-    // Hash the new password
-    const hashedNewPassword = await hash(data.newPassword, 10)
-
-    // Update the password in the database
+    const hashedNewPassword = await hash(data.newPassword, 10);
     await prisma.account.update({
       where: { id: userAccount.id },
       data: { password: hashedNewPassword },
-    })
+    });
 
-    // Revalidate paths if necessary
-    revalidatePath('/profile')
-
-    return { success: true, message: 'Password changed successfully' }
+    console.log('Password updated successfully');
+    return { success: true, message: 'Password changed successfully' };
   } catch (error) {
-    console.error('Error changing password:', error)
-    return { success: false, message: 'Failed to change password' }
+    console.error('Error changing password:', error);
+    return { success: false, message: 'Failed to change password' };
   }
 }
 

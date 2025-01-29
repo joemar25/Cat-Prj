@@ -34,15 +34,9 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
-    try {
-      await handleSignOut()
-      toast.success(t('success_logout'), { duration: 3000 })
-      closeLogout()
-    } catch (error) {
-      toast.error(t('logout_failed'), { duration: 3000 })
-    } finally {
-      setIsLoggingOut(false)
-    }
+    await handleSignOut()
+    toast.success('Logging out...', { duration: 3000 })
+    setIsLoggingOut(false)
   }
 
   return (
