@@ -58,7 +58,7 @@ const Login = () => {
                         loading="eager"
                       />
                       <Image
-                        src="/images/logo.jpg"
+                        src="/images/logo.png"
                         alt="Logo"
                         width={96} // Use the actual width of the image
                         height={96} // Use the actual height of the image
@@ -70,7 +70,7 @@ const Login = () => {
                           City Government of Legazpi
                         </CardTitle>
                         <CardDescription>
-                          Office of the City Civil Registry
+                          Office of the City Civil Registrar
                         </CardDescription>
                       </div>
                     </CardHeader>
