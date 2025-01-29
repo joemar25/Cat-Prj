@@ -230,6 +230,7 @@
     "created": "Created",
     "updated": "Updated",
     "morePermissions": "+{{count}} more permissions",
+    "allPermissions": "All Permissions",
     "username": "Username",
     "id": "ID",
     "no_username": "No username"

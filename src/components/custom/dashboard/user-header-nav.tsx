@@ -11,10 +11,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
-import { useTranslation } from 'react-i18next' // Import the useTranslation hook
+import { useTranslation } from 'react-i18next'
 
 export function UserHeaderNav({ user }: UserHeaderNavProps) {
-  const { t } = useTranslation(); // Initialize the translation hook
+  const { t } = useTranslation();
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)

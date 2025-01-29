@@ -23,7 +23,7 @@ const submittedByOptions = [
 export function DataTableToolbar<TData extends Feedback>({
     table,
 }: DataTableToolbarProps<TData>) {
-    const { t } = useTranslation() // Initialize the translation hook
+    const { t } = useTranslation()
 
     const isFiltered = table.getState().columnFilters.length > 0
     const feedbackColumn = table.getColumn('feedback')

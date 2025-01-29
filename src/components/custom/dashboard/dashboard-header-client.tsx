@@ -14,13 +14,13 @@ import { ThemeChange } from '@/components/theme/theme-change'
 import { LanguageSelector } from '@/components/custom/language/language-selector'
 import { FullscreenToggle } from '@/components/custom/fullscreen/fullscreen-toggle'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
-import { useTranslation } from 'react-i18next' // Import the useTranslation hook
+import { useTranslation } from 'react-i18next'
 
 export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeaderProps) {
     const [currentTime, setCurrentTime] = useState<Date | null>(null)
     const pathname = usePathname()
     const isDashboardRoot = pathname === '/dashboard'
-    const { t } = useTranslation() // Initialize the translation hook
+    const { t } = useTranslation()
 
     useEffect(() => {
         setCurrentTime(new Date())
@@ -41,9 +41,9 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
 
     const getGreeting = () => {
         const hour = currentTime?.getHours() || 0
-        if (hour < 12) return t('greeting_morning') // Translate morning greeting
-        if (hour < 17) return t('greeting_afternoon') // Translate afternoon greeting
-        return t('greeting_evening') // Translate evening greeting
+        if (hour < 12) return t('greeting_morning')
+        if (hour < 17) return t('greeting_afternoon')
+        return t('greeting_evening')
     }
 
     return (
@@ -70,14 +70,14 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                                             <>
                                                 <BreadcrumbItem className='hidden md:block'>
                                                     <BreadcrumbLink href={breadcrumb.href || '#'}>
-                                                        {t(breadcrumb.label)} {/* Apply translation here */}
+                                                        {t(breadcrumb.label)}
                                                     </BreadcrumbLink>
                                                 </BreadcrumbItem>
                                                 <BreadcrumbSeparator className='hidden md:block' />
                                             </>
                                         ) : (
                                             <BreadcrumbItem>
-                                                <BreadcrumbPage>{t(breadcrumb.label)}</BreadcrumbPage> {/* Apply translation here */}
+                                                <BreadcrumbPage>{t(breadcrumb.label)}</BreadcrumbPage>
                                             </BreadcrumbItem>
                                         )}
                                     </Fragment>
