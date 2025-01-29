@@ -1,23 +1,18 @@
-"use client";
+"use client"
 
-import { useTranslation } from "react-i18next"; // Import the hook
-import { Button } from "@/components/ui/button";
-import { Chart } from "@/components/custom/reports/component/chart";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useTranslation } from "react-i18next"
+import { Button } from "@/components/ui/button"
+import { Chart } from "@/components/custom/reports/component/charts"
+import { useChartExport, useExportDialog } from "@/hooks/use-export-dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 interface ExportDialogProps<T extends { year: number }> {
-  data: T[];
-  chartType: string;
-  setChartTypeAction: (type: string) => void;
-  dataKeyX: keyof T;
-  dataKeysY: (keyof T)[];
+  data: T[]
+  chartType: string
+  setChartTypeAction: (type: string) => void
+  dataKeyX: keyof T
+  dataKeysY: (keyof T)[]
 }
 
 export const ExportDialog = <T extends { year: number }>({
@@ -27,77 +22,52 @@ export const ExportDialog = <T extends { year: number }>({
   dataKeyX,
   dataKeysY,
 }: ExportDialogProps<T>) => {
-  const { t } = useTranslation(); // Use the translation hook
-
-  // Check if the data is of type MarriageData (we can check for a unique property like 'totalMarriages')
-  const isMarriageData = data.length > 0 && "totalMarriages" in data[0];
-
-  // If it's MarriageData, set Area Chart as default and disable chart type selection
-  const handleChartTypeChange = (value: string) => {
-    if (!isMarriageData) {
-      setChartTypeAction(value);
-    }
-  };
+  const { t } = useTranslation()
+  const { isMarriageData, handleChartTypeChange } = useExportDialog(data, setChartTypeAction)
+  const { exportChart } = useChartExport()
 
   return (
     <Dialog>
-      {/* Single child inside DialogTrigger */}
-      <>
-    <DialogTrigger asChild>
+      <DialogTrigger asChild>
         <Button variant="default">{t("exportDialog.export")}</Button>
-    </DialogTrigger>
-    <DialogContent>
-        <DialogHeader>
-            <DialogTitle>{t("exportDialog.exportData")}</DialogTitle>
-        </DialogHeader>
-        {/* Other content */}
-    </DialogContent>
-</>
+      </DialogTrigger>
 
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>{t("exportDialog.exportData")}</DialogTitle> {/* Translated title */}
+          <DialogTitle>{t("exportDialog.exportData")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Export Options */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium">{t("exportDialog.exportAs")}</h3> {/* Translated section header */}
+            <h3 className="text-sm font-medium">{t("exportDialog.exportAs")}</h3>
             <div className="flex gap-2">
-              <Button variant="outline" className="flex-1">
-                CSV
-              </Button>
-              <Button variant="outline" className="flex-1">
-                Excel
-              </Button>
-              <Button variant="outline" className="flex-1">
-                PDF
-              </Button>
+              <Button variant="outline" className="flex-1">CSV</Button>
+              <Button variant="outline" className="flex-1">Excel</Button>
+              <Button variant="outline" className="flex-1">PDF</Button>
             </div>
           </div>
 
           {/* Chart Export Section */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium">{t("exportDialog.exportChart")}</h3> {/* Translated section header */}
+            <h3 className="text-sm font-medium">{t("exportDialog.exportChart")}</h3>
 
-            {/* If it's MarriageData, only Area Chart is available */}
             {isMarriageData ? (
               <div className="space-y-2">
-                <h4 className="text-sm">{t("exportDialog.areaChart")}</h4> {/* Translated chart option */}
+                <h4 className="text-sm">{t("exportDialog.areaChart")}</h4>
                 <Button variant="outline" className="w-full" disabled>
                   {t("exportDialog.areaChartDisabled")}
-                </Button> {/* Disabled button with translated text */}
+                </Button>
               </div>
             ) : (
-              // For other data types, allow selecting chart type
               <Select onValueChange={handleChartTypeChange} value={chartType}>
                 <SelectTrigger>
-                  <SelectValue placeholder={t("exportDialog.selectChartType")} /> {/* Translated placeholder */}
+                  <SelectValue placeholder={t("exportDialog.selectChartType")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Bar Chart">{t("exportDialog.barChart")}</SelectItem> {/* Translated option */}
-                  <SelectItem value="Line Chart">{t("exportDialog.lineChart")}</SelectItem> {/* Translated option */}
-                  <SelectItem value="Pie Chart">{t("exportDialog.pieChart")}</SelectItem> {/* Translated option */}
+                  <SelectItem value="Bar Chart">{t("exportDialog.barChart")}</SelectItem>
+                  <SelectItem value="Line Chart">{t("exportDialog.lineChart")}</SelectItem>
+                  <SelectItem value="Donut Chart">{t("exportDialog.donutChart")}</SelectItem>
                 </SelectContent>
               </Select>
             )}
@@ -111,8 +81,8 @@ export const ExportDialog = <T extends { year: number }>({
                   dataKeysY={dataKeysY}
                   setChartTypeAction={setChartTypeAction}
                 />
-                <Button className="w-full mt-4" variant="default">
-                  {t("exportDialog.downloadChart")} {/* Translated button text */}
+                <Button className="w-full mt-4" variant="default" onClick={() => exportChart(chartType)}>
+                  {t("exportDialog.downloadChart")}
                 </Button>
               </div>
             )}
@@ -120,5 +90,5 @@ export const ExportDialog = <T extends { year: number }>({
         </div>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}

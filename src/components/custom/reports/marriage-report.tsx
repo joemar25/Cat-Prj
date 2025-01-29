@@ -1,13 +1,13 @@
 "use client"
 
-import { useTranslation } from 'react-i18next' // Import the translation hook
-import { useReportsStore } from '@/state/use-reports-store'
-import { MarriageData } from '@/lib/types/reports'
+import { useTranslation } from 'react-i18next'
 import { TableCell } from '@/components/ui/table'
+import { MarriageData } from '@/lib/types/reports'
 import { ReportComponent } from './component/report'
+import { useReportsStore } from '@/state/use-reports-store'
 
 export const MarriageReport = () => {
-    const { t } = useTranslation() // Use the translation hook
+    const { t } = useTranslation()
     const { marriageData, loading, error, fetchMarriageData } = useReportsStore()
 
     const calculatePercentage = (part: number, total: number) => {
@@ -17,7 +17,7 @@ export const MarriageReport = () => {
 
     return (
         <ReportComponent<MarriageData[0]>
-            title={t('marriageReport.title')} // Use translation here
+            title={t('marriageReport.title')}
             data={marriageData}
             loading={loading}
             error={error}

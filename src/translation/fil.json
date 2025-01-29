@@ -195,7 +195,7 @@
     "selectChartType": "Pumili ng Uri ng Chart",
     "barChart": "Bar Chart",
     "lineChart": "Line Chart",
-    "pieChart": "Pie Chart",
+    "donutChart": "Donut Chart",
     "downloadChart": "I-download ang Chart bilang PNG"
   },
   "deathReport": {
