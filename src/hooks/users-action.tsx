@@ -299,35 +299,6 @@ export async function createCertifiedCopy(
   }
 }
 
-export async function handleChangePasswordForEditUser(userId: string, data: { newPassword: string; confirmNewPassword: string }) {
-  try {
-    console.log('Received data for password change:', data);
-
-    if (data.newPassword !== data.confirmNewPassword) {
-      console.warn('Passwords do not match');
-      return { success: false, message: 'Passwords do not match' };
-    }
-
-    const userAccount = await prisma.account.findFirst({ where: { userId } });
-    if (!userAccount) {
-      console.warn('User account not found');
-      return { success: false, message: 'User account not found' };
-    }
-
-    const hashedNewPassword = await hash(data.newPassword, 10);
-    await prisma.account.update({
-      where: { id: userAccount.id },
-      data: { password: hashedNewPassword },
-    });
-
-    console.log('Password updated successfully');
-    return { success: true, message: 'Password changed successfully' };
-  } catch (error) {
-    console.error('Error changing password:', error);
-    return { success: false, message: 'Failed to change password' };
-  }
-}
-
 export async function enableUser(userId: string) {
   try {
     const user = await prisma.user.update({

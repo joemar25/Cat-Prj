@@ -1,3 +1,4 @@
+// src\app\api\users\[id]\profile\route.ts
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
@@ -12,7 +13,6 @@ export async function PUT(request: Request, context: { params: { id: string } })
             )
         }
 
-        // ✅ Fix: Await params properly
         const { id: userId } = context.params
 
         const data = await request.json()
@@ -20,7 +20,6 @@ export async function PUT(request: Request, context: { params: { id: string } })
         console.log('Updating profile for userId:', userId)
         console.log('Received data:', data)
 
-        // Ensure the user exists
         const existingUser = await prisma.user.findUnique({
             where: { id: userId },
             include: { profile: true },
@@ -30,7 +29,6 @@ export async function PUT(request: Request, context: { params: { id: string } })
             return NextResponse.json({ error: 'User not found' }, { status: 404 })
         }
 
-        // ✅ Update User model
         const updatedUser = await prisma.user.update({
             where: { id: userId },
             data: {
@@ -41,7 +39,6 @@ export async function PUT(request: Request, context: { params: { id: string } })
             },
         })
 
-        // ✅ Update or create the Profile model
         let updatedProfile
         if (existingUser.profile) {
             updatedProfile = await prisma.profile.update({

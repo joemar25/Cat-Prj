@@ -1,19 +1,19 @@
-import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { useEffect, useTransition } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Icons } from '@/components/ui/icons'
-import { Form } from '@/components/ui/form'
-import { profileFormSchema, ProfileFormValues } from '@/lib/validation/profile/profile-form'
-import { User, Profile } from '@prisma/client'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
-import { useSession } from 'next-auth/react'
+import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
+import { Form } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Icons } from '@/components/ui/icons'
+import { User, Profile } from '@prisma/client'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useState, useEffect, useTransition } from 'react'
+import { profileFormSchema, ProfileFormValues } from '@/lib/validation/profile/profile-form'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ProfileNewPasswordFormValues, profileNewPasswordSchema } from '@/lib/validation/profile/change-password'
 
 interface UserWithProfile extends User {
   profile?: Profile | null
@@ -28,21 +28,31 @@ interface EditUserDialogProps {
 
 export function EditUserDialog({ user, open, onOpenChangeAction, onSave }: EditUserDialogProps) {
   const [isPending, startTransition] = useTransition()
-  const { update } = useSession()
   const router = useRouter()
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const form = useForm<ProfileFormValues>({
+  const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     mode: 'onChange',
   })
 
+  const passwordForm = useForm<ProfileNewPasswordFormValues>({
+    resolver: zodResolver(profileNewPasswordSchema),
+    defaultValues: {
+      newPassword: '',
+      confirmNewPassword: '',
+    },
+  })
+
   useEffect(() => {
     if (open && user) {
-      form.reset({
+      profileForm.reset({
         username: user.username || '',
         name: user.name || '',
         email: user.email || '',
-        dateOfBirth: user.profile?.dateOfBirth ? user.profile.dateOfBirth.toISOString().split('T')[0] : '',
+        dateOfBirth: user.profile?.dateOfBirth?.toISOString().split('T')[0] || '',
         phoneNumber: user.profile?.phoneNumber || '',
         address: user.profile?.address || '',
         city: user.profile?.city || '',
@@ -55,33 +65,50 @@ export function EditUserDialog({ user, open, onOpenChangeAction, onSave }: EditU
         nationality: user.profile?.nationality || '',
       })
     }
-  }, [open, user, form])
+  }, [open, user, profileForm])
 
-  const onSubmit = async (data: ProfileFormValues) => {
-    try {
-      const response = await fetch(`/api/users/${user.id}/profile`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
+  const onSubmitProfile = async (data: ProfileFormValues) => {
+    startTransition(async () => {
+      try {
+        const response = await fetch(`/api/users/${user.id}/profile`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
 
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to update profile')
-      }
+        if (!response.ok) {
+          throw new Error('Failed to update profile')
+        }
 
-      const result = await response.json()
-      if (result.success) {
         toast.success('Profile updated successfully')
-
         onOpenChangeAction(false)
         router.refresh()
-      } else {
-        toast.error(result.message)
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to update profile')
       }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to update profile')
-    }
+    })
+  }
+
+  const onSubmitPassword = async (data: ProfileNewPasswordFormValues) => {
+    startTransition(async () => {
+      try {
+        const response = await fetch(`/api/users/${user.id}/change-password`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to change password')
+        }
+
+        toast.success('Password changed successfully')
+        passwordForm.reset()
+        setShowPasswordForm(false)
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to change password')
+      }
+    })
   }
 
   return (
@@ -89,44 +116,93 @@ export function EditUserDialog({ user, open, onOpenChangeAction, onSave }: EditU
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit User</DialogTitle>
-          <DialogDescription>Update user details with the form below.</DialogDescription>
+          <DialogDescription>Update user details or change their password.</DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Object.entries(profileFormSchema.shape).map(([key]) => (
-                <FormField key={key} control={form.control} name={key as keyof ProfileFormValues} render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{key.charAt(0).toUpperCase() + key.slice(1)}</FormLabel>
-                    <FormControl>
-                      {key === 'gender' ? (
-                        <Select onValueChange={field.onChange} value={field.value || ''}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select gender" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="male">Male</SelectItem>
-                            <SelectItem value="female">Female</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      ) : key === 'bio' ? (
-                        <Textarea {...field} placeholder="Enter bio" value={field.value || ''} />
-                      ) : (
-                        <Input {...field} placeholder={`Enter ${key}`} value={field.value || ''} />
-                      )}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              ))}
-            </div>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? <><Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> Updating...</> : <><Icons.check className="mr-2 h-4 w-4" /> Update User</>}
-            </Button>
-          </form>
-        </Form>
+        {!showPasswordForm ? (
+          <Form {...profileForm}>
+            <form onSubmit={profileForm.handleSubmit(onSubmitProfile)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {Object.keys(profileFormSchema.shape).map((key) => (
+                  <FormField key={key} control={profileForm.control} name={key as keyof ProfileFormValues} render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{key.charAt(0).toUpperCase() + key.slice(1)}</FormLabel>
+                      <FormControl>
+                        {key === 'gender' ? (
+                          <Select onValueChange={field.onChange} value={field.value || ''}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select gender" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="male">Male</SelectItem>
+                              <SelectItem value="female">Female</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        ) : key === 'bio' ? (
+                          <Textarea {...field} placeholder="Enter bio" value={field.value || ''} />
+                        ) : (
+                          <Input {...field} placeholder={`Enter ${key}`} value={field.value || ''} />
+                        )}
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                ))}
+              </div>
+              <div className="flex justify-between">
+                <Button type="button" variant="secondary" onClick={() => setShowPasswordForm(true)}>Change Password</Button>
+                <Button type="submit" disabled={isPending}>Update Profile</Button>
+              </div>
+            </form>
+          </Form>
+        ) : (
+          <Form {...passwordForm}>
+            <form onSubmit={passwordForm.handleSubmit(onSubmitPassword)} className="space-y-6">
+              <FormField control={passwordForm.control} name="newPassword" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>New Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input {...field} type={showNewPassword ? 'text' : 'password'} placeholder="Enter new password" />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                      >
+                        {showNewPassword ? <Icons.eyeOff className="h-4 w-4" /> : <Icons.eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={passwordForm.control} name="confirmNewPassword" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input {...field} type={showConfirmPassword ? 'text' : 'password'} placeholder="Confirm new password" />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? <Icons.eyeOff className="h-4 w-4" /> : <Icons.eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <Button type="submit" disabled={isPending}>Change Password</Button>
+            </form>
+          </Form>
+        )}
       </DialogContent>
     </Dialog>
   )
