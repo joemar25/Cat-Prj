@@ -1,7 +1,6 @@
 import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 import { formatDateTime } from '@/utils/date';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
-import { sty } from '../death-certificate/stylish';
 import { styles } from './marriage';
 import { Place } from '@/types/marriage-certificate';
 import { back } from './style-back';
@@ -72,24 +71,24 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
 
             {/* Grid Container */}
             <View>
-              <View style={[sty.gridContainer, { borderBottom: 'none' }]}>
+              <View style={styles.gridContainer}>
                 {/* Left Grid: Province and City/Municipality */}
-                <View style={sty.leftGrid}>
-                  <View style={sty.fieldContainer}>
-                    <Text style={sty.label}>Province:</Text>
-                    <Text style={sty.value}>{data.province || ''}</Text>
+                <View style={[styles.flexColumn, { flex: 2, padding: 0 }]}>
+                  <View style={[styles.flexRow, styles.paddingGlobal, { borderBottom: '1px solid #000', justifyContent: 'flex-start'}]}>
+                    <Text style={styles.label}>Province:</Text>
+                    <Text style={styles.valueCenter}>{data.province || ''}</Text>
                   </View>
-                  <View style={[sty.fieldContainer, { borderBottom: 'none' }]}>
-                    <Text style={sty.label}>City/Municipality:</Text>
-                    <Text style={sty.value}>{data.cityMunicipality || ''}</Text>
+                  <View style={[styles.flexRow, styles.paddingGlobal]}>
+                    <Text style={styles.label}>City/Municipality:</Text>
+                    <Text style={[styles.valueCenter, { width: '100%' }]}>{data.cityMunicipality || ''}</Text>
                   </View>
                 </View>
 
                 {/* Right Grid: Registry No. */}
-                <View style={sty.rightGrid}>
-                  <View style={sty.registryNoContainer}>
-                    <Text style={sty.label}>Registry No.:</Text>
-                    <Text style={sty.value}>{data.registryNumber || ''}</Text>
+                <View style={[styles.flexColumn, styles.paddingGlobal, { borderLeft: '1px solid #000', flex: 1 }]}>
+                  <View style={styles.flexColumn}>
+                    <Text style={styles.label}>Registry No.:</Text>
+                    <Text style={styles.valueCenter}>{data.registryNumber || ''}</Text>
                   </View>
                 </View>
               </View>
@@ -1329,10 +1328,10 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                 </Text>
               </View>
             </View>
-            <View style={[back.gridRowParent, {marginTop: 15}]}>
-              <View style={[back.gridRowChild, back.paddingLeft, {gap: 15}]}>
+            <View style={[back.gridRowParent, { marginTop: 15 }]}>
+              <View style={[back.gridRowChild, back.paddingLeft, { gap: 15 }]}>
                 <Text style={[back.normalTitle, back.titleBold, {}]}>
-                  SUBSCRIBE AND SWORN  
+                  SUBSCRIBE AND SWORN
                 </Text>
                 <Text style={back.normalTitle}>
                   to before me this
@@ -1565,10 +1564,10 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                 </Text>
               </View>
             </View>
-            <View style={[back.gridRowParent, {marginTop: 15}]}>
-              <View style={[back.gridRowChild, back.paddingLeft, {gap: 15}]}>
+            <View style={[back.gridRowParent, { marginTop: 15 }]}>
+              <View style={[back.gridRowChild, back.paddingLeft, { gap: 15 }]}>
                 <Text style={[back.normalTitle, back.titleBold, {}]}>
-                  SUBSCRIBE AND SWORN  
+                  SUBSCRIBE AND SWORN
                 </Text>
                 <Text style={back.normalTitle}>
                   to before me this
