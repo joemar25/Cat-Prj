@@ -10,11 +10,11 @@ import { UserRole, Permission } from "@prisma/client"
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     [UserRole.ADMIN]: [
         // Queue Management
-        Permission.QUEUE_VIEW,
-        Permission.QUEUE_PROCESS,
-        Permission.QUEUE_DELETE,
-        Permission.QUEUE_UPDATE,
-        Permission.QUEUE_ADD_NOTES,
+        // Permission.QUEUE_VIEW,
+        // Permission.QUEUE_PROCESS,
+        // Permission.QUEUE_DELETE,
+        // Permission.QUEUE_UPDATE,
+        // Permission.QUEUE_ADD_NOTES,
 
         // User Management
         Permission.USERS_MANAGE,
@@ -31,10 +31,10 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     ],
     [UserRole.STAFF]: [
         // Queue Management
-        Permission.QUEUE_VIEW,
-        Permission.QUEUE_PROCESS,
-        Permission.QUEUE_UPDATE,
-        Permission.QUEUE_ADD_NOTES,
+        // Permission.QUEUE_VIEW,
+        // Permission.QUEUE_PROCESS,
+        // Permission.QUEUE_UPDATE,
+        // Permission.QUEUE_ADD_NOTES,
 
         // Limited Document Access
         Permission.DOCUMENTS_MANAGE,

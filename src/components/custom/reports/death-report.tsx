@@ -1,13 +1,13 @@
 "use client"
 
-import { useTranslation } from 'react-i18next';  // Import the useTranslation hook
+import { useTranslation } from 'react-i18next'
 import { useReportsStore } from '@/state/use-reports-store'
 import { DeathData } from '@/lib/types/reports'
 import { TableCell } from '@/components/ui/table'
 import { ReportComponent } from './component/report'
 
 export const DeathReport = () => {
-    const { t } = useTranslation();  // Initialize the translation hook
+    const { t } = useTranslation()
     const { deathData, loading, error, fetchDeathData } = useReportsStore()
 
     return (
@@ -18,10 +18,10 @@ export const DeathReport = () => {
             error={error}
             fetchDataAction={fetchDeathData}
             tableHeaders={[
-                t('deathReport.year'),  // Translate 'Year'
-                t('deathReport.male'),  // Translate 'Male'
-                t('deathReport.female'),  // Translate 'Female'
-                t('deathReport.total')   // Translate 'Total'
+                t('deathReport.year'),
+                t('deathReport.male'),
+                t('deathReport.female'),
+                t('deathReport.total')
             ]}
             renderTableRowAction={(entry) => (
                 <>

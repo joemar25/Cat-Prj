@@ -9,7 +9,7 @@ import { Table } from '@tanstack/react-table'
 import { Cross2Icon } from '@radix-ui/react-icons'
 import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
 import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
-import { useTranslation } from 'react-i18next' // Import the useTranslation hook
+import { useTranslation } from 'react-i18next'
 
 interface DataTableToolbarProps<TData extends User> {
   table: Table<TData>
@@ -23,7 +23,7 @@ const verificationStatus = [
 export function DataTableToolbar<TData extends User>({
   table,
 }: DataTableToolbarProps<TData>) {
-  const { t } = useTranslation() // Initialize the translation hook
+  const { t } = useTranslation()
   const isFiltered = table.getState().columnFilters.length > 0
 
   const nameColumn = table.getColumn('name')
@@ -52,7 +52,7 @@ export function DataTableToolbar<TData extends User>({
             className="h-10 w-[200px] lg:w-[300px] pl-10"
           />
         </div>
-         {/* 
+        {/* 
         mar-note: Do not remove this comment, as this role column can be used for future purposes.
         {roleColumn && (
           <DataTableFacetedFilter
@@ -74,7 +74,7 @@ export function DataTableToolbar<TData extends User>({
         {statusColumn && (
           <DataTableFacetedFilter
             column={statusColumn}
-            title={t('dataTableToolbar.status')} 
+            title={t('dataTableToolbar.status')}
             options={verificationStatus}
           />
         )}

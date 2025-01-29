@@ -1,6 +1,7 @@
-import { BirthReport } from '../../../components/custom/reports/birth-report'
-import { DeathReport } from '../../../components/custom/reports/death-report'
-import { MarriageReport } from '../../../components/custom/reports/marriage-report'
+import { Separator } from '@/components/ui/separator'
+import { BirthReport } from '@/components/custom/reports/birth-report'
+import { DeathReport } from '@/components/custom/reports/death-report'
+import { MarriageReport } from '@/components/custom/reports/marriage-report'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 
 export default function ProfilePage() {
@@ -15,6 +16,11 @@ export default function ProfilePage() {
                 <BirthReport />
                 <DeathReport />
                 <MarriageReport />
+                <Separator />
+                <div className="flex flex-col gap-4">
+                    Note:
+                    Create detailed reports on civil registry document requests, processing times, and user activity.
+                </div>
             </div>
         </>
     )

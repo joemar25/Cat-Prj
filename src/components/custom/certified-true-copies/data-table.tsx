@@ -44,7 +44,7 @@ export function DataTable<TData extends CertifiedCopy>({
     data,
     selection = true,
 }: DataTableProps<TData>) {
-    const { t } = useTranslation() // Initialize the translation hook
+    const { t } = useTranslation()
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])

@@ -1,34 +1,27 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next' // Import translation hook
 import Image from 'next/image'
+
 import { toast } from 'sonner'
 import { NavMain } from './nav-main'
 import { UserRole } from '@prisma/client'
+import { useMemo, useState } from 'react'
 import { Icons } from '@/components/ui/icons'
+import { useTranslation } from 'react-i18next'
 import { NavSecondary } from './nav-secondary'
 import { Button } from '@/components/ui/button'
 import { handleSignOut } from '@/hooks/auth-actions'
 import { useNavigationStore } from '@/lib/stores/navigation'
 import { navigationConfig, transformToMainNavItem, transformToSecondaryNavItem } from '@/lib/config/navigation'
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from '@/components/ui/sidebar'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 
 type AppSidebarProps = {
   role: UserRole
 }
 
 export function AppSidebar({ role, ...props }: AppSidebarProps) {
-  const { t } = useTranslation() // Use translation hook
+  const { t } = useTranslation()
   const { visibleMainItems, visibleSecondaryItems } = useNavigationStore()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
@@ -36,20 +29,20 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
   // Transform and filter navigation items
   const visibleMainNav = useMemo(() => {
     return navigationConfig.mainNav
-      .filter(item => visibleMainItems.includes(item.id)) // Filter by visible items
+      .filter(item => visibleMainItems.includes(item.id))
       .map(item => {
-        const translatedItem = { ...item, title: t(item.id) } // Translate title
-        return transformToMainNavItem(translatedItem, role, t) // Pass t as the third argument
+        const translatedItem = { ...item, title: t(item.id) }
+        return transformToMainNavItem(translatedItem, role, t)
       })
-      .filter(item => !item.hidden) // Filter out hidden items
+      .filter(item => !item.hidden)
   }, [visibleMainItems, role, t])
 
   const visibleSecondaryNav = useMemo(() => {
     return navigationConfig.secondaryNav
-      .filter(item => visibleSecondaryItems.includes(item.id)) // Filter by visible items
+      .filter(item => visibleSecondaryItems.includes(item.id))
       .map(item => {
-        const translatedItem = { ...item, title: t(item.id) } // Translate title
-        return transformToSecondaryNavItem(translatedItem, t) // Pass t as the second argument
+        const translatedItem = { ...item, title: t(item.id) }
+        return transformToSecondaryNavItem(translatedItem, t)
       })
   }, [visibleSecondaryItems, t])
 
@@ -58,7 +51,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const handleLogout = async () => {
     setIsLoggingOut(true)
     await handleSignOut()
-    toast.success(t('logging-out'), { duration: 3000 }) // Use translated text for logging out
+    toast.success(t('logging-out'), { duration: 3000 })
     setIsLoggingOut(false)
     closeLogout()
   }
@@ -88,8 +81,8 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
 
       {/* Role Panel */}
       <div className="p-4 border-b bg-muted">
-        <div className="text-sm font-medium text-muted-foreground">
-          {t('panel')} {t(role)} {/* Use translated role */}
+        <div className="text-sm text-center font-medium text-muted-foreground">
+          {t(role)} {t('panel').toUpperCase()}
         </div>
       </div>
 
