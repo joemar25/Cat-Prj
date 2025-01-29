@@ -14,6 +14,8 @@ import { handleChangePassword } from '@/hooks/users-action'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { profileFormSchema, changePasswordSchema, ProfileFormValues, ChangePasswordFormValues } from '@/lib/validation'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 export default function Profile({ userId, profile }: { userId: string; profile: ProfileWithUser }) {
     const [isEditing, setIsEditing] = useState(false)
@@ -22,6 +24,9 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
     const [showNewPassword, setShowNewPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+
+    const { update } = useSession()
+    const router = useRouter()
 
     const profileForm = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
@@ -81,11 +86,39 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                 throw new Error('Failed to upload avatar')
             }
 
-            const data = await response.json()
-            profile.user.image = data.imageUrl
-            toast.success('Avatar updated successfully')
+            const { imageUrl } = await response.json()
+
+            // Update profile with new image URL
+            const profileResponse = await fetch('/api/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    image: imageUrl,
+                    // Include other current profile data
+                    ...profileForm.getValues()
+                }),
+            })
+
+            if (!profileResponse.ok) {
+                throw new Error('Failed to update profile with new avatar')
+            }
+
+            const result = await profileResponse.json()
+
+            if (result.success) {
+                // Update session with new user data
+                await update({
+                    ...result.data.user,
+                    image: imageUrl,
+                })
+
+                toast.success('Avatar updated successfully')
+                router.refresh()
+            }
         } catch (error) {
-            console.error('Failed to upload avatar:', error)
+            console.error('Failed to update avatar:', error)
             toast.error('Failed to update avatar')
         } finally {
             setIsUploadingAvatar(false)
@@ -99,22 +132,7 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    username: data.username,
-                    name: data.name,
-                    email: data.email,
-                    dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
-                    phoneNumber: data.phoneNumber || null,
-                    address: data.address || null,
-                    city: data.city || null,
-                    state: data.state || null,
-                    country: data.country || null,
-                    postalCode: data.postalCode || null,
-                    bio: data.bio || null,
-                    occupation: data.occupation || null,
-                    gender: data.gender || null,
-                    nationality: data.nationality || null,
-                }),
+                body: JSON.stringify(data),
             })
 
             if (!response.ok) {
@@ -125,10 +143,14 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
             const result = await response.json()
 
             if (result.success) {
+                // Update session with new user data
+                await update({
+                    ...result.data.user,
+                })
+
                 toast.success('Profile updated successfully')
                 setIsEditing(false)
-                // Optionally refresh the page or update the UI
-                window.location.reload()
+                router.refresh()
             } else {
                 toast.error(result.message)
             }

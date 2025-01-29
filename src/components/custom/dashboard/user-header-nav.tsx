@@ -17,11 +17,17 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isLogoutOpen, setIsLogoutOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [imageError, setImageError] = useState(false)
 
   const getInitials = () => {
     if (!user?.name) return 'U'
     const nameParts = user.name.split(' ')
     return (nameParts[0]?.[0] + (nameParts[1]?.[0] || '')).toUpperCase()
+  }
+
+  const getImageSrc = (): string | undefined => {
+    if (imageError || !user?.image) return undefined
+    return user.image
   }
 
   const closeLogout = () => setIsLogoutOpen(false)
@@ -48,8 +54,9 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
             <Avatar className="h-8 w-8">
               <AvatarImage
                 className="object-cover"
-                src={user?.image ?? undefined}
+                src={getImageSrc()}
                 alt={user?.name || 'User'}
+                onError={() => setImageError(true)}
               />
               <AvatarFallback>{getInitials()}</AvatarFallback>
             </Avatar>

@@ -15,60 +15,71 @@ export async function PUT(request: Request) {
 
         const data = await request.json()
 
-        // Update user table if username is provided
-        if (data.username) {
-            const existingUser = await prisma.user.findUnique({
-                where: {
+        // Start a transaction to update both user and profile
+        const [user, profile] = await prisma.$transaction(async (tx) => {
+            // Update user data
+            const updatedUser = await tx.user.update({
+                where: { id: session.user.id },
+                data: {
                     username: data.username,
-                    NOT: {
-                        id: session.user.id
-                    }
+                    name: data.name,
+                    image: data.image,
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    image: true,
+                    username: true,
+                    role: true,
+                    permissions: true,
                 }
             })
 
-            if (existingUser) {
-                return NextResponse.json(
-                    { error: 'Username is already taken' },
-                    { status: 400 }
-                )
-            }
-
-            await prisma.user.update({
-                where: { id: session.user.id },
-                data: { username: data.username }
+            // Update profile data
+            const updatedProfile = await tx.profile.upsert({
+                where: { userId: session.user.id },
+                update: {
+                    phoneNumber: data.phoneNumber,
+                    address: data.address,
+                    city: data.city,
+                    state: data.state,
+                    country: data.country,
+                    postalCode: data.postalCode,
+                    bio: data.bio,
+                    occupation: data.occupation,
+                    gender: data.gender,
+                    nationality: data.nationality,
+                    dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
+                    updatedAt: new Date(),
+                },
+                create: {
+                    userId: session.user.id,
+                    phoneNumber: data.phoneNumber,
+                    address: data.address,
+                    city: data.city,
+                    state: data.state,
+                    country: data.country,
+                    postalCode: data.postalCode,
+                    bio: data.bio,
+                    occupation: data.occupation,
+                    gender: data.gender,
+                    nationality: data.nationality,
+                    dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
+                },
             })
-        }
 
-        // Update profile with only the fields that exist in the model
-        const profileData = {
-            phoneNumber: data.phoneNumber,
-            address: data.address,
-            city: data.city,
-            state: data.state,
-            country: data.country,
-            postalCode: data.postalCode,
-            bio: data.bio,
-            occupation: data.occupation,
-            gender: data.gender,
-            nationality: data.nationality,
-            dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
-            updatedAt: new Date(),
-        }
-
-        // Update profile
-        const profile = await prisma.profile.upsert({
-            where: { userId: session.user.id },
-            update: profileData,
-            create: {
-                userId: session.user.id,
-                ...profileData
-            }
+            return [updatedUser, updatedProfile]
         })
 
+        // Return both user and profile data for session update
         return NextResponse.json({
             success: true,
             message: 'Profile updated successfully',
-            data: profile
+            data: {
+                user,
+                profile
+            }
         })
 
     } catch (error) {
