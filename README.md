@@ -70,11 +70,11 @@
 
 11. **Reporting and Analytics**
     - [ ] Create detailed reports on civil registry document requests, processing times, and user activity.
-    - [ ] Implement dashboards for insights into trends, such as frequently requested document types or peak request periods.
+    - [x] Implement dashboards for insights into trends, such as frequently requested document types or peak request periods.
 
 12. **Multi-Language Support**
-    - [ ] Provide user interface options in English and Filipino for wider accessibility.
-    - [ ] Incorporate localization features to support regional or future expansion needs.
+    - [x] Provide user interface options in English and Filipino for wider accessibility.
+    - [x] Incorporate localization features to support regional or future expansion needs.
 
 13. **Notifications and Alerts**
     - [ ] Add a dedicated notification page to display updates on document request statuses.

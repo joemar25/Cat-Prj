@@ -1,6 +1,6 @@
 "use client"
 
-import { useTranslation } from 'react-i18next'; // Import the hook
+import { useTranslation } from 'react-i18next'
 import { Label } from "@/components/ui/label"
 import { ExportDialog } from "@/components/custom/reports/component/export-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -15,6 +15,7 @@ interface FiltersProps<T> {
     setChartTypeAction: (type: string) => void
     dataKeyX: keyof T
     dataKeysY: (keyof T)[]
+    title: string
 }
 
 export const Filters = <T extends { year: number }>({
@@ -27,10 +28,14 @@ export const Filters = <T extends { year: number }>({
     setChartTypeAction,
     dataKeyX,
     dataKeysY,
+    title,
 }: FiltersProps<T>) => {
-    const { t } = useTranslation(); // Get the translation function
+    const { t } = useTranslation()
 
     const years = Array.from({ length: 30 }, (_, i) => 2000 + i)
+
+    // Ensure dataKeysY is set to ["male", "female"] for Donut Chart
+    const filteredDataKeysY = chartType === "Donut Chart" ? ["male", "female"] as (keyof T)[] : dataKeysY
 
     return (
         <div className="space-y-4">
@@ -38,13 +43,13 @@ export const Filters = <T extends { year: number }>({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
                 {/* Year From */}
                 <div>
-                    <Label htmlFor="yearFrom">{t('filters.yearFrom')}</Label> {/* Translated string */}
+                    <Label htmlFor="yearFrom">{t('filters.yearFrom')}</Label>
                     <Select
                         onValueChange={(value) => setYearFromAction(Number(value))}
                         defaultValue={yearFrom.toString()}
                     >
                         <SelectTrigger>
-                            <SelectValue placeholder={t('filters.selectYear')} /> {/* Translated placeholder */}
+                            <SelectValue placeholder={t('filters.selectYear')} />
                         </SelectTrigger>
                         <SelectContent>
                             {years.map((year) => (
@@ -58,13 +63,13 @@ export const Filters = <T extends { year: number }>({
 
                 {/* Year To */}
                 <div>
-                    <Label htmlFor="yearTo">{t('filters.yearTo')}</Label> {/* Translated string */}
+                    <Label htmlFor="yearTo">{t('filters.yearTo')}</Label>
                     <Select
                         onValueChange={(value) => setYearToAction(Number(value))}
                         defaultValue={yearTo.toString()}
                     >
                         <SelectTrigger>
-                            <SelectValue placeholder={t('filters.selectYear')} /> {/* Translated placeholder */}
+                            <SelectValue placeholder={t('filters.selectYear')} />
                         </SelectTrigger>
                         <SelectContent>
                             {years.map((year) => (
@@ -83,8 +88,8 @@ export const Filters = <T extends { year: number }>({
                         chartType={chartType}
                         setChartTypeAction={setChartTypeAction}
                         dataKeyX={dataKeyX}
-                        dataKeysY={dataKeysY}
-                    />
+                        dataKeysY={filteredDataKeysY}
+                        title={title} />
                 </div>
             </div>
         </div>

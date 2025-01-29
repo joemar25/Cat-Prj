@@ -133,13 +133,13 @@
   "Known User": "Known User",
   "Anonymous": "Anonymous",
   "formDetails": {
-  "title": "Form Details",
-  "description": "View the details of the selected form",
-  "formType": "Form Type",
-  "registryNo": "Registry Number",
-  "status": "Status",
-  "loadingForms": "Loading Forms",
-  "fetchingForms": "Please wait while we fetch the civil registry forms..."
+    "title": "Form Details",
+    "description": "View the details of the selected form",
+    "formType": "Form Type",
+    "registryNo": "Registry Number",
+    "status": "Status",
+    "loadingForms": "Loading Forms",
+    "fetchingForms": "Please wait while we fetch the civil registry forms..."
   },
   "datatable": {
     "selected_rows": "{{selected}} of {{total}} row(s) selected.",
@@ -192,7 +192,7 @@
     "selectChartType": "Select Chart Type",
     "barChart": "Bar Chart",
     "lineChart": "Line Chart",
-    "pieChart": "Pie Chart",
+    "donutChart": "Donut Chart",
     "downloadChart": "Download Chart as PNG"
   },
   "deathReport": {
@@ -230,6 +230,7 @@
     "created": "Created",
     "updated": "Updated",
     "morePermissions": "+{{count}} more permissions",
+    "allPermissions": "All Permissions",
     "username": "Username",
     "id": "ID",
     "no_username": "No username"
@@ -249,7 +250,7 @@
   "Profile": "Profile",
   "Users": "Users",
   "Reports": "Reports",
-  
+
   "notifications": "Notifications",
   "unread": "unread",
   "loading": "Loading",

@@ -1,16 +1,17 @@
 'use client'
 
+import { Session } from "next-auth"
 import { Icons } from '@/components/ui/icons'
 import { Badge } from '@/components/ui/badge'
 import { formatDistanceToNow } from 'date-fns'
+import { useTranslation } from 'react-i18next'
 import { ColumnDef, Row } from '@tanstack/react-table'
 import { User, UserRole, Permission } from '@prisma/client'
 import { DataTableRowActions } from './data-table-row-actions'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Session } from "next-auth"
-import { useTranslation } from 'react-i18next'  // Import translation hook
 
 const roleVariants: Record<UserRole, { label: string; variant: "default" | "secondary" | "destructive" }> = {
     ADMIN: { label: "Administrator", variant: "destructive" },
@@ -23,7 +24,7 @@ interface UserCellProps {
 }
 
 const UserCell = ({ row }: UserCellProps) => {
-    const { t } = useTranslation()  // Translation hook usage
+    const { t } = useTranslation()
     const user = row.original
     const initials = user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()
 
@@ -97,21 +98,21 @@ export const createColumns = (
         {
             accessorKey: 'name',
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={t('dataTable.user')} /> 
+                <DataTableColumnHeader column={column} title={t('dataTable.user')} />
             ),
             cell: ({ row }) => <UserCell row={row} />,
         },
         {
             accessorKey: 'email',
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={t('dataTable.contact')} />  
+                <DataTableColumnHeader column={column} title={t('dataTable.contact')} />
             ),
             cell: ({ row }) => <EmailCell email={row.getValue('email')} />,
         },
         {
             accessorKey: 'role',
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={t('dataTable.role')} /> 
+                <DataTableColumnHeader column={column} title={t('dataTable.role')} />
             ),
             cell: ({ row }) => {
                 const role = row.getValue('role') as UserRole
@@ -127,36 +128,39 @@ export const createColumns = (
             },
         },
         {
-            accessorKey: 'permissions',
+            accessorKey: "permissions",
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={t('dataTable.permissions')} /> 
+                <DataTableColumnHeader column={column} title={t("dataTable.permissions")} />
             ),
             cell: ({ row }) => {
-                const permissions = row.getValue('permissions') as Permission[]
+                const permissions = row.getValue("permissions") as Permission[]
+
                 return (
                     <div className="flex flex-wrap gap-1">
                         {permissions.slice(0, 2).map((permission) => (
-                            <Badge key={permission} variant="outline" className="text-xs">
-                                {permission.replace('_', ' ')}
+                            <Badge key={permission} variant={"outline"} className="text-xs">
+                                {permission.replace("_", " ")}
                             </Badge>
                         ))}
+
                         {permissions.length > 2 && (
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Badge variant="outline" className="text-xs">
-                                            {t('dataTable.morePermissions', { count: permissions.length - 2 })} 
-                                        </Badge>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <div className="space-y-1">
-                                            {permissions.slice(2).map((permission) => (
-                                                <p key={permission}>{permission.replace('_', ' ')}</p>
-                                            ))}
-                                        </div>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Badge variant={"outline"} className="text-xs cursor-pointer">
+                                        {t("dataTable.morePermissions", { count: permissions.length - 2 })}
+                                    </Badge>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 p-3">
+                                    <div className="space-y-1.5">
+                                        <h4 className="text-sm font-medium">{t("dataTable.allPermissions")}: </h4>
+                                        {permissions.map((permission) => (
+                                            <p key={permission} className="text-xs">
+                                                {permission.replace("_", " ")}
+                                            </p>
+                                        ))}
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
                         )}
                     </div>
                 )
@@ -165,7 +169,7 @@ export const createColumns = (
         {
             accessorKey: 'emailVerified',
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={t('dataTable.status')} /> 
+                <DataTableColumnHeader column={column} title={t('dataTable.status')} />
             ),
             cell: ({ row }) => {
                 const isVerified = row.getValue('emailVerified') as boolean
@@ -173,7 +177,7 @@ export const createColumns = (
                     <div className="flex items-center gap-1.5">
                         <div className={`h-2 w-2 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-gray-300'}`} />
                         <span className={`text-sm ${isVerified ? 'text-emerald-600' : 'text-muted-foreground'}`}>
-                            {isVerified ? t('dataTable.verified') : t('dataTable.unverified')} 
+                            {isVerified ? t('dataTable.verified') : t('dataTable.unverified')}
                         </span>
                     </div>
                 )
@@ -187,7 +191,7 @@ export const createColumns = (
         {
             id: 'dates',
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title={t('dataTable.activity')} /> 
+                <DataTableColumnHeader column={column} title={t('dataTable.activity')} />
             ),
             cell: ({ row }) => {
                 const user = row.original
@@ -215,9 +219,9 @@ export const createColumns = (
             enableHiding: false,
             cell: ({ row }) => {
                 if (session?.user?.email === row.original.email) {
-                    return null;
+                    return null
                 }
-                return <DataTableRowActions row={row} onUpdateUser={onUpdateUser} />;
+                return <DataTableRowActions row={row} onUpdateUser={onUpdateUser} />
             },
         },
     ]

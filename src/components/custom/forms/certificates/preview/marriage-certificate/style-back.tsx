@@ -17,7 +17,7 @@ export const back = StyleSheet.create({
         padding: 5,
     },
     headerTitle:{
-        fontSize: 12,
+        fontSize: 15,
         fontFamily: "Helvetica-Bold",
         fontWeight: "extrabold",
         marginBottom: 3,
@@ -38,7 +38,7 @@ export const back = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         gap: 3,
-
+        padding: 5,
         width: '100%',
     },
     gridRowChild:{
@@ -60,12 +60,12 @@ export const back = StyleSheet.create({
         width: '100%',
     },
     title:{
-        fontSize: 9,
+        fontSize: 10,
         fontWeight: 'bold',
         width: '100%',
     },
     normalTitle:{
-        fontSize: 9,
+        fontSize: 10,
         fontWeight: 'bold',
         width: 'auto'
     },
@@ -75,14 +75,14 @@ export const back = StyleSheet.create({
     value:{
         width: '100%',
         borderBottom: '1px solid #000',
-        fontSize: 8,
+        fontSize: 10,
         textAlign: 'center',
     },
     value2:{
         width: '100%',
         borderBottom: '1px solid #000',
         borderStyle: 'dashed',
-        fontSize: 8,
+        fontSize: 10,
         textAlign: 'center',
     },
     radioBox:{

@@ -198,7 +198,8 @@ export const Icons = {
     cake: Cake,
     gem: Gem,
     notebookText: NotebookText,
-    report: ChartArea
+    report: ChartArea,
+    more: MoreHorizontal,
 } as const
 
 export type IconsType = typeof Icons

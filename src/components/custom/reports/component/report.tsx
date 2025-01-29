@@ -92,6 +92,7 @@ export const ReportComponent = <T extends ReportData[number]>({
                         setChartTypeAction={setChartType}
                         dataKeyX={"year"}
                         dataKeysY={dataKeysY}
+                        title={title}
                     />
                 </CardContent>
 

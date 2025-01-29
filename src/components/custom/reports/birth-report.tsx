@@ -1,24 +1,24 @@
-"use client";
+"use client"
 
-import { useReportsStore } from '@/state/use-reports-store';
-import { BirthData } from '@/lib/types/reports';
-import { ReportComponent } from './component/report';
-import { TableCell } from '@/components/ui/table';
-import { useTranslation } from 'react-i18next'; // Import the translation hook
+import { useTranslation } from 'react-i18next'
+import { BirthData } from '@/lib/types/reports'
+import { TableCell } from '@/components/ui/table'
+import { ReportComponent } from './component/report'
+import { useReportsStore } from '@/state/use-reports-store'
 
 export const BirthReport = () => {
-    const { birthData, loading, error, fetchBirthData } = useReportsStore();
-    const { t } = useTranslation(); // Initialize the translation hook
+    const { birthData, loading, error, fetchBirthData } = useReportsStore()
+    const { t } = useTranslation()
 
     return (
         <ReportComponent<BirthData[0]>
-            title={t('birthReport.title')} // Translated title
+            title={t('birthReport.title')}
             data={birthData}
             loading={loading}
             error={error}
             fetchDataAction={fetchBirthData}
             tableHeaders={[
-                t('birthReport.year'), // Translated table headers
+                t('birthReport.year'),
                 t('birthReport.male'),
                 t('birthReport.female'),
                 t('birthReport.total'),
@@ -32,5 +32,5 @@ export const BirthReport = () => {
                 </>
             )}
         />
-    );
-};``
+    )
+} 
