@@ -1,21 +1,15 @@
 // src/hooks/users-action.tsx
 'use server'
 
-import { prisma } from '@/lib/prisma';
-import { CertifiedCopyFormData } from '@/lib/validation/forms/certified-copy';
-import { changePasswordSchema } from '@/lib/validation/auth/change-password';
-import { getEmailSchema, getPasswordSchema, getNameSchema } from '@/lib/validation/shared';
-import { ROLE_PERMISSIONS } from '@/types/auth';
-import {
-  AttachmentType,
-  DocumentStatus,
-  Profile,
-  User,
-  UserRole,
-} from '@prisma/client';
-import { hash, compare } from 'bcryptjs';
-import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
+import { z } from 'zod'
+import { prisma } from '@/lib/prisma'
+import { hash, compare } from 'bcryptjs'
+import { revalidatePath } from 'next/cache'
+import { ROLE_PERMISSIONS } from '@/types/auth'
+import { changePasswordSchema } from '@/lib/validation/auth/change-password'
+import { CertifiedCopyFormData } from '@/lib/validation/forms/certified-copy'
+import { AttachmentType, DocumentStatus, Profile, User, UserRole } from '@prisma/client'
+import { getEmailSchema, getPasswordSchema, getNameSchema } from '@/lib/validation/shared'
 
 // Schema for creating a user in the admin panel
 const createUserSchema = z.object({
@@ -23,7 +17,7 @@ const createUserSchema = z.object({
   password: getPasswordSchema('password'),
   name: getNameSchema(),
   role: z.enum(['ADMIN', 'STAFF', 'USER']).default('USER'),
-});
+})
 
 // Password change action
 export async function handleChangePassword(
@@ -303,7 +297,7 @@ export async function createCertifiedCopy(
           version: 1,
           isLatest: true,
         },
-      });
+      })
 
       // 2. Create Attachment
       const attachment = await tx.attachment.create({
@@ -317,7 +311,7 @@ export async function createCertifiedCopy(
           mimeType: 'application/pdf', // placeholder
           status: DocumentStatus.PENDING,
         },
-      });
+      })
 
       // 3. Create CertifiedCopy
       const certifiedCopy = await tx.certifiedCopy.create({
@@ -335,20 +329,20 @@ export async function createCertifiedCopy(
           purpose: data.purpose,
           formId: data.formId,
         },
-      });
+      })
 
-      return { certifiedCopy, attachment, document };
-    });
+      return { certifiedCopy, attachment, document }
+    })
 
-    revalidatePath('/users');
+    revalidatePath('/users')
     return {
       success: true,
       message: 'Certified copy created successfully',
       data: result,
-    };
+    }
   } catch (error) {
-    console.error('Error creating certified copy:', error);
-    return { success: false, message: 'Failed to create certified copy' };
+    console.error('Error creating certified copy:', error)
+    return { success: false, message: 'Failed to create certified copy' }
   }
 }
 
