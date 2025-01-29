@@ -1,6 +1,5 @@
-"use client"
-
 import { useTranslation } from "react-i18next"
+import { useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Chart } from "@/components/custom/reports/component/charts"
 import { useChartExport, useExportDialog } from "@/hooks/use-export-dialog"
@@ -25,6 +24,7 @@ export const ExportDialog = <T extends { year: number }>({
   const { t } = useTranslation()
   const { isMarriageData, handleChartTypeChange } = useExportDialog(data, setChartTypeAction)
   const { exportChart } = useChartExport()
+  const chartRef = useRef<HTMLDivElement>(null)
 
   return (
     <Dialog>
@@ -73,7 +73,7 @@ export const ExportDialog = <T extends { year: number }>({
             )}
 
             {data.length > 0 && (
-              <div className="border rounded-lg p-4">
+              <div className="border rounded-lg p-4" ref={chartRef}>
                 <Chart
                   data={data}
                   chartType={chartType}
@@ -81,7 +81,11 @@ export const ExportDialog = <T extends { year: number }>({
                   dataKeysY={dataKeysY}
                   setChartTypeAction={setChartTypeAction}
                 />
-                <Button className="w-full mt-4" variant="default" onClick={() => exportChart(chartType)}>
+                <Button
+                  className="w-full mt-4"
+                  variant="default"
+                  onClick={() => chartRef.current && exportChart(chartRef.current)}
+                >
                   {t("exportDialog.downloadChart")}
                 </Button>
               </div>

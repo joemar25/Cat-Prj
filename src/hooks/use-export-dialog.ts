@@ -1,13 +1,13 @@
 "use client"
 
-import { useMemo } from "react"
 import { toast } from "sonner"
+import html2canvas from "html2canvas"
 
 export const useExportDialog = <T extends { year: number }>(
     data: T[],
     setChartTypeAction: (type: string) => void
 ) => {
-    const isMarriageData = useMemo(() => data.length > 0 && "totalMarriages" in data[0], [data])
+    const isMarriageData = data.length > 0 && "totalMarriages" in data[0]
 
     const handleChartTypeChange = (value: string) => {
         if (!isMarriageData) {
@@ -19,33 +19,16 @@ export const useExportDialog = <T extends { year: number }>(
 }
 
 export const useChartExport = () => {
-    const exportChart = async (chartHtml: string) => {
+    const exportChart = async (chartElement: HTMLElement | null) => {
         try {
-            if (!chartHtml) {
-                toast.error("No chart data found.")
-                console.error("Export Error: chartHtml is empty or undefined.")
+            if (!chartElement) {
+                toast.error("No chart found to export.")
                 return
             }
 
-            console.log("Exporting chart with data:", chartHtml)
-
-            const response = await fetch("/api/export", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ chartHtml }),
-            })
-
-            console.log("Export response status:", response.status)
-
-            if (!response.ok) {
-                const errorText = await response.text()
-                console.error("Export API Error:", errorText)
-                throw new Error(errorText || "Failed to export chart")
-            }
-
-            // Convert response to blob
-            const blob = await response.blob()
-            const url = URL.createObjectURL(blob)
+            // Convert chart to an image
+            const canvas = await html2canvas(chartElement)
+            const dataUrl = canvas.toDataURL("image/png")
 
             // Generate filename with timestamp
             const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
@@ -53,7 +36,7 @@ export const useChartExport = () => {
 
             // Create a download link
             const link = document.createElement("a")
-            link.href = url
+            link.href = dataUrl
             link.download = filename
             document.body.appendChild(link)
             link.click()
@@ -62,9 +45,7 @@ export const useChartExport = () => {
             toast.success(`Chart exported as ${filename}`)
         } catch (error) {
             console.error("Export failed:", error)
-
-            const errorMessage = error instanceof Error ? error.message : "Failed to export chart."
-            toast.error(errorMessage)
+            toast.error("Failed to export chart.")
         }
     }
 
