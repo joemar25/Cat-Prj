@@ -1,17 +1,17 @@
 // src/components/custom/profile/profile-form.tsx
-import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { useForm } from 'react-hook-form'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@/components/ui/input'
 import { Icons } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ProfileWithUser } from '@/types/user-profile'
+import { ProfileFormValues, profileFormSchema } from '@/lib/validation/profile/profile-form'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { ProfileFormValues, profileFormSchema } from '@/lib/validation/profile/profile-form'
-import { ProfileWithUser } from '@/types/user-profile'
 
 interface ProfileFormProps {
     profile: ProfileWithUser
