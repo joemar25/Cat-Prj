@@ -13,7 +13,7 @@ import { Calendar as CalendarIcon, Menu } from 'lucide-react'
 import { ThemeChange } from '@/components/theme/theme-change'
 import { useState, useEffect, useMemo, Fragment } from 'react'
 import { LanguageSelector } from '@/components/custom/language/language-selector'
-import { FullscreenToggle } from '@/components/custom/fullscreen/fullscreen-toggle'
+import { FullscreenToggle } from '@/components/custom/full-screen/fullscreen-toggle'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 
 export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeaderProps) {
