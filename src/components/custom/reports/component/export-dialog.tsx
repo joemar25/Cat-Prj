@@ -12,6 +12,7 @@ interface ExportDialogProps<T extends { year: number }> {
   setChartTypeAction: (type: string) => void
   dataKeyX: keyof T
   dataKeysY: (keyof T)[]
+  title: string
 }
 
 export const ExportDialog = <T extends { year: number }>({
@@ -20,22 +21,40 @@ export const ExportDialog = <T extends { year: number }>({
   setChartTypeAction,
   dataKeyX,
   dataKeysY,
+  title,
 }: ExportDialogProps<T>) => {
   const { t } = useTranslation()
-  const { isMarriageData, handleChartTypeChange } = useExportDialog(data, setChartTypeAction)
+  const {
+    isMarriageData,
+    handleChartTypeChange,
+    exportToCSV,
+    exportToExcel,
+    exportToPDF
+  } = useExportDialog(data, setChartTypeAction, title)
   const { exportChart } = useChartExport()
   const chartRef = useRef<HTMLDivElement>(null)
 
   const handleExport = async () => {
     if (chartRef.current) {
       const chartTypeIndicator = chartType.toLowerCase().replace(/\s+/g, '_')
-      await exportChart(chartRef.current, chartTypeIndicator)
+      await exportChart(chartRef.current, chartTypeIndicator, title)
     }
+  }
+
+  const handleCSVExport = () => {
+    exportToCSV(data)
+  }
+
+  const handleExcelExport = () => {
+    exportToExcel(data)
+  }
+
+  const handlePDFExport = async () => {
+    await exportToPDF(data, chartRef.current)
   }
 
   return (
     <>
-      {/* Add styles for export state */}
       <style jsx global>{`
         .exporting .recharts-tooltip-wrapper,
         .exporting .recharts-active {
@@ -61,21 +80,37 @@ export const ExportDialog = <T extends { year: number }>({
 
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{t("exportDialog.exportData")}</DialogTitle>
+            <DialogTitle>{t("exportDialog.exportData")} - {title}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-6">
-            {/* Export Options */}
             <div className="space-y-2">
               <h3 className="text-sm font-medium">{t("exportDialog.exportAs")}</h3>
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1">CSV</Button>
-                <Button variant="outline" className="flex-1">Excel</Button>
-                <Button variant="outline" className="flex-1">PDF</Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleCSVExport}
+                >
+                  CSV
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleExcelExport}
+                >
+                  Excel
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handlePDFExport}
+                >
+                  PDF
+                </Button>
               </div>
             </div>
 
-            {/* Chart Export Section */}
             <div className="space-y-4">
               <h3 className="text-sm font-medium">{t("exportDialog.exportChart")}</h3>
 
@@ -101,7 +136,6 @@ export const ExportDialog = <T extends { year: number }>({
 
               {data.length > 0 && (
                 <div className="space-y-4">
-                  {/* Chart container with center alignment */}
                   <div className="flex justify-center border rounded-lg p-4">
                     <div ref={chartRef}>
                       <Chart
@@ -114,7 +148,6 @@ export const ExportDialog = <T extends { year: number }>({
                     </div>
                   </div>
 
-                  {/* Separate export button */}
                   <Button
                     className="w-full"
                     variant="default"

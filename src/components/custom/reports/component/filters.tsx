@@ -15,6 +15,7 @@ interface FiltersProps<T> {
     setChartTypeAction: (type: string) => void
     dataKeyX: keyof T
     dataKeysY: (keyof T)[]
+    title: string
 }
 
 export const Filters = <T extends { year: number }>({
@@ -27,6 +28,7 @@ export const Filters = <T extends { year: number }>({
     setChartTypeAction,
     dataKeyX,
     dataKeysY,
+    title,
 }: FiltersProps<T>) => {
     const { t } = useTranslation()
 
@@ -87,7 +89,7 @@ export const Filters = <T extends { year: number }>({
                         setChartTypeAction={setChartTypeAction}
                         dataKeyX={dataKeyX}
                         dataKeysY={filteredDataKeysY}
-                    />
+                        title={title} />
                 </div>
             </div>
         </div>
