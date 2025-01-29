@@ -1,53 +1,99 @@
 // src/lib/utils/location-helpers.ts
 import { REGIONS } from '@/lib/constants/locations';
 
-interface Province {
+type Region =
+  | {
+      id: string;
+      name: string;
+      provinces: null;
+      citiesMunicipalities: {
+        name: string;
+        barangays: string[];
+      }[];
+    }
+  | {
+      id: string;
+      name: string;
+      provinces: {
+        id: string;
+        name: string;
+        citiesMunicipalities: {
+          name: string;
+          barangays: string[];
+        }[];
+      }[];
+    };
+
+type Province = {
   id: string;
   name: string;
   regionId: string;
-  originalProvinceId: string;
-}
+  regionName: string;
+  citiesMunicipalities: {
+    name: string;
+    barangays: string[];
+  }[];
+};
 
-// Function to get all provinces with unique IDs
+type CityMunicipality = {
+  name: string;
+  barangays: string[];
+  provinceId?: string;
+  provinceName?: string;
+  regionId: string;
+  regionName: string;
+};
+
 export function getAllProvinces(): Province[] {
-  return REGIONS.flatMap((region) =>
-    region.provinces.map((province) => ({
-      id: `${region.id}-${province.id}`,
-      name: province.name,
-      regionId: region.id,
-      originalProvinceId: province.id,
-    }))
-  ).sort((a, b) => a.name.localeCompare(b.name));
+  const provinces: Province[] = [];
+
+  REGIONS.forEach((region) => {
+    if (region.provinces) {
+      // Process regions that have provinces
+      region.provinces.forEach((province) => {
+        provinces.push({
+          id: `${region.id}-${province.id}`, // Unique province ID
+          name: province.name,
+          regionId: region.id,
+          regionName: region.name,
+          citiesMunicipalities: province.citiesMunicipalities,
+        });
+      });
+    } else if (region.id === 'region-1') {
+      // Special handling for NCR (region-1)
+      const provinceId = region.id;
+      const provinceName = region.name;
+
+      provinces.push({
+        id: provinceId,
+        name: provinceName,
+        regionId: region.id,
+        regionName: region.name,
+        citiesMunicipalities: region.citiesMunicipalities,
+      });
+    }
+  });
+
+  // Sort provinces alphabetically by name
+  return provinces.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-// Function to get cities/municipalities by province ID
-export function getCitiesMunicipalities(selectedProvinceId: string): string[] {
-  if (!selectedProvinceId) return [];
+// Get cities/municipalities by province ID, sorted alphabetically
+export function getCitiesAndMunicipalitiesByProvinceId(
+  provinceId: string
+): CityMunicipality[] {
+  const province = getAllProvinces().find((p) => p.id === provinceId);
+  if (!province) return [];
 
-  const [regionId, provinceId] = selectedProvinceId.split('-province-');
-  const region = REGIONS.find((region) => region.id === regionId);
-  const province = region?.provinces.find(
-    (province) => province.id === `province-${provinceId}`
-  );
+  const cities = province.citiesMunicipalities.map((city) => ({
+    name: city.name,
+    barangays: city.barangays,
+    provinceId: province.id,
+    provinceName: province.name,
+    regionId: province.regionId,
+    regionName: province.regionName,
+  }));
 
-  return (
-    province?.citiesMunicipalities.slice().sort((a, b) => a.localeCompare(b)) ||
-    []
-  );
-}
-
-// Your existing functions
-export function getProvincesByRegion(regionId: string) {
-  const region = REGIONS.find((region) => region.id === regionId);
-  return region ? region.provinces : [];
-}
-
-export function getCitiesByProvince(regionId: string, provinceId: string) {
-  const region = REGIONS.find((region) => region.id === regionId);
-  if (!region) return [];
-
-  const province = region.provinces.find(
-    (province) => province.id === provinceId
-  );
-  return province ? province.citiesMunicipalities : [];
+  // Sort cities/municipalities alphabetically by name
+  return cities.sort((a, b) => a.name.localeCompare(b.name));
 }

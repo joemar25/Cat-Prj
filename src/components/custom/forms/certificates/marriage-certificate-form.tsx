@@ -25,19 +25,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import ContractingPartiesCertificationCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/contracting-parties-certification-card';
-import HusbandInfoCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/husband-info-card';
-import HusbandParentsInfoCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/husband-parent-info-card';
-import MarriageDetailsCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/marriage-details-card';
-import ReceivedByCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/received-by-card';
-import RegisteredAtOfficeCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/registered-at-office-card';
-import RegistryInfoCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/registry-info-card';
-import RemarksCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/remarks-card';
-import SolemnizingOfficerCertification from '@/components/custom/forms/certificates/form-cards/marriage-cards/solemnizing-officer-certification-card';
-import WifeInfoCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/wife-info-card';
-import WifeParentsInfoCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/wife-parent-info-card';
-import WitnessesCard from '@/components/custom/forms/certificates/form-cards/marriage-cards/witnesses-section-card';
 import MarriageCertificatePDF from '@/components/custom/forms/certificates/preview/marriage-certificate/marriage-certificate-pdf';
+import { FormType } from '@prisma/client';
+import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 
 export function MarriageCertificateForm({
   open,
@@ -164,8 +154,11 @@ export function MarriageCertificateForm({
                       onSubmit={form.handleSubmit(onSubmit, handleError)}
                       className='space-y-6'
                     >
-                      <RegistryInfoCard />
-                      <HusbandInfoCard />
+                      <RegistryInformationCard
+                        formType={FormType.MARRIAGE}
+                        title='Marriage Registry Information'
+                      />
+                      {/* <HusbandInfoCard />
                       <WifeInfoCard />
                       <HusbandParentsInfoCard />
                       <WifeParentsInfoCard />
@@ -175,7 +168,7 @@ export function MarriageCertificateForm({
                       <WitnessesCard />
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard />
-                      <RemarksCard />
+                      <RemarksCard /> */}
 
                       <DialogFooter>
                         <Button
