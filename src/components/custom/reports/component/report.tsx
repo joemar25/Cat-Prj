@@ -68,16 +68,16 @@ export const ReportComponent = <T extends ReportData[number]>({
 
     return (
         <div className="w-full p-6 space-y-6">
-            {process.env.NEXT_PUBLIC_NODE_ENV === "development" && (
+            {/* {process.env.NEXT_PUBLIC_NODE_ENV === "development" && (
                 <DebugInfo
                     dataLength={data?.length || 0}
                     loading={loading}
                     error={error}
                     debugInfo={debugInfo}
                 />
-            )}
+            )} */}
 
-            <Card>
+            <Card className="p-4">
                 <CardHeader>
                     <CardTitle className="text-xl font-bold">{title}</CardTitle>
                 </CardHeader>
@@ -92,6 +92,7 @@ export const ReportComponent = <T extends ReportData[number]>({
                         setChartTypeAction={setChartType}
                         dataKeyX={"year"}
                         dataKeysY={dataKeysY}
+                        title={title}
                     />
                 </CardContent>
 

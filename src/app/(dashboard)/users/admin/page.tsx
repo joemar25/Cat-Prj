@@ -1,15 +1,10 @@
-import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
-import { UsersTableClient } from '@/components/custom/users/users-table-client'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { prisma } from '@/lib/prisma'
+// src\app\(dashboard)\users\page.tsx
 import { Suspense } from 'react'
+import { prisma } from '@/lib/prisma'
+import { Skeleton } from '@/components/ui/skeleton'
+import { UsersTableClient } from '@/components/custom/users/users-table-client'
+import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 async function getUsers() {
   try {

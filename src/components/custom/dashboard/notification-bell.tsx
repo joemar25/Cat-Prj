@@ -26,7 +26,7 @@ import { useNotificationActions } from '@/hooks/notification-actions';
 import { formatDateTime } from '@/utils/date';
 import { BellIcon, Circle, CircleDot, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next'; // Import the useTranslation hook
+import { useTranslation } from 'react-i18next';
 
 type NotificationType = 'EMAIL' | 'SYSTEM' | 'SMS';
 
@@ -46,7 +46,7 @@ export function NotificationBell({ userId }: { userId: string }) {
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { t } = useTranslation(); // Initialize the translation hook
+  const { t } = useTranslation();
 
   const handleNotificationClick = useCallback(
     async (notification: Notification) => {
@@ -145,9 +145,8 @@ export function NotificationBell({ userId }: { userId: string }) {
                 .map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-2 hover:bg-accent cursor-pointer flex gap-2 items-start ${
-                      notification.read ? 'opacity-70' : ''
-                    }`}
+                    className={`p-2 hover:bg-accent cursor-pointer flex gap-2 items-start ${notification.read ? 'opacity-70' : ''
+                      }`}
                     onClick={() => handleNotificationClick(notification)}
                   >
                     <div className='mt-1.5'>

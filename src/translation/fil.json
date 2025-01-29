@@ -233,6 +233,7 @@
     "created": "Nilikha",
     "updated": "Na-update",
     "morePermissions": "+{{count}} pang mga pahintulot",
+    "allPermissions": "Lahat ng mga Pahintulot",
     "username": "Pangalan ng gumagamit",
     "id": "ID",
     "no_username": "Walang username"
