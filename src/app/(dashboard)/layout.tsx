@@ -18,7 +18,7 @@ export default async function AuthLayout({ children }: ChildrenProps) {
   const role = session.user.role as UserRole;
 
   return (
-    <TranslationProvider> {/* Wrap everything with TranslationProvider */}
+    <TranslationProvider>
       <SidebarProvider>
         <AppSidebar role={role} />
         <SidebarInset>

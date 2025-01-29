@@ -16,7 +16,10 @@ export function FeedbackForm({ userId, onSubmitAction }: FeedbackFormProps) {
     const [feedback, setFeedback] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+
         if (!feedback.trim()) {
             toast.error("Feedback cannot be empty.")
             return
@@ -31,10 +34,14 @@ export function FeedbackForm({ userId, onSubmitAction }: FeedbackFormProps) {
                 body: JSON.stringify({ feedback, userId }),
             })
 
+            if (!response.ok) {
+                throw new Error('Failed to submit feedback')
+            }
+
             const result = await response.json()
 
             if (result.success) {
-                toast.success(result.message)
+                toast.success(result.message || "Feedback submitted successfully!")
                 setFeedback("")
                 await onSubmitAction()
             } else {

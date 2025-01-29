@@ -75,20 +75,16 @@ export function transformToMainNavItem(item: NavConfig, role: UserRole, t: Funct
 }
 
 export function transformToSecondaryNavItem(item: NavConfig, t: Function): NavSecondaryItem {
+    const IconComponent = item.iconName && Icons[item.iconName] ? Icons[item.iconName] as LucideIcon : undefined;
+
     const baseItem: NavSecondaryItem = {
-        title: t(item.id),  // Translate title using the 't' function
+        title: item.title || t(item.id),
         url: item.url,
-        notViewedCount: item.notViewedCount
-    }
+        notViewedCount: item.notViewedCount,
+        icon: IconComponent ?? Icons.folder,
+    };
 
-    if (item.iconName) {
-        const Icon = Icons[item.iconName]
-        if (Icon) {
-            baseItem.icon = Icon as LucideIcon
-        }
-    }
-
-    return baseItem
+    return baseItem;
 }
 
 // Navigation configuration
@@ -184,6 +180,22 @@ export const navigationConfig: NavigationConfiguration = {
             title: 'Send Feedback',
             url: '/feedback',
             iconName: 'messageSquare',
+        },
+    ],
+    projectsNav: [
+        {
+            id: 'project-1',
+            type: 'projects',
+            title: 'Project One',
+            url: '/projects/1',
+            iconName: 'folder',
+        },
+        {
+            id: 'project-2',
+            type: 'projects',
+            title: 'Project Two',
+            url: '/projects/2',
+            iconName: 'folder',
         },
     ],
 } as const
