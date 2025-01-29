@@ -133,13 +133,13 @@
   "Known User": "Known User",
   "Anonymous": "Anonymous",
   "formDetails": {
-  "title": "Form Details",
-  "description": "View the details of the selected form",
-  "formType": "Form Type",
-  "registryNo": "Registry Number",
-  "status": "Status",
-  "loadingForms": "Loading Forms",
-  "fetchingForms": "Please wait while we fetch the civil registry forms..."
+    "title": "Form Details",
+    "description": "View the details of the selected form",
+    "formType": "Form Type",
+    "registryNo": "Registry Number",
+    "status": "Status",
+    "loadingForms": "Loading Forms",
+    "fetchingForms": "Please wait while we fetch the civil registry forms..."
   },
   "datatable": {
     "selected_rows": "{{selected}} of {{total}} row(s) selected.",
@@ -171,11 +171,11 @@
     "lastFetchTime": "Last Fetch Time"
   },
   "birthReport": {
-    "title": "Mga Rehistro ng Kapanganakan",
-    "year": "Taon",
-    "male": "Lalaki",
-    "female": "Babae",
-    "total": "Kabuuan"
+    "title": "Birth Registrations",
+    "year": "Year",
+    "male": "Male",
+    "female": "Female",
+    "total": "Total"
   },
   "filters": {
     "yearFrom": "Year From",
@@ -192,7 +192,7 @@
     "selectChartType": "Select Chart Type",
     "barChart": "Bar Chart",
     "lineChart": "Line Chart",
-    "pieChart": "Pie Chart",
+    "donutChart": "Donut Chart",
     "downloadChart": "Download Chart as PNG"
   },
   "deathReport": {
@@ -249,7 +249,7 @@
   "Profile": "Profile",
   "Users": "Users",
   "Reports": "Reports",
-  
+
   "notifications": "Notifications",
   "unread": "unread",
   "loading": "Loading",
