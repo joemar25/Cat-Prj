@@ -171,11 +171,11 @@
     "lastFetchTime": "Last Fetch Time"
   },
   "birthReport": {
-    "title": "Mga Rehistro ng Kapanganakan",
-    "year": "Taon",
-    "male": "Lalaki",
-    "female": "Babae",
-    "total": "Kabuuan"
+    "title": "Birth Registrations",
+    "year": "Year",
+    "male": "Male",
+    "female": "Female",
+    "total": "Total"
   },
   "filters": {
     "yearFrom": "Year From",
