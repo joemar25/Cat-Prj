@@ -12,7 +12,7 @@ interface GenderDistributionChartProps {
 }
 
 const MALE_COLOR = "hsl(var(--chart-1))"
-const FEMALE_COLOR = "hsl(var(--chart-2))"
+const FEMALE_COLOR = "hsl(var(--chart-3))"
 
 export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
     totalMale,

@@ -87,7 +87,7 @@ export default function MetricsDashboard() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {metrics.map((metric) => (
-        <Card key={metric.titleKey}>
+        <Card key={metric.titleKey} className={`${metric.titleKey == "metrics.total_registrations" ? "dark:bg-chart-1 bg-chart-3" : ""}`}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               {t(metric.titleKey)} {/* Translate the title */}
