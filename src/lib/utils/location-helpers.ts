@@ -1,48 +1,7 @@
 // src/lib/utils/location-helpers.ts
-import { REGIONS } from '@/lib/constants/locations';
 
-type Region =
-  | {
-      id: string;
-      name: string;
-      provinces: null;
-      citiesMunicipalities: {
-        name: string;
-        barangays: string[];
-      }[];
-    }
-  | {
-      id: string;
-      name: string;
-      provinces: {
-        id: string;
-        name: string;
-        citiesMunicipalities: {
-          name: string;
-          barangays: string[];
-        }[];
-      }[];
-    };
-
-type Province = {
-  id: string;
-  name: string;
-  regionId: string;
-  regionName: string;
-  citiesMunicipalities: {
-    name: string;
-    barangays: string[];
-  }[];
-};
-
-type CityMunicipality = {
-  name: string;
-  barangays: string[];
-  provinceId?: string;
-  provinceName?: string;
-  regionId: string;
-  regionName: string;
-};
+import { REGIONS } from '../constants/locations';
+import { CityMunicipality, Province } from '../types/location-selector';
 
 export function getAllProvinces(): Province[] {
   const provinces: Province[] = [];
@@ -52,7 +11,7 @@ export function getAllProvinces(): Province[] {
       // Process regions that have provinces
       region.provinces.forEach((province) => {
         provinces.push({
-          id: `${region.id}-${province.id}`, // Unique province ID
+          id: `${region.id}-${province.id}`,
           name: province.name,
           regionId: region.id,
           regionName: region.name,
@@ -61,12 +20,9 @@ export function getAllProvinces(): Province[] {
       });
     } else if (region.id === 'region-1') {
       // Special handling for NCR (region-1)
-      const provinceId = region.id;
-      const provinceName = region.name;
-
       provinces.push({
-        id: provinceId,
-        name: provinceName,
+        id: region.id,
+        name: region.name,
         regionId: region.id,
         regionName: region.name,
         citiesMunicipalities: region.citiesMunicipalities,
@@ -74,26 +30,44 @@ export function getAllProvinces(): Province[] {
     }
   });
 
-  // Sort provinces alphabetically by name
   return provinces.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-// Get cities/municipalities by province ID, sorted alphabetically
 export function getCitiesAndMunicipalitiesByProvinceId(
   provinceId: string
 ): CityMunicipality[] {
   const province = getAllProvinces().find((p) => p.id === provinceId);
   if (!province) return [];
 
-  const cities = province.citiesMunicipalities.map((city) => ({
-    name: city.name,
-    barangays: city.barangays,
-    provinceId: province.id,
-    provinceName: province.name,
-    regionId: province.regionId,
-    regionName: province.regionName,
-  }));
+  const cities = province.citiesMunicipalities.map((city) => {
+    const baseCity = {
+      name: city.name,
+      provinceId: province.id,
+      provinceName: province.name,
+      regionId: province.regionId,
+      regionName: province.regionName,
+    };
 
-  // Sort cities/municipalities alphabetically by name
+    // Check if city has subMunicipalities property and it's an array with items
+    if (
+      'subMunicipalities' in city &&
+      Array.isArray(city.subMunicipalities) &&
+      city.subMunicipalities.length > 0
+    ) {
+      return {
+        ...baseCity,
+        barangays: [],
+        subMunicipalities: city.subMunicipalities,
+      };
+    }
+
+    // For cities with direct barangays
+    return {
+      ...baseCity,
+      barangays: 'barangays' in city ? city.barangays : [],
+      subMunicipalities: undefined,
+    };
+  });
+
   return cities.sort((a, b) => a.name.localeCompare(b.name));
 }

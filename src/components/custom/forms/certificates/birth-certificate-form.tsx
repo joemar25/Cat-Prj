@@ -25,19 +25,18 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import AttendantInformationCard from '@/components/custom/forms/certificates/form-cards/birth-cards/attendant-information';
-import CertificationOfInformantCard from '@/components/custom/forms/certificates/form-cards/birth-cards/certification-of-informant';
-import PreparedByCard from '@/components/custom/forms/certificates/form-cards/birth-cards/prepared-by-card';
-import ReceivedByCard from '@/components/custom/forms/certificates/form-cards/birth-cards/received-by';
-import RegisteredAtOfficeCard from '@/components/custom/forms/certificates/form-cards/birth-cards/registered-at-office-card';
-
-import RemarksCard from '@/components/custom/forms/certificates/form-cards/birth-cards/remarks';
 import { FormType } from '@prisma/client';
 import AffidavitFormsCard from './form-cards/birth-cards/affidavit-form-card';
+import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
+import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
 import ChildInformationCard from './form-cards/birth-cards/child-information-card';
 import FatherInformationCard from './form-cards/birth-cards/father-information-card';
 import MarriageOfParentsCard from './form-cards/birth-cards/marriage-parents-card';
 import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
+import PreparedByCard from './form-cards/birth-cards/prepared-by-card';
+import ReceivedByCard from './form-cards/birth-cards/received-by';
+import RegisteredAtOfficeCard from './form-cards/birth-cards/registered-at-office-card';
+import RemarksCard from './form-cards/birth-cards/remarks';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
 
@@ -179,9 +178,10 @@ export default function BirthCertificateForm({
                         title='Birth Registry Information'
                       />
                       <ChildInformationCard />
-                      {/* <MotherInformationCard />
+                      <MotherInformationCard />
                       <FatherInformationCard />
-                      <MarriageOfParentsCard /> */}
+
+                      <MarriageOfParentsCard />
                       <AttendantInformationCard />
                       <CertificationOfInformantCard />
                       <PreparedByCard />

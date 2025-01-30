@@ -73,11 +73,7 @@ export const birthCertificateSchema = z.object({
   // Marriage of Parents
   parentMarriage: z.object({
     date: dateSchema,
-    place: z.object({
-      cityMunicipality: cityMunicipalitySchema,
-      province: provinceSchema,
-      country: z.string().min(1, 'Country is required'),
-    }),
+    place: addressSchema,
   }),
 
   // Certification of Birth Attendant
@@ -88,7 +84,7 @@ export const birthCertificateSchema = z.object({
       signature: signatureSchema.shape.signature,
       name: signatureSchema.shape.name,
       title: signatureSchema.shape.title,
-      address: addressSchema.shape.address,
+      address: addressSchema,
       date: dateSchema,
     }),
   }),
@@ -98,7 +94,7 @@ export const birthCertificateSchema = z.object({
     signature: signatureSchema.shape.signature,
     name: signatureSchema.shape.name,
     relationship: z.string().min(1, 'Relationship is required'),
-    address: addressSchema.shape.address,
+    address: addressSchema,
     date: dateSchema,
   }),
 
@@ -324,7 +320,9 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     childrenStillLiving: '1',
     childrenNowDead: '0',
     residence: {
-      address: '123 Maginhawa Street',
+      houseNumber: '123',
+      street: 'Maginhawa Street',
+      barangay: 'Teachers Village',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -341,7 +339,9 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     occupation: 'Software Engineer',
     age: '30',
     residence: {
-      address: '123 Maginhawa Street',
+      houseNumber: '123',
+      street: 'Maginhawa Street',
+      barangay: 'Teachers Village',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -352,6 +352,9 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
   parentMarriage: {
     date: new Date('2022-06-15'),
     place: {
+      houseNumber: '123',
+      street: 'Maginhawa Street',
+      barangay: 'Teachers Village',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -366,7 +369,14 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
       signature: 'DrSantos',
       name: 'Dr. Ana Santos',
       title: 'OB-GYN',
-      address: "St. Luke's Medical Center, Quezon City",
+      address: {
+        houseNumber: '279',
+        street: 'E Rodriguez Sr. Avenue',
+        barangay: 'Kalusugan',
+        cityMunicipality: 'Quezon City',
+        province: 'Metro Manila',
+        country: 'Philippines',
+      },
       date: new Date('2024-01-15'),
     },
   },
@@ -376,7 +386,14 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     signature: 'JoseDC',
     name: 'Jose Dela Cruz',
     relationship: 'Father',
-    address: '123 Maginhawa Street, Quezon City',
+    address: {
+      houseNumber: '279',
+      street: 'E Rodriguez Sr. Avenue',
+      barangay: 'Kalusugan',
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
+      country: 'Philippines',
+    },
     date: new Date('2024-01-16'),
   },
 
@@ -436,7 +453,9 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     affiant: {
       name: 'Jose Dela Cruz',
       address: {
-        address: '123 Maginhawa Street',
+        houseNumber: '279',
+        street: 'E Rodriguez Sr. Avenue',
+        barangay: 'Kalusugan',
         cityMunicipality: 'Quezon City',
         province: 'Metro Manila',
         country: 'Philippines',

@@ -10,49 +10,32 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import React, { useEffect, useState } from 'react';
+import { useLocationSelector } from '@/hooks/use-location-selector';
+import { LocationSelectorProps } from '@/lib/types/location-selector';
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
-
-import {
-  getAllProvinces,
-  getCitiesAndMunicipalitiesByProvinceId,
-} from '@/lib/utils/location-helpers';
-
-interface LocationSelectorProps {
-  provinceFieldName?: string;
-  municipalityFieldName?: string;
-  provinceLabel?: string;
-  municipalityLabel?: string;
-  isNCRMode?: boolean;
-  className?: string;
-  provincePlaceholder?: string;
-  municipalityPlaceholder?: string;
-  onProvinceChange?: (province: string) => void;
-  onMunicipalityChange?: (municipality: string) => void;
-  // Style customization props
-  selectTriggerClassName?: string;
-  formItemClassName?: string;
-  formLabelClassName?: string;
-  selectContentClassName?: string;
-  selectItemClassName?: string;
-}
 
 const LocationSelector: React.FC<LocationSelectorProps> = ({
   provinceFieldName = 'province',
   municipalityFieldName = 'cityMunicipality',
+  barangayFieldName = 'barangay',
   provinceLabel = 'Province',
   municipalityLabel = 'City/Municipality',
+  barangayLabel = 'Barangay',
   isNCRMode = false,
+  showBarangay = false,
   className = '',
   provincePlaceholder = 'Select province',
   municipalityPlaceholder = 'Select city/municipality',
+  barangayPlaceholder = 'Select barangay',
   onProvinceChange,
   onMunicipalityChange,
-  // Style props with defaults
+  onBarangayChange,
   selectTriggerClassName = 'h-10',
   formItemClassName = '',
   formLabelClassName = '',
@@ -60,45 +43,28 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   selectItemClassName = '',
 }) => {
   const { control, setValue } = useFormContext();
-  const [selectedProvince, setSelectedProvince] = useState('');
-  const [selectedMunicipality, setSelectedMunicipality] = useState('');
 
-  const provinces = getAllProvinces();
-  const municipalities = selectedProvince
-    ? getCitiesAndMunicipalitiesByProvinceId(selectedProvince)
-    : [];
-
-  useEffect(() => {
-    if (isNCRMode) {
-      const ncrProvinceId = 'region-1';
-      setSelectedProvince(ncrProvinceId);
-      setValue(provinceFieldName, 'N/A');
-    } else {
-      setSelectedProvince('');
-      setSelectedMunicipality('');
-      setValue(provinceFieldName, '');
-      setValue(municipalityFieldName, '');
-    }
-  }, [isNCRMode, provinceFieldName, municipalityFieldName, setValue]);
-
-  const handleProvinceChange = (value: string) => {
-    setSelectedProvince(value);
-    setSelectedMunicipality('');
-
-    const selectedProvinceName =
-      provinces.find((p) => p.id === value)?.name || '';
-    setValue(provinceFieldName, selectedProvinceName);
-    setValue(municipalityFieldName, '');
-
-    onProvinceChange?.(selectedProvinceName);
-  };
-
-  const handleMunicipalityChange = (value: string) => {
-    setSelectedMunicipality(value);
-    setValue(municipalityFieldName, value);
-    onMunicipalityChange?.(value);
-  };
-
+  const {
+    selectedProvince,
+    selectedMunicipality,
+    selectedBarangay,
+    provinces,
+    municipalities,
+    barangays,
+    handleProvinceChange,
+    handleMunicipalityChange,
+    handleBarangayChange,
+  } = useLocationSelector({
+    provinceFieldName,
+    municipalityFieldName,
+    barangayFieldName,
+    isNCRMode,
+    showBarangay,
+    setValue,
+    onProvinceChange,
+    onMunicipalityChange,
+    onBarangayChange,
+  });
   return (
     <>
       <FormField
@@ -166,13 +132,29 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               </FormControl>
               <SelectContent className={selectContentClassName}>
                 {municipalities.map((city) => (
-                  <SelectItem
-                    key={city.name}
-                    value={city.name}
-                    className={selectItemClassName}
-                  >
-                    {city.name}
-                  </SelectItem>
+                  <SelectGroup key={`group-${city.name}`}>
+                    {isNCRMode &&
+                    city.subMunicipalities &&
+                    city.subMunicipalities.length > 0 ? (
+                      city.subMunicipalities.map((subMunicipality) => (
+                        <SelectItem
+                          key={`${city.name}-${subMunicipality.name}`}
+                          value={`${subMunicipality.name}, ${city.name}`}
+                          className={selectItemClassName}
+                        >
+                          {`${subMunicipality.name} (${city.name})`}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem
+                        key={`city-${city.name}`}
+                        value={city.name}
+                        className={selectItemClassName}
+                      >
+                        {city.name}
+                      </SelectItem>
+                    )}
+                  </SelectGroup>
                 ))}
               </SelectContent>
             </Select>
@@ -180,6 +162,49 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           </FormItem>
         )}
       />
+
+      {showBarangay && (
+        <FormField
+          control={control}
+          name={barangayFieldName}
+          render={({ field }) => (
+            <FormItem className={formItemClassName}>
+              <FormLabel className={formLabelClassName}>
+                {barangayLabel}
+              </FormLabel>
+              <Select
+                onValueChange={handleBarangayChange}
+                value={selectedBarangay}
+                disabled={!selectedMunicipality}
+              >
+                <FormControl>
+                  <SelectTrigger className={selectTriggerClassName}>
+                    <SelectValue
+                      placeholder={
+                        selectedMunicipality
+                          ? barangayPlaceholder
+                          : 'Select city/municipality first'
+                      }
+                    />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent className={selectContentClassName}>
+                  {barangays.map((barangay) => (
+                    <SelectItem
+                      key={barangay}
+                      value={barangay}
+                      className={selectItemClassName}
+                    >
+                      {barangay}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
     </>
   );
 };

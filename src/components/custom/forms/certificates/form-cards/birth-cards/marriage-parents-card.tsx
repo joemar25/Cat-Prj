@@ -10,27 +10,14 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import {
-  getAllProvinces,
-  getCitiesMunicipalities,
-} from '@/lib/utils/location-helpers';
-import React, { useState } from 'react';
+
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
+import LocationSelector from '../shared-components/location-selector';
 
 const MarriageOfParentsCard: React.FC = () => {
   const { control } = useFormContext<BirthCertificateFormValues>();
-  const [selectedProvince, setSelectedProvince] = useState('');
-
-  const allProvinces = getAllProvinces();
-  const citiesMunicipalities = getCitiesMunicipalities(selectedProvince);
 
   return (
     <Card>
@@ -68,71 +55,21 @@ const MarriageOfParentsCard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-              <FormField
-                control={control}
-                name='parentMarriage.place.province'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Province</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        const provinceObj = allProvinces.find(
-                          (p) => p.id === value
-                        );
-                        field.onChange(provinceObj?.name || '');
-                        setSelectedProvince(value);
-                      }}
-                      value={
-                        allProvinces.find((p) => p.name === field.value)?.id ||
-                        ''
-                      }
-                    >
-                      <FormControl>
-                        <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
-                          <SelectValue placeholder='Select province' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {allProvinces.map((province) => (
-                          <SelectItem key={province.id} value={province.id}>
-                            {province.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+              <LocationSelector
+                provinceFieldName='parentMarriage.place.province'
+                municipalityFieldName='parentMarriage.place.cityMunicipality'
+                provinceLabel='Province'
+                municipalityLabel='City/Municipality'
+                selectTriggerClassName='h-10 px-3 text-base md:text-sm'
+                formItemClassName=''
+                formLabelClassName=''
+                selectContentClassName=''
+                selectItemClassName=''
+                provincePlaceholder='Select province'
+                municipalityPlaceholder='Select city/municipality'
+                className='col-span-2 grid grid-cols-2 gap-4'
               />
 
-              <FormField
-                control={control}
-                name='parentMarriage.place.cityMunicipality'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City/Municipality</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ''}
-                      disabled={!selectedProvince}
-                    >
-                      <FormControl>
-                        <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
-                          <SelectValue placeholder='Select city/municipality' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {citiesMunicipalities.map((city) => (
-                          <SelectItem key={city} value={city}>
-                            {city}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <FormField
                 control={control}
                 name='parentMarriage.place.country'

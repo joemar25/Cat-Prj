@@ -148,10 +148,12 @@ export const signatureSchema = z.object({
 });
 
 export const addressSchema = z.object({
-  address: z.string().min(1, 'Address is required'),
+  houseNumber: z.string().optional(),
+  street: z.string().optional(),
+  barangay: z.string().min(1, 'Barangay is required').optional(),
   cityMunicipality: z.string().min(1, 'City/Municipality is required'),
   province: z.string().min(1, 'Province is required'),
-  country: z.string().min(1, 'Country is required'),
+  country: z.string().min(1, 'Country is required').default('Philippines'),
 });
 
 export type WithNullableDates<T> = {

@@ -9,27 +9,16 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import {
-  getAllProvinces,
-  getCitiesMunicipalities,
-} from '@/lib/utils/location-helpers';
+
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import LocationSelector from '../shared-components/location-selector';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const FatherInformationCard: React.FC = () => {
   const { control } = useFormContext<BirthCertificateFormValues>();
-  const [selectedProvince, setSelectedProvince] = useState('');
-
-  const allProvinces = getAllProvinces();
-  const citiesMunicipalities = getCitiesMunicipalities(selectedProvince);
+  const [isNCRMode, setIsNCRMode] = useState(false);
 
   return (
     <Card>
@@ -191,18 +180,37 @@ const FatherInformationCard: React.FC = () => {
             <h3 className='text-sm font-semibold'>Residence Information</h3>
           </CardHeader>
           <CardContent>
+            <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
             <div className='space-y-4'>
-              <div className='grid grid-cols-1 gap-4'>
+              {/* House Number and Street Inputs */}
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <FormField
                   control={control}
-                  name='fatherInfo.residence.address'
+                  name='fatherInfo.residence.houseNumber'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>House No., St., Barangay</FormLabel>
+                      <FormLabel>House No.</FormLabel>
                       <FormControl>
                         <Input
                           className='h-10'
-                          placeholder='Enter complete address'
+                          placeholder='Enter house number'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name='fatherInfo.residence.street'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Street</FormLabel>
+                      <FormControl>
+                        <Input
+                          className='h-10'
+                          placeholder='Enter street name'
                           {...field}
                         />
                       </FormControl>
@@ -212,71 +220,28 @@ const FatherInformationCard: React.FC = () => {
                 />
               </div>
 
+              {/* Location Selector and Country */}
               <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                <FormField
-                  control={control}
-                  name='fatherInfo.residence.province'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Province</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          const provinceObj = allProvinces.find(
-                            (p) => p.id === value
-                          );
-                          field.onChange(provinceObj?.name || '');
-                          setSelectedProvince(value);
-                        }}
-                        value={
-                          allProvinces.find((p) => p.name === field.value)
-                            ?.id || ''
-                        }
-                      >
-                        <FormControl>
-                          <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
-                            <SelectValue placeholder='Select province' />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {allProvinces.map((province) => (
-                            <SelectItem key={province.id} value={province.id}>
-                              {province.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <LocationSelector
+                  provinceFieldName='fatherInfo.residence.province'
+                  municipalityFieldName='fatherInfo.residence.cityMunicipality'
+                  barangayFieldName='fatherInfo.residence.barangay'
+                  provinceLabel='Province'
+                  municipalityLabel='City/Municipality'
+                  selectTriggerClassName='h-10 px-3 text-base md:text-sm'
+                  formItemClassName=''
+                  formLabelClassName=''
+                  selectContentClassName=''
+                  selectItemClassName=''
+                  provincePlaceholder='Select province'
+                  municipalityPlaceholder='Select city/municipality'
+                  className='col-span-2 grid grid-cols-2 gap-4'
+                  isNCRMode={isNCRMode}
+                  showBarangay={true}
+                  barangayLabel='Barangay'
+                  barangayPlaceholder='Select barangay'
                 />
-                <FormField
-                  control={control}
-                  name='fatherInfo.residence.cityMunicipality'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City/Municipality</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || ''}
-                        disabled={!selectedProvince}
-                      >
-                        <FormControl>
-                          <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
-                            <SelectValue placeholder='Select city/municipality' />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {citiesMunicipalities.map((city) => (
-                            <SelectItem key={city} value={city}>
-                              {city}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
                 <FormField
                   control={control}
                   name='fatherInfo.residence.country'
