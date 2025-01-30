@@ -25,6 +25,205 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
 
   return (
     <Document>
+      <Page size='LEGAL' style={[style.page, style.flexColumn, { gap: 10 }]}>
+        <View style={style.gridColumn}>
+          <View style={[style.gridColumn,]}>
+            <Text style={[style.headerTitle, style.paddingGlobal, { textAlign: 'center' }]}>For children aged 0 to 7 days</Text>
+          </View>
+          <View style={style.flexRow}>
+            <View style={[style.gridColumn, style.paddingGlobal, style.flex1, { gap: 5 }]}>
+              <Text style={style.label}>14. AGE OF MOTHER</Text>
+              <Text style={style.value}>{"56 years old"}</Text>
+            </View>
+            <View style={[style.gridColumn, style.paddingGlobal, { flex: 2, gap: 5 }]}>
+              <Text style={style.label}>15. METHOD OF DELIVERY </Text>
+              <Text style={style.label2}>(Normal spontaneous vertex, if others, specify)</Text>
+              <Text style={style.value}>{"NORMAL"}</Text>
+            </View>
+            <View style={[style.gridColumn, style.paddingGlobal, { flex: 2, gap: 5 }]}>
+              <Text style={style.label}>16. LENGTH OF PREGRANCY</Text>
+              <Text style={style.label2}>(in completed weeks)</Text>
+              <Text style={style.value}>{"1 WEEK"}</Text>
+            </View>
+          </View>
+          <View style={style.flexRow}>
+            <View style={[style.gridColumn, style.paddingGlobal, style.flex1, { gap: 5 }]}>
+              <Text style={style.label}>17. TYPE OF BIRTH</Text>
+              <Text style={style.value}>{"NORMAL"}</Text>
+            </View>
+            <View style={[style.gridColumn, style.paddingGlobal, style.flex1, { gap: 5 }]}>
+              <Text style={style.label}>18. IF MULTIPLE BIRTH, CHILD WAS</Text>
+              <Text style={style.label2}>(1st, 2nd, 3rd, etc.)</Text>
+              <Text style={style.value}>{"N/A"}</Text>
+            </View>
+          </View>
+          <View style={[style.gridColumn]}>
+            <Text style={[style.headerTitle, style.paddingGlobal, { textAlign: 'center' }]}>MEDICAL CERTIFICATE</Text>
+          </View>
+          <View style={[style.gridColumn, style.paddingGlobal, { gap: 5, paddingBottom: 10 }]}>
+            <Text style={style.label}>19a. CAUSES OF DEATH</Text>
+            <View style={[style.flexColumn, style.paddingLeft,]}>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { marginRight: 15 }]}>a. Main disease/condition of infant</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>N/A</Text>
+                </View>
+              </View>
+
+              <View style={[style.flexRow, { alignItems: 'center', }]}>
+                <Text style={[style.label, { marginRight: 15 }]}>b. Other diseases/conditions of infant</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>N/A</Text>
+                </View>
+              </View>
+
+              <View style={[style.flexRow, { alignItems: 'center', }]}>
+                <Text style={[style.label, { marginRight: 15 }]}>c. Main maternal disease/condition affecting infant</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>N/A</Text>
+                </View>
+              </View>
+
+              <View style={[style.flexRow, { alignItems: 'center', }]}>
+                <Text style={[style.label, { marginRight: 15 }]}>d. Other maternal diseases/conditions affecting infant</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>N/A</Text>
+                </View>
+              </View>
+
+              <View style={[style.flexRow, { alignItems: 'center', }]}>
+                <Text style={[style.label, { marginRight: 15 }]}>e. Other relevant circumstances</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>N/A</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+        <View style={[style.gridColumn, style.paddingGlobal, { border: '2px solid #000', paddingBottom: 10 }]}>
+          <Text style={[style.headerTitle, { textAlign: 'center' }]}>postmortem certificate of death</Text>
+          <Text style={style.valueCenter}>I HEREBY CERTIFY that I have performed an autopsy upon the body of the deceased and that the cause of death was</Text>
+          <Text style={style.valueLine}>{" "}</Text>
+          <Text style={style.valueLine}>{" "}</Text>
+          <View style={[style.flexRow, { paddingTop: 20, gap: 20 }]}>
+            {/* Left Column */}
+            <View style={[style.flexColumn, style.flex1]}>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { width: 80 }]}>Signature</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { width: 80 }]}>Name in Print</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { width: 80 }]}>Date</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Right Column */}
+            <View style={[style.flexColumn, style.flex1]}>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { width: 100 }]}>Title/Designation</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { width: 100 }]}>Address</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+        <View style={[style.gridColumn, style.paddingGlobal, { border: '2px solid #000', paddingBottom: 10 }]}>
+          <Text style={[style.headerTitle, { textAlign: 'center' }]}>certification of embalmer</Text>
+          <View style={style.flexColumn}>
+            <View style={[style.flexRow, { paddingLeft: 20, gap:5 }]}>
+              <Text style={style.valueCenter}>I HEREBY CERTIFY that I have embalmed </Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{"Name of deceased"}</Text>
+              </View>
+              <Text style={style.valueCenter}> following</Text>
+            </View>
+            <View style={style.flexRow}>
+              <Text style={style.valueCenter}>all the regulation prescribed by the Department Health.</Text>
+            </View>
+          </View>
+
+          <View style={[style.flexRow, { paddingTop: 20, gap: 20 }]}>
+            {/* Left Column */}
+            <View style={[style.flexColumn, style.flex1]}>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { width: 80 }]}>Signature</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { width: 80 }]}>Name in Print</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { width: 80 }]}>Address</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Right Column */}
+            <View style={[style.flexColumn, style.flex1]}>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { width: 100 }]}>Title/Designation</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { width: 100 }]}>License No.</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { width: 100 }]}>Issued on</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { width: 100 }]}>Expiry Date</Text>
+                <View style={style.flex1}>
+                  <Text style={style.valueLine}>{" "}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Page>
+
       <Page size='LEGAL' style={style.page}>
         {/* Header */}
         <View style={style.header}>
@@ -698,6 +897,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           <Text style={style.value}>{data.remarks || ''}</Text>
         </View>
       </Page>
+
     </Document>
   );
 };
