@@ -1,80 +1,95 @@
-'use client'
+// src\components\custom\sidebar\app-sidebar.tsx
+"use client"
 
-import { useMemo } from 'react'
-import { NavMain } from './nav-main'
-import { LucideIcon } from 'lucide-react'
-import { Permission } from '@prisma/client'
-import { NavProjects } from './nav-projects'
-import { Icons } from '@/components/ui/icons'
-import { useTranslation } from 'react-i18next'
-import { NavSecondary } from './nav-secondary'
-import { useNavigationStore } from '@/lib/stores/navigation'
-import { navigationConfig, transformToMainNavItem, transformToSecondaryNavItem } from '@/lib/config/navigation'
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
-
-import Link from 'next/link'
-import Image from 'next/image'
+import { useEffect, useState } from "react"
+import { NavMain } from "./nav-main"
+import { LucideIcon } from "lucide-react"
+import { Permission } from "@prisma/client"
+import { NavProjects } from "./nav-projects"
+import { Icons } from "@/components/ui/icons"
+import { useTranslation } from "react-i18next"
+import { NavSecondary } from "./nav-secondary"
+import { useRoles } from "@/hooks/use-roles"
+import { useNavigationStore } from "@/lib/stores/navigation"
+import {
+  navigationConfig,
+  transformToMainNavItem,
+  transformToSecondaryNavItem,
+} from "@/lib/config/navigation"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
+import { NavMainItem } from "@/lib/types/navigation"
+import Link from "next/link"
+import Image from "next/image"
 
 type AppSidebarProps = {
   user: {
     roles: {
       role: {
-        name: string;
+        name: string
         permissions: {
-          permission: Permission;
-        }[];
-      };
-    }[];
+          permission: Permission
+        }[]
+      }
+    }[]
   }
 }
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
-  const { t } = useTranslation()
-  const { visibleMainItems, visibleSecondaryItems } = useNavigationStore()
+  const { t } = useTranslation();
+  const { roles, loading, error } = useRoles();
+  const { visibleMainItems, visibleSecondaryItems } = useNavigationStore();
+  const [mainNavItems, setMainNavItems] = useState<NavMainItem[]>([]);
 
-  // Get the user's primary role name for display
-  const roleName = user.roles[0]?.role.name || 'User'
+  const roleName = user.roles[0]?.role.name || "User";
 
-  // Transform and filter navigation items
-  const visibleMainNav = useMemo(() => {
-    return navigationConfig.mainNav
-      .filter(item => visibleMainItems.includes(item.id))
-      .map(item => transformToMainNavItem(item, user, t))
-      .filter(item => !item.hidden)
-  }, [visibleMainItems, user, t])
+  useEffect(() => {
+    if (loading) return;
 
-  const visibleProjectNav = useMemo(() => {
-    return navigationConfig.projectsNav.map(item => {
-      const translatedItem = { ...item, title: t(item.id) }
+    if (error) {
+      console.error("Error loading roles:", error);
+      return;
+    }
 
-      // Ensure the icon is correctly cast to LucideIcon | null
-      const IconComponent = (item.iconName ? Icons[item.iconName] : Icons.folder) as LucideIcon | null
+    async function loadNavItems() {
+      try {
+        const transformedItems = await Promise.all(
+          navigationConfig.mainNav
+            .filter((item) => visibleMainItems.includes(item.id))
+            .map((item) => transformToMainNavItem(item, user, roles, t))
+        );
 
-      return {
-        title: translatedItem.title,
-        url: translatedItem.url,
-        icon: IconComponent,
+        setMainNavItems(transformedItems.filter((item) => !item.hidden));
+      } catch (err) {
+        console.error("Error transforming navigation items:", err);
       }
-    })
-  }, [t])
+    }
 
-  const visibleSecondaryNav = useMemo(() => {
-    return navigationConfig.secondaryNav
-      .filter(item => visibleSecondaryItems.includes(item.id))
-      .map(item => transformToSecondaryNavItem(item, t))
-  }, [visibleSecondaryItems, t])
+    loadNavItems();
+  }, [visibleMainItems, user, roles, loading, error, t]);
+
+  const visibleProjectNav = navigationConfig.projectsNav.map(item => ({
+    title: t(item.id),
+    url: item.url,
+    icon: (item.iconName ? Icons[item.iconName] : Icons.folder) as LucideIcon | null
+  }));
+
+  if (loading) return <p className="p-4 text-center text-sm">Loading sidebar...</p>;
+  if (error) return <p className="p-4 text-center text-sm text-red-500">Error loading sidebar</p>;
 
   return (
     <Sidebar variant="inset" {...props} className="border border-border p-0">
-      {/* Sidebar Header */}
       <SidebarHeader className="border-b p-4 duration-300">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-
               <Link href="/dashboard" className="flex items-center gap-3">
-
-                {/* Logo */}
                 <Image
                   src="/images/new.png"
                   alt="Logo"
@@ -83,33 +98,28 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                   priority
                   className="rounded-full flex-shrink-0"
                 />
-
-                {/* Title */}
                 <div className="flex-1 overflow-hidden">
                   <span className="block font-semibold text-muted-foreground leading-normal break-words max-h-16 overflow-auto">
                     Legazpi City Civil Registry
                   </span>
                 </div>
               </Link>
-
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
-      {/* Role Panel */}
       <div className="p-4 border-b bg-muted">
         <div className="text-sm text-center font-medium text-muted-foreground">
-          {t(roleName)} {t('panel').toUpperCase()}
+          {t(roleName)} {t("panel").toUpperCase()}
         </div>
       </div>
 
-      {/* Sidebar Content */}
       <SidebarContent>
-        <NavMain items={visibleMainNav} />
+        <NavMain items={mainNavItems} />
         <NavProjects items={visibleProjectNav} />
-        <NavSecondary items={visibleSecondaryNav} className="mt-auto" />
+        <NavSecondary items={navigationConfig.secondaryNav} className="mt-auto" />
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }

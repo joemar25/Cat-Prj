@@ -1,207 +1,192 @@
-import { Permission } from '@prisma/client'
-import { Icons } from '@/components/ui/icons'
-import { NavConfig, NavMainItem, NavSecondaryItem, NavigationConfiguration, hasSubItems } from '@/lib/types/navigation'
-import type { LucideIcon } from 'lucide-react'
+// src/lib/config/navigation.ts
+
+import { Permission } from "@prisma/client"
+import { Icons } from "@/components/ui/icons"
+import { NavConfig, NavMainItem, NavSecondaryItem, NavigationConfiguration } from "@/lib/types/navigation"
+import { UserWithPermissions, hasAnyPermission, getRoleSlug, canManageRole } from "@/types/auth"
+import type { LucideIcon } from "lucide-react"
 
 // Environment variables
-const KIOSK = process.env.NEXT_PUBLIC_KIOSK === 'true'
-const SETTINGS = process.env.NEXT_PUBLIC_SETTINGS === 'true'
-const DEBUG = process.env.NEXT_PUBLIC_NODE_ENV === 'development'
-const REGULAR_USER_ACC = process.env.NEXT_PUBLIC_REGULAR_USER_ACC === 'true'
+const KIOSK = process.env.NEXT_PUBLIC_KIOSK === "true"
+const SETTINGS = process.env.NEXT_PUBLIC_SETTINGS === "true"
 
-// Debug logs
-if (typeof window !== 'undefined' && DEBUG) {
-    console.log('KIOSK env:', process.env.NEXT_PUBLIC_KIOSK)
-    console.log('SETTINGS env:', process.env.NEXT_PUBLIC_SETTINGS)
-    console.log('REGULAR_USER_ACC env:', process.env.NEXT_PUBLIC_REGULAR_USER_ACC)
-    console.log('KIOSK value:', KIOSK)
-    console.log('SETTINGS value:', SETTINGS)
-    console.log('REGULAR_USER_ACC value:', REGULAR_USER_ACC)
+// Define permission requirements for each navigation item
+const navPermissionRequirements = {
+    dashboard: [] as Permission[],
+    "manage-queue": [] as Permission[],
+    users: {
+        view: ["USER_READ"] as Permission[],
+        manage: ["USER_CREATE", "USER_UPDATE", "USER_DELETE"] as Permission[],
+    },
+    "civil-registry": ["DOCUMENT_READ"],
+    "certified-true-copies": ["DOCUMENT_VERIFY"],
+    reports: ["REPORT_READ"],
+    feedback: [],
+    settings: [],
+} as const
+
+// Fetch roles with permissions
+export async function getRoles(): Promise<{ id: string; name: string; permissions: { permission: Permission }[] }[]> {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/roles`, {
+            cache: "no-store",
+        })
+        const data = await response.json()
+
+        if (!data.success) throw new Error("Failed to fetch roles")
+
+        // Fetch permissions for each role to ensure complete data
+        const rolesWithPermissions = await Promise.all(
+            data.roles.map(async (role: { id: string; name: string }) => {
+                const permissionsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/roles/${role.id}/permissions`, {
+                    cache: "no-store",
+                })
+                const permissionsData = await permissionsResponse.json()
+                return {
+                    id: role.id,
+                    name: role.name,
+                    permissions: permissionsData.permissions || [],
+                }
+            })
+        )
+
+        return rolesWithPermissions
+    } catch (error) {
+        console.error("Error fetching roles:", error)
+        return []
+    }
 }
 
-interface UserWithPermissions {
-    roles: {
-        role: {
-            name: string;
-            permissions: {
-                permission: Permission;
-            }[];
-        };
-    }[];
-}
-
-// Helper function to check if user has permission
-function hasPermission(user: UserWithPermissions, requiredPermission: Permission): boolean {
-    return user.roles.some(userRole =>
-        userRole.role.permissions.some(p => p.permission === requiredPermission)
-    );
-}
-
-// Helper function to check if user has any of the required permissions
-function hasAnyPermission(user: UserWithPermissions, requiredPermissions: Permission[]): boolean {
-    return requiredPermissions.some(permission => hasPermission(user, permission));
-}
-
-export function transformToMainNavItem(item: NavConfig, user: UserWithPermissions, t: Function): NavMainItem {
+export function transformToMainNavItem(
+    item: NavConfig,
+    user: UserWithPermissions,
+    roles: { id: string; name: string; permissions: { permission: Permission }[] }[],
+    t: (key: string) => string
+): NavMainItem {
     const baseItem: NavMainItem = {
         title: t(item.id),
         url: item.url,
-        notViewedCount: item.notViewedCount
-    }
-
-    if (item.iconName) {
-        const Icon = Icons[item.iconName]
-        if (Icon) {
-            baseItem.icon = Icon as LucideIcon
-        }
-    }
-
-    // Permission-based visibility rules
-    switch (item.id) {
-        case 'users':
-            if (!hasAnyPermission(user, ['USER_READ', 'USER_CREATE', 'USER_UPDATE', 'USER_DELETE'])) {
-                return { ...baseItem, hidden: true }
-            }
-            break;
-        case 'certified-true-copies':
-            if (!hasPermission(user, 'DOCUMENT_VERIFY')) {
-                return { ...baseItem, hidden: true }
-            }
-            break;
-        case 'reports':
-            if (!hasPermission(user, 'REPORT_READ')) {
-                return { ...baseItem, hidden: true }
-            }
-            break;
-    }
-
-    if (hasSubItems(item)) {
-        baseItem.items = item.items
-            .filter(subItem => {
-                if (subItem.url === '/users') {
-                    // Regular users management requires specific permissions
-                    if (!REGULAR_USER_ACC) return false;
-                    return hasPermission(user, 'USER_READ');
-                }
-
-                // Check role-specific permissions
-                const isAdmin = user.roles.some(ur => ur.role.name === 'Super Admin' || ur.role.name === 'Admin');
-                if (subItem.id === 'admin' && !isAdmin) return false;
-
-                return true;
-            })
-            .map(subItem => ({
-                title: t(subItem.id),
-                url: subItem.url,
-                notViewedCount: subItem.notViewedCount
-            }))
-
-        if (baseItem.items?.length === 0) {
-            baseItem.items = undefined
-        }
-    }
-
-    return baseItem
-}
-
-export function transformToSecondaryNavItem(item: NavConfig, t: Function): NavSecondaryItem {
-    const IconComponent = item.iconName && Icons[item.iconName] ? Icons[item.iconName] as LucideIcon : undefined;
-
-    const baseItem: NavSecondaryItem = {
-        title: item.title || t(item.id),
-        url: item.url,
         notViewedCount: item.notViewedCount,
-        icon: IconComponent ?? Icons.folder,
     };
+
+    if (item.iconName && Icons[item.iconName]) {
+        baseItem.icon = Icons[item.iconName] as LucideIcon;
+    } else {
+        baseItem.icon = Icons.folder; // Fallback icon
+    }
+
+    const userPermissions = user.roles.flatMap((role) => role.role.permissions.map((p) => p.permission));
+
+    const requiredPermissions = navPermissionRequirements[item.id as keyof typeof navPermissionRequirements];
+    if (Array.isArray(requiredPermissions) && requiredPermissions.length > 0) {
+        if (!hasAnyPermission(userPermissions, requiredPermissions)) {
+            return { ...baseItem, hidden: true };
+        }
+    }
+
+    if (item.id === "users") {
+        if (!hasAnyPermission(userPermissions, navPermissionRequirements.users.view)) {
+            return { ...baseItem, hidden: true };
+        }
+
+        baseItem.items = roles
+            .filter((role) => canManageRole(userPermissions, role.permissions.map((p) => p.permission)))
+            .map(({ name }) => ({
+                title: `${name}s`,
+                url: `/users/${getRoleSlug(name)}`,
+            }));
+    }
 
     return baseItem;
 }
 
-// Navigation configuration
+export function transformToSecondaryNavItem(item: NavConfig, t: (key: string) => string): NavSecondaryItem {
+    const IconComponent = item.iconName && Icons[item.iconName] ? (Icons[item.iconName] as LucideIcon) : undefined
+
+    return {
+        title: item.title || t(item.id),
+        url: item.url,
+        notViewedCount: item.notViewedCount,
+        icon: IconComponent ?? Icons.folder,
+    }
+}
+
 export const navigationConfig: NavigationConfiguration = {
     mainNav: [
         {
-            id: 'dashboard',
-            type: 'main',
-            title: 'Dashboard',
-            url: '/dashboard',
-            iconName: 'layoutDashboard',
+            id: "dashboard",
+            type: "main",
+            title: "Dashboard",
+            url: "/dashboard",
+            iconName: "layoutDashboard",
         },
-        ...(KIOSK ? [
-            {
-                id: 'manage-queue',
-                type: 'main',
-                title: 'Manage Queue',
-                url: '/manage-queue',
-                iconName: 'userCheck',
-            } as const,
-        ] : []),
-        {
-            id: 'users',
-            type: 'main',
-            title: 'Manage Users',
-            url: '/users',
-            iconName: 'user',
-            items: [
+        ...(KIOSK
+            ? [
                 {
-                    id: 'admin',
-                    title: 'Admin',
-                    url: '/users/admin',
-                },
+                    id: "manage-queue",
+                    type: "main",
+                    title: "Manage Queue",
+                    url: "/manage-queue",
+                    iconName: "userCheck",
+                } as const,
+            ]
+            : []),
+        {
+            id: "users",
+            type: "main",
+            title: "Manage Users",
+            url: "/users",
+            iconName: "user",
+            items: [],
+        },
+        {
+            id: "civil-registry",
+            type: "main",
+            title: "Civil Registry",
+            url: "/civil-registry",
+            iconName: "briefcase",
+        },
+        {
+            id: "certified-true-copies",
+            type: "main",
+            title: "Manage CTC",
+            url: "/certified-true-copies",
+            iconName: "lifeBuoy",
+        },
+        {
+            id: "reports",
+            type: "main",
+            title: "Report Generation",
+            url: "/reports",
+            iconName: "report",
+        },
+        {
+            id: "feedback",
+            type: "main",
+            title: "Feedback",
+            url: "/feedback",
+            iconName: "mail",
+        },
+        ...(SETTINGS
+            ? [
                 {
-                    id: 'staffs',
-                    title: 'Staffs',
-                    url: '/users/staffs',
-                },
-                ...(REGULAR_USER_ACC ? [
-                    {
-                        id: 'regular-users',
-                        title: 'Regular Users',
-                        url: '/users',
-                    },
-                ] : []),
-            ],
-        },
-        {
-            id: 'civil-registry',
-            type: 'main',
-            title: 'Civil Registry',
-            url: '/civil-registry',
-            iconName: 'briefcase',
-        },
-        {
-            id: 'certified-true-copies',
-            type: 'main',
-            title: 'Manage CTC',
-            url: '/certified-true-copies',
-            iconName: 'lifeBuoy',
-        },
-        {
-            id: 'reports',
-            type: 'main',
-            title: 'Report Generation',
-            url: '/reports',
-            iconName: 'report',
-        },
-        {
-            id: 'feedback',
-            type: 'main',
-            title: 'Feedback',
-            url: '/feedback',
-            iconName: 'mail',
-        },
-        ...(SETTINGS ? [
-            {
-                id: 'settings',
-                type: 'main',
-                title: 'Settings',
-                url: '/settings',
-                iconName: 'settings',
-            } as const,
-        ] : []),
+                    id: "settings",
+                    type: "main",
+                    title: "Settings",
+                    url: "/settings",
+                    iconName: "settings",
+                } as const,
+            ]
+            : []),
     ],
     secondaryNav: [
-       
+        // {
+        //     id: "notifications",
+        //     type: "secondary",
+        //     title: "Notifications",
+        //     url: "/notifications",
+        //     iconName: "messageSquare",
+        // },
     ],
     projectsNav: [
         {
@@ -219,4 +204,4 @@ export const navigationConfig: NavigationConfiguration = {
             iconName: 'folder',
         },
     ],
-} as const
+}

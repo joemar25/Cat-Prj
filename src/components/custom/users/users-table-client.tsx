@@ -1,4 +1,3 @@
-// src/components/custom/users/users-table-client.tsx
 'use client'
 
 import { useState } from 'react'
@@ -23,7 +22,9 @@ export function UsersTableClient({ users: initialUsers }: UsersTableClientProps)
         )
     }
 
-    const columns = createColumns(session, handleUserUpdate)
+    const columns = createColumns(session ?? null, handleUserUpdate)
+
+    if (!columns || columns.length === 0) return <p className="text-center text-red-500">Error loading table columns</p>
 
     return <DataTable data={users} columns={columns} selection={false} />
 }

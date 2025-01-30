@@ -14,8 +14,16 @@ declare module "next-auth" {
             id: string
             roles: string[]
             permissions: Permission[]
+            emailVerified: boolean
+            username: string | null
+            active: boolean
+            createdAt: Date
+            updatedAt: Date
+            lastLoginAt: Date | null
+            language: string | null
         } & DefaultSession["user"]
     }
+
 }
 
 declare module "next-auth/jwt" {

@@ -19,10 +19,41 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [imageError, setImageError] = useState(false)
 
+  // Get user display name with proper fallbacks
+  const getDisplayName = () => {
+    if (user?.name?.trim()) {
+      // If full name exists, use it
+      return user.name
+    } else if (user?.username?.trim()) {
+      // If username exists, format it
+      return `@${user.username}`
+    } else if (user?.email) {
+      // If only email exists, use part before @
+      return user.email.split('@')[0]
+    }
+    return t('guest_user')
+  }
+
+  // Get initials from name or username
   const getInitials = () => {
-    if (!user?.name) return 'U'
-    const nameParts = user.name.split(' ')
-    return (nameParts[0]?.[0] + (nameParts[1]?.[0] || '')).toUpperCase()
+    if (user?.name?.trim()) {
+      // Get initials from full name
+      return user.name
+        .trim()
+        .split(/\s+/)
+        .map(part => part[0])
+        .filter(Boolean)
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+    } else if (user?.username?.trim()) {
+      // Get first two letters from username
+      return user.username.slice(0, 2).toUpperCase()
+    } else if (user?.email) {
+      // Get first letter from email
+      return user.email[0].toUpperCase()
+    }
+    return 'U'
   }
 
   const getImageSrc = (): string | undefined => {
@@ -35,52 +66,68 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
   const handleLogout = async () => {
     setIsLoggingOut(true)
     await handleSignOut()
-    toast.success('Logging out...', { duration: 3000 })
+    toast.success(t('logging_out'), { duration: 3000 })
     setIsLoggingOut(false)
   }
+
+  const displayName = getDisplayName()
+  const initials = getInitials()
 
   return (
     <>
       {/* User Dropdown */}
       <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-10 w-10 rounded-full border border-primary">
+          <Button
+            variant="ghost"
+            className="relative h-10 w-10 rounded-full border border-primary/20 hover:bg-accent"
+            aria-label={`${displayName}'s profile menu`}
+          >
             <Avatar className="h-8 w-8">
               <AvatarImage
                 className="object-cover"
                 src={getImageSrc()}
-                alt={user?.name || 'User'}
+                alt={displayName}
                 onError={() => setImageError(true)}
               />
-              <AvatarFallback>{getInitials()}</AvatarFallback>
+              <AvatarFallback className="font-medium bg-primary/5">
+                {initials}
+              </AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end">
           <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-2">
-              <p className="text-base font-semibold leading-tight">
-                {user?.name || t('guest_user')}
+            <div className="flex flex-col space-y-1.5">
+              <p className="text-sm font-medium leading-none">
+                {displayName}
               </p>
-              <p className="text-xs leading-normal text-gray-600">
+              <p className="text-xs leading-none text-muted-foreground truncate">
                 {user?.email || t('no_email')}
               </p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link href="/profile">{t('profile')}</Link>
+            <Link href="/profile" className="cursor-pointer">
+              <Icons.user className="mr-2 h-4 w-4" />
+              {t('profile')}
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/notifications">{t('notifications')}</Link>
+            <Link href="/notifications" className="cursor-pointer">
+              <Icons.bell className="mr-2 h-4 w-4" />
+              {t('notifications')}
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="text-destructive"
+            className="text-destructive focus:text-destructive cursor-pointer"
             onSelect={(e) => {
               e.preventDefault()
               setIsLogoutOpen(true)
             }}
           >
+            <Icons.logout className="mr-2 h-4 w-4" />
             {t('sign_out')}
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -88,25 +135,24 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
 
       {/* Logout Confirmation Dialog */}
       <Dialog open={isLogoutOpen} onOpenChange={setIsLogoutOpen}>
-        <DialogContent className="text-center space-y-6 p-8 max-w-sm mx-auto rounded-lg">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold">{t('confirm_logout')}</DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
+            <DialogTitle>{t('confirm_logout')}</DialogTitle>
+            <DialogDescription>
               {t('confirm_logout_message')}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-center space-x-4 mt-4">
+          <DialogFooter className="flex justify-end gap-2">
             <Button
-              onClick={closeLogout}
               variant="outline"
-              className="px-4 py-2 text-sm rounded-md"
+              onClick={closeLogout}
               disabled={isLoggingOut}
             >
               {t('cancel')}
             </Button>
             <Button
+              variant="destructive"
               onClick={handleLogout}
-              className="px-4 py-2 bg-red-600 text-sm text-white rounded-md hover:bg-red-700 disabled:bg-red-400"
               disabled={isLoggingOut}
             >
               {isLoggingOut ? (

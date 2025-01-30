@@ -5,7 +5,6 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { hash, compare } from 'bcryptjs'
 import { revalidatePath } from 'next/cache'
-import { ROLE_PERMISSIONS } from '@/types/auth'
 import { changePasswordSchema } from '@/lib/validation/auth/change-password'
 import { CertifiedCopyFormData } from '@/lib/validation/forms/certified-copy'
 import { AttachmentType, DocumentStatus, Profile, User, UserRole } from '@prisma/client'
@@ -16,7 +15,7 @@ const createUserSchema = z.object({
   email: getEmailSchema(),
   password: getPasswordSchema('password'),
   name: getNameSchema(),
-  role: z.enum(['ADMIN', 'STAFF', 'USER']).default('USER'),
+  role: z.enum(['ADMIN', 'USER']).default('USER'),
 })
 
 // Password change action

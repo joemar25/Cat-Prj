@@ -61,7 +61,7 @@
   "civil-registry": "Civil Registry",
   "certified-true-copies": "Manage CTC",
   "reports": "Report Generation",
-  "feedback": "Send Feedback",
+  "feedback": "Feedback",
   "send-feedback": "Send Feedback",
   "panel": "Panel",
   "log-out": "Log out",
@@ -221,7 +221,8 @@
     "resetFilters": "Reset",
     "status": "Status",
     "scan": "Scan",
-    "upload": "Upload"
+    "upload": "Upload",
+    "export": "Export"
   },
   "dataTable": {
     "user": "User",
@@ -274,32 +275,5 @@
   "confirm_logout": "Confirm Logout",
   "confirm_logout_message": "Are you sure you want to log out?",
   "log_out": "Log out",
-  "logging_out": "Logging out...",
-  "loggingOut": "Logging out...",
-  "signInToSubmitFeedback": "Please sign in to submit feedback.",
-  "areYouSureToLogout": "Are you sure you want to log out?",
-  "logOut": "Log Out",
-  "notificationList": {
-    "title": "List Notification",
-    "unread": "unread",
-    "searchPlaceholder": "Search by Email title",
-    "all": "All",
-    "archive": "Archive",
-    "favorite": "Favorite",
-    "loading": "Loading...",
-    "noNotifications": "No notifications",
-    "noArchived": "No archived notifications",
-    "noFavorite": "No favorite notifications"
-  },
-  "feedbacks": {
-    "emptyError": "Feedback cannot be empty.",
-    "success": "Feedback submitted successfully!",
-    "submitError": "Failed to submit feedback.",
-    "unexpectedError": "An unexpected error occurred.",
-    "helpText": "Help us improve by sharing your thoughts and suggestions.",
-    "label": "Your Feedback",
-    "placeholder": "What's on your mind?",
-    "submitting": "Submitting...",
-    "submit": "Submit Feedback"
-  }
+  "logging_out": "Logging out..."
 }

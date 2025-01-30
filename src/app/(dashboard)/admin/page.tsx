@@ -1,18 +1,21 @@
+// src/app/(dashboard)/users/page.tsx
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
+
 import { Skeleton } from '@/components/ui/skeleton'
 import { UsersTableClient } from '@/components/custom/users/users-table-client'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-async function getStaffUsers() {
+async function getUsers() {
   try {
     const users = await prisma.user.findMany({
       where: {
         roles: {
           some: {
             role: {
-              name: 'Staff'
+              name:
+                'Super Admin'
             }
           }
         }
@@ -35,7 +38,7 @@ async function getStaffUsers() {
     })
     return users
   } catch (error) {
-    console.error('Error fetching staff users:', error)
+    console.error('Error fetching admin users:', error)
     return []
   }
 }
@@ -44,9 +47,9 @@ function UsersTableSkeleton() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl font-semibold">Loading Staff Users</CardTitle>
+        <CardTitle className="text-xl font-semibold">Loading Users</CardTitle>
         <CardDescription>
-          Please wait while we fetch the staff user data...
+          Please wait while we fetch the user data...
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -62,13 +65,13 @@ function UsersTableSkeleton() {
   )
 }
 
-export default async function StaffUsersPage() {
-  const users = await getStaffUsers()
+export default async function UsersPage() {
+  const users = await getUsers()
 
   return (
     <>
       <DashboardHeader
-        breadcrumbs={[{ label: 'Staff Users', href: '/manage-staffs', active: true }]}
+        breadcrumbs={[{ label: 'Users', href: '/manage-users', active: true }]}
       />
 
       <div className="flex flex-1 flex-col gap-4 p-4">

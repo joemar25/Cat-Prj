@@ -1,24 +1,26 @@
-// src/app/(dashboard)/users/page.tsx
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
-import { ROLE_PERMISSIONS } from '@/types/auth'
+import { getRoleDisplayName } from '@/types/auth'
 import { Skeleton } from '@/components/ui/skeleton'
 import { UsersTableClient } from '@/components/custom/users/users-table-client'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-async function getUsers() {
+interface PageProps {
+  params: { role: string }
+}
+
+async function getUsers(roleSlug: string) {
   try {
+    const roleName = getRoleDisplayName(roleSlug)
+    if (!roleName) return []
+
     const users = await prisma.user.findMany({
       where: {
         roles: {
           some: {
             role: {
-              name: {
-                in: Object.keys(ROLE_PERMISSIONS).filter(role =>
-                  ['Super Admin', 'Admin'].includes(role)
-                )
-              }
+              name: roleName
             }
           }
         }
@@ -41,7 +43,7 @@ async function getUsers() {
     })
     return users
   } catch (error) {
-    console.error('Error fetching admin users:', error)
+    console.error('Error fetching users:', error)
     return []
   }
 }
@@ -68,13 +70,33 @@ function UsersTableSkeleton() {
   )
 }
 
-export default async function UsersPage() {
-  const users = await getUsers()
+export default async function UsersPage({ params }: PageProps) {
+  const users = await getUsers(params.role)
+  const roleName = getRoleDisplayName(params.role)
+
+  if (!roleName) {
+    // Handle invalid role slug
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold text-destructive">Invalid Role</CardTitle>
+            <CardDescription>
+              The specified role does not exist.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <>
       <DashboardHeader
-        breadcrumbs={[{ label: 'Users', href: '/manage-users', active: true }]}
+        breadcrumbs={[
+          { label: 'Users', href: '/users', active: false },
+          { label: roleName, active: true }
+        ]}
       />
 
       <div className="flex flex-1 flex-col gap-4 p-4">
