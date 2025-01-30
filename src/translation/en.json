@@ -221,7 +221,8 @@
     "resetFilters": "Reset",
     "status": "Status",
     "scan": "Scan",
-    "upload": "Upload"
+    "upload": "Upload",
+    "export": "Export"
   },
   "dataTable": {
     "user": "User",

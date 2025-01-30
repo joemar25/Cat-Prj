@@ -7,86 +7,88 @@ export async function PUT(request: Request) {
     try {
         const session = await auth()
         if (!session?.user?.id) {
-            return NextResponse.json(
-                { error: 'Unauthorized' },
-                { status: 401 }
-            )
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        const data = await request.json()
+        const body = await request.json()
 
-        // Start a transaction to update both user and profile
+        // Update user and profile in a transaction
         const [user, profile] = await prisma.$transaction(async (tx) => {
-            // Update user data
+            // Update user
             const updatedUser = await tx.user.update({
                 where: { id: session.user.id },
                 data: {
-                    username: data.username,
-                    name: data.name,
-                    image: data.image,
+                    username: body.username || undefined,
+                    name: body.name || undefined,
+                    image: body.image || undefined,
                 },
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    image: true,
-                    username: true,
-                    role: true,
-                    permissions: true,
+                include: {
+                    roles: {
+                        include: {
+                            role: {
+                                include: {
+                                    permissions: true
+                                }
+                            }
+                        }
+                    }
                 }
             })
 
-            // Update profile data
+            // Update or create profile
             const updatedProfile = await tx.profile.upsert({
                 where: { userId: session.user.id },
-                update: {
-                    phoneNumber: data.phoneNumber,
-                    address: data.address,
-                    city: data.city,
-                    state: data.state,
-                    country: data.country,
-                    postalCode: data.postalCode,
-                    bio: data.bio,
-                    occupation: data.occupation,
-                    gender: data.gender,
-                    nationality: data.nationality,
-                    dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
-                    updatedAt: new Date(),
-                },
                 create: {
                     userId: session.user.id,
-                    phoneNumber: data.phoneNumber,
-                    address: data.address,
-                    city: data.city,
-                    state: data.state,
-                    country: data.country,
-                    postalCode: data.postalCode,
-                    bio: data.bio,
-                    occupation: data.occupation,
-                    gender: data.gender,
-                    nationality: data.nationality,
-                    dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
+                    dateOfBirth: body.dateOfBirth ? new Date(body.dateOfBirth) : null,
+                    phoneNumber: body.phoneNumber || null,
+                    address: body.address || null,
+                    city: body.city || null,
+                    state: body.state || null,
+                    country: body.country || null,
+                    postalCode: body.postalCode || null,
+                    bio: body.bio || null,
+                    occupation: body.occupation || null,
+                    gender: body.gender || null,
+                    nationality: body.nationality || null,
                 },
+                update: {
+                    dateOfBirth: body.dateOfBirth ? new Date(body.dateOfBirth) : null,
+                    phoneNumber: body.phoneNumber || null,
+                    address: body.address || null,
+                    city: body.city || null,
+                    state: body.state || null,
+                    country: body.country || null,
+                    postalCode: body.postalCode || null,
+                    bio: body.bio || null,
+                    occupation: body.occupation || null,
+                    gender: body.gender || null,
+                    nationality: body.nationality || null,
+                }
             })
 
             return [updatedUser, updatedProfile]
         })
 
-        // Return both user and profile data for session update
         return NextResponse.json({
             success: true,
-            message: 'Profile updated successfully',
             data: {
-                user,
+                user: {
+                    ...user,
+                    roles: user.roles.map(ur => ur.role.name),
+                    permissions: Array.from(new Set(
+                        user.roles.flatMap(ur => ur.role.permissions.map(p => p.permission))
+                    ))
+                },
                 profile
             }
         })
-
     } catch (error) {
-        console.error('Profile update error:', error)
         return NextResponse.json({
-            error: 'Failed to update profile',
-            details: error instanceof Error ? error.message : String(error)
-        }, { status: 500 })
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to update profile'
+        }, {
+            status: 500
+        })
     }
 }

@@ -224,7 +224,8 @@
     "resetFilters": "I-reset",
     "status": "Katayuan",
     "scan": "I-scan",
-    "upload": "I-upload"
+    "upload": "I-upload",
+    "export": "I-export"
   },
   "dataTable": {
     "user": "User",

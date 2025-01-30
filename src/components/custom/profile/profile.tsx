@@ -1,4 +1,3 @@
-// src/components/custom/profile/profile.tsx
 'use client'
 
 import { toast } from 'sonner'
@@ -34,51 +33,54 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
         }
 
         setIsUploadingAvatar(true)
+        toast.loading('Uploading avatar...')
 
         try {
             const formData = new FormData()
             formData.append('file', file)
 
-            const response = await fetch('/api/upload-avatar', {
+            const uploadResponse = await fetch('/api/upload-avatar', {
                 method: 'POST',
                 body: formData,
             })
 
-            if (!response.ok) throw new Error('Failed to upload avatar')
+            if (!uploadResponse.ok) {
+                throw new Error(await uploadResponse.text() || 'Failed to upload avatar')
+            }
 
-            const { imageUrl } = await response.json()
+            const { imageUrl } = await uploadResponse.json()
 
             const profileResponse = await fetch('/api/profile', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: imageUrl }),
+                body: JSON.stringify({
+                    image: imageUrl,
+                    name: profile?.user?.name,
+                    username: profile?.user?.username,
+                })
             })
 
-            if (!profileResponse.ok) throw new Error('Failed to update profile with new avatar')
+            if (!profileResponse.ok) {
+                throw new Error(await profileResponse.text() || 'Failed to update profile')
+            }
 
             const result = await profileResponse.json()
+
             if (result.success) {
-                await update({ ...result.data.user, image: imageUrl })
+                await update({
+                    ...profile?.user,
+                    image: imageUrl
+                })
+
                 toast.success('Avatar updated successfully')
                 router.refresh()
+            } else {
+                throw new Error(result.error || 'Failed to update profile')
             }
         } catch (error) {
-            console.error('Failed to update avatar:', error)
             toast.error(error instanceof Error ? error.message : 'Failed to update avatar')
         } finally {
             setIsUploadingAvatar(false)
-        }
-    }
-
-    const toggleEditMode = () => {
-        if (isEditing && isPasswordMode) {
-            setIsEditing(false)
-            setIsPasswordMode(false)
-        } else if (isEditing) {
-            setIsPasswordMode(true)
-        } else {
-            setIsEditing(true)
-            setIsPasswordMode(false)
         }
     }
 
@@ -122,15 +124,17 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                 <ProfileForm
                     profile={profile}
                     isEditing={isEditing}
-                    onEditingChange={setIsEditing}
-                    onPasswordModeChange={() => setIsPasswordMode(true)}
+                    onEditingChangeAction={setIsEditing}
                 />
             )}
 
             {isPasswordMode && (
                 <PasswordForm
                     userId={userId}
-                    onCancel={toggleEditMode}
+                    onCancel={() => {
+                        setIsPasswordMode(false)
+                        setIsEditing(true)
+                    }}
                     onSuccess={() => {
                         setIsEditing(false)
                         setIsPasswordMode(false)
@@ -138,14 +142,23 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                 />
             )}
 
-            {isEditing && !isPasswordMode && (
-                <div className="mt-4">
-                    <Button type="button" variant="outline" onClick={() => setIsPasswordMode(true)}>
-                        <Icons.key className="mr-2 h-4 w-4" />
-                        Change Password
+            <div className="mt-4 flex gap-2">
+                {!isEditing && !isPasswordMode && (
+                    <Button type="button" onClick={() => setIsEditing(true)}>
+                        <Icons.edit className="mr-2 h-4 w-4" />
+                        Edit Profile
                     </Button>
-                </div>
-            )}
+                )}
+
+                {isEditing && !isPasswordMode && (
+                    <>
+                        <Button type="button" variant="outline" onClick={() => setIsPasswordMode(true)}>
+                            <Icons.key className="mr-2 h-4 w-4" />
+                            Change Password
+                        </Button>
+                    </>
+                )}
+            </div>
         </div>
     )
 }
