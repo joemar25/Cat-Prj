@@ -1,18 +1,15 @@
 import { useState } from 'react'
-import { User, Profile } from '@prisma/client'
+import { Profile } from '@prisma/client'
 import { ProfileSection } from '@/components/custom/users/components/edit-user-dialog/profile-section'
 import { PasswordSection } from '@/components/custom/users/components/edit-user-dialog/password-section'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-
-interface UserWithProfile extends User {
-  profile?: Profile | null
-}
+import { UserWithRoleAndProfile } from '@/types/user'
 
 interface EditUserDialogProps {
-  user: UserWithProfile
+  user: UserWithRoleAndProfile
   open: boolean
   onOpenChangeAction: (open: boolean) => void
-  onSave?: (user: User) => void
+  onSave?: (user: UserWithRoleAndProfile) => void
 }
 
 export function EditUserDialog({ user, open, onOpenChangeAction, onSave }: EditUserDialogProps) {
@@ -27,9 +24,16 @@ export function EditUserDialog({ user, open, onOpenChangeAction, onSave }: EditU
         </DialogHeader>
 
         {!showPasswordForm ? (
-          <ProfileSection user={user} onPasswordChange={() => setShowPasswordForm(true)} onSave={onSave} />
+          <ProfileSection
+            user={user}
+            onPasswordChange={() => setShowPasswordForm(true)}
+            onSave={onSave}
+          />
         ) : (
-          <PasswordSection userId={user.id} onCancel={() => setShowPasswordForm(false)} />
+          <PasswordSection
+            userId={user.id}
+            onCancel={() => setShowPasswordForm(false)}
+          />
         )}
       </DialogContent>
     </Dialog>

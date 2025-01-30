@@ -1,15 +1,11 @@
-// src/hooks/auth.ts
 'use server'
 
 import bcryptjs from 'bcryptjs'
-
 import { hash } from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { AuthError } from 'next-auth'
-import { signUpSchema } from '@/lib/validation'
-import { UserRole } from '@prisma/client'
 import { signIn, signOut } from '@/lib/auth'
-import { ROLE_PERMISSIONS } from '@/types/auth'
+import { signUpSchema } from '@/lib/validation'
 
 export async function handleCredentialsSignin({
   email,
@@ -19,13 +15,20 @@ export async function handleCredentialsSignin({
   password: string;
 }) {
   try {
-    // Fetch the user from the database
+    // Fetch the user with roles
     const user = await prisma.user.findUnique({
       where: { email },
+      include: {
+        roles: {
+          include: {
+            role: true
+          }
+        }
+      }
     });
 
-    // Check if the user exists and is not a regular user
-    if (!user || user.role === UserRole.USER) {
+    // Check if the user exists and has appropriate roles
+    if (!user || user.roles.every(ur => ur.role.name === 'User')) {
       return {
         success: false,
         message: 'Access denied. Regular users are not allowed to log in.',
@@ -36,7 +39,7 @@ export async function handleCredentialsSignin({
     const result = await signIn('credentials', {
       email,
       password,
-      redirect: false, // Avoid automatic redirect to handle responses better
+      redirect: false,
     });
 
     if (result?.error) {
@@ -46,7 +49,6 @@ export async function handleCredentialsSignin({
       };
     }
 
-    // Redirect to dashboard on successful login
     return {
       success: true,
       redirectTo: '/dashboard',
@@ -77,7 +79,7 @@ type SignUpInput = {
   email: string
   password: string
   confirmPassword: string
-  role?: 'ADMIN' | 'STAFF'
+  role?: 'Super Admin' | 'Admin'
 }
 
 export async function handleSignUp({
@@ -85,7 +87,7 @@ export async function handleSignUp({
   email,
   password,
   confirmPassword,
-  role = 'STAFF',
+  role = 'Admin',
 }: SignUpInput) {
   try {
     const parsedCredentials = signUpSchema.safeParse({
@@ -111,23 +113,40 @@ export async function handleSignUp({
     const hashedPassword = await bcryptjs.hash(password, 10)
     const now = new Date()
 
-    // Determine the role based on environment and input
-    const userRole: UserRole =
-      process.env.NODE_ENV === 'development' ? (role as UserRole) : 'STAFF'
+    // Determine the role based on environment
+    const userRoleName = process.env.NODE_ENV === 'development' ? role : 'Staff'
 
     await prisma.$transaction(async (tx) => {
+      // Create user
       const user = await tx.user.create({
         data: {
           email,
           name,
           emailVerified: false,
-          role: userRole,
-          permissions: ROLE_PERMISSIONS[userRole],
+          active: true,
           createdAt: now,
           updatedAt: now,
         },
       })
 
+      // Get the role
+      const roleRecord = await tx.role.findUnique({
+        where: { name: userRoleName }
+      })
+
+      if (!roleRecord) {
+        throw new Error('Role not found')
+      }
+
+      // Assign role to user
+      await tx.userRole.create({
+        data: {
+          userId: user.id,
+          roleId: roleRecord.id
+        }
+      })
+
+      // Create account
       await tx.account.create({
         data: {
           userId: user.id,
@@ -165,7 +184,6 @@ type RegisterData = {
 
 export async function handleRegistration(data: RegisterData) {
   try {
-    // Check for existing user
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
     })
@@ -184,11 +202,27 @@ export async function handleRegistration(data: RegisterData) {
           name: data.name,
           email: data.email,
           emailVerified: false,
-          role: UserRole.USER,
-          permissions: ['QUEUE_VIEW'],
+          active: true,
           createdAt: now,
           updatedAt: now,
         },
+      })
+
+      // Get the 'User' role
+      const userRole = await tx.role.findUnique({
+        where: { name: 'User' }
+      })
+
+      if (!userRole) {
+        throw new Error('User role not found')
+      }
+
+      // Assign role to user
+      await tx.userRole.create({
+        data: {
+          userId: user.id,
+          roleId: userRole.id
+        }
       })
 
       // Create account
