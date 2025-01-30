@@ -5,7 +5,6 @@ import { formatDateTime } from '@/utils/date';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
 import React from 'react';
 import { style } from './styles';
-import { back } from './back';
 
 interface DeathCertificatePDFProps {
   data: Partial<DeathCertificateFormValues>;
@@ -26,7 +25,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
 
   return (
     <Document>
-      <Page size='LEGAL' style={[back.page, style.flexColumn, { gap: 10 }]}>
+      <Page size='LEGAL' style={[style.page, style.flexColumn, { gap: 10 }]}>
         <View style={style.gridColumn}>
           <View style={[style.gridColumn,]}>
             <Text style={[style.headerTitle, style.paddingGlobal, { textAlign: 'center' }]}>For children aged 0 to 7 days</Text>
