@@ -2,13 +2,13 @@
 
 import { toast } from 'sonner'
 import { useState } from 'react'
-import { FormType } from '@prisma/client'
 import { Row } from '@tanstack/react-table'
-import { useSession } from 'next-auth/react'
 import { hasPermission } from '@/types/auth'
 import { Icons } from '@/components/ui/icons'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
+import { useUser } from '@/context/user-context'
+import { FormType, Permission } from '@prisma/client'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { useDeleteFormAction } from '@/components/custom/civil-registry/actions/delete-form-action'
@@ -30,7 +30,7 @@ const formTypeLabels: Record<FormType, string> = {
 
 export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActionsProps) {
   const { t } = useTranslation()
-  const { data: session } = useSession()
+  const { permissions } = useUser()
   const form = row.original
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
@@ -42,19 +42,24 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
     registryNumber: form.registryNumber,
   })
 
-  const canManageForms = hasPermission(session?.user?.permissions ?? [], 'DOCUMENTS_MANAGE')
-  if (!canManageForms) return null
+  const canView = hasPermission(permissions, Permission.DOCUMENT_READ)
+  const canEdit = hasPermission(permissions, Permission.DOCUMENT_UPDATE)
+  const canDelete = hasPermission(permissions, Permission.DOCUMENT_DELETE)
+  const canUpload = hasPermission(permissions, Permission.DOCUMENT_CREATE)
+  const canPrint = hasPermission(permissions, Permission.DOCUMENT_VERIFY)
 
   return (
     <>
-      <FileUploadDialog
-        open={uploadDialogOpen}
-        onOpenChangeAction={setUploadDialogOpen}
-        onUploadSuccess={(fileUrl) => onUpdateAction?.({ ...form, documentUrl: fileUrl })}
-        formId={form.id}
-        formType={form.formType}
-        registryNumber={form.registryNumber}
-      />
+      {canUpload && (
+        <FileUploadDialog
+          open={uploadDialogOpen}
+          onOpenChangeAction={setUploadDialogOpen}
+          onUploadSuccess={(fileUrl) => onUpdateAction?.({ ...form, documentUrl: fileUrl })}
+          formId={form.id}
+          formType={form.formType}
+          registryNumber={form.registryNumber}
+        />
+      )}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -66,48 +71,58 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
         <DropdownMenuContent align='end' className='w-[160px]'>
           <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setViewDetailsOpen(true)}>
-            <Icons.eye className='mr-2 h-4 w-4' />
-            {t('viewDetails')}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
-            <Icons.add className='mr-2 h-4 w-4' />
-            {t('importDocument')}
-          </DropdownMenuItem>
-          {form.documentUrl && (
+          {canView && (
+            <DropdownMenuItem onClick={() => setViewDetailsOpen(true)}>
+              <Icons.eye className='mr-2 h-4 w-4' />
+              {t('viewDetails')}
+            </DropdownMenuItem>
+          )}
+          {canUpload && (
+            <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
+              <Icons.add className='mr-2 h-4 w-4' />
+              {t('importDocument')}
+            </DropdownMenuItem>
+          )}
+          {canPrint && form.documentUrl && (
             <DropdownMenuItem onClick={handlePrintDocument}>
               <Icons.printer className='mr-2 h-4 w-4' />
               {t('Print Document')}
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
-            <Icons.file className='mr-2 h-4 w-4' />
-            {t('issueCertificate')}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={(e) => e.preventDefault()}
-            onClick={handleDelete}
-            disabled={isLoading}
-            className='text-destructive focus:text-destructive'
-          >
-            <Icons.trash className='mr-2 h-4 w-4' />
-            {isLoading ? t('deleting') : t('delete')}
-          </DropdownMenuItem>
+          {canEdit && (
+            <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+              <Icons.file className='mr-2 h-4 w-4' />
+              {t('issueCertificate')}
+            </DropdownMenuItem>
+          )}
+          {canDelete && (
+            <DropdownMenuItem
+              onSelect={(e) => e.preventDefault()}
+              onClick={handleDelete}
+              disabled={isLoading}
+              className='text-destructive focus:text-destructive'
+            >
+              <Icons.trash className='mr-2 h-4 w-4' />
+              {isLoading ? t('deleting') : t('delete')}
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <EditCivilRegistryFormDialog
-        form={form}
-        open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
-        onSave={(updatedForm) => {
-          toast.success(`Form ${updatedForm.id} has been updated successfully!`)
-          onUpdateAction?.(updatedForm)
-          setEditDialogOpen(false)
-        }}
-      />
+      {canEdit && (
+        <EditCivilRegistryFormDialog
+          form={form}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSave={(updatedForm) => {
+            toast.success(`Form ${updatedForm.id} has been updated successfully!`)
+            onUpdateAction?.(updatedForm)
+            setEditDialogOpen(false)
+          }}
+        />
+      )}
 
-      <ViewDetailsDialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen} form={form} />
+      {canView && <ViewDetailsDialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen} form={form} />}
     </>
   )
 }

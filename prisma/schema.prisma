@@ -68,6 +68,10 @@ enum Permission {
 
   // API Access
   // API_ACCESS
+
+  // Notifications
+  FEEDBACK_DELETE
+  FEEDBACK_READ
 }
 
 model Role {

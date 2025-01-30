@@ -16,7 +16,7 @@ async function main() {
         'ROLE_CREATE', 'ROLE_READ', 'ROLE_UPDATE', 'ROLE_DELETE',
         'DOCUMENT_CREATE', 'DOCUMENT_READ', 'DOCUMENT_UPDATE', 'DOCUMENT_DELETE', 'DOCUMENT_VERIFY',
         'REPORT_CREATE', 'REPORT_READ', 'REPORT_EXPORT',
-        'AUDIT_LOG_READ'
+        'AUDIT_LOG_READ', 'FEEDBACK_READ', 'FEEDBACK_DELETE'
       ] as Permission[]
     },
     {
@@ -26,7 +26,7 @@ async function main() {
         'USER_CREATE', 'USER_READ', 'USER_UPDATE',
         'DOCUMENT_CREATE', 'DOCUMENT_READ', 'DOCUMENT_UPDATE', 'DOCUMENT_VERIFY',
         'REPORT_READ', 'REPORT_EXPORT',
-        'AUDIT_LOG_READ'
+        'AUDIT_LOG_READ', 'FEEDBACK_READ', 'FEEDBACK_DELETE'
       ] as Permission[]
     },
     {

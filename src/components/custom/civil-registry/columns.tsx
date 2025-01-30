@@ -7,7 +7,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { DataTableRowActions } from './data-table-row-actions'
 import { DateRange } from 'react-day-picker'
-import { useTranslation } from 'react-i18next' // Import useTranslation
+import { useTranslation } from 'react-i18next'
 
 export interface ExtendedBaseRegistryForm extends BaseRegistryForm {
   preparedBy: User | null
@@ -37,7 +37,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
       const formTypeInfo = formTypeVariants[formType]
       return (
         <Badge variant={formTypeInfo.variant} className='font-medium'>
-          {useTranslation().t(formTypeInfo.label.toLowerCase())} 
+          {useTranslation().t(formTypeInfo.label.toLowerCase())}
         </Badge>
       )
     },
@@ -55,7 +55,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     },
     id: 'registryDetails',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={useTranslation().t('registryDetails')} /> // Translated title
+      <DataTableColumnHeader column={column} title={useTranslation().t('registryDetails')} />
     ),
     cell: ({ row }) => {
       const details = JSON.parse(row.getValue('registryDetails')) as {

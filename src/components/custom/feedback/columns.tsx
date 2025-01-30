@@ -91,7 +91,7 @@ export const columns: ColumnDef<FeedbackRow>[] = [
                 </div>
             )
         },
-    }, 
+    },
     {
         id: 'actions',
         header: ({ column }) => {

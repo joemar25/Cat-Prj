@@ -3,9 +3,10 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { AppSidebar } from "@/components/custom/sidebar/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { UserProvider } from "@/context/user-context"
+import { Permission } from "@prisma/client"
 
 import TranslationProvider from "@/components/custom/provider/translation-provider"
-import { Permission } from "@prisma/client"
 
 type ChildrenProps = {
   children: React.ReactNode
@@ -24,15 +25,17 @@ export default async function AuthLayout({ children }: ChildrenProps) {
         })) || [],
       }
     }))
-  };
+  }
 
   return (
     <TranslationProvider>
       <SidebarProvider>
-        <AppSidebar user={user} />
-        <SidebarInset>
-          <main className="flex-1">{children}</main>
-        </SidebarInset>
+        <UserProvider>
+          <AppSidebar user={user} />
+          <SidebarInset>
+            <main className="flex-1">{children}</main>
+          </SidebarInset>
+        </UserProvider>
       </SidebarProvider>
     </TranslationProvider>
   )

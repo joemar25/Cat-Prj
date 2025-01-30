@@ -11,6 +11,9 @@ import { DataTableViewOptions } from '@/components/custom/table/data-table-view-
 import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
 import { useTranslation } from 'react-i18next'
 import { AddUserDialog } from './actions/add-user-dialog'
+import { useUser } from '@/context/user-context'
+import { hasPermission } from '@/types/auth'
+import { Permission } from '@prisma/client'
 
 interface DataTableToolbarProps<TData extends User> {
   table: Table<TData>
@@ -25,10 +28,14 @@ export function DataTableToolbar<TData extends User>({
   table,
 }: DataTableToolbarProps<TData>) {
   const { t } = useTranslation()
+  const { permissions } = useUser()
   const isFiltered = table.getState().columnFilters.length > 0
 
   const nameColumn = table.getColumn('name')
   const statusColumn = table.getColumn('emailVerified')
+
+  const canExport = hasPermission(permissions, Permission.REPORT_EXPORT)
+  const canAddUser = hasPermission(permissions, Permission.USER_CREATE)
 
   const handleSearch = useCallback(
     (value: string) => {
@@ -38,7 +45,9 @@ export function DataTableToolbar<TData extends User>({
   )
 
   const handleExport = () => {
-    console.log('Export functionality to be implemented')
+    if (canExport) {
+      console.log('Export functionality to be implemented')
+    }
   }
 
   return (
@@ -92,17 +101,21 @@ export function DataTableToolbar<TData extends User>({
         )}
       </div>
       <div className="flex items-center space-x-4">
-        <Button variant="outline" className="h-10" onClick={handleExport}>
-          <Icons.download className="mr-2 h-4 w-4" />
-          {t('dataTableToolbar.export')}
-        </Button>
+        {canExport && (
+          <Button variant="outline" className="h-10" onClick={handleExport}>
+            <Icons.download className="mr-2 h-4 w-4" />
+            {t('dataTableToolbar.export')}
+          </Button>
+        )}
 
-        <AddUserDialog
-          onSuccess={() => {
-            table.resetColumnFilters()
-            table.resetSorting()
-          }}
-        />
+        {canAddUser && (
+          <AddUserDialog
+            onSuccess={() => {
+              table.resetColumnFilters()
+              table.resetSorting()
+            }}
+          />
+        )}
 
         <DataTableViewOptions table={table} />
       </div>
