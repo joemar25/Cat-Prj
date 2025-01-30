@@ -2,23 +2,19 @@ import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
-import { User, Profile } from '@prisma/client'
 import { Button } from '@/components/ui/button'
 import { useEffect, useTransition } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { UserWithRoleAndProfile } from '@/types/user'
 import { profileFormSchema, ProfileFormValues } from '@/lib/validation/profile/profile-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 
-interface UserWithProfile extends User {
-    profile?: Profile | null
-}
-
 interface ProfileSectionProps {
-    user: UserWithProfile
+    user: UserWithRoleAndProfile
     onPasswordChange: () => void
-    onSave?: (user: User) => void
+    onSave?: (user: UserWithRoleAndProfile) => void
 }
 
 export function ProfileSection({ user, onPasswordChange, onSave }: ProfileSectionProps) {
@@ -80,7 +76,19 @@ export function ProfileSection({ user, onPasswordChange, onSave }: ProfileSectio
                     throw new Error('Failed to update profile')
                 }
 
-                const updatedUser = await response.json()
+                const updatedUserData = await response.json()
+
+                // Create a properly structured UserWithRoleAndProfile object
+                const updatedUser: UserWithRoleAndProfile = {
+                    ...user,
+                    ...updatedUserData,
+                    profile: {
+                        ...user.profile,
+                        ...updatedUserData.profile
+                    },
+                    roles: user.roles // Maintain existing roles
+                }
+
                 toast.success('Profile updated successfully')
                 onSave?.(updatedUser)
                 router.refresh()

@@ -1,16 +1,16 @@
-// src\components\custom\users\data-table-row-actions.tsx
 'use client'
 
 import { Button } from '@/components/ui/button'
 import { Icons } from '@/components/ui/icons'
 import { deactivateUser, enableUser } from '@/hooks/users-action'
 import { hasPermission } from '@/types/auth'
-import { User } from '@prisma/client'
+import { Permission } from '@prisma/client'
 import { Row } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { EditUserDialog } from './actions/edit-user-dialog'
+import { UserWithRoleAndProfile } from '@/types/user'
 
 import {
   AlertDialog,
@@ -41,8 +41,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 interface DataTableRowActionsProps {
-  row: Row<User>
-  onUpdateUser?: (updatedUser: User) => void
+  row: Row<UserWithRoleAndProfile>
+  onUpdateUser?: (updatedUser: UserWithRoleAndProfile) => void
 }
 
 export function DataTableRowActions({
@@ -59,7 +59,7 @@ export function DataTableRowActions({
 
   const canManageUsers = hasPermission(
     session?.user?.permissions ?? [],
-    'USERS_MANAGE'
+    'USER_CREATE' as Permission
   )
   if (!canManageUsers) return null
 
@@ -111,7 +111,7 @@ export function DataTableRowActions({
     }
   }
 
-  const handleSave = (updatedUser: User) => {
+  const handleSave = (updatedUser: UserWithRoleAndProfile) => {
     onUpdateUser?.(updatedUser)
     toast.success(`User ${updatedUser.name} has been updated successfully!`)
     setEditDialogOpen(false)
@@ -183,7 +183,7 @@ export function DataTableRowActions({
               <div className="text-sm">
                 <p><strong>User:</strong> {user.name}</p>
                 <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Role:</strong> {user.role}</p>
+                <p><strong>Roles:</strong> {user.roles.map(ur => ur.role.name).join(', ')}</p>
               </div>
             </div>
           </AlertDialogHeader>
@@ -212,7 +212,7 @@ export function DataTableRowActions({
               <div className="text-sm">
                 <p><strong>User:</strong> {user.name}</p>
                 <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Role:</strong> {user.role}</p>
+                <p><strong>Roles:</strong> {user.roles.map(ur => ur.role.name).join(', ')}</p>
               </div>
             </div>
           </AlertDialogHeader>
@@ -256,8 +256,10 @@ export function DataTableRowActions({
               <span className='col-span-3'>{user.email}</span>
             </div>
             <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Role</span>
-              <span className='col-span-3'>{user.role}</span>
+              <span className='font-medium'>Roles</span>
+              <span className='col-span-3'>
+                {user.roles.map(ur => ur.role.name).join(', ')}
+              </span>
             </div>
             <div className='grid grid-cols-4 items-center gap-4'>
               <span className='font-medium'>Status</span>

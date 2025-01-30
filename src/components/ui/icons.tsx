@@ -84,6 +84,7 @@ import {
     ChartArea,
     UploadIcon,
     Camera,
+    LogOutIcon,
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
 } from 'lucide-react'

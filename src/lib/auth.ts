@@ -1,8 +1,8 @@
 // src\lib\auth.ts
 import NextAuth from "next-auth"
-import { prisma } from "@/lib/prisma"
+import authConfig from "@/lib/auth.config"
 
-import authConfig from "./auth.config"
+import { prisma } from "@/lib/prisma"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({

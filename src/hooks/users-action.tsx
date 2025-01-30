@@ -5,7 +5,6 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { hash, compare } from 'bcryptjs'
 import { revalidatePath } from 'next/cache'
-import { ROLE_PERMISSIONS } from '@/types/auth'
 import { changePasswordSchema } from '@/lib/validation/auth/change-password'
 import { CertifiedCopyFormData } from '@/lib/validation/forms/certified-copy'
 import { AttachmentType, DocumentStatus, Profile, User, UserRole } from '@prisma/client'
@@ -16,7 +15,7 @@ const createUserSchema = z.object({
   email: getEmailSchema(),
   password: getPasswordSchema('password'),
   name: getNameSchema(),
-  role: z.enum(['ADMIN', 'STAFF', 'USER']).default('USER'),
+  role: z.enum(['ADMIN', 'USER']).default('USER'),
 })
 
 // Password change action
@@ -87,6 +86,15 @@ export async function handleCreateUser(data: FormData) {
       return { success: false, message: 'Email already exists' }
     }
 
+    // Find the role record
+    const role = await prisma.role.findUnique({
+      where: { name: parsedData.role },
+    })
+
+    if (!role) {
+      return { success: false, message: 'Invalid role selected' }
+    }
+
     const hashedPassword = await hash(parsedData.password, 10)
     const now = new Date()
 
@@ -97,10 +105,17 @@ export async function handleCreateUser(data: FormData) {
           name: parsedData.name,
           email: parsedData.email,
           emailVerified: false,
-          role: parsedData.role as UserRole,
-          permissions: ROLE_PERMISSIONS[parsedData.role as UserRole],
+          active: true,
           createdAt: now,
           updatedAt: now,
+        },
+      })
+
+      // Create role assignment
+      await tx.userRole.create({
+        data: {
+          userId: createdUser.id,
+          roleId: role.id,
         },
       })
 
@@ -128,7 +143,22 @@ export async function handleCreateUser(data: FormData) {
         },
       })
 
-      return createdUser
+      // Return user with roles included
+      return await tx.user.findUnique({
+        where: { id: createdUser.id },
+        include: {
+          roles: {
+            include: {
+              role: {
+                include: {
+                  permissions: true
+                }
+              }
+            }
+          },
+          profile: true
+        }
+      })
     })
 
     revalidatePath('/manage-users')

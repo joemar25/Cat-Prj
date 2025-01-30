@@ -6,58 +6,40 @@ import { Badge } from '@/components/ui/badge'
 import { formatDistanceToNow } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { User, UserRole, Permission } from '@prisma/client'
+import { Permission } from '@prisma/client'
 import { DataTableRowActions } from './data-table-row-actions'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-
-const roleVariants: Record<UserRole, { label: string; variant: "default" | "secondary" | "destructive" }> = {
-    ADMIN: { label: "Administrator", variant: "destructive" },
-    STAFF: { label: "Staff", variant: "secondary" },
-    USER: { label: "User", variant: "default" }
-}
+import { UserWithRoleAndProfile } from '@/types/user'
 
 interface UserCellProps {
-    row: Row<User>
+    row: Row<UserWithRoleAndProfile>
 }
 
 const UserCell = ({ row }: UserCellProps) => {
     const { t } = useTranslation()
     const user = row.original
-    const initials = user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()
+    const initials = user.name ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'U'
 
     return (
         <div className="flex items-center gap-3 py-1">
             <Avatar className="h-9 w-9">
-                <AvatarImage src={user.image || ''} alt={user.name} />
+                <AvatarImage src={user.image || ''} alt={user.name || ''} />
                 <AvatarFallback className="font-medium">
-                    {initials || 'U'}
+                    {initials}
                 </AvatarFallback>
             </Avatar>
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <div className="flex flex-col">
-                            <div className="font-medium">{user.name}</div>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                                <Icons.user className="h-3 w-3 text-blue-500" />
-                                <span className="text-sm text-muted-foreground">
-                                    @{user.username || t('no_username')}
-                                </span>
-                            </div>
-                        </div>
-                    </TooltipTrigger>
-                    <TooltipContent className="w-64">
-                        <div className="space-y-1.5">
-                            <p>{user.name}</p>
-                            <p>{t('username')}: @{user.username || t('no_username')}</p>
-                            <p>{t('id')}: {user.id}</p>
-                        </div>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
+            <div className="flex flex-col min-w-0">
+                <div className="font-medium truncate">{user.name || t('unnamed_user')}</div>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                    <Icons.user className="h-3 w-3 text-blue-500 shrink-0" />
+                    <span className="text-sm text-muted-foreground truncate">
+                        @{user.username || t('no_username')}
+                    </span>
+                </div>
+            </div>
         </div>
     )
 }
@@ -67,32 +49,21 @@ interface EmailCellProps {
 }
 
 const EmailCell = ({ email }: EmailCellProps) => {
-    const { t } = useTranslation()
-
     return (
-        <div className="flex flex-col gap-1.5">
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger className="flex items-center gap-1.5">
-                        <Icons.mail className="w-3 h-3 text-violet-500" />
-                        <span className="text-sm truncate max-w-[150px]">
-                            {email}
-                        </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>{email}</p>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
+        <div className="flex items-center gap-1.5">
+            <Icons.mail className="w-3 h-3 text-violet-500 shrink-0" />
+            <span className="text-sm truncate max-w-[200px]">
+                {email}
+            </span>
         </div>
     )
 }
 
 export const createColumns = (
     session: Session | null,
-    onUpdateUser?: (user: User) => void
-): ColumnDef<User>[] => {
-    const { t } = useTranslation() // Translation hook
+    onUpdateUser?: (user: UserWithRoleAndProfile) => void
+): ColumnDef<UserWithRoleAndProfile>[] => {
+    const { t } = useTranslation()
 
     return [
         {
@@ -110,59 +81,69 @@ export const createColumns = (
             cell: ({ row }) => <EmailCell email={row.getValue('email')} />,
         },
         {
-            accessorKey: 'role',
+            id: 'role',
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title={t('dataTable.role')} />
             ),
             cell: ({ row }) => {
-                const role = row.getValue('role') as UserRole
-                const roleInfo = roleVariants[role]
+                const roles = row.original.roles
                 return (
-                    <Badge variant={roleInfo.variant} className="font-medium">
-                        {roleInfo.label}
-                    </Badge>
+                    <div className="flex flex-wrap gap-1">
+                        {roles.map(({ role }) => (
+                            <Badge
+                                key={role.id}
+                                variant="outline"
+                                className="px-2 py-0.5"
+                            >
+                                {role.name}
+                            </Badge>
+                        ))}
+                    </div>
                 )
-            },
-            filterFn: (row, id, value) => {
-                return value.includes(row.getValue(id))
             },
         },
         {
-            accessorKey: "permissions",
+            id: "permissions",
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title={t("dataTable.permissions")} />
             ),
             cell: ({ row }) => {
-                const permissions = row.getValue("permissions") as Permission[]
+                const permissions = new Set<Permission>()
+                row.original.roles.forEach(({ role }) => {
+                    role.permissions.forEach(({ permission }) => {
+                        permissions.add(permission)
+                    })
+                })
 
                 return (
-                    <div className="flex flex-wrap gap-1">
-                        {permissions.slice(0, 2).map((permission) => (
-                            <Badge key={permission} variant={"outline"} className="text-xs">
-                                {permission.replace("_", " ")}
+                    <Popover>
+                        <PopoverTrigger>
+                            <Badge variant="secondary" className="cursor-pointer hover:bg-secondary/80">
+                                <Icons.shield className="w-3 h-3 mr-1" />
+                                {permissions.size} {t('dataTable.permissions')}
                             </Badge>
-                        ))}
-
-                        {permissions.length > 2 && (
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Badge variant={"outline"} className="text-xs cursor-pointer">
-                                        {t("dataTable.morePermissions", { count: permissions.length - 2 })}
-                                    </Badge>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-64 p-3">
-                                    <div className="space-y-1.5">
-                                        <h4 className="text-sm font-medium">{t("dataTable.allPermissions")}: </h4>
-                                        {permissions.map((permission) => (
-                                            <p key={permission} className="text-xs">
-                                                {permission.replace("_", " ")}
-                                            </p>
-                                        ))}
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
-                        )}
-                    </div>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 p-3">
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 pb-2 border-b">
+                                    <Icons.shield className="w-4 h-4 text-muted-foreground" />
+                                    <h4 className="font-medium">
+                                        {t("dataTable.allPermissions")}
+                                    </h4>
+                                </div>
+                                <div className="space-y-1">
+                                    {Array.from(permissions).map((permission) => (
+                                        <div
+                                            key={permission}
+                                            className="text-sm px-2 py-1 rounded-md bg-secondary/50"
+                                        >
+                                            {permission.replace(/_/g, " ").toString().toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
                 )
             },
         },
@@ -174,18 +155,21 @@ export const createColumns = (
             cell: ({ row }) => {
                 const isVerified = row.getValue('emailVerified') as boolean
                 return (
-                    <div className="flex items-center gap-1.5">
-                        <div className={`h-2 w-2 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-gray-300'}`} />
-                        <span className={`text-sm ${isVerified ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                    <div className="flex items-center gap-2">
+                        <div className={`h-2 w-2 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-gray-300'
+                            }`} />
+                        <Badge
+                            variant={isVerified ? "default" : "secondary"}
+                            className="font-normal"
+                        >
                             {isVerified ? t('dataTable.verified') : t('dataTable.unverified')}
-                        </span>
+                        </Badge>
                     </div>
                 )
             },
             filterFn: (row, id, value: string[]) => {
                 const rowValue = row.getValue(id) as boolean
-                const stringValue = String(rowValue)
-                return value.includes(stringValue)
+                return value.includes(String(rowValue))
             },
         },
         {
@@ -198,15 +182,21 @@ export const createColumns = (
                 return (
                     <div className="flex flex-col gap-1.5 text-sm">
                         <div className="flex items-center gap-1.5">
-                            <Icons.calendar className="w-3 h-3 text-orange-500" />
-                            <span className="text-muted-foreground">
-                                {t('dataTable.created')} {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
+                            <Icons.calendar className="w-3 h-3 text-orange-500 shrink-0" />
+                            <span className="text-muted-foreground truncate">
+                                {t('dataTable.created')} {formatDistanceToNow(
+                                    new Date(user.createdAt),
+                                    { addSuffix: true }
+                                )}
                             </span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                            <Icons.refresh className="w-3 h-3 text-blue-500" />
-                            <span className="text-muted-foreground">
-                                {t('dataTable.updated')} {formatDistanceToNow(new Date(user.updatedAt), { addSuffix: true })}
+                            <Icons.refresh className="w-3 h-3 text-blue-500 shrink-0" />
+                            <span className="text-muted-foreground truncate">
+                                {t('dataTable.updated')} {formatDistanceToNow(
+                                    new Date(user.updatedAt),
+                                    { addSuffix: true }
+                                )}
                             </span>
                         </div>
                     </div>

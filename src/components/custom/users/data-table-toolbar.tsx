@@ -10,6 +10,7 @@ import { Cross2Icon } from '@radix-ui/react-icons'
 import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
 import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
 import { useTranslation } from 'react-i18next'
+import { AddUserDialog } from './actions/add-user-dialog'
 
 interface DataTableToolbarProps<TData extends User> {
   table: Table<TData>
@@ -85,7 +86,7 @@ export function DataTableToolbar<TData extends User>({
             onClick={() => table.resetColumnFilters()}
             className="h-10 px-3"
           >
-            {t('dataTableToolbar.resetFilters')}  {/* Use translated button text */}
+            {t('dataTableToolbar.resetFilters')}
             <Cross2Icon className="ml-2 h-5 w-5" />
           </Button>
         )}
@@ -93,18 +94,15 @@ export function DataTableToolbar<TData extends User>({
       <div className="flex items-center space-x-4">
         <Button variant="outline" className="h-10" onClick={handleExport}>
           <Icons.download className="mr-2 h-4 w-4" />
-          {t('dataTableToolbar.scan')}  {/* Use translated button text */}
+          {t('dataTableToolbar.export')}
         </Button>
-        <Button variant="outline" className="h-10" onClick={handleExport}>
-          <Icons.download className="mr-2 h-4 w-4" />
-          {t('dataTableToolbar.upload')}  {/* Use translated button text */}
-        </Button>
-        {/* <AddUserDialog
+
+        <AddUserDialog
           onSuccess={() => {
             table.resetColumnFilters()
             table.resetSorting()
           }}
-        /> */}
+        />
 
         <DataTableViewOptions table={table} />
       </div>

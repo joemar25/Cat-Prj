@@ -28,7 +28,7 @@ export default async function ProfilePage() {
                 ]}
             />
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <NotificationList />
+                <NotificationList userId={userId} />
             </div>
         </>
     )

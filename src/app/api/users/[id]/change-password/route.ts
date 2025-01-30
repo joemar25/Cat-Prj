@@ -2,6 +2,8 @@ import { hash } from 'bcryptjs'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
+import { Permission } from '@prisma/client'
+import { hasPermission } from '@/types/auth'
 
 export async function PUT(request: Request, context: { params: { id: string } }) {
     try {
@@ -18,14 +20,29 @@ export async function PUT(request: Request, context: { params: { id: string } })
 
         const existingUser = await prisma.user.findUnique({
             where: { id: userId },
-            include: { accounts: true },
+            include: {
+                accounts: true,
+                roles: {
+                    include: {
+                        role: {
+                            include: {
+                                permissions: true
+                            }
+                        }
+                    }
+                }
+            },
         })
 
         if (!existingUser) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 })
         }
 
-        if (session.user.id !== userId && session.user.role !== 'ADMIN') {
+        // Check if user is updating their own password or has USER_UPDATE permission
+        const isOwnAccount = session.user.id === userId
+        const canUpdateUsers = hasPermission(session.user.permissions, 'USER_UPDATE' as Permission)
+
+        if (!isOwnAccount && !canUpdateUsers) {
             return NextResponse.json({ error: 'Permission denied' }, { status: 403 })
         }
 
