@@ -1,34 +1,57 @@
-import { Star, Mail, Bell, MessageCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Notification } from '@/lib/types/notification';
+import { Star, Mail, Bell, MessageCircle, Archive } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Notification } from '@/lib/types/notification'
 
 interface NotificationItemProps {
-  notification: Notification;
-  onClick: (notification: Notification) => void;
+  notification: Notification
+  onClick: (notification: Notification) => void
+  onArchive: () => void
+  onFavorite: () => void
 }
 
-export function NotificationItem({ notification, onClick }: NotificationItemProps) {
+export function NotificationItem({ notification, onClick, onArchive, onFavorite }: NotificationItemProps) {
   // Map notification types to corresponding icons
   const icons = {
     EMAIL: Mail,
     SYSTEM: Bell,
     SMS: MessageCircle,
-  };
+  }
 
   // Get the appropriate icon based on the notification type
-  const Icon = icons[notification.type];
+  const Icon = icons[notification.type]
+
+  // Determine if the notification is archived or favorite
+  const isArchived = notification.status === 'archive'
+  const isFavorite = notification.status === 'favorite'
+  const isRead = notification.read == false
+
+  const handleArchiveClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isArchived) {
+      // If already archived, remove the archive
+      onArchive() // Implement removal of archive in the parent function
+    } else {
+      // Otherwise, archive the notification
+      onArchive() // This will handle the archiving process
+    }
+  }
 
   return (
     <div
       className={cn(
-        "flex items-start gap-4 p-4 hover:bg-accent/50 rounded-lg transition-colors cursor-pointer",
-        !notification.read && "bg-accent/30"
+        'flex items-start gap-4 p-4 hover:bg-accent/50 rounded-lg transition-colors cursor-pointer',
+        !notification.read && 'bg-accent/30'
       )}
       onClick={() => onClick(notification)}
     >
       <div className="mt-1">
         {/* Render the icon */}
-        <Icon className="h-5 w-5 text-muted-foreground" />
+        <Icon
+          className={cn(
+            'h-5 w-5',
+            isRead ? 'text-primary' : 'text-muted-foreground' // Change color when archived or favorite
+          )}
+        />
       </div>
       <div className="flex-1 space-y-1">
         {/* Render the notification message */}
@@ -38,10 +61,34 @@ export function NotificationItem({ notification, onClick }: NotificationItemProp
           {new Date(notification.createdAt).toLocaleString()}
         </p>
       </div>
-      {/* Optional: Add a button for additional actions (e.g., marking as favorite) */}
-      <button className="rounded-full h-8 w-8 flex items-center justify-center hover:bg-accent">
-        <Star className="h-4 w-4 text-muted-foreground" />
-      </button>
+      {/* Archive and Favorite buttons */}
+      <div className="flex space-x-2">
+        <button 
+          className="rounded-full h-8 w-8 flex items-center justify-center hover:bg-accent"
+          onClick={handleArchiveClick}
+        >
+          <Archive
+            className={cn(
+              'h-4 w-4',
+              isArchived ? 'text-primary fill-chart-1' : 'text-muted-foreground' // Change color when archived
+            )}
+          />
+        </button>
+        <button 
+          className="rounded-full h-8 w-8 flex items-center justify-center hover:bg-accent"
+          onClick={(e) => {
+            e.stopPropagation()
+            onFavorite()
+          }}
+        >
+          <Star
+            className={cn(
+              'h-4 w-4',
+              isFavorite ? 'text-chart-3 fill-chart-3' : 'text-muted-foreground' // Change color when favorite
+            )}
+          />
+        </button>
+      </div>
     </div>
-  );
+  )
 }

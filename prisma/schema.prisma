@@ -606,6 +606,7 @@ model Notification {
   read      Boolean          @default(false)
   createdAt DateTime         @default(now())
   readAt    DateTime?
+  status    String?
   user      User             @relation(fields: [userId], references: [id])
 
   @@map("notification")

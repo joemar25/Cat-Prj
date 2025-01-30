@@ -201,13 +201,7 @@ export const navigationConfig: NavigationConfiguration = {
         ] : []),
     ],
     secondaryNav: [
-        {
-            id: 'feedback',
-            type: 'secondary',
-            title: 'Send Feedback',
-            url: '/feedback',
-            iconName: 'messageSquare',
-        },
+       
     ],
     projectsNav: [
         {

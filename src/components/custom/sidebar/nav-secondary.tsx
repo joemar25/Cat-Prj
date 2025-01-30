@@ -11,6 +11,7 @@ import { Icons } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { handleSignOut } from '@/hooks/auth-actions'
+import { useTranslation } from 'react-i18next'
 
 interface NavSecondaryProps extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {
   items: Array<NavSecondaryItem & { icon?: React.ElementType }>
@@ -21,6 +22,7 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
   const [mounted, setMounted] = useState(false)
   const [openDialog, setOpenDialog] = useState<string | null>(null)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const { t } = useTranslation()  // Add the translation hook
 
   useEffect(() => {
     setMounted(true)
@@ -33,33 +35,33 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
   const handleLogout = async () => {
     setIsLoggingOut(true)
     await handleSignOut()
-    toast.success('Logging out...', { duration: 3000 })
+    toast.success(t('loggingOut'), { duration: 3000 })  // Use translation for "Logging out..."
     setIsLoggingOut(false)
     handleCloseAction()
   }
 
   const getDialogContent = (item: NavSecondaryItem) => {
-    if (item.title === 'Feedback') {
+    if (item.title === t('feedback')) {
       return (
         <div className="mt-4">
           {session?.user?.id ? (
             <FeedbackForm userId={session.user.id} onSubmitAction={handleCloseAction} />
           ) : (
-            <p className="text-muted-foreground">Please sign in to submit feedback.</p>
+            <p className="text-muted-foreground">{t('signInToSubmitFeedback')}</p>  
           )}
         </div>
       )
     }
 
-    if (item.title === 'Log Out') {
+    if (item.title === t('logOut')) {
       return (
         <>
           <DialogDescription className="text-sm text-muted-foreground">
-            Are you sure you want to log out?
+            {t('areYouSureToLogout')}  {/* Translation for logout confirmation */}
           </DialogDescription>
           <DialogFooter className="flex justify-center space-x-4 mt-4">
             <Button onClick={handleCloseAction} variant="outline" disabled={isLoggingOut}>
-              Cancel
+              {t('cancel')}  {/* Translation for Cancel button */}
             </Button>
             <Button
               onClick={handleLogout}
@@ -69,10 +71,10 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
               {isLoggingOut ? (
                 <>
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                  Logging out...
+                  {t('loggingOut')}
                 </>
               ) : (
-                'Log Out'
+                t('logOut')
               )}
             </Button>
           </DialogFooter>
@@ -86,7 +88,12 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
   const extendedItems = [
     ...items,
     {
-      title: 'Log Out',
+      title: t('feedback'),  // Ensure "Feedback" is translated here
+      url: '#',
+      icon: Icons.messageSquare,  // Make sure to add your correct icon here
+    },
+    {
+      title: t('logOut'),
       url: '#',
       icon: Icons.logout,
     },
@@ -103,27 +110,30 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
 
             return (
               <SidebarMenuItem key={item.title}>
-                <Dialog open={openDialog === item.title} onOpenChange={(open) => {
-                  setOpenDialog(open ? item.title : null)
-                }}>
+                <Dialog
+                  open={openDialog === item.title}
+                  onOpenChange={(open) => {
+                    setOpenDialog(open ? item.title : null)
+                  }}
+                >
                   <DialogTrigger asChild>
                     <SidebarMenuButton
                       size="sm"
                       className={cn(
                         'w-full transition-colors',
                         openDialog === item.title && 'bg-primary/10 text-primary',
-                        item.title === 'Log Out' && 'text-red-600 hover:bg-red-500 hover:text-white'
+                        item.title === t('logOut') && 'text-red-600 hover:bg-red-500 hover:text-white'  // Translate "Log Out" button class
                       )}
                     >
                       {ItemIcon && <ItemIcon className="h-4 w-4" />}
-                      <span>{item.title}</span>
+                      <span>{item.title}</span> {/* This will be translated */}
                     </SidebarMenuButton>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                         {ItemIcon && <ItemIcon className="h-5 w-5 text-primary" />}
-                        {item.title}
+                        {item.title} {/* This will be translated */}
                       </DialogTitle>
                     </DialogHeader>
                     {getDialogContent(item)}

@@ -266,7 +266,6 @@
   "minutes_ago": "minuto ang nakalipas",
   "hours_ago": "oras ang nakalipas",
   "days_ago": "araw ang nakalipas",
-
   "success_logout": "Matagumpay na nag-logout",
   "guest_user": "Bisitang Gumagamit",
   "guest_role": "Bisitante",
@@ -275,5 +274,32 @@
   "confirm_logout": "Kumpirmahin ang Pag-logout",
   "confirm_logout_message": "Sigurado ka bang gusto mong mag-logout?",
   "log_out": "Mag-logout",
-  "logging_out": "Naglo-logout..."
+  "logging_out": "Naglo-logout...",
+  "loggingOut": "Naglalogout...",
+  "signInToSubmitFeedback": "Mangyaring mag-sign in upang magsumite ng feedback.",
+  "areYouSureToLogout": "Sigurado ka bang nais mong mag-logout?",
+  "logOut": "Mag-logout",
+  "notificationList": {
+    "title": "Listahan ng mga Notipikasyon",
+    "unread": "hindi nabasa",
+    "searchPlaceholder": "Maghanap ng Produkto",
+    "all": "Lahat",
+    "archive": "Arkibo",
+    "favorite": "Paborito",
+    "loading": "Naglo-load...",
+    "noNotifications": "Walang mga notipikasyon",
+    "noArchived": "Walang mga nakatagong notipikasyon",
+    "noFavorite": "Walang mga paboritong notipikasyon"
+  },
+  "feedbacks": {
+    "emptyError": "Hindi pwedeng walang puna.",
+    "success": "Matagumpay na naipasa ang iyong puna!",
+    "submitError": "Hindi naisumite ang puna.",
+    "unexpectedError": "May hindi inaasahang error.",
+    "helpText": "Tumulong kami na mag-improve sa pamamagitan ng iyong mga pananaw at suhestiyon.",
+    "label": "Ang iyong puna",
+    "placeholder": "Ano ang nasa iyong isipan?",
+    "submitting": "Isinusumite...",
+    "submit": "I-submit ang puna"
+  }
 }

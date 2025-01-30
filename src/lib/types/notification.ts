@@ -1,6 +1,7 @@
 type NotificationType = 'EMAIL' | 'SYSTEM' | 'SMS';
 
 export interface Notification {
+  status: string;
   id: string;
   userId: string;
   type: NotificationType;
@@ -11,10 +12,3 @@ export interface Notification {
   readAt: Date | string | null;
 }
 
-
-export interface NotificationStats {
-  all: number;
-  archive: number;
-  favorite: number;
-  unread: number;
-}
