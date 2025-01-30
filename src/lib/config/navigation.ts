@@ -1,7 +1,6 @@
-import { UserRole } from '@prisma/client'
+import { Permission } from '@prisma/client'
 import { Icons } from '@/components/ui/icons'
 import { NavConfig, NavMainItem, NavSecondaryItem, NavigationConfiguration, hasSubItems } from '@/lib/types/navigation'
-
 import type { LucideIcon } from 'lucide-react'
 
 // Environment variables
@@ -20,10 +19,32 @@ if (typeof window !== 'undefined' && DEBUG) {
     console.log('REGULAR_USER_ACC value:', REGULAR_USER_ACC)
 }
 
-// Transform functions
-export function transformToMainNavItem(item: NavConfig, role: UserRole, t: Function): NavMainItem {
+interface UserWithPermissions {
+    roles: {
+        role: {
+            name: string;
+            permissions: {
+                permission: Permission;
+            }[];
+        };
+    }[];
+}
+
+// Helper function to check if user has permission
+function hasPermission(user: UserWithPermissions, requiredPermission: Permission): boolean {
+    return user.roles.some(userRole =>
+        userRole.role.permissions.some(p => p.permission === requiredPermission)
+    );
+}
+
+// Helper function to check if user has any of the required permissions
+function hasAnyPermission(user: UserWithPermissions, requiredPermissions: Permission[]): boolean {
+    return requiredPermissions.some(permission => hasPermission(user, permission));
+}
+
+export function transformToMainNavItem(item: NavConfig, user: UserWithPermissions, t: Function): NavMainItem {
     const baseItem: NavMainItem = {
-        title: t(item.id),  // Translate title using the 't' function
+        title: t(item.id),
         url: item.url,
         notViewedCount: item.notViewedCount
     }
@@ -35,37 +56,46 @@ export function transformToMainNavItem(item: NavConfig, role: UserRole, t: Funct
         }
     }
 
-    // Only show "Manage Users" for admins
-    if (item.id === 'users' && role !== 'ADMIN') {
-        return { ...baseItem, hidden: true } // Hide the item for non-admins
-    }
-
-    // Only show "Manage CTC" for admins
-    if (item.id === 'certified-true-copies' && role !== 'ADMIN') {
-        return { ...baseItem, hidden: true } // Hide the item for non-admins
+    // Permission-based visibility rules
+    switch (item.id) {
+        case 'users':
+            if (!hasAnyPermission(user, ['USER_READ', 'USER_CREATE', 'USER_UPDATE', 'USER_DELETE'])) {
+                return { ...baseItem, hidden: true }
+            }
+            break;
+        case 'certified-true-copies':
+            if (!hasPermission(user, 'DOCUMENT_VERIFY')) {
+                return { ...baseItem, hidden: true }
+            }
+            break;
+        case 'reports':
+            if (!hasPermission(user, 'REPORT_READ')) {
+                return { ...baseItem, hidden: true }
+            }
+            break;
     }
 
     if (hasSubItems(item)) {
         baseItem.items = item.items
             .filter(subItem => {
-                // Admin can see all sub-items
-                if (role === 'ADMIN') return true
-
-                // Staff can only see regular users if REGULAR_USER_ACC is true
-                if (role === 'STAFF' && subItem.url === '/users') {
-                    return REGULAR_USER_ACC // Only show regular users if REGULAR_USER_ACC is true
+                if (subItem.url === '/users') {
+                    // Regular users management requires specific permissions
+                    if (!REGULAR_USER_ACC) return false;
+                    return hasPermission(user, 'USER_READ');
                 }
 
-                // Regular users and other roles should not see any sub-items
-                return false
+                // Check role-specific permissions
+                const isAdmin = user.roles.some(ur => ur.role.name === 'Super Admin' || ur.role.name === 'Admin');
+                if (subItem.id === 'admin' && !isAdmin) return false;
+
+                return true;
             })
             .map(subItem => ({
-                title: t(subItem.id),  // Translate title for sub-items
+                title: t(subItem.id),
                 url: subItem.url,
                 notViewedCount: subItem.notViewedCount
             }))
 
-        // Ensure dropdown is only visible if there are items for this role
         if (baseItem.items?.length === 0) {
             baseItem.items = undefined
         }
@@ -97,7 +127,6 @@ export const navigationConfig: NavigationConfiguration = {
             url: '/dashboard',
             iconName: 'layoutDashboard',
         },
-        // Always include KIOSK when env is true
         ...(KIOSK ? [
             {
                 id: 'manage-queue',
@@ -124,7 +153,6 @@ export const navigationConfig: NavigationConfiguration = {
                     title: 'Staffs',
                     url: '/users/staffs',
                 },
-                // Only include regular-users if REGULAR_USER_ACC is true
                 ...(REGULAR_USER_ACC ? [
                     {
                         id: 'regular-users',
@@ -162,7 +190,6 @@ export const navigationConfig: NavigationConfiguration = {
             url: '/feedback',
             iconName: 'mail',
         },
-        // Always include Settings when env is true
         ...(SETTINGS ? [
             {
                 id: 'settings',

@@ -63,7 +63,7 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
                 {user?.name || t('guest_user')}
               </p>
               <p className="text-xs leading-normal text-gray-600">
-                <span className="font-medium">{user?.role || t('guest_role')}</span> | {user?.email || t('no_email')}
+                {user?.email || t('no_email')}
               </p>
             </div>
           </DropdownMenuLabel>

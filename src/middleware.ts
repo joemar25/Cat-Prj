@@ -1,8 +1,9 @@
 // src/middleware.ts
 import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
+import { Permission } from "@prisma/client"
 import type { NextRequest } from "next/server"
-import { UserRole } from "@prisma/client"
+import { hasAllPermissions } from "@/types/auth"
 
 export async function middleware(request: NextRequest) {
     const session = await auth()
@@ -34,8 +35,14 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL("/auth", request.url))
         }
 
-        // Check if the user is an admin
-        if (session.user.role !== UserRole.ADMIN) {
+        // Check if the user has admin permissions
+        const requiredPermissions = [
+            Permission.USER_READ,
+            Permission.USER_CREATE,
+            Permission.USER_UPDATE
+        ]
+
+        if (!hasAllPermissions(session.user.permissions, requiredPermissions)) {
             // For API routes, return 403 instead of redirecting
             if (pathname.startsWith("/api/")) {
                 return NextResponse.json({ error: "Forbidden" }, { status: 403 })

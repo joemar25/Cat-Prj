@@ -1,92 +1,66 @@
 // src\types\auth.ts
-import { UserRole, Permission } from "@prisma/client"
+import { Permission } from "@prisma/client"
 
 /**
- * Maps user roles to their corresponding permissions
- * ADMIN: Full system access
- * STAFF: Operational access
- * USER: Basic access
+ * Predefined permission sets for different role types
  */
-export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
-    [UserRole.ADMIN]: [
-        // Queue Management
-        // Permission.QUEUE_VIEW,
-        // Permission.QUEUE_PROCESS,
-        // Permission.QUEUE_DELETE,
-        // Permission.QUEUE_UPDATE,
-        // Permission.QUEUE_ADD_NOTES,
+export const ROLE_PERMISSIONS = {
+    'Super Admin': [
+        'USER_CREATE', 'USER_READ', 'USER_UPDATE', 'USER_DELETE',
+        'ROLE_CREATE', 'ROLE_READ', 'ROLE_UPDATE', 'ROLE_DELETE',
+        'DOCUMENT_CREATE', 'DOCUMENT_READ', 'DOCUMENT_UPDATE', 'DOCUMENT_DELETE', 'DOCUMENT_VERIFY',
+        'REPORT_CREATE', 'REPORT_READ', 'REPORT_EXPORT',
+        'AUDIT_LOG_READ'
+    ] as Permission[],
 
-        // User Management
-        Permission.USERS_MANAGE,
+    'Admin': [
+        'USER_READ', 'USER_CREATE', 'USER_UPDATE',
+        'DOCUMENT_CREATE', 'DOCUMENT_READ', 'DOCUMENT_UPDATE', 'DOCUMENT_VERIFY',
+        'REPORT_READ', 'REPORT_EXPORT',
+        'AUDIT_LOG_READ'
+    ] as Permission[],
 
-        // Document Management
-        Permission.DOCUMENTS_MANAGE,
+    'Staff': [
+        'DOCUMENT_READ', 'DOCUMENT_CREATE', 'DOCUMENT_VERIFY',
+        'REPORT_READ'
+    ] as Permission[],
 
-        // Workflow Management
-        Permission.WORKFLOW_MANAGE,
-
-        // System Access
-        Permission.REPORTS_VIEW,
-        Permission.SYSTEM_SETTINGS
-    ],
-    [UserRole.STAFF]: [
-        // Queue Management
-        // Permission.QUEUE_VIEW,
-        // Permission.QUEUE_PROCESS,
-        // Permission.QUEUE_UPDATE,
-        // Permission.QUEUE_ADD_NOTES,
-
-        // Limited Document Access
-        Permission.DOCUMENTS_MANAGE,
-
-        // Reporting
-        Permission.REPORTS_VIEW
-    ],
-    [UserRole.USER]: [
-        // Basic Access
-        Permission.QUEUE_VIEW
-    ]
+    'User': [
+        'DOCUMENT_READ',
+        'REPORT_READ'
+    ] as Permission[]
 }
 
 /**
  * Checks if a user has a specific permission
- * @param permissions - Array of user permissions
- * @param permission - Permission to check
- * @returns boolean indicating if user has the permission
  */
 export function hasPermission(permissions: Permission[] | undefined, permission: Permission): boolean {
-    if (!permissions) return false
+    if (!permissions || !Array.isArray(permissions)) return false
     return permissions.includes(permission)
 }
 
 /**
- * Gets all permissions assigned to a specific role
- * @param role - UserRole to check
- * @returns Array of permissions for the role
+ * Gets all permissions for a given role name
  */
-export function getRolePermissions(role: UserRole): Permission[] {
-    return ROLE_PERMISSIONS[role] || []
+export function getRolePermissions(roleName: string): Permission[] {
+    return ROLE_PERMISSIONS[roleName as keyof typeof ROLE_PERMISSIONS] || []
 }
 
 /**
  * Checks if a user has any of the specified permissions
- * @param permissions - Array of user permissions
- * @param requiredPermissions - Array of permissions to check against
- * @returns boolean indicating if user has any of the permissions
  */
+
 export function hasAnyPermission(
     permissions: Permission[] | undefined,
     requiredPermissions: Permission[]
 ): boolean {
-    if (!permissions) return false
+    if (!permissions || !Array.isArray(permissions)) return false
+    if (!requiredPermissions || !Array.isArray(requiredPermissions)) return false
     return requiredPermissions.some(permission => permissions.includes(permission))
 }
 
 /**
  * Checks if a user has all of the specified permissions
- * @param permissions - Array of user permissions
- * @param requiredPermissions - Array of permissions to check against
- * @returns boolean indicating if user has all of the permissions
  */
 export function hasAllPermissions(
     permissions: Permission[] | undefined,
@@ -98,26 +72,18 @@ export function hasAllPermissions(
 
 /**
  * Type guard to check if a string is a valid Permission
- * @param value - String to check
- * @returns boolean indicating if string is a valid Permission
  */
 export function isValidPermission(value: string): value is Permission {
     return Object.values(Permission).includes(value as Permission)
 }
 
-/**
- * Get the highest role from an array of roles
- * @param roles - Array of UserRoles
- * @returns The highest priority role
- */
-export function getHighestRole(roles: UserRole[]): UserRole {
-    const rolePriority: Record<UserRole, number> = {
-        [UserRole.ADMIN]: 3,
-        [UserRole.STAFF]: 2,
-        [UserRole.USER]: 1
-    }
-
-    return roles.reduce((highest, current) =>
-        rolePriority[current] > rolePriority[highest] ? current : highest
-        , UserRole.USER)
+export interface UserWithPermissions {
+    roles: {
+        role: {
+            name: string;
+            permissions: {
+                permission: Permission;
+            }[];
+        };
+    }[];
 }

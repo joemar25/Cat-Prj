@@ -6,21 +6,23 @@ import { Badge } from '@/components/ui/badge'
 import { formatDistanceToNow } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { User, UserRole, Permission } from '@prisma/client'
+import { Permission } from '@prisma/client'
 import { DataTableRowActions } from './data-table-row-actions'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { UserWithRoleAndProfile } from '@/types/user'
 
-const roleVariants: Record<UserRole, { label: string; variant: "default" | "secondary" | "destructive" }> = {
-    ADMIN: { label: "Administrator", variant: "destructive" },
-    STAFF: { label: "Staff", variant: "secondary" },
-    USER: { label: "User", variant: "default" }
+const roleVariants: Record<string, { label: string; variant: "default" | "secondary" | "destructive" }> = {
+    'Super Admin': { label: "Super Admin", variant: "destructive" },
+    'Admin': { label: "Administrator", variant: "destructive" },
+    'Staff': { label: "Staff", variant: "secondary" },
+    'User': { label: "User", variant: "default" }
 }
 
 interface UserCellProps {
-    row: Row<User>
+    row: Row<UserWithRoleAndProfile>
 }
 
 const UserCell = ({ row }: UserCellProps) => {
@@ -90,9 +92,9 @@ const EmailCell = ({ email }: EmailCellProps) => {
 
 export const createColumns = (
     session: Session | null,
-    onUpdateUser?: (user: User) => void
-): ColumnDef<User>[] => {
-    const { t } = useTranslation() // Translation hook
+    onUpdateUser?: (user: UserWithRoleAndProfile) => void
+): ColumnDef<UserWithRoleAndProfile>[] => {
+    const { t } = useTranslation()
 
     return [
         {
@@ -110,50 +112,60 @@ export const createColumns = (
             cell: ({ row }) => <EmailCell email={row.getValue('email')} />,
         },
         {
-            accessorKey: 'role',
+            id: 'role',
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title={t('dataTable.role')} />
             ),
             cell: ({ row }) => {
-                const role = row.getValue('role') as UserRole
-                const roleInfo = roleVariants[role]
+                const roles = row.original.roles
                 return (
-                    <Badge variant={roleInfo.variant} className="font-medium">
-                        {roleInfo.label}
-                    </Badge>
+                    <div className="flex flex-wrap gap-1">
+                        {roles.map(({ role }) => {
+                            const roleInfo = roleVariants[role.name]
+                            return (
+                                <Badge key={role.id} variant={roleInfo.variant} className="font-medium">
+                                    {roleInfo.label}
+                                </Badge>
+                            )
+                        })}
+                    </div>
                 )
-            },
-            filterFn: (row, id, value) => {
-                return value.includes(row.getValue(id))
             },
         },
         {
-            accessorKey: "permissions",
+            id: "permissions",
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title={t("dataTable.permissions")} />
             ),
             cell: ({ row }) => {
-                const permissions = row.getValue("permissions") as Permission[]
+                // Collect all unique permissions from all roles
+                const permissions = new Set<Permission>()
+                row.original.roles.forEach(({ role }) => {
+                    role.permissions.forEach(({ permission }) => {
+                        permissions.add(permission)
+                    })
+                })
+                const permissionArray = Array.from(permissions)
 
                 return (
                     <div className="flex flex-wrap gap-1">
-                        {permissions.slice(0, 2).map((permission) => (
+                        {permissionArray.slice(0, 2).map((permission) => (
                             <Badge key={permission} variant={"outline"} className="text-xs">
                                 {permission.replace("_", " ")}
                             </Badge>
                         ))}
 
-                        {permissions.length > 2 && (
+                        {permissionArray.length > 2 && (
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Badge variant={"outline"} className="text-xs cursor-pointer">
-                                        {t("dataTable.morePermissions", { count: permissions.length - 2 })}
+                                        {t("dataTable.morePermissions", { count: permissionArray.length - 2 })}
                                     </Badge>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-64 p-3">
                                     <div className="space-y-1.5">
                                         <h4 className="text-sm font-medium">{t("dataTable.allPermissions")}: </h4>
-                                        {permissions.map((permission) => (
+                                        {permissionArray.map((permission) => (
                                             <p key={permission} className="text-xs">
                                                 {permission.replace("_", " ")}
                                             </p>

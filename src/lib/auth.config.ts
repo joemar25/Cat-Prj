@@ -1,7 +1,7 @@
-// src/lib/auth.config.ts
+// src\lib\auth.config.ts
 import { prisma } from '@/lib/prisma'
 import { signInSchema } from '@/lib/validation'
-import { Permission, UserRole } from '@prisma/client'
+import { Permission } from '@prisma/client'
 import { compare } from 'bcryptjs'
 import { NextAuthConfig, Session } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
@@ -38,6 +38,15 @@ export default {
                 where: { providerId: 'credentials' },
                 select: { password: true },
               },
+              roles: {
+                include: {
+                  role: {
+                    include: {
+                      permissions: true
+                    }
+                  }
+                }
+              }
             },
           })
 
@@ -49,14 +58,22 @@ export default {
           )
           if (!isPasswordValid) return null
 
+          // Flatten permissions from all roles
+          const permissions = new Set<Permission>()
+          user.roles.forEach(userRole => {
+            userRole.role.permissions.forEach(p => {
+              permissions.add(p.permission)
+            })
+          })
+
           return {
             id: user.id,
             name: user.name,
             email: user.email,
             emailVerified: user.emailVerified,
             image: user.image,
-            role: user.role,
-            permissions: user.permissions,
+            roles: user.roles.map(ur => ur.role.name),
+            permissions: Array.from(permissions)
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -81,7 +98,7 @@ export default {
       if (user) {
         // Initial sign in
         token.id = user.id
-        token.role = user.role
+        token.roles = user.roles
         token.permissions = user.permissions
         token.image = user.image
       }
@@ -101,7 +118,7 @@ export default {
         user: {
           ...session.user,
           id: token.id as string,
-          role: token.role as UserRole,
+          roles: token.roles as string[],
           permissions: token.permissions as Permission[],
           email: token.email as string,
           name: token.name as string,
