@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   title: 'Legazpi City Civil Registry',
   description: '',
   icons: {
-    icon: 'logo.png',
+    icon: '/logo.png',
   },
 }
 

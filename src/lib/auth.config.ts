@@ -70,35 +70,32 @@ export default {
       const isLoggedIn = !!auth?.user
       const { pathname } = nextUrl
 
-      if (publicRoutes.includes(pathname)) {
-        return true
-      }
-
+      if (publicRoutes.includes(pathname)) return true
       if (authRoutes.includes(pathname)) {
-        if (isLoggedIn) {
-          return Response.redirect(new URL('/', nextUrl))
-        }
-        return true
+        return isLoggedIn ? Response.redirect(new URL('/', nextUrl)) : true
       }
-
       return isLoggedIn
     },
 
     jwt({ token, user, trigger, session }) {
       if (user) {
+        // Initial sign in
         token.id = user.id
         token.role = user.role
         token.permissions = user.permissions
+        token.image = user.image
       }
 
       if (trigger === 'update' && session) {
-        token = { ...token, ...session }
+        // Return new token with updated values
+        return { ...token, ...session }
       }
 
       return token
     },
 
     async session({ session, token }): Promise<Session> {
+      // Return session with user data from token
       return {
         ...session,
         user: {
@@ -106,9 +103,9 @@ export default {
           id: token.id as string,
           role: token.role as UserRole,
           permissions: token.permissions as Permission[],
-          email: session.user.email,
-          name: session.user.name,
-          image: session.user.image,
+          email: token.email as string,
+          name: token.name as string,
+          image: token.image as string | null,
         },
         expires: session.expires
       }

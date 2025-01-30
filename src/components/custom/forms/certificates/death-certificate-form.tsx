@@ -26,20 +26,10 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 // Import all the card components
-import RegisteredAtOfficeCard from '@/components/custom/forms/certificates/form-cards/death-cards/registered-at-office-card';
 import RemarksCard from '@/components/custom/forms/certificates/form-cards/death-cards/remarks-card';
-import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
-import CausesOfDeathCard from './form-cards/death-cards/causes-of-death';
-import CertificationOfDeathCard from './form-cards/death-cards/certification-of-death-card';
-import CertificationInformantCard from './form-cards/death-cards/certification-of-informant-card';
-import DeathByExternalCausesCard from './form-cards/death-cards/death-by-external-causes';
-import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
-import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
-import MedicalCertificateCard from './form-cards/death-cards/medical-certificate-card';
-import PersonalInformationCard from './form-cards/death-cards/personal-information-card';
-import PreparedByCard from './form-cards/death-cards/prepared-by-card';
-import ReceivedByCard from './form-cards/death-cards/received-by-card';
-import RegistryInformationCard from './form-cards/death-cards/regsitry-information-card';
+
+import { FormType } from '@prisma/client';
+import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import DeathCertificatePDF from './preview/death-certificate/death-certificate-preview';
 
 export default function DeathCertificateForm({
@@ -164,44 +154,45 @@ export default function DeathCertificateForm({
                       onSubmit={form.handleSubmit(onSubmit, handleError)}
                       className='space-y-6'
                     >
+                      <RegistryInformationCard formType={FormType.DEATH} />
                       {/* Registry Information */}
-                      <RegistryInformationCard />
+                      {/* <RegistryInformationCard /> */}
 
                       {/* Personal Information */}
-                      <PersonalInformationCard />
+                      {/* <PersonalInformationCard /> */}
 
                       {/* Medical Certificate */}
-                      <MedicalCertificateCard />
+                      {/* <MedicalCertificateCard /> */}
 
                       {/* Causes of Death */}
-                      <CausesOfDeathCard />
+                      {/* <CausesOfDeathCard /> */}
 
                       {/* Maternal Condition */}
-                      <MaternalConditionCard />
+                      {/* <MaternalConditionCard /> */}
 
                       {/* Death by External Causes */}
-                      <DeathByExternalCausesCard />
+                      {/* <DeathByExternalCausesCard /> */}
 
                       {/* Attendant Information */}
-                      <AttendantInformationCard />
+                      {/* <AttendantInformationCard /> */}
 
                       {/* Certification of Death */}
-                      <CertificationOfDeathCard />
+                      {/* <CertificationOfDeathCard /> */}
 
                       {/* Disposal Information */}
-                      <DisposalInformationCard />
+                      {/* <DisposalInformationCard /> */}
 
                       {/* Informant Information */}
-                      <CertificationInformantCard />
+                      {/* <CertificationInformantCard /> */}
 
                       {/* Prepared By */}
-                      <PreparedByCard />
+                      {/* <PreparedByCard /> */}
 
                       {/* Received By */}
-                      <ReceivedByCard />
+                      {/* <ReceivedByCard /> */}
 
                       {/* Registered at Civil Registrar */}
-                      <RegisteredAtOfficeCard />
+                      {/* <RegisteredAtOfficeCard /> */}
 
                       {/* Remarks */}
                       <RemarksCard />
