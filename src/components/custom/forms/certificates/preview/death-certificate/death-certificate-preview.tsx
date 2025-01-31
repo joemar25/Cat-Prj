@@ -25,6 +25,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
 
   return (
     <Document>
+      {/* Back Page */}
       <Page size='LEGAL' style={[style.page, style.flexColumn, { gap: 10 }]}>
         <View style={style.gridColumn}>
           <View style={[style.gridColumn,]}>
@@ -60,7 +61,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           <View style={[style.gridColumn]}>
             <Text style={[style.headerTitle, style.paddingGlobal, { textAlign: 'center' }]}>MEDICAL CERTIFICATE</Text>
           </View>
-          <View style={[style.gridColumn, style.paddingGlobal, { gap: 5, paddingBottom: 10 }]}>
+          <View style={[style.gridColumn, style.paddingGlobal, { gap: 5, }]}>
             <Text style={style.label}>19a. CAUSES OF DEATH</Text>
             <View style={[style.flexColumn, style.paddingLeft,]}>
               <View style={[style.flexRow, { alignItems: 'center' }]}>
@@ -100,7 +101,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             </View>
           </View>
         </View>
-        <View style={[style.gridColumn, style.paddingGlobal, { border: '2px solid #000', paddingBottom: 10 }]}>
+        <View style={[style.gridColumn, style.paddingGlobal, { border: '2px solid #000', }]}>
           <Text style={[style.headerTitle, { textAlign: 'center' }]}>postmortem certificate of death</Text>
           <Text style={style.valueCenter}>I HEREBY CERTIFY that I have performed an autopsy upon the body of the deceased and that the cause of death was</Text>
           <Text style={style.valueLine}>{" "}</Text>
@@ -150,10 +151,10 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             </View>
           </View>
         </View>
-        <View style={[style.gridColumn, style.paddingGlobal, { border: '2px solid #000', paddingBottom: 10 }]}>
+        <View style={[style.gridColumn, style.paddingGlobal, { border: '2px solid #000', }]}>
           <Text style={[style.headerTitle, { textAlign: 'center' }]}>certification of embalmer</Text>
           <View style={style.flexColumn}>
-            <View style={[style.flexRow, { paddingLeft: 20, gap:5 }]}>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5 }]}>
               <Text style={style.valueCenter}>I HEREBY CERTIFY that I have embalmed </Text>
               <View style={style.flex1}>
                 <Text style={style.valueLine}>{"Name of deceased"}</Text>
@@ -165,7 +166,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             </View>
           </View>
 
-          <View style={[style.flexRow, { paddingTop: 20, gap: 20 }]}>
+          <View style={[style.flexRow, { paddingTop: 10, gap: 20 }]}>
             {/* Left Column */}
             <View style={[style.flexColumn, style.flex1]}>
               <View style={[style.flexRow, { alignItems: 'center' }]}>
@@ -221,9 +222,205 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
               </View>
             </View>
           </View>
+          
         </View>
-      </Page>
+        <View style={[style.gridColumn, style.paddingGlobal, { border: '2px solid #000', }]}>
+          <Text style={[style.headerTitle, { textAlign: 'center' }]}>
+            affidavit for delayed registration of death
+          </Text>
 
+          <View style={[style.flexColumn, { gap: 2 }]}>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.valueCenter}>I </Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{""}</Text>
+              </View>
+              <Text style={style.valueCenter}>of Legal age, single/married/divorced/widow/widower,</Text>
+            </View>
+            <View style={[style.flexRow, { gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.valueCenter}>with residence and postal address</Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{""}</Text>
+              </View>
+            </View>
+            <View style={[style.flexRow]}>
+              <Text style={style.valueCenter}>after being duly sworn in accordance with law, do hereby depose and say:  </Text>
+            </View>
+          </View>
+
+          <View style={[style.flexColumn, { gap: 2, paddingTop: 10 }]}>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.valueCenter}>1. That </Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{""}</Text>
+              </View>
+              <Text style={style.valueCenter}>died on,</Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{""}</Text>
+              </View>
+            </View>
+            <View style={[style.flexRow, { paddingLeft: 40, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.valueCenter}>in</Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{""}</Text>
+              </View>
+              <Text style={style.valueCenter}>and was buried/cremated im</Text>
+            </View>
+            <View style={[style.flexRow, { paddingLeft: 40, gap: 5, alignItems: 'flex-end' }]}>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{""}</Text>
+              </View>
+              <Text style={style.valueCenter}>on</Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{""}</Text>
+              </View>
+              <Text style={style.valueCenter}>{"."}</Text>
+            </View>
+          </View>
+
+          <View style={[style.flexColumn, { gap: 2, paddingTop: 10 }]}>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.valueCenter}>2. That the deceased at the time of his/her death: </Text>
+            </View>
+            <View style={[style.flexRow, { paddingLeft: 40, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.radio}>{" "}</Text>
+              <Text style={style.valueCenter}>was attendaned by</Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{" "}</Text>
+              </View>
+            </View>
+            <View style={[style.flexRow, { paddingLeft: 40, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.radio}>{" "}</Text>
+              <Text style={style.valueCenter}>was not attended</Text>
+            </View>
+          </View>
+
+          <View style={[style.flexColumn, { gap: 2, paddingTop: 10 }]}>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.valueCenter}>3. That the cause of death of the deceased was </Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{" "}</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={[style.flexColumn, { gap: 2, paddingTop: 10 }]}>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.valueCenter}>4. That the reason for the delay registering this death was due to </Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{"main reason"}</Text>
+              </View>
+            </View>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.valueLine}>{"other reason if there is"}</Text>
+            </View>
+          </View>
+
+          <View style={[style.flexColumn, { gap: 2, paddingTop: 10 }]}>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.valueCenter}>5. That I amexecuting this affidavit to attest to the truthfulness of the foregoing statements for all legal intents and purposes </Text>
+            </View>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.valueCenter}>In truth whereof, I have affixed my signature below this </Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{"main reason"}</Text>
+              </View>
+              <Text style={style.valueCenter}>day of</Text>
+            </View>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={style.valueCenter}>at</Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{"main reason"}</Text>
+              </View>
+              <Text style={style.valueCenter}>{', '}</Text>
+              <Text style={style.valueCenter}>Philippines.</Text>
+            </View>
+          </View>
+
+          <View style={[style.flexColumn, { gap: 2, paddingTop: 15, alignItems: 'flex-end' }]}>
+            <View style={[style.flexColumn, { gap: 5, alignItems: 'center' }]}>
+              <View style={{ width: 250 }}>
+                <Text style={{ fontSize: 10, textAlign: 'center' }}>{" "}</Text>
+                <View style={{ borderBottom: '1px solid black', marginTop: 2 }} />
+              </View>
+              <Text style={style.label2}>(Signature Over Printed Name of Affiant)</Text>
+            </View>
+          </View>
+
+          <View style={[style.flexColumn, { gap: 2, paddingTop: 15 }]}>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
+              <Text style={[style.valueCenter, style.headerTitle, { fontSize: 10 }]}>Subscribe and sworn</Text>
+              <Text style={style.valueCenter}>to me before this</Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{" "}</Text>
+              </View>
+              <Text style={style.valueCenter}>day of</Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{" "}</Text>
+              </View>
+              <Text style={style.valueCenter}>at</Text>
+            </View>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{" "}</Text>
+              </View>
+              <Text style={style.valueCenter}>, </Text>
+              <Text style={style.valueCenter}>Philippines, affiant who exhibited to me his CTC/valid ID</Text>
+            </View>
+            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{" "}</Text>
+              </View>
+              <Text style={style.valueCenter}>issued on </Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{" "}</Text>
+              </View>
+              <Text style={style.valueCenter}>at</Text>
+              <View style={style.flex1}>
+                <Text style={style.valueLine}>{" "}</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={[style.flexColumn, { gap: 5, paddingTop: 15, alignItems: 'center', justifyContent: 'space-between' }]}>
+            <View style={[style.flexRow, { gap: 10 }]}>
+              <View style={[style.flexColumn, { gap: 5, alignItems: 'center' }]}>
+                <View style={{ width: 250 }}>
+                  <Text style={{ fontSize: 10, textAlign: 'center' }}>{" "}</Text>
+                  <View style={{ borderBottom: '1px solid black', marginTop: 2 }} />
+                </View>
+                <Text style={style.label2}>(Signature Over Printed Name of Affiant)</Text>
+              </View>
+              <View style={[style.flexColumn, { gap: 5, alignItems: 'center' }]}>
+                <View style={{ width: 250 }}>
+                  <Text style={{ fontSize: 10, textAlign: 'center' }}>{" "}</Text>
+                  <View style={{ borderBottom: '1px solid black', marginTop: 2 }} />
+                </View>
+                <Text style={style.label2}>(Signature Over Printed Name of Affiant)</Text>
+              </View>
+            </View>
+            <View style={[style.flexRow, { gap: 10 }]}>
+              <View style={[style.flexColumn, { gap: 5, alignItems: 'center' }]}>
+                <View style={{ width: 250 }}>
+                  <Text style={{ fontSize: 10, textAlign: 'center' }}>{" "}</Text>
+                  <View style={{ borderBottom: '1px solid black', marginTop: 2 }} />
+                </View>
+                <Text style={style.label2}>(Signature Over Printed Name of Affiant)</Text>
+              </View>
+              <View style={[style.flexColumn, { gap: 5, alignItems: 'center' }]}>
+                <View style={{ width: 250 }}>
+                  <Text style={{ fontSize: 10, textAlign: 'center' }}>{" "}</Text>
+                  <View style={{ borderBottom: '1px solid black', marginTop: 2 }} />
+                </View>
+                <Text style={style.label2}>(Signature Over Printed Name of Affiant)</Text>
+              </View>
+            </View>
+          </View>
+
+        </View>
+
+      </Page>
+      {/* Front Page */}
       <Page size='LEGAL' style={style.page}>
         {/* Header */}
         <View style={style.header}>
@@ -385,7 +582,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           <View style={style.fieldContainer2}>
             <Text style={style.label}>10. RESIDENCE:</Text>
             <Text style={style.value}>
-              {data.personalInfo?.residence?.address || ''}
+              {data.personalInfo?.residence?.country || ''}
             </Text>
           </View>
         </View>
@@ -748,7 +945,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>ADDRESS:</Text>
-                  <Text style={style.valueCenter}>{data.informant?.address?.address || ''}</Text>
+                  <Text style={style.valueCenter}>{data.informant?.address?.country || ''}</Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>CITY:</Text>
