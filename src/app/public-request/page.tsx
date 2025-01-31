@@ -7,10 +7,10 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import useDocumentStore from '@/state/use-document-store'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import DeathCertificateForm from '@/components/custom/public_request-forms/death-cert-form'
-import BirthCertificateForm from '@/components/custom/public_request-forms/birth-cert-form'
+import DeathCertificateForm from '@/components/custom/public-request-forms/death-cert-form'
+import BirthCertificateForm from '@/components/custom/public-request-forms/birth-cert-form'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import MarriageCertificateForm from '@/components/custom/public_request-forms/marriage-cert-form'
+import MarriageCertificateForm from '@/components/custom/public-request-forms/marriage-cert-form'
 
 export default function DocumentRequestForm() {
     const { selectedFormType, setSelectedFormType } = useDocumentStore()

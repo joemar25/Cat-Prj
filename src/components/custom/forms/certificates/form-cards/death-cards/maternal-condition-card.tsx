@@ -13,14 +13,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
 const MaternalConditionCard: React.FC = () => {
   const { control, watch } = useFormContext<DeathCertificateFormValues>();
-  const sex = watch('sex');
+  const sex = watch('personalInfo.sex'); // Updated path to match schema
 
+  // Only show this card if the deceased is female
   if (sex !== 'Female') {
     return null;
   }
@@ -33,7 +34,7 @@ const MaternalConditionCard: React.FC = () => {
       <CardContent>
         <FormField
           control={control}
-          name='maternalCondition'
+          name='medicalCertificate.maternalCondition' // Updated path
           render={({ field }) => (
             <FormItem>
               <FormLabel>

@@ -1,25 +1,17 @@
-import ChartsDashboard from "./components/charts"
-import MetricsDashboard from "./components/metrics"
-import StatisticsDashboard from "./components/statistics"
+// app/(dashboard)/dashboard/page.tsx
+import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header";
+import DashboardContent from "./dashboardConent";
 
-import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header.tsx"
 
 export default async function DashboardPage() {
-
   return (
     <div className="w-full h-full flex flex-1 flex-col">
       <DashboardHeader
         breadcrumbs={[
-          { label: 'Dashboard', href: '/dashboard', active: true },
+          { label: "Dashboard", href: "/dashboard", active: true }, // You can translate this in the client component if needed
         ]}
       />
-
-      <div className="w-full h-fit flex flex-1 flex-col gap-4 p-4">
-        {/* Charts Here */}
-        <MetricsDashboard />
-        <ChartsDashboard />
-        <StatisticsDashboard />
-      </div>
+      <DashboardContent /> {/* Use the client component here */}
     </div>
-  )
+  );
 }

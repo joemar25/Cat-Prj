@@ -4,21 +4,21 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Globe } from 'lucide-react'
+import i18n from '@/translation/i18n'
+
 
 const languages = [
     { code: 'en', label: 'English' },
-    { code: 'es', label: 'Español' },
-    { code: 'fr', label: 'Français' },
-    { code: 'de', label: 'Deutsch' },
-    { code: 'zh', label: '中文' },
+    { code: 'fil', label: 'Filipino' },
 ]
 
 export function LanguageSelector() {
-    const [selectedLanguage, setSelectedLanguage] = useState('en')
+    const [selectedLanguage, setSelectedLanguage] = useState(i18n.language) // Initialize with the current language
 
     const handleLanguageChange = (code: string) => {
-        setSelectedLanguage(code)
-        // Add logic to update the app language, e.g., through i18n library
+        setSelectedLanguage(code) // Update the selected language state
+        i18n.changeLanguage(code) // Change the language in i18n
+        localStorage.setItem('language', code) // Save the selected language to localStorage
     }
 
     return (

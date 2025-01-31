@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -38,20 +38,11 @@ const ReceivedByCard: React.FC = () => {
     );
     if (staff) {
       setValue('receivedBy.title', staff.title, {
-        shouldValidate: isSubmitted, // Only validate if form has been submitted
+        shouldValidate: isSubmitted,
         shouldDirty: true,
       });
     }
   }, [selectedName, setValue, isSubmitted]);
-
-  // Set default date to today when component mounts
-  useEffect(() => {
-    if (!watch('receivedBy.date')) {
-      setValue('receivedBy.date', new Date().toISOString(), {
-        shouldValidate: false, // Don't validate on initial set
-      });
-    }
-  }, [setValue, watch]);
 
   return (
     <Card>
@@ -67,7 +58,7 @@ const ReceivedByCard: React.FC = () => {
             <FormItem>
               <FormLabel>Signature</FormLabel>
               <FormControl>
-                <Input placeholder='Signature' {...field} />
+                <Input placeholder='Signature' {...field} className='h-10' />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -82,12 +73,7 @@ const ReceivedByCard: React.FC = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger className='h-10'>
                       <SelectValue placeholder='Select staff name' />
@@ -113,9 +99,9 @@ const ReceivedByCard: React.FC = () => {
                 <FormLabel>Title or Position</FormLabel>
                 <FormControl>
                   <Input
-                    className='h-10'
                     placeholder='Title will auto-fill'
                     {...field}
+                    className='h-10'
                     disabled
                   />
                 </FormControl>
@@ -125,30 +111,20 @@ const ReceivedByCard: React.FC = () => {
           />
         </div>
 
-        {/* Date */}
+        {/* Received By Date */}
         <FormField
           control={control}
           name='receivedBy.date'
-          render={({ field }) => {
-            const dateValue = field.value ? new Date(field.value) : new Date();
-
-            return (
-              <DatePickerField
-                field={{
-                  value: dateValue,
-                  onChange: (date) => {
-                    if (date) {
-                      field.onChange(date.toISOString());
-                    } else {
-                      field.onChange(new Date().toISOString());
-                    }
-                  },
-                }}
-                label='Date'
-                placeholder='Select date'
-              />
-            );
-          }}
+          render={({ field }) => (
+            <DatePickerField
+              field={{
+                value: field.value,
+                onChange: field.onChange,
+              }}
+              label='Date'
+              placeholder='Select date'
+            />
+          )}
         />
       </CardContent>
     </Card>

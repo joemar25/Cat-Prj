@@ -6,6 +6,8 @@ import { Feedback } from '@prisma/client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
 import { DataTableRowActions } from './data-table-row-actions'
+import { useTranslation } from 'react-i18next'
+import { t } from 'i18next'
 
 type FeedbackRow = Feedback & {
     user: { name: string; email: string; image: string | null } | null
@@ -14,7 +16,10 @@ type FeedbackRow = Feedback & {
 export const columns: ColumnDef<FeedbackRow>[] = [
     {
         accessorKey: 'user',
-        header: ({ column }) => <DataTableColumnHeader column={column} title="User" />,
+        header: ({ column }) => {
+            const { t } = useTranslation()
+            return <DataTableColumnHeader column={column} title={t('User')} />
+        },
         cell: ({ row }) => {
             const user = row.getValue('user') as FeedbackRow['user']
             const initials = user ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'A'
@@ -35,13 +40,22 @@ export const columns: ColumnDef<FeedbackRow>[] = [
     },
     {
         accessorKey: 'feedback',
-        header: ({ column }) => <DataTableColumnHeader column={column} title="Feedback" />,
+        header: ({ column }) => {
+            const { t } = useTranslation()
+            return <DataTableColumnHeader column={column} title={t('Feedback')} />
+        },
         cell: ({ row }) => <div className="text-sm">{row.getValue('feedback') as string}</div>,
     },
     {
         accessorKey: 'submittedBy',
-        header: ({ column }) => <DataTableColumnHeader column={column} title="Submitted By" />,
-        cell: ({ row }) => (row.getValue('submittedBy') ? 'Known User' : 'Anonymous'),
+        header: ({ column }) => {
+            const { t } = useTranslation()
+            return <DataTableColumnHeader column={column} title={t('Submitted By')} />
+        },
+        cell: ({ row }) => {
+            const { t } = useTranslation()
+            return row.getValue('submittedBy') ? t('Known User') : t('Anonymous') // Fix here
+        },
         filterFn: (row, id, value: string[]) => {
             const hasSubmitter = Boolean(row.getValue(id))
             return value.includes(String(hasSubmitter))
@@ -49,7 +63,10 @@ export const columns: ColumnDef<FeedbackRow>[] = [
     },
     {
         accessorKey: 'createdAt',
-        header: ({ column }) => <DataTableColumnHeader column={column} title="Submitted At" />,
+        header: ({ column }) => {
+            const { t } = useTranslation()
+            return <DataTableColumnHeader column={column} title={t('Submitted At')} />
+        },
         cell: ({ row }) => {
             const createdAt = row.getValue('createdAt') as Date
             return (
@@ -61,19 +78,26 @@ export const columns: ColumnDef<FeedbackRow>[] = [
     },
     {
         accessorKey: 'updatedAt',
-        header: ({ column }) => <DataTableColumnHeader column={column} title="Last Updated" />,
+        header: ({ column }) => {
+            const { t } = useTranslation()
+            return <DataTableColumnHeader column={column} title={t('Last Updated')} />
+        },
         cell: ({ row }) => {
-            const updatedAt = row.getValue('updatedAt') as Date
+            const { t } = useTranslation()
+            const updatedAt = row.getValue('updatedAt') as Date  // Keep the field name 'updatedAt' directly
             return (
                 <div className="text-sm text-muted-foreground">
-                    {format(new Date(updatedAt), 'PPP p')}
+                    {t('Updated')}: {format(new Date(updatedAt), 'PPP p')}  {/* Translate the label "Updated" */}
                 </div>
             )
         },
     },
     {
         id: 'actions',
-        header: 'Actions',
+        header: ({ column }) => {
+            const { t } = useTranslation()
+            return <DataTableColumnHeader column={column} title={t('Actions')} />
+        },
         cell: ({ row }) => <DataTableRowActions row={row} />,
     },
 ]

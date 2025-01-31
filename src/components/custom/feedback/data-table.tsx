@@ -1,4 +1,3 @@
-// src\components\custom\feedback\data-table.tsx
 'use client'
 
 import React from 'react'
@@ -31,29 +30,45 @@ import { DataTablePagination } from '@/components/custom/table/data-table-pagina
 import { DataTableToolbar } from './data-table-toolbar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Icons } from '@/components/ui/icons'
+import { useTranslation } from 'react-i18next'
+import { useUser } from '@/context/user-context'
+import { hasPermission } from '@/types/auth'
+import { Permission } from '@prisma/client'
+import { columns } from './columns'
 
 type FeedbackValue = string | number | boolean | Date | null | undefined
 
 interface DataTableProps<TData extends Feedback & { user: { name: string; email: string; image: string | null } | null }> {
-    columns: ColumnDef<TData, FeedbackValue>[]
     data: TData[]
     searchKey?: string
     selection?: boolean
 }
 
 export function DataTable<TData extends Feedback & { user: { name: string; email: string; image: string | null } | null }>({
-    columns,
     data,
     selection = true,
 }: DataTableProps<TData>) {
+    const { t } = useTranslation()
+    const { permissions } = useUser()
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [sorting, setSorting] = React.useState<SortingState>([])
 
+    // Filter out the actions column if user doesn't have permission
+    const canViewDetails = hasPermission(permissions ?? [], Permission.FEEDBACK_READ)
+    const filteredColumns = React.useMemo(() => {
+        return columns.filter(column => {
+            if (column.id === 'actions') {
+                return canViewDetails
+            }
+            return true
+        })
+    }, [canViewDetails])
+
     const table = useReactTable({
         data,
-        columns,
+        columns: filteredColumns as ColumnDef<TData, FeedbackValue>[],
         state: {
             sorting,
             columnVisibility,
@@ -110,17 +125,19 @@ export function DataTable<TData extends Feedback & { user: { name: string; email
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                <TableCell colSpan={filteredColumns.length} className="h-24 text-center">
                                     <Card className="mx-auto max-w-md">
                                         <CardContent className="flex flex-col items-center space-y-4 p-6">
                                             <div className="rounded-full bg-muted p-3">
                                                 <Icons.search className="h-6 w-6" />
                                             </div>
-                                            <p className="text-lg font-semibold">No results found</p>
+                                            <p className="text-lg font-semibold">
+                                                {t('No results found')}
+                                            </p>
                                             <p className="text-sm text-muted-foreground">
                                                 {columnFilters.length > 0
-                                                    ? 'Try adjusting your filters or search terms'
-                                                    : 'No feedback has been submitted yet'}
+                                                    ? t('Try adjusting your filters or search terms')
+                                                    : t('No feedback has been submitted yet')}
                                             </p>
                                         </CardContent>
                                     </Card>

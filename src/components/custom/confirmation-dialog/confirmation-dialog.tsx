@@ -1,4 +1,3 @@
-// components/custom/confirmation-dialog.tsx
 'use client';
 
 import {
@@ -20,11 +19,12 @@ interface ConfirmationDialogProps {
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   isSubmitting?: boolean;
-  title?: string;
-  description?: string;
-  localStorageKey: string;
+  formType: 'BIRTH' | 'MARRIAGE' | 'DEATH'; // Add formType prop
+  localStorageKey?: string;
   confirmButtonText?: string;
   cancelButtonText?: string;
+  title?: string; // Add title prop
+  description?: string; // Add description prop
 }
 
 export function ConfirmationDialog({
@@ -32,11 +32,14 @@ export function ConfirmationDialog({
   onOpenChange,
   onConfirm,
   isSubmitting = false,
-  title = 'Confirm Registration',
-  description = 'Are you sure all the details are filled up correctly? This action cannot be undone.',
-  localStorageKey,
+  formType, // Accept formType
+  localStorageKey = `skip${formType}Alert`, // Default localStorageKey based on formType
   confirmButtonText = 'Confirm',
   cancelButtonText = 'Cancel',
+  title = `Confirm ${
+    formType.charAt(0) + formType.slice(1).toLowerCase()
+  } Registration`, // Default title
+  description = `Are you sure all the details for this ${formType.toLowerCase()} certificate are filled up correctly? This action cannot be undone.`, // Default description
 }: ConfirmationDialogProps) {
   const [skipAlert, setSkipAlert] = useState(false);
 

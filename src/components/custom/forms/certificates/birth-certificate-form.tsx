@@ -1,5 +1,6 @@
 'use client';
 
+import { ConfirmationDialog } from '@/components/custom/confirmation-dialog/confirmation-dialog';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,18 +16,17 @@ import {
   BirthCertificateFormProps,
   BirthCertificateFormValues,
   birthCertificateSchema,
-  defaultBirthCertificateValues,
-} from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+  defaultBirthCertificateFormValues,
+} from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PDFViewer } from '@react-pdf/renderer';
 import { Loader2, Save } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import {
-  ConfirmationDialog,
-  shouldSkipAlert,
-} from '../../confirmation-dialog/confirmation-dialog';
+
+import { FormType } from '@prisma/client';
+import AffidavitFormsCard from './form-cards/birth-cards/affidavit-form-card';
 import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
 import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
 import ChildInformationCard from './form-cards/birth-cards/child-information-card';
@@ -36,8 +36,8 @@ import MotherInformationCard from './form-cards/birth-cards/mother-information-c
 import PreparedByCard from './form-cards/birth-cards/prepared-by-card';
 import ReceivedByCard from './form-cards/birth-cards/received-by';
 import RegisteredAtOfficeCard from './form-cards/birth-cards/registered-at-office-card';
-import RegistryInformationCard from './form-cards/birth-cards/registry-information-card';
 import RemarksCard from './form-cards/birth-cards/remarks';
+import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
 
 export default function BirthCertificateForm({
@@ -52,7 +52,7 @@ export default function BirthCertificateForm({
 
   const form = useForm<BirthCertificateFormValues>({
     resolver: zodResolver(birthCertificateSchema),
-    defaultValues: defaultBirthCertificateValues,
+    defaultValues: defaultBirthCertificateFormValues,
   });
 
   const onSubmit = async (values: BirthCertificateFormValues) => {
@@ -66,176 +66,64 @@ export default function BirthCertificateForm({
         });
         onOpenChange(false);
         form.reset();
+      } else if (result.warning) {
+        // Show the confirmation dialog if a warning is returned
+        setPendingSubmission(values); // Save the form data
+        setShowAlert(true); // Show the confirmation dialog
       } else {
-        // Handle specific error cases
-        if (result.error?.includes('registry number already exists')) {
-          toast.error('Registry Number Error', {
-            description:
-              'This registry number is already in use. Please use a different number.',
-          });
-        } else if (result.error?.includes('date')) {
-          toast.error('Date Validation Error', {
-            description: result.error,
-          });
-        } else {
-          toast.error('Registration Error', {
-            description: result.error || 'Failed to register birth certificate',
-          });
-        }
+        // Handle other errors
+        toast.error('Registration Error', {
+          description: result.error || 'Failed to register birth certificate',
+        });
       }
     } catch (error) {
-      console.error('Submission error:', error);
-
-      // More specific error handling
-      if (error instanceof Error) {
-        toast.error('Registration Error', {
-          description: error.message,
-        });
-      } else {
-        toast.error('Registration Error', {
-          description: 'An unexpected error occurred. Please try again.',
-        });
-      }
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'An unexpected error occurred. Please try again.';
+      toast.error('Registration Error', {
+        description: errorMessage,
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const transformFormDataForPreview = (
-    formData: Partial<BirthCertificateFormValues>
-  ): Partial<BirthCertificateFormValues> => {
-    if (!formData) return {};
+  const confirmSubmit = async () => {
+    if (pendingSubmission) {
+      try {
+        setIsSubmitting(true);
 
-    return {
-      ...formData,
-      // Transform childInfo - No changes needed here as it's already correct
-      childInfo: formData.childInfo && {
-        firstName: formData.childInfo.firstName,
-        middleName: formData.childInfo.middleName,
-        lastName: formData.childInfo.lastName,
-        sex: formData.childInfo.sex,
-        dateOfBirth: {
-          day: formData.childInfo.dateOfBirth.day,
-          month: formData.childInfo.dateOfBirth.month,
-          year: formData.childInfo.dateOfBirth.year,
-        },
-        placeOfBirth: {
-          hospital: formData.childInfo.placeOfBirth.hospital,
-          cityMunicipality: formData.childInfo.placeOfBirth.cityMunicipality,
-          province: formData.childInfo.placeOfBirth.province,
-        },
-        typeOfBirth: formData.childInfo.typeOfBirth,
-        birthOrder: formData.childInfo.birthOrder,
-        weightAtBirth: formData.childInfo.weightAtBirth,
-        multipleBirthOrder: formData.childInfo.multipleBirthOrder,
-      },
+        // Call the backend function with the pending data and ignoreDuplicateChild flag
+        const result = await createBirthCertificate(pendingSubmission, true);
 
-      // Transform fatherInfo - Update field names to match Prisma model
-      fatherInfo: formData.fatherInfo && {
-        firstName: formData.fatherInfo.firstName,
-        middleName: formData.fatherInfo.middleName,
-        lastName: formData.fatherInfo.lastName,
-        fatherCitizenship: formData.fatherInfo.fatherCitizenship, // Updated
-        fatherReligion: formData.fatherInfo.fatherReligion, // Updated
-        fatherOccupation: formData.fatherInfo.fatherOccupation, // Updated
-        fatherAge: formData.fatherInfo.fatherAge, // Updated
-        residence: {
-          address: formData.fatherInfo.residence.address,
-          cityMunicipality: formData.fatherInfo.residence.cityMunicipality,
-          province: formData.fatherInfo.residence.province,
-          country: formData.fatherInfo.residence.country,
-        },
-      },
-
-      // Transform motherInfo - No changes needed as it's already updated
-      motherInfo: formData.motherInfo && {
-        firstName: formData.motherInfo.firstName,
-        middleName: formData.motherInfo.middleName,
-        lastName: formData.motherInfo.lastName,
-        motherCitizenship: formData.motherInfo.motherCitizenship,
-        motherReligion: formData.motherInfo.motherReligion,
-        motherOccupation: formData.motherInfo.motherOccupation,
-        motherAge: formData.motherInfo.motherAge,
-        totalChildrenBornAlive: formData.motherInfo.totalChildrenBornAlive,
-        childrenStillLiving: formData.motherInfo.childrenStillLiving,
-        childrenNowDead: formData.motherInfo.childrenNowDead,
-        residence: {
-          address: formData.motherInfo.residence.address,
-          cityMunicipality: formData.motherInfo.residence.cityMunicipality,
-          province: formData.motherInfo.residence.province,
-          country: formData.motherInfo.residence.country,
-        },
-      },
-
-      // Transform parentMarriage (renamed from marriageOfParents)
-      parentMarriage: formData.parentMarriage && {
-        // Updated
-        date: {
-          day: formData.parentMarriage.date.day, // Updated
-          month: formData.parentMarriage.date.month, // Updated
-          year: formData.parentMarriage.date.year, // Updated
-        },
-        place: {
-          cityMunicipality: formData.parentMarriage.place.cityMunicipality, // Updated
-          province: formData.parentMarriage.place.province, // Updated
-          country: formData.parentMarriage.place.country, // Updated
-        },
-      },
-
-      // The rest remains the same as they're already correct
-      attendant: formData.attendant && {
-        type: formData.attendant.type,
-        certification: {
-          time: formData.attendant.certification.time,
-          name: formData.attendant.certification.name,
-          title: formData.attendant.certification.title,
-          address: formData.attendant.certification.address,
-          date: formData.attendant.certification.date,
-          signature: formData.attendant.certification.signature,
-        },
-      },
-
-      informant: formData.informant && {
-        name: formData.informant.name,
-        relationship: formData.informant.relationship,
-        address: formData.informant.address,
-        date: formData.informant.date,
-        signature: formData.informant.signature,
-      },
-
-      preparedBy: formData.preparedBy && {
-        name: formData.preparedBy.name,
-        title: formData.preparedBy.title,
-        date: formData.preparedBy.date,
-        signature: formData.preparedBy.signature,
-      },
-
-      receivedBy: formData.receivedBy && {
-        name: formData.receivedBy.name,
-        title: formData.receivedBy.title,
-        date: formData.receivedBy.date,
-        signature: formData.receivedBy.signature,
-      },
-
-      registeredByOffice: formData.registeredByOffice && {
-        name: formData.registeredByOffice.name,
-        title: formData.registeredByOffice.title,
-        date: formData.registeredByOffice.date,
-        signature: formData.registeredByOffice.signature,
-      },
-    };
-  };
-
-  const handleSubmit = (values: BirthCertificateFormValues) => {
-    if (shouldSkipAlert('skipBirthCertificateAlert')) {
-      onSubmit(values);
-    } else {
-      setPendingSubmission(values);
-      setShowAlert(true);
+        if (result.success) {
+          toast.success('Birth Certificate Registration', {
+            description: 'Birth certificate has been registered successfully',
+          });
+          onOpenChange(false);
+          form.reset();
+        } else {
+          toast.error('Registration Error', {
+            description: result.error || 'Failed to register birth certificate',
+          });
+        }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred. Please try again.';
+        toast.error('Registration Error', {
+          description: errorMessage,
+        });
+      } finally {
+        setIsSubmitting(false);
+        setShowAlert(false); // Hide the dialog
+        setPendingSubmission(null); // Clear the pending submission
+      }
     }
   };
 
-  // Add this separate error handler
   const handleError = () => {
     // Get all form errors
     const errors = form.formState.errors;
@@ -265,14 +153,6 @@ export default function BirthCertificateForm({
     toast.error('Please check all required fields and try again');
   };
 
-  const confirmSubmit = () => {
-    if (pendingSubmission) {
-      onSubmit(pendingSubmission);
-      setShowAlert(false);
-      setPendingSubmission(null);
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0'>
@@ -290,13 +170,17 @@ export default function BirthCertificateForm({
                 <div className='p-6'>
                   <Form {...form}>
                     <form
-                      onSubmit={form.handleSubmit(handleSubmit, handleError)}
+                      onSubmit={form.handleSubmit(onSubmit, handleError)}
                       className='space-y-6'
                     >
-                      <RegistryInformationCard />
+                      <RegistryInformationCard
+                        formType={FormType.BIRTH}
+                        title='Birth Registry Information'
+                      />
                       <ChildInformationCard />
                       <MotherInformationCard />
                       <FatherInformationCard />
+
                       <MarriageOfParentsCard />
                       <AttendantInformationCard />
                       <CertificationOfInformantCard />
@@ -304,6 +188,9 @@ export default function BirthCertificateForm({
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard />
                       <RemarksCard />
+
+                      {/* Back Page Part */}
+                      <AffidavitFormsCard />
 
                       <DialogFooter>
                         <Button
@@ -341,12 +228,11 @@ export default function BirthCertificateForm({
                     onOpenChange={setShowAlert}
                     onConfirm={confirmSubmit}
                     isSubmitting={isSubmitting}
-                    localStorageKey='skipBirthCertificateAlert'
-                    // Optionally override default texts
-                    // title="Custom Title"
-                    // description="Custom Description"
-                    // confirmButtonText="Custom Confirm Text"
-                    // cancelButtonText="Custom Cancel Text"
+                    formType='BIRTH'
+                    title='Duplicate Record Detected'
+                    description='A similar birth record already exists. Do you want to proceed with saving this record?'
+                    confirmButtonText='Proceed'
+                    cancelButtonText='Cancel'
                   />
                 </div>
               </ScrollArea>
@@ -357,7 +243,7 @@ export default function BirthCertificateForm({
               <div className='h-[calc(95vh-120px)] p-6'>
                 <PDFViewer width='100%' height='100%'>
                   <BirthCertificatePDF
-                    data={transformFormDataForPreview(form.watch())}
+                    data={form.watch()} // Pass the current form data to the PDF preview
                   />
                 </PDFViewer>
               </div>

@@ -6,6 +6,7 @@ import { Send, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useTranslation } from "react-i18next"
 
 interface FeedbackFormProps {
     userId: string
@@ -13,12 +14,16 @@ interface FeedbackFormProps {
 }
 
 export function FeedbackForm({ userId, onSubmitAction }: FeedbackFormProps) {
+    const { t } = useTranslation()
     const [feedback, setFeedback] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+
         if (!feedback.trim()) {
-            toast.error("Feedback cannot be empty.")
+            toast.error(t("feedbacks.emptyError")) // Use translated error message
             return
         }
 
@@ -31,18 +36,22 @@ export function FeedbackForm({ userId, onSubmitAction }: FeedbackFormProps) {
                 body: JSON.stringify({ feedback, userId }),
             })
 
+            if (!response.ok) {
+                throw new Error('Failed to submit feedback')
+            }
+
             const result = await response.json()
 
             if (result.success) {
-                toast.success(result.message)
+                toast.success(result.message || t("feedbacks.success")) // Use translated success message
                 setFeedback("")
                 await onSubmitAction()
             } else {
-                toast.error(result.error || "Failed to submit feedback.")
+                toast.error(result.error || t("feedbacks.submitError")) // Use translated error message
             }
         } catch (error) {
             console.error("Failed to submit feedback:", error)
-            toast.error("An unexpected error occurred.")
+            toast.error(t("feedbacks.unexpectedError")) // Use translated error message
         } finally {
             setIsSubmitting(false)
         }
@@ -51,16 +60,16 @@ export function FeedbackForm({ userId, onSubmitAction }: FeedbackFormProps) {
     return (
         <div className="space-y-6">
             <p className="text-muted-foreground">
-                Help us improve by sharing your thoughts and suggestions.
+                {t("feedbacks.helpText")} 
             </p>
             <div className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="feedback" className="text-base font-medium">
-                        Your Feedback
+                        {t("feedbacks.label")}
                     </Label>
                     <Textarea
                         id="feedback"
-                        placeholder="What's on your mind?"
+                        placeholder={t("feedbacks.placeholder")} 
                         className="min-h-[120px] resize-none focus:ring-2 focus:ring-primary"
                         value={feedback}
                         onChange={(e) => setFeedback(e.target.value)}
@@ -75,12 +84,12 @@ export function FeedbackForm({ userId, onSubmitAction }: FeedbackFormProps) {
                     {isSubmitting ? (
                         <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Submitting...
+                            {t("feedbacks.submitting")} {/* Translated submitting text */}
                         </>
                     ) : (
                         <>
                             <Send className="mr-2 h-4 w-4" />
-                            Submit Feedback
+                            {t("feedbacks.submit")} {/* Translated submit button text */}
                         </>
                     )}
                 </Button>

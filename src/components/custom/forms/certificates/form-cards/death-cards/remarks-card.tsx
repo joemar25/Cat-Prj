@@ -1,4 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+'use client';
+
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   FormControl,
   FormField,
@@ -6,8 +8,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
-import React from 'react';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { useFormContext } from 'react-hook-form';
 
 const RemarksCard: React.FC = () => {
@@ -15,8 +16,10 @@ const RemarksCard: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Remarks/Annotations (For LCRO/OCRG Use Only)</CardTitle>
+      <CardHeader className='pb-3'>
+        <h3 className='text-sm font-semibold'>
+          Remarks/Annotations (For LCRO/OCRG Use Only)
+        </h3>
       </CardHeader>
       <CardContent>
         <FormField

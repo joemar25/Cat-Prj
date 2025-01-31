@@ -1,10 +1,8 @@
-// src\app\(dashboard)\feedback\page.tsx
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { Skeleton } from '@/components/ui/skeleton'
-import { columns } from '@/components/custom/feedback/columns'
 import { DataTable } from '@/components/custom/feedback/data-table'
-import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header.tsx'
+import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 async function getFeedback() {
@@ -66,7 +64,6 @@ export default async function FeedbackPage() {
         <Suspense fallback={<FeedbackTableSkeleton />}>
           <DataTable
             data={feedback}
-            columns={columns}
             selection={false}
           />
         </Suspense>

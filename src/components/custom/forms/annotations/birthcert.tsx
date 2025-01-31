@@ -11,13 +11,21 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action';
 import { createBirthAnnotation } from '@/hooks/form-annotations-actions';
+import { BirthAnnotationFormFields } from '@/lib/constants/form-annotations-dynamic-fields';
 import {
+  BirthAnnotationFormSchema,
   BirthAnnotationFormValues,
-  birthAnnotationSchema,
-  BirthCertificateForm,
   ExtendedBirthAnnotationFormProps,
-} from '@/lib/types/zod-form-annotations/formSchemaAnnotation';
+} from '@/lib/types/zod-form-annotations/birth-annotation-form-schema';
+import {
+  MarriagePlaceStructure,
+  NameStructure,
+  ParentMarriageStructure,
+  PlaceStructure,
+} from '@/lib/types/zod-form-annotations/form-annotation-shared-interfaces';
+
 import { formatDateTime } from '@/utils/date';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Save } from 'lucide-react';
@@ -25,12 +33,12 @@ import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
+const BirthAnnotationForm = ({
   open,
   onOpenChange,
   onCancel,
   row,
-}) => {
+}: ExtendedBirthAnnotationFormProps) => {
   const isCanceling = useRef(false);
 
   const {
@@ -40,141 +48,150 @@ const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<BirthAnnotationFormValues>({
-    resolver: zodResolver(birthAnnotationSchema),
-    defaultValues: {
-      pageNumber: '',
-      bookNumber: '',
-      registryNumber: '',
-      dateOfRegistration: new Date(),
-      childFirstName: '',
-      childMiddleName: '',
-      childLastName: '',
-      sex: '',
-      dateOfBirth: new Date(),
-      placeOfBirth: '',
-      motherName: '',
-      fatherName: '',
-      motherCitizenship: '',
-      fatherCitizenship: '',
-      parentsMarriageDate: new Date(),
-      parentsMarriagePlace: '',
-      remarks: '',
-      preparedBy: '',
-      preparedByPosition: '',
-      verifiedBy: '',
-      verifiedByPosition: '',
-    },
+    resolver: zodResolver(BirthAnnotationFormSchema),
   });
 
   // Populate form with row data if available
   useEffect(() => {
     if (row?.original) {
-      const form = row.original;
-      const birthForm = form.birthCertificateForm as BirthCertificateForm;
+      try {
+        const form = row.original as BaseRegistryFormWithRelations;
+        const birthForm = form.birthCertificateForm;
 
-      if (birthForm) {
-        // Basic form info
-        setValue('pageNumber', form.pageNumber);
-        setValue('bookNumber', form.bookNumber);
-        setValue('registryNumber', form.registryNumber);
-        setValue('dateOfRegistration', new Date(form.dateOfRegistration));
+        if (birthForm && form) {
+          // Basic registration info
+          setValue('pageNumber', form.pageNumber);
+          setValue('bookNumber', form.bookNumber);
+          setValue('registryNumber', form.registryNumber);
 
-        // Handle child name
-        if (birthForm.childName) {
-          setValue(
-            'childFirstName',
-            birthForm.childName.firstName || birthForm.childName.first || ''
-          );
-          setValue(
-            'childMiddleName',
-            birthForm.childName.middleName || birthForm.childName.middle || ''
-          );
-          setValue(
-            'childLastName',
-            birthForm.childName.lastName || birthForm.childName.last || ''
-          );
-        }
+          // Handle dates properly
+          if (form.dateOfRegistration) {
+            const formattedRegistrationDate = formatDateTime(
+              form.dateOfRegistration,
+              {
+                monthFormat: 'numeric',
+                dayFormat: 'numeric',
+                yearFormat: 'numeric',
+              }
+            );
+            setValue('dateOfRegistration', formattedRegistrationDate);
+          }
 
-        setValue('sex', birthForm.sex);
-        setValue('dateOfBirth', new Date(birthForm.dateOfBirth));
-
-        // Handle place of birth
-        if (birthForm.placeOfBirth) {
-          const placeOfBirth =
-            typeof birthForm.placeOfBirth === 'string'
-              ? birthForm.placeOfBirth
-              : [
-                  birthForm.placeOfBirth.hospital,
-                  birthForm.placeOfBirth.barangay,
-                  birthForm.placeOfBirth.cityMunicipality,
-                  birthForm.placeOfBirth.province,
-                ]
-                  .filter(Boolean)
-                  .join(', ');
-          setValue('placeOfBirth', placeOfBirth);
-        }
-
-        // Handle mother's information
-        if (birthForm.motherMaidenName) {
-          const motherFullName = [
-            birthForm.motherMaidenName.firstName ||
-              birthForm.motherMaidenName.first,
-            birthForm.motherMaidenName.lastName ||
-              birthForm.motherMaidenName.last,
-          ]
-            .filter(Boolean)
-            .join(' ');
-          setValue('motherName', motherFullName);
-          setValue('motherCitizenship', birthForm.motherCitizenship);
-        }
-
-        // Handle father's information
-        if (birthForm.fatherName) {
-          const fatherFullName = [
-            birthForm.fatherName.firstName || birthForm.fatherName.first,
-            birthForm.fatherName.lastName || birthForm.fatherName.last,
-          ]
-            .filter(Boolean)
-            .join(' ');
-          setValue('fatherName', fatherFullName);
-          setValue('fatherCitizenship', birthForm.fatherCitizenship);
-        }
-
-        // Handle parent marriage details
-        if (birthForm.parentMarriage) {
-          if (birthForm.parentMarriage.date) {
+          // Child's information
+          const childName = birthForm.childName as NameStructure;
+          if (childName) {
             setValue(
-              'parentsMarriageDate',
-              new Date(birthForm.parentMarriage.date)
+              'childFirstName',
+              childName.first || childName.firstName || ''
+            );
+            setValue(
+              'childMiddleName',
+              childName.middle || childName.middleName || ''
+            );
+            setValue(
+              'childLastName',
+              childName.last || childName.lastName || ''
             );
           }
 
-          const marriagePlace =
-            typeof birthForm.parentMarriage.place === 'string'
-              ? birthForm.parentMarriage.place
-              : [
-                  birthForm.parentMarriage.place?.church,
-                  birthForm.parentMarriage.place?.cityMunicipality,
-                  birthForm.parentMarriage.place?.province,
-                ]
-                  .filter(Boolean)
-                  .join(', ');
+          setValue('sex', birthForm.sex || '');
 
-          setValue('parentsMarriagePlace', marriagePlace);
+          // Handle date of birth
+          if (birthForm.dateOfBirth) {
+            const formattedBirthDate = formatDateTime(birthForm.dateOfBirth, {
+              monthFormat: 'numeric',
+              dayFormat: 'numeric',
+              yearFormat: 'numeric',
+            });
+            setValue('dateOfBirth', formattedBirthDate);
+          }
+
+          // Place of birth
+          const placeOfBirth = birthForm.placeOfBirth as PlaceStructure;
+          if (placeOfBirth) {
+            const place =
+              typeof placeOfBirth === 'string'
+                ? placeOfBirth
+                : [
+                    placeOfBirth?.hospital,
+                    placeOfBirth?.barangay,
+                    placeOfBirth?.cityMunicipality,
+                    placeOfBirth?.province,
+                  ]
+                    .filter(Boolean)
+                    .join(', ');
+            setValue('placeOfBirth', place);
+          }
+
+          // Parents' information
+          const motherName = birthForm.motherMaidenName as NameStructure;
+          if (motherName) {
+            const motherFullName = [
+              motherName.first || motherName.firstName,
+              motherName.last || motherName.lastName,
+            ]
+              .filter(Boolean)
+              .join(' ');
+            setValue('motherName', motherFullName);
+          }
+          setValue('motherCitizenship', birthForm.motherCitizenship || '');
+
+          const fatherName = birthForm.fatherName as NameStructure;
+          if (fatherName) {
+            const fatherFullName = [
+              fatherName.first || fatherName.firstName,
+              fatherName.last || fatherName.lastName,
+            ]
+              .filter(Boolean)
+              .join(' ');
+            setValue('fatherName', fatherFullName);
+          }
+          setValue('fatherCitizenship', birthForm.fatherCitizenship || '');
+
+          // Marriage information
+          const parentMarriage =
+            birthForm.parentMarriage as ParentMarriageStructure;
+          if (parentMarriage?.date) {
+            const formattedMarriageDate = formatDateTime(parentMarriage.date, {
+              monthFormat: 'numeric',
+              dayFormat: 'numeric',
+              yearFormat: 'numeric',
+            });
+            setValue('parentsMarriageDate', formattedMarriageDate);
+          }
+
+          if (parentMarriage?.place) {
+            const marriagePlace =
+              typeof parentMarriage.place === 'string'
+                ? parentMarriage.place
+                : [
+                    (parentMarriage.place as MarriagePlaceStructure)?.church,
+                    (parentMarriage.place as MarriagePlaceStructure)
+                      ?.cityMunicipality,
+                    (parentMarriage.place as MarriagePlaceStructure)?.province,
+                  ]
+                    .filter(Boolean)
+                    .join(', ');
+            setValue('parentsMarriagePlace', marriagePlace);
+          }
+
+          // Form processing information and remarks
+          if (form.remarks !== null && form.remarks !== undefined) {
+            setValue('remarks', form.remarks);
+          }
+
+          if (form.preparedBy) {
+            setValue('preparedBy', form.preparedBy.name || '');
+            setValue('preparedByPosition', form.receivedByPosition || '');
+          }
+
+          if (form.verifiedBy) {
+            setValue('verifiedBy', form.verifiedBy.name || '');
+            setValue('verifiedByPosition', form.registeredByPosition || '');
+          }
         }
-
-        setValue('remarks', form.remarks || '');
-
-        // Handle prepared by and verified by info
-        if (form.preparedBy) {
-          setValue('preparedBy', form.preparedBy.name || '');
-          setValue('preparedByPosition', form.receivedByPosition || '');
-        }
-
-        if (form.verifiedBy) {
-          setValue('verifiedBy', form.verifiedBy.name || '');
-          setValue('verifiedByPosition', form.registeredByPosition || '');
-        }
+      } catch (error) {
+        console.error('Error populating form:', error);
       }
     }
   }, [row, setValue]);
@@ -214,11 +231,9 @@ const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Rest of the form JSX remains the same */}
           <div className='container mx-auto p-4'>
             <Card className='w-full max-w-3xl mx-auto bg-background text-foreground border dark:border-border'>
               <CardContent className='p-6 space-y-6'>
-                {/* Form content remains the same */}
                 <div className='relative'>
                   <h2 className='text-lg font-medium'>
                     TO WHOM IT MAY CONCERN:
@@ -254,78 +269,7 @@ const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
 
                 {/* Form fields remain the same */}
                 <div className='space-y-4'>
-                  {[
-                    {
-                      label: 'Registry Number',
-                      name: 'registryNumber',
-                      type: 'text',
-                    },
-                    {
-                      label: 'Date of Registration',
-                      name: 'dateOfRegistration',
-                      type: 'date',
-                    },
-                    {
-                      label: 'First Name',
-                      name: 'childFirstName',
-                      type: 'text',
-                    },
-                    {
-                      label: 'Middle Name',
-                      name: 'childMiddleName',
-                      type: 'text',
-                    },
-                    {
-                      label: 'Last Name',
-                      name: 'childLastName',
-                      type: 'text',
-                    },
-                    {
-                      label: 'Sex',
-                      name: 'sex',
-                      type: 'text',
-                    },
-                    {
-                      label: 'Date of Birth',
-                      name: 'dateOfBirth',
-                      type: 'date',
-                    },
-                    {
-                      label: 'Place of Birth',
-                      name: 'placeOfBirth',
-                      type: 'text',
-                    },
-                    {
-                      label: 'Name of Mother',
-                      name: 'motherName',
-                      type: 'text',
-                    },
-                    {
-                      label: "Mother's Citizenship",
-                      name: 'motherCitizenship',
-                      type: 'text',
-                    },
-                    {
-                      label: 'Name of Father',
-                      name: 'fatherName',
-                      type: 'text',
-                    },
-                    {
-                      label: "Father's Citizenship",
-                      name: 'fatherCitizenship',
-                      type: 'text',
-                    },
-                    {
-                      label: 'Date of Marriage Parents',
-                      name: 'parentsMarriageDate',
-                      type: 'date',
-                    },
-                    {
-                      label: 'Place of Marriage of Parents',
-                      name: 'parentsMarriagePlace',
-                      type: 'text',
-                    },
-                  ].map((field, index) => (
+                  {BirthAnnotationFormFields.map((field, index) => (
                     <div
                       key={index}
                       className='grid grid-cols-[150px_1fr] gap-4 items-center'
@@ -424,3 +368,5 @@ const BirthAnnotationForm: React.FC<ExtendedBirthAnnotationFormProps> = ({
 };
 
 export default BirthAnnotationForm;
+
+// NOTE - I DON'T KNOW IF THIS DATA CAN BE IMMUTABLE OR NOT.

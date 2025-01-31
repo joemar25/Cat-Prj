@@ -1,7 +1,7 @@
 'use client';
 
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   FormControl,
   FormField,
@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -44,19 +44,10 @@ const ReceivedByCard: React.FC = () => {
     }
   }, [selectedName, setValue, isSubmitted]);
 
-  // Set default date to today when component mounts
-  useEffect(() => {
-    if (!watch('receivedBy.date')) {
-      setValue('receivedBy.date', new Date(), {
-        shouldValidate: false, // Don't validate on initial set
-      });
-    }
-  }, [setValue, watch]);
-
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Received By</CardTitle>
+      <CardHeader className='pb-3'>
+        <h3 className='text-sm font-semibold'>Received By</h3>
       </CardHeader>
       <CardContent className='space-y-4'>
         {/* Signature */}
@@ -67,7 +58,11 @@ const ReceivedByCard: React.FC = () => {
             <FormItem>
               <FormLabel>Signature</FormLabel>
               <FormControl>
-                <Input placeholder='Signature' {...field} />
+                <Input
+                  className='h-10'
+                  placeholder='Enter signature'
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -125,27 +120,23 @@ const ReceivedByCard: React.FC = () => {
           />
         </div>
 
-        {/* Date */}
+        {/* Received By Date */}
         <FormField
           control={control}
           name='receivedBy.date'
-          render={({ field }) => {
-            const dateValue =
-              field.value instanceof Date ? field.value : new Date();
-
-            return (
+          render={({ field }) => (
+            <FormItem>
               <DatePickerField
                 field={{
-                  value: dateValue,
-                  onChange: (date) => {
-                    field.onChange(date || new Date());
-                  },
+                  value: field.value ?? null,
+                  onChange: field.onChange,
                 }}
                 label='Date'
                 placeholder='Select date'
               />
-            );
-          }}
+              <FormMessage />
+            </FormItem>
+          )}
         />
       </CardContent>
     </Card>

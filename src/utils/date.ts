@@ -45,3 +45,16 @@ export function formatDateTime(
     dateTimeFormatOptions
   ).format(parsedDate);
 }
+
+export function parseToDate(
+  year: string | number,
+  month: string | number,
+  day: string | number
+): Date | null {
+  const parsedDate = new Date(`${year}-${month}-${day}`);
+  if (isNaN(parsedDate.getTime())) {
+    console.error(`Invalid date: ${year}-${month}-${day}`);
+    return null; // Return null for invalid dates
+  }
+  return parsedDate;
+}

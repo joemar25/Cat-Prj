@@ -1,27 +1,35 @@
 // src/types/next-auth.d.ts
-import { UserRole, Permission } from '@prisma/client'
+import { Permission } from '@prisma/client'
 import { DefaultSession } from "next-auth"
 
 declare module "next-auth" {
     interface User {
         id: string
-        role: UserRole
+        roles: string[]
         permissions: Permission[]
     }
 
     interface Session {
         user: {
             id: string
-            role: UserRole
+            roles: string[]
             permissions: Permission[]
+            emailVerified: boolean
+            username: string | null
+            active: boolean
+            createdAt: Date
+            updatedAt: Date
+            lastLoginAt: Date | null
+            language: string | null
         } & DefaultSession["user"]
     }
+
 }
 
 declare module "next-auth/jwt" {
     interface JWT {
         id: string
-        role: UserRole
+        roles: string[]
         permissions: Permission[]
     }
 }

@@ -1,60 +1,59 @@
-'use client';
+'use client'
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function AuthPage() {
-  const router = useRouter();
+  const router = useRouter()
   useEffect(() => {
-    router.push('/auth');
-  }, [router]);
+    router.push('/auth')
+  }, [router])
 }
 
+// 'use client'
 
-// 'use client';
-
-// import KioskHeader from '@/components/custom/kiosk/kiosk-header';
-// import { SelectServiceStep } from '@/components/custom/kiosk/select-service';
-// import { SuccessStep } from '@/components/custom/kiosk/success-step';
-// import { TrueCopyRequest } from '@/components/custom/kiosk/true-copy-request';
-// import { VerifyRegistration } from '@/components/custom/kiosk/verify-registration';
-// import { DocumentType, useKioskStore } from '@/state/use-kiosk-store';
-// import { AnimatePresence, motion } from 'framer-motion';
-// import { CircleArrowLeft, CircleArrowRight } from 'lucide-react';
-// import { useState } from 'react';
+// import KioskHeader from '@/components/custom/kiosk/kiosk-header'
+// import { SelectServiceStep } from '@/components/custom/kiosk/select-service'
+// import { SuccessStep } from '@/components/custom/kiosk/success-step'
+// import { TrueCopyRequest } from '@/components/custom/kiosk/true-copy-request'
+// import { VerifyRegistration } from '@/components/custom/kiosk/verify-registration'
+// import { DocumentType, useKioskStore } from '@/state/use-kiosk-store'
+// import { AnimatePresence, motion } from 'framer-motion'
+// import { CircleArrowLeft, CircleArrowRight } from 'lucide-react'
+// import { useState } from 'react'
 
 // export default function HomePage() {
-//   const { currentStep, service, goToStep, completeTrueCopy } = useKioskStore();
+//   const { currentStep, service, goToStep, completeTrueCopy } = useKioskStore()
 //   const [selectedService, setSelectedService] = useState<string | null>(
 //     'VERIFY'
-//   ); // Default to "VERIFY"
+//   ) // Default to "VERIFY"
 //   const [selectedDocuments, setSelectedDocuments] = useState<DocumentType[]>(
 //     []
-//   );
+//   )
 
 //   const handleNextStep = () => {
 //     if (currentStep === 1 && !selectedService) {
-//       alert('Please select a service before proceeding.');
-//       return;
+//       alert('Please select a service before proceeding.')
+//       return
 //     }
 
 //     if (currentStep === 2 && service === 'TRUE_COPY') {
 //       if (selectedDocuments.length === 0) {
-//         alert('Please select at least one document before proceeding.');
-//         return;
+//         alert('Please select at least one document before proceeding.')
+//         return
 //       }
 //       // For the last step of TrueCopyRequest, call the completion function
-//       completeTrueCopy();
+//       completeTrueCopy()
 //     } else if (currentStep < 3) {
-//       goToStep(currentStep + 1);
+//       goToStep(currentStep + 1)
 //     }
-//   };
+//   }
 
 //   const handlePreviousStep = () => {
 //     if (currentStep > 1) {
-//       goToStep(currentStep - 1);
+//       goToStep(currentStep - 1)
 //     }
-//   };
+//   }
 
 //   const stepComponents: { [key: number]: JSX.Element } = {
 //     1: (
@@ -74,7 +73,7 @@ export default function AuthPage() {
 //         <VerifyRegistration />
 //       ),
 //     3: <SuccessStep />,
-//   };
+//   }
 
 //   return (
 //     <div className='w-full h-dvh'>
@@ -138,5 +137,5 @@ export default function AuthPage() {
 //         </div>
 //       </div>
 //     </div>
-//   );
+//   )
 // }

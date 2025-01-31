@@ -1,29 +1,22 @@
 // src/hooks/users-action.tsx
 'use server'
 
-import { prisma } from '@/lib/prisma';
-import { CertifiedCopyFormData } from '@/lib/validation/forms/certified-copy';
-import { changePasswordSchema } from '@/lib/validation/auth/change-password';
-import { getEmailSchema, getPasswordSchema, getNameSchema } from '@/lib/validation/shared';
-import { ROLE_PERMISSIONS } from '@/types/auth';
-import {
-  AttachmentType,
-  DocumentStatus,
-  Profile,
-  User,
-  UserRole,
-} from '@prisma/client';
-import { hash, compare } from 'bcryptjs';
-import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
+import { z } from 'zod'
+import { prisma } from '@/lib/prisma'
+import { hash, compare } from 'bcryptjs'
+import { revalidatePath } from 'next/cache'
+import { changePasswordSchema } from '@/lib/validation/auth/change-password'
+import { CertifiedCopyFormData } from '@/lib/validation/forms/certified-copy'
+import { AttachmentType, DocumentStatus, Profile, User, UserRole } from '@prisma/client'
+import { getEmailSchema, getPasswordSchema, getNameSchema } from '@/lib/validation/shared'
 
 // Schema for creating a user in the admin panel
 const createUserSchema = z.object({
   email: getEmailSchema(),
   password: getPasswordSchema('password'),
   name: getNameSchema(),
-  role: z.enum(['ADMIN', 'STAFF', 'USER']).default('USER'),
-});
+  role: z.enum(['ADMIN', 'USER']).default('USER'),
+})
 
 // Password change action
 export async function handleChangePassword(
@@ -93,6 +86,15 @@ export async function handleCreateUser(data: FormData) {
       return { success: false, message: 'Email already exists' }
     }
 
+    // Find the role record
+    const role = await prisma.role.findUnique({
+      where: { name: parsedData.role },
+    })
+
+    if (!role) {
+      return { success: false, message: 'Invalid role selected' }
+    }
+
     const hashedPassword = await hash(parsedData.password, 10)
     const now = new Date()
 
@@ -103,10 +105,17 @@ export async function handleCreateUser(data: FormData) {
           name: parsedData.name,
           email: parsedData.email,
           emailVerified: false,
-          role: parsedData.role as UserRole,
-          permissions: ROLE_PERMISSIONS[parsedData.role as UserRole],
+          active: true,
           createdAt: now,
           updatedAt: now,
+        },
+      })
+
+      // Create role assignment
+      await tx.userRole.create({
+        data: {
+          userId: createdUser.id,
+          roleId: role.id,
         },
       })
 
@@ -134,7 +143,22 @@ export async function handleCreateUser(data: FormData) {
         },
       })
 
-      return createdUser
+      // Return user with roles included
+      return await tx.user.findUnique({
+        where: { id: createdUser.id },
+        include: {
+          roles: {
+            include: {
+              role: {
+                include: {
+                  permissions: true
+                }
+              }
+            }
+          },
+          profile: true
+        }
+      })
     })
 
     revalidatePath('/manage-users')
@@ -206,53 +230,6 @@ export async function deleteUser(userId: string) {
   }
 }
 
-export async function handleUpdateUser(userId: string, data: Partial<User>) {
-  try {
-    const user = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        ...data,
-        updatedAt: new Date(),
-      },
-    })
-
-    revalidatePath('/users')
-    return { success: true, message: 'User updated successfully', data: user }
-  } catch (error) {
-    console.error('Error updating user:', error)
-    return { success: false, message: 'Failed to update user', error }
-  }
-}
-
-export async function handleUpdateUserProfile(
-  userId: string,
-  data: Partial<Profile>
-) {
-  try {
-    const profile = await prisma.profile.upsert({
-      where: { userId },
-      update: {
-        ...data,
-        updatedAt: new Date(),
-      },
-      create: {
-        userId,
-        ...data,
-      },
-    })
-
-    revalidatePath('/profile')
-    return {
-      success: true,
-      message: 'Profile updated successfully',
-      data: profile,
-    }
-  } catch (error) {
-    console.error('Error updating profile:', error)
-    return { success: false, message: 'Failed to update profile', error }
-  }
-}
-
 export async function activateUser(userId: string) {
   try {
     const user = await prisma.user.update({
@@ -303,7 +280,7 @@ export async function createCertifiedCopy(
           version: 1,
           isLatest: true,
         },
-      });
+      })
 
       // 2. Create Attachment
       const attachment = await tx.attachment.create({
@@ -317,7 +294,7 @@ export async function createCertifiedCopy(
           mimeType: 'application/pdf', // placeholder
           status: DocumentStatus.PENDING,
         },
-      });
+      })
 
       // 3. Create CertifiedCopy
       const certifiedCopy = await tx.certifiedCopy.create({
@@ -335,58 +312,20 @@ export async function createCertifiedCopy(
           purpose: data.purpose,
           formId: data.formId,
         },
-      });
+      })
 
-      return { certifiedCopy, attachment, document };
-    });
+      return { certifiedCopy, attachment, document }
+    })
 
-    revalidatePath('/users');
+    revalidatePath('/users')
     return {
       success: true,
       message: 'Certified copy created successfully',
       data: result,
-    };
-  } catch (error) {
-    console.error('Error creating certified copy:', error);
-    return { success: false, message: 'Failed to create certified copy' };
-  }
-}
-
-export async function handleChangePasswordForEditUser(
-  userId: string,
-  data: { newPassword: string; confirmNewPassword: string }
-) {
-  try {
-    // Validate input data
-    if (data.newPassword !== data.confirmNewPassword) {
-      return { success: false, message: 'Passwords do not match' }
     }
-
-    // Fetch the user's account
-    const userAccount = await prisma.account.findFirst({
-      where: { userId },
-    })
-
-    if (!userAccount) {
-      return { success: false, message: 'User account not found' }
-    }
-
-    // Hash the new password
-    const hashedNewPassword = await hash(data.newPassword, 10)
-
-    // Update the password in the database
-    await prisma.account.update({
-      where: { id: userAccount.id },
-      data: { password: hashedNewPassword },
-    })
-
-    // Revalidate paths if necessary
-    revalidatePath('/profile')
-
-    return { success: true, message: 'Password changed successfully' }
   } catch (error) {
-    console.error('Error changing password:', error)
-    return { success: false, message: 'Failed to change password' }
+    console.error('Error creating certified copy:', error)
+    return { success: false, message: 'Failed to create certified copy' }
   }
 }
 

@@ -6,7 +6,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 

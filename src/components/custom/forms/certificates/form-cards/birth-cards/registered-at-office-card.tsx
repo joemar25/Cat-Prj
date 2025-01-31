@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -38,20 +38,11 @@ const RegisteredAtOfficeCard: React.FC = () => {
     );
     if (staff) {
       setValue('registeredByOffice.title', staff.title, {
-        shouldValidate: isSubmitted, // Only validate if form has been submitted
+        shouldValidate: isSubmitted,
         shouldDirty: true,
       });
     }
   }, [selectedName, setValue, isSubmitted]);
-
-  // Set default date to today when component mounts
-  useEffect(() => {
-    if (!watch('registeredByOffice.date')) {
-      setValue('registeredByOffice.date', new Date().toISOString(), {
-        shouldValidate: false, // Don't validate on initial set
-      });
-    }
-  }, [setValue, watch]);
 
   return (
     <Card>
@@ -60,18 +51,14 @@ const RegisteredAtOfficeCard: React.FC = () => {
       </CardHeader>
       <CardContent className='space-y-4'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          {/* Name */}
           <FormField
             control={control}
             name='registeredByOffice.name'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  value={field.value}
-                >
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger className='h-10'>
                       <SelectValue placeholder='Select staff name' />
@@ -90,6 +77,7 @@ const RegisteredAtOfficeCard: React.FC = () => {
             )}
           />
 
+          {/* Title or Position */}
           <FormField
             control={control}
             name='registeredByOffice.title'
@@ -98,9 +86,9 @@ const RegisteredAtOfficeCard: React.FC = () => {
                 <FormLabel>Title or Position</FormLabel>
                 <FormControl>
                   <Input
-                    className='h-10'
                     placeholder='Title will auto-fill'
                     {...field}
+                    className='h-10'
                     disabled
                   />
                 </FormControl>
@@ -109,31 +97,20 @@ const RegisteredAtOfficeCard: React.FC = () => {
             )}
           />
 
+          {/* Registered By Office Date */}
           <FormField
             control={control}
             name='registeredByOffice.date'
-            render={({ field }) => {
-              const dateValue = field.value
-                ? new Date(field.value)
-                : new Date();
-
-              return (
-                <DatePickerField
-                  field={{
-                    value: dateValue,
-                    onChange: (date) => {
-                      if (date) {
-                        field.onChange(date.toISOString());
-                      } else {
-                        field.onChange(new Date().toISOString());
-                      }
-                    },
-                  }}
-                  label='Date'
-                  placeholder='Select date'
-                />
-              );
-            }}
+            render={({ field }) => (
+              <DatePickerField
+                field={{
+                  value: field.value,
+                  onChange: field.onChange,
+                }}
+                label='Date'
+                placeholder='Select date'
+              />
+            )}
           />
         </div>
       </CardContent>

@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -29,9 +29,10 @@ const AttendantInformationCard: React.FC = () => {
         <CardTitle>Attendant Information</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
+        {/* Type of Attendant */}
         <FormField
           control={control}
-          name='attendant.type'
+          name='attendant.type' // Correct path
           render={({ field }) => (
             <FormItem>
               <FormLabel>Type of Attendant</FormLabel>
@@ -59,25 +60,40 @@ const AttendantInformationCard: React.FC = () => {
             </FormItem>
           )}
         />
-
+        {/* Attendance Duration Section */}
         <div className='grid grid-cols-2 gap-4'>
+          {/* From Date */}
           <FormField
             control={control}
-            name='attendant.duration.from'
+            name='attendant.attendance.from'
             render={({ field }) => (
               <FormItem>
-                <DatePickerField field={field} label='From' />
-                <FormMessage />
+                <DatePickerField
+                  field={{
+                    value: field.value,
+                    onChange: field.onChange,
+                  }}
+                  label='From'
+                  placeholder='Select start date'
+                />
               </FormItem>
             )}
           />
+
+          {/* To Date */}
           <FormField
             control={control}
-            name='attendant.duration.to'
+            name='attendant.attendance.to'
             render={({ field }) => (
               <FormItem>
-                <DatePickerField field={field} label='To' />
-                <FormMessage />
+                <DatePickerField
+                  field={{
+                    value: field.value,
+                    onChange: field.onChange,
+                  }}
+                  label='To'
+                  placeholder='Select end date'
+                />
               </FormItem>
             )}
           />

@@ -1,6 +1,7 @@
 // src\app\auth\sign-in\page.tsx
 "use client";
 
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { SignInForm } from "@/components/custom/auth/sign-in-form";
 import { SignUpForm } from "@/components/custom/auth/sign-up-form";
@@ -14,13 +15,11 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
-import files from "../../../public/lottie/files.json";
-import lock from "../../../public/lottie/lock.json";
-import check from "../../../public/lottie/check.json";
-import red from "../../../public/lottie/red.json";
+import files from "@lottie/files.json";
+import lock from "@lottie/lock.json";
+import check from "@lottie/check.json";
+import red from "@lottie/red.json";
 
-import { useTheme } from "next-themes";
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { ThemeChange } from "@/components/theme/theme-change";
 
 const Login = () => {
@@ -50,9 +49,24 @@ const Login = () => {
                     className="h-full w-full"
                   >
                     <CardHeader className="w-full text-left md:flex-row flex-col gap-2 space-y-1 flex items-center md:justify-start justify-center">
-                      <img src="/images/new.png" className="w-28 h-28" alt="" />
-                      <div>
-                        <CardTitle className="text-2xl w-full font-bold font-inter tracking-tight uppercase ">
+                      <Image
+                        src="/images/new.png"
+                        alt="New Image"
+                        width={96} // Use the actual width of the image
+                        height={96} // Use the actual height of the image
+                        className="w-24 h-24"
+                        loading="eager"
+                      />
+                      <Image
+                        src="/images/logo.png"
+                        alt="Logo"
+                        width={96} // Use the actual width of the image
+                        height={96} // Use the actual height of the image
+                        className="w-24 h-24 rounded-full"
+                        loading="eager"
+                      />
+                      <div className="pl-2">
+                        <CardTitle className="text-xl w-full font-bold font-inter tracking-tight uppercase">
                           City Government of Legazpi
                         </CardTitle>
                         <CardDescription>
@@ -73,7 +87,7 @@ const Login = () => {
                       {isDevelopment && (
                         <div className="text-center text-sm mt-6">
                           <p className="text-muted-foreground">
-                            Don&apos;t have an account?{" "}
+                            Don&apost have an account?{" "}
                             <Button
                               variant="link"
                               className="text-primary p-0"
@@ -162,7 +176,7 @@ const RightSide = () => {
 
   return (
     <div className="w-full hidden lg:flex flex-col items-center justify-center dark:bg-blueColor/15 bg-blueColor/80 relative overflow-hidden">
-      <span className="z-50 absolute top-2 right-0">
+      <span className="z-50 absolute top-2 right-0 ">
         <ThemeChange />
       </span>
 
@@ -196,25 +210,25 @@ const RightSide = () => {
               color: currentIndex === 3 ? lottieSet[3].color : "inherit",
             }}
           >
-            Committed to provide high-quality services and ensuring
-            that all the data stored is protected.
+            Committed to provide high-quality services and ensuring that all the
+            data stored is protected.
           </span>
         </CardDescription>
-
-        
       </div>
 
       {/* Indicators */}
       <div className="flex gap-2 mt-4 absolute bottom-6 z-50">
-          {lottieSet.map((_, index) => (
-            <div
-              key={index}
-              className={` rounded-full transition-colors duration-300 ${
-                currentIndex === index ? "bg-transparent bg-yellow-500 dark:bg-blueColor/80 h-3 w-6" : " border-2 border-yellowColor dark:border-blueColor w-3 h-3"
-              }`}
-            />
-          ))}
-        </div>
+        {lottieSet.map((_, index) => (
+          <div
+            key={index}
+            className={` rounded-full transition-colors duration-300 ${
+              currentIndex === index
+                ? "bg-transparent bg-yellow-500 dark:bg-blueColor/80 h-3 w-6"
+                : " border-2 border-yellowColor dark:border-blueColor w-3 h-3"
+            }`}
+          />
+        ))}
+      </div>
 
       <div
         className={`w-fit h-full overflow-hidden transition-transform duration-500 ${
@@ -229,8 +243,6 @@ const RightSide = () => {
           className="w-56 h-56"
         />
       </div>
-
     </div>
   );
 };
-

@@ -1,30 +1,9 @@
 'use client'
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar'
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from '@/components/ui/sidebar'
-
-import { ThemeMenu } from '../../theme/theme-button'
-
+import { ThemeMenu } from '@/components/theme/theme-button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useRouter } from 'next/navigation'
 import { Icons } from '@/components/ui/icons'
 import { signOut } from 'next-auth/react'
@@ -112,7 +91,7 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={handleLogout}
-              className='text-red-600 dark:text-red-400 cursor-pointer'
+              className='text-red-500 dark:text-red-400 cursor-pointer'
             >
               <Icons.logout className='mr-2 h-4 w-4' />
               Log out

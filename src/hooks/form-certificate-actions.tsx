@@ -2,281 +2,15 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import {
-  BirthCertificateFormValues,
-  DeathCertificateFormValues,
-  MarriageCertificateFormValues,
-} from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
+import { isValidDate } from '@/utils/certificate-helper-functions';
 import { FormType } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 // -----------------------------HELPER FUNCTION--------------//
-function isValidDate(date: unknown, formType: FormType): boolean {
-  switch (formType) {
-    case FormType.BIRTH:
-      // Birth certificate expects {year, month, day} format
-      if (
-        typeof date === 'object' &&
-        date !== null &&
-        'year' in date &&
-        'month' in date &&
-        'day' in date
-      ) {
-        const { year, month, day } = date as {
-          year: string;
-          month: string;
-          day: string;
-        };
-        const constructedDate = new Date(`${year}-${month}-${day}`);
-        return (
-          constructedDate instanceof Date && !isNaN(constructedDate.getTime())
-        );
-      }
-      return false;
 
-    case FormType.DEATH:
-      // Death certificate expects Date object
-      if (date instanceof Date) {
-        return !isNaN(date.getTime());
-      }
-      return false;
-
-    case FormType.MARRIAGE:
-      // Marriage certificate also expects Date object like death certificate
-      if (date instanceof Date) {
-        const currentDate = new Date();
-        // Additional marriage-specific validations:
-        // 1. Date should not be in the future
-        if (date > currentDate) {
-          return false;
-        }
-        // 2. Date should not be before 1945 (matching our registry number validation)
-        const minDate = new Date('1945-01-01');
-        if (date < minDate) {
-          return false;
-        }
-        return !isNaN(date.getTime());
-      }
-      return false;
-
-    default:
-      return false;
-  }
-}
-export async function generateRegistryNumber(formType: FormType) {
-  try {
-    const currentYear = new Date().getFullYear();
-
-    // Use transaction to prevent race conditions
-    return await prisma.$transaction(async (tx) => {
-      let formCount;
-
-      // Count based on form type
-      switch (formType) {
-        case FormType.BIRTH:
-          formCount = await tx.birthCertificateForm.count({
-            where: {
-              baseForm: {
-                AND: [
-                  {
-                    dateOfRegistration: {
-                      gte: new Date(currentYear, 0, 1),
-                      lt: new Date(currentYear + 1, 0, 1),
-                    },
-                  },
-                  { formType: formType },
-                ],
-              },
-            },
-          });
-          break;
-
-        case FormType.DEATH:
-          formCount = await tx.deathCertificateForm.count({
-            where: {
-              baseForm: {
-                AND: [
-                  {
-                    dateOfRegistration: {
-                      gte: new Date(currentYear, 0, 1),
-                      lt: new Date(currentYear + 1, 0, 1),
-                    },
-                  },
-                  { formType: formType },
-                ],
-              },
-            },
-          });
-          break;
-
-        case FormType.MARRIAGE:
-          formCount = await tx.marriageCertificateForm.count({
-            where: {
-              baseForm: {
-                AND: [
-                  {
-                    dateOfRegistration: {
-                      gte: new Date(currentYear, 0, 1),
-                      lt: new Date(currentYear + 1, 0, 1),
-                    },
-                  },
-                  { formType: formType },
-                ],
-              },
-            },
-          });
-          break;
-
-        default:
-          throw new Error('Invalid form type');
-      }
-
-      const nextSequence = formCount + 1;
-
-      if (nextSequence > 99999) {
-        throw new Error(
-          'Maximum registry number sequence reached for the year'
-        );
-      }
-
-      const registryNumber = `${currentYear}-${nextSequence
-        .toString()
-        .padStart(5, '0')}`;
-
-      // Verify within the same transaction
-      const existingRegistry = await tx.baseRegistryForm.findFirst({
-        where: {
-          registryNumber,
-          formType,
-          dateOfRegistration: {
-            gte: new Date(currentYear, 0, 1),
-            lt: new Date(currentYear + 1, 0, 1),
-          },
-        },
-      });
-
-      if (existingRegistry) {
-        throw new Error('Registry number already exists');
-      }
-
-      return registryNumber;
-    });
-  } catch (error) {
-    console.error('Error generating registry number:', error);
-    throw new Error('Failed to generate registry number');
-  }
-}
-
-export async function checkRegistryNumberExists(
-  registryNumber: string,
-  formType: FormType
-) {
-  try {
-    const [year, sequence] = registryNumber.split('-');
-    const yearNum = parseInt(year);
-    const sequenceNum = parseInt(sequence);
-
-    if (yearNum < 1945 || yearNum > new Date().getFullYear()) {
-      throw new Error('Invalid registration year');
-    }
-
-    if (sequenceNum <= 0 || sequenceNum > 99999) {
-      throw new Error('Invalid sequence number');
-    }
-
-    // Use transaction to ensure consistency
-    return await prisma.$transaction(async (tx) => {
-      const existingForm = await tx.baseRegistryForm.findFirst({
-        where: {
-          registryNumber,
-          formType,
-          dateOfRegistration: {
-            gte: new Date(yearNum, 0, 1),
-            lt: new Date(yearNum + 1, 0, 1),
-          },
-        },
-      });
-
-      if (existingForm) {
-        throw new Error(`Registry number ${registryNumber} already exists`);
-      }
-
-      let previousCount;
-      switch (formType) {
-        case FormType.BIRTH:
-          previousCount = await tx.birthCertificateForm.count({
-            where: {
-              baseForm: {
-                AND: [
-                  {
-                    dateOfRegistration: {
-                      gte: new Date(yearNum, 0, 1),
-                      lt: new Date(yearNum + 1, 0, 1),
-                    },
-                  },
-                  { formType },
-                ],
-              },
-            },
-          });
-          break;
-        case FormType.DEATH:
-          previousCount = await tx.deathCertificateForm.count({
-            where: {
-              baseForm: {
-                AND: [
-                  {
-                    dateOfRegistration: {
-                      gte: new Date(yearNum, 0, 1),
-                      lt: new Date(yearNum + 1, 0, 1),
-                    },
-                  },
-                  { formType },
-                ],
-              },
-            },
-          });
-          break;
-        case FormType.MARRIAGE:
-          previousCount = await tx.marriageCertificateForm.count({
-            where: {
-              baseForm: {
-                AND: [
-                  {
-                    dateOfRegistration: {
-                      gte: new Date(yearNum, 0, 1),
-                      lt: new Date(yearNum + 1, 0, 1),
-                    },
-                  },
-                  { formType },
-                ],
-              },
-            },
-          });
-          break;
-        default:
-          throw new Error('Invalid form type');
-      }
-
-      if (sequenceNum > previousCount + 1) {
-        throw new Error(
-          `Cannot use registry number ${registryNumber}. Please use number ${yearNum}-${(
-            previousCount + 1
-          )
-            .toString()
-            .padStart(5, '0')}`
-        );
-      }
-
-      return false;
-    });
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to check registry number');
-  }
-}
 
 // ----------------------------END OF HELPER FUNCTION----------------------------------------//
 export async function createMarriageCertificate(
@@ -431,39 +165,86 @@ export async function createMarriageCertificate(
 }
 
 // Death Certificate Server Action
-export async function createDeathCertificate(data: DeathCertificateFormValues) {
+
+export async function createDeathCertificate(
+  data: DeathCertificateFormValues,
+  ignoreDuplicate: boolean = false
+) {
   try {
-    // 1. Validate registry number
-    const exists = await checkRegistryNumberExists(
-      data.registryNumber,
-      FormType.DEATH
-    );
-    if (exists) {
+    // Check for required dates
+    if (!data.personalInfo.dateOfDeath) {
+      return { success: false, error: 'Date of death is required' };
+    }
+
+    if (!data.personalInfo.dateOfBirth) {
+      return { success: false, error: 'Date of birth is required' };
+    }
+
+    // Validate registry number format before checking in DB
+    if (!/\d{4}-\d{5}/.test(data.registryNumber)) {
+      return {
+        success: false,
+        error: 'Registry number must be in the format YYYY-#####',
+      };
+    }
+
+    // Validate registry number does not already exist
+    const existingRegistry = await prisma.baseRegistryForm.findFirst({
+      where: {
+        registryNumber: data.registryNumber,
+        formType: 'DEATH',
+      },
+    });
+
+    if (existingRegistry) {
       return {
         success: false,
         error: 'Registry number already exists. Please use a different number.',
       };
     }
 
-    // 2. Validate dates
-    if (
-      !isValidDate(data.dateOfDeath, FormType.DEATH) ||
-      !isValidDate(data.dateOfBirth, FormType.DEATH)
-    ) {
-      return {
-        success: false,
-        error: 'Invalid date of death or date of birth',
-      };
+    // Check for duplicate deceased information
+    if (!ignoreDuplicate) {
+      const existingDeceased = await prisma.deathCertificateForm.findFirst({
+        where: {
+          AND: [
+            {
+              deceasedName: {
+                path: ['firstName'],
+                string_contains: data.personalInfo.firstName.trim(),
+              },
+            },
+            {
+              deceasedName: {
+                path: ['lastName'],
+                string_contains: data.personalInfo.lastName.trim(),
+              },
+            },
+            {
+              dateOfDeath: data.personalInfo.dateOfDeath, // Now directly use the Date object
+            },
+            {
+              placeOfDeath: {
+                path: ['cityMunicipality'],
+                string_contains:
+                  data.personalInfo.placeOfDeath.cityMunicipality.trim(),
+              },
+            },
+          ],
+        },
+      });
+
+      if (existingDeceased) {
+        return {
+          success: false,
+          warning: true,
+          message:
+            'Similar death record already exists. Do you want to proceed with saving this record?',
+        };
+      }
     }
 
-    // 3. Validate death date is after birth date
-    if (data.dateOfDeath < data.dateOfBirth) {
-      return {
-        success: false,
-        error: 'Date of death cannot be before date of birth',
-      };
-    }
-
+    // Validate preparer exists
     const user = await prisma.user.findFirst({
       where: {
         name: data.preparedBy.name,
@@ -471,17 +252,19 @@ export async function createDeathCertificate(data: DeathCertificateFormValues) {
     });
 
     if (!user) {
-      throw new Error('Preparer not found');
+      return { success: false, error: 'Preparer not found' };
     }
+
+    // Create the death certificate
     const baseForm = await prisma.baseRegistryForm.create({
       data: {
-        formNumber: '103', // Form 103 for Death Certificate
+        formNumber: '103',
         formType: 'DEATH',
         registryNumber: data.registryNumber,
         province: data.province,
         cityMunicipality: data.cityMunicipality,
-        pageNumber: '1', // Default for testing
-        bookNumber: '1', // Default for testing
+        pageNumber: '1',
+        bookNumber: '1',
         dateOfRegistration: new Date(),
         status: 'PENDING',
         preparedBy: {
@@ -489,140 +272,234 @@ export async function createDeathCertificate(data: DeathCertificateFormValues) {
             id: user.id,
           },
         },
-
         deathCertificateForm: {
           create: {
-            // Deceased Information
+            // Personal Information
             deceasedName: {
-              first: data.name.first,
-              middle: data.name.middle,
-              last: data.name.last,
+              firstName: data.personalInfo.firstName.trim(),
+              middleName: data.personalInfo.middleName?.trim() || '',
+              lastName: data.personalInfo.lastName.trim(),
             },
-            sex: data.sex,
-            dateOfDeath: data.dateOfDeath,
+            sex: data.personalInfo.sex,
+            dateOfDeath: data.personalInfo.dateOfDeath,
+            dateOfBirth: data.personalInfo.dateOfBirth,
             placeOfDeath: {
-              cityMunicipality: data.placeOfDeath,
-              province: data.province,
+              province: data.personalInfo.placeOfDeath.province.trim(),
+              cityMunicipality:
+                data.personalInfo.placeOfDeath.cityMunicipality.trim(),
+              specificAddress:
+                data.personalInfo.placeOfDeath.specificAddress?.trim() || '',
             },
-            dateOfBirth: data.dateOfBirth,
             placeOfBirth: {
-              cityMunicipality: data.placeOfDeath,
-              province: data.province,
+              province: data.personalInfo.placeOfDeath.province.trim(),
+              cityMunicipality:
+                data.personalInfo.placeOfDeath.cityMunicipality.trim(),
+              specificAddress:
+                data.personalInfo.placeOfDeath.specificAddress?.trim() || '',
             },
-            civilStatus: data.civilStatus,
-            religion: data.religion,
-            citizenship: data.citizenship,
+            civilStatus: data.personalInfo.civilStatus,
+            religion: data.personalInfo.religion,
+            citizenship: data.personalInfo.citizenship,
             residence: {
-              houseNo: '', // You might want to parse this from data.residence
-              barangay: '', // Parse from data.residence
-              cityMunicipality: data.cityMunicipality,
-              province: data.province,
+              address: data.personalInfo.residence.address,
+              cityMunicipality: data.personalInfo.residence.cityMunicipality,
+              province: data.personalInfo.residence.province,
+              country: data.personalInfo.residence.country,
             },
-            occupation: data.occupation,
+            occupation: data.personalInfo.occupation,
 
-            // Parents Information
-            nameOfFather: data.fatherName,
-            nameOfMother: data.motherMaidenName,
+            // Family Information
+            nameOfFather: {
+              firstName: data.familyInfo.father.firstName.trim(),
+              middleName: data.familyInfo.father.middleName?.trim() || '',
+              lastName: data.familyInfo.father.lastName.trim(),
+            },
+            nameOfMother: {
+              firstName: data.familyInfo.mother.firstName.trim(),
+              middleName: data.familyInfo.mother.middleName?.trim() || '',
+              lastName: data.familyInfo.mother.lastName.trim(),
+            },
 
             // Medical Information
             causesOfDeath: {
-              immediate: data.causesOfDeath.immediate,
-              antecedent: data.causesOfDeath.antecedent,
-              underlying: data.causesOfDeath.underlying,
-              otherSignificant: data.causesOfDeath.contributingConditions,
+              immediate: data.medicalCertificate.causesOfDeath.immediate,
+              antecedent: data.medicalCertificate.causesOfDeath.antecedent,
+              underlying: data.medicalCertificate.causesOfDeath.underlying,
+              contributingConditions:
+                data.medicalCertificate.causesOfDeath.contributingConditions ||
+                '',
             },
-            deathInterval: {}, // Add appropriate data structure
-            pregnancy:
-              data.sex === 'Female' ? data.maternalCondition !== 'none' : false,
-            attendedByPhysician: data.certification.hasAttended,
-            mannerOfDeath: data.deathByExternalCauses.mannerOfDeath,
-            placeOfOccurrence: data.deathByExternalCauses.placeOfOccurrence,
+            deathInterval: {
+              interval: data.personalInfo.ageAtDeath.years,
+            },
+            pregnancy: false,
+            attendedByPhysician: data.certification.hasAttended === 'Yes',
+            mannerOfDeath: data.medicalCertificate.externalCauses.mannerOfDeath,
+            placeOfOccurrence:
+              data.medicalCertificate.externalCauses.placeOfOccurrence,
 
             // Certification
-            certificationType: 'Hospital Authority', // Adjust based on data
+            certificationType: 'STANDARD',
             certifier: {
-              name: data.certification.nameInPrint,
-              title: data.certification.titleOfPosition,
+              name: data.certification.name,
+              title: data.certification.title,
               address: data.certification.address,
-              signature: data.certification.signature,
               date: data.certification.date,
             },
 
-            // Disposal
+            // Disposal Information
             disposalDetails: {
               method: data.disposal.method,
-              place: data.cemeteryAddress,
-              date: data.disposal.burialPermit.dateIssued,
+              burialPermit: {
+                number: data.disposal.burialPermit.number,
+                dateIssued: data.disposal.burialPermit.dateIssued,
+              },
+              transferPermit: data.disposal.transferPermit.number
+                ? {
+                  number: data.disposal.transferPermit.number,
+                  dateIssued: data.disposal.transferPermit.dateIssued || null,
+                }
+                : null,
+              cemeteryAddress: data.disposal.cemeteryAddress,
             },
 
-            // Informant
+            // Informant Details
             informant: {
-              name: data.informant.nameInPrint,
-              signature: data.informant.signature,
-              relationship: data.informant.relationshipToDeceased,
+              name: data.informant.name,
+              relationship: data.informant.relationship,
               address: data.informant.address,
               date: data.informant.date,
             },
 
-            // Preparer
+            // Preparer Details
             preparer: {
-              name: data.preparedBy.name, // Update 'nameInPrint' to 'name'
-              signature: data.preparedBy.signature,
-              title: data.preparedBy.title, // Update 'titleOrPosition' to 'title'
+              name: data.preparedBy.name,
+              title: data.preparedBy.title,
               date: data.preparedBy.date,
             },
-
-            // Burial Permit
-            burialPermit: data.disposal.burialPermit.number
-              ? {
-                  number: data.disposal.burialPermit.number,
-                  date: data.disposal.burialPermit.dateIssued.toISOString(), // Convert Date to string
-                  cemetery: data.cemeteryAddress,
-                }
-              : undefined, // Use undefined instead of null
           },
         },
+        // Additional base form fields
+        receivedBy: data.receivedBy.name.trim(),
+        receivedByPosition: data.receivedBy.title.trim(),
+        receivedDate: data.receivedBy.date,
+        registeredBy: data.registeredAtCivilRegistrar.name.trim(),
+        registeredByPosition: data.registeredAtCivilRegistrar.title.trim(),
+        registrationDate: data.registeredAtCivilRegistrar.date,
+        remarks: data.remarks?.trim(),
       },
     });
 
-    revalidatePath('/civil-registry'); // Adjust based on your route
-    return { success: true, data: baseForm };
+    revalidatePath('/civil-registry');
+    return {
+      success: true,
+      data: baseForm,
+      message: 'Death certificate created successfully',
+    };
   } catch (error) {
-    if (error instanceof Error) {
-      return {
-        success: false,
-        error: `Failed to create death certificate: ${error.message}`,
-      };
-    }
-    return { success: false, error: 'Failed to create death certificate' };
+    console.error('Error creating death certificate:', error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to create death certificate',
+    };
   }
 }
-
 // ------------------------------- Birth Certificate Server Action -------------------------------//
 
-// Complete birth certificate creation with validation
-export async function createBirthCertificate(data: BirthCertificateFormValues) {
+export async function createBirthCertificate(
+  data: BirthCertificateFormValues,
+  ignoreDuplicateChild: boolean = false
+) {
   try {
-    // 1. Validate registry number
-    const exists = await checkRegistryNumberExists(
-      data.registryNumber,
-      FormType.BIRTH
-    );
-    if (exists) {
+    // Validate required dates
+    if (!data.childInfo.dateOfBirth) {
+      return { success: false, error: 'Date of birth is required' };
+    }
+
+    if (!data.parentMarriage.date) {
+      return { success: false, error: 'Parent marriage date is required' };
+    }
+
+    // Validate registry number format
+    if (!/\d{4}-\d{5}/.test(data.registryNumber)) {
+      return {
+        success: false,
+        error: 'Registry number must be in the format YYYY-#####',
+      };
+    }
+
+    // Check for existing registry number
+    const existingRegistry = await prisma.baseRegistryForm.findFirst({
+      where: {
+        registryNumber: data.registryNumber,
+        formType: 'BIRTH',
+      },
+    });
+
+    if (existingRegistry) {
       return {
         success: false,
         error: 'Registry number already exists. Please use a different number.',
       };
     }
 
-    // 2. Validate dates
-    if (!isValidDate(data.childInfo.dateOfBirth, FormType.BIRTH)) {
-      return {
-        success: false,
-        error: 'Invalid date of birth',
-      };
+    // Check for duplicate child
+    if (!ignoreDuplicateChild) {
+      const existingChild = await prisma.birthCertificateForm.findFirst({
+        where: {
+          AND: [
+            {
+              childName: {
+                path: ['firstName'],
+                string_contains: data.childInfo.firstName.trim(),
+              },
+            },
+            {
+              childName: {
+                path: ['lastName'],
+                string_contains: data.childInfo.lastName.trim(),
+              },
+            },
+            {
+              dateOfBirth: data.childInfo.dateOfBirth,
+            },
+            {
+              placeOfBirth: {
+                path: ['hospital'],
+                string_contains: data.childInfo.placeOfBirth.hospital.trim(),
+              },
+            },
+            {
+              placeOfBirth: {
+                path: ['cityMunicipality'],
+                string_contains:
+                  data.childInfo.placeOfBirth.cityMunicipality.trim(),
+              },
+            },
+            {
+              placeOfBirth: {
+                path: ['province'],
+                string_contains: data.childInfo.placeOfBirth.province.trim(),
+              },
+            },
+          ],
+        },
+      });
+
+      if (existingChild) {
+        return {
+          success: false,
+          warning: true,
+          message:
+            'Child information already exists in the database. Do you want to proceed with saving this record?',
+        };
+      }
     }
 
+    // Validate preparer exists
     const user = await prisma.user.findFirst({
       where: {
         name: data.preparedBy.name,
@@ -630,13 +507,12 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
     });
 
     if (!user) {
-      throw new Error('Preparer not found');
+      return { success: false, error: 'Preparer not found' };
     }
 
-    // 3. Create the birth certificate
+    // Create the birth certificate
     const baseForm = await prisma.baseRegistryForm.create({
       data: {
-        // Base Registry Form Fields
         formNumber: '102',
         formType: 'BIRTH',
         registryNumber: data.registryNumber,
@@ -644,16 +520,13 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
         cityMunicipality: data.cityMunicipality,
         pageNumber: '1',
         bookNumber: '1',
-        dateOfRegistration: new Date(), // Current date
+        dateOfRegistration: new Date(),
         status: 'PENDING',
-
-        // Preparer Information
         preparedBy: {
           connect: {
             id: user.id,
           },
         },
-        // Birth Certificate Form
         birthCertificateForm: {
           create: {
             // Child Information
@@ -663,9 +536,7 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
               lastName: data.childInfo.lastName.trim(),
             },
             sex: data.childInfo.sex,
-            dateOfBirth: new Date(
-              `${data.childInfo.dateOfBirth.year}-${data.childInfo.dateOfBirth.month}-${data.childInfo.dateOfBirth.day}`
-            ),
+            dateOfBirth: data.childInfo.dateOfBirth,
             placeOfBirth: {
               hospital: data.childInfo.placeOfBirth.hospital.trim(),
               province: data.childInfo.placeOfBirth.province.trim(),
@@ -675,7 +546,7 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
             typeOfBirth: data.childInfo.typeOfBirth,
             multipleBirthOrder: data.childInfo.multipleBirthOrder || null,
             birthOrder: data.childInfo.birthOrder || null,
-            weightAtBirth: data.childInfo.weightAtBirth,
+            weightAtBirth: parseFloat(data.childInfo.weightAtBirth),
 
             // Mother Information
             motherMaidenName: {
@@ -683,10 +554,10 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
               middleName: data.motherInfo.middleName?.trim() || '',
               lastName: data.motherInfo.lastName.trim(),
             },
-            motherCitizenship: data.motherInfo.motherCitizenship.trim(),
-            motherReligion: data.motherInfo.motherReligion?.trim(),
-            motherOccupation: data.motherInfo.motherOccupation?.trim(),
-            motherAge: parseInt(data.motherInfo.motherAge),
+            motherCitizenship: data.motherInfo.citizenship.trim(),
+            motherReligion: data.motherInfo.religion?.trim(),
+            motherOccupation: data.motherInfo.occupation?.trim(),
+            motherAge: parseInt(data.motherInfo.age),
             motherResidence: {
               address: data.motherInfo.residence.address.trim(),
               province: data.motherInfo.residence.province.trim(),
@@ -706,10 +577,10 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
               middleName: data.fatherInfo.middleName?.trim() || '',
               lastName: data.fatherInfo.lastName.trim(),
             },
-            fatherCitizenship: data.fatherInfo.fatherCitizenship.trim(),
-            fatherReligion: data.fatherInfo.fatherReligion?.trim(),
-            fatherOccupation: data.fatherInfo.fatherOccupation?.trim(),
-            fatherAge: parseInt(data.fatherInfo.fatherAge),
+            fatherCitizenship: data.fatherInfo.citizenship.trim(),
+            fatherReligion: data.fatherInfo.religion?.trim(),
+            fatherOccupation: data.fatherInfo.occupation?.trim(),
+            fatherAge: parseInt(data.fatherInfo.age),
             fatherResidence: {
               address: data.fatherInfo.residence.address.trim(),
               province: data.fatherInfo.residence.province.trim(),
@@ -720,9 +591,7 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
 
             // Marriage Information
             parentMarriage: {
-              date: new Date(
-                `${data.parentMarriage.date.year}-${data.parentMarriage.date.month}-${data.parentMarriage.date.day}`
-              ),
+              date: data.parentMarriage.date,
               place: {
                 cityMunicipality:
                   data.parentMarriage.place.cityMunicipality.trim(),
@@ -731,7 +600,7 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
               },
             },
 
-            // Certification Details
+            // Attendant Information
             attendant: {
               type: data.attendant.type,
               certification: {
@@ -744,7 +613,7 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
               },
             },
 
-            // Informant Details
+            // Informant Information
             informant: {
               signature: data.informant.signature || '',
               name: data.informant.name.trim(),
@@ -753,7 +622,7 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
               date: data.informant.date,
             },
 
-            // Preparer Details
+            // Preparer Information
             preparer: {
               signature: data.preparedBy.signature || '',
               name: data.preparedBy.name.trim(),
@@ -761,19 +630,129 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
               date: data.preparedBy.date,
             },
 
-            hasAffidavitOfPaternity: false,
+            // Affidavit of Paternity
+            hasAffidavitOfPaternity: data.hasAffidavitOfPaternity,
+            affidavitOfPaternityDetails: data.hasAffidavitOfPaternity
+              ? {
+                father: {
+                  signature:
+                    data.affidavitOfPaternityDetails?.father?.signature ?? '',
+                  name:
+                    data.affidavitOfPaternityDetails?.father?.name?.trim() ??
+                    '',
+                  title:
+                    data.affidavitOfPaternityDetails?.father?.title?.trim() ??
+                    '',
+                },
+                mother: {
+                  signature:
+                    data.affidavitOfPaternityDetails?.mother?.signature ?? '',
+                  name:
+                    data.affidavitOfPaternityDetails?.mother?.name?.trim() ??
+                    '',
+                  title:
+                    data.affidavitOfPaternityDetails?.mother?.title?.trim() ??
+                    '',
+                },
+                dateSworn:
+                  data.affidavitOfPaternityDetails?.dateSworn ?? null,
+                adminOfficer: {
+                  signature:
+                    data.affidavitOfPaternityDetails?.adminOfficer
+                      ?.signature ?? '',
+                  name:
+                    data.affidavitOfPaternityDetails?.adminOfficer?.name?.trim() ??
+                    '',
+                  position:
+                    data.affidavitOfPaternityDetails?.adminOfficer?.position?.trim() ??
+                    '',
+                },
+                ctcInfo: {
+                  number:
+                    data.affidavitOfPaternityDetails?.ctcInfo?.number?.trim() ??
+                    '',
+                  dateIssued:
+                    data.affidavitOfPaternityDetails?.ctcInfo?.dateIssued ??
+                    null,
+                  placeIssued:
+                    data.affidavitOfPaternityDetails?.ctcInfo?.placeIssued?.trim() ??
+                    '',
+                },
+              }
+              : undefined, // Use undefined instead of null
+
+            // Delayed Registration
+            isDelayedRegistration: data.isDelayedRegistration,
+            affidavitOfDelayedRegistration: data.isDelayedRegistration
+              ? {
+                affiant: {
+                  name:
+                    data.affidavitOfDelayedRegistration?.affiant?.name?.trim() ??
+                    '',
+                  address: {
+                    address:
+                      data.affidavitOfDelayedRegistration?.affiant?.address?.address?.trim() ??
+                      '',
+                    cityMunicipality:
+                      data.affidavitOfDelayedRegistration?.affiant?.address?.cityMunicipality?.trim() ??
+                      '',
+                    province:
+                      data.affidavitOfDelayedRegistration?.affiant?.address?.province?.trim() ??
+                      '',
+                    country:
+                      data.affidavitOfDelayedRegistration?.affiant?.address?.country?.trim() ??
+                      '',
+                  },
+                  civilStatus:
+                    data.affidavitOfDelayedRegistration?.affiant
+                      ?.civilStatus ?? '',
+                  citizenship:
+                    data.affidavitOfDelayedRegistration?.affiant
+                      ?.citizenship ?? '',
+                },
+                registrationType:
+                  data.affidavitOfDelayedRegistration?.registrationType ??
+                  'SELF',
+                parentMaritalStatus:
+                  data.affidavitOfDelayedRegistration?.parentMaritalStatus ??
+                  'MARRIED',
+                reasonForDelay:
+                  data.affidavitOfDelayedRegistration?.reasonForDelay?.trim() ??
+                  '',
+                dateSworn:
+                  data.affidavitOfDelayedRegistration?.dateSworn ?? null,
+                adminOfficer: {
+                  signature:
+                    data.affidavitOfDelayedRegistration?.adminOfficer
+                      ?.signature ?? '',
+                  name:
+                    data.affidavitOfDelayedRegistration?.adminOfficer?.name?.trim() ??
+                    '',
+                  position:
+                    data.affidavitOfDelayedRegistration?.adminOfficer?.position?.trim() ??
+                    '',
+                },
+                ctcInfo: {
+                  number:
+                    data.affidavitOfDelayedRegistration?.ctcInfo?.number?.trim() ??
+                    '',
+                  dateIssued:
+                    data.affidavitOfDelayedRegistration?.ctcInfo
+                      ?.dateIssued ?? null,
+                  placeIssued:
+                    data.affidavitOfDelayedRegistration?.ctcInfo?.placeIssued?.trim() ??
+                    '',
+                },
+              }
+              : undefined, // Use undefined instead of null
           },
         },
-
-        // Registry Form Additional Fields
         receivedBy: data.receivedBy.name.trim(),
         receivedByPosition: data.receivedBy.title.trim(),
-        receivedDate: new Date(data.receivedBy.date),
-
+        receivedDate: data.receivedBy.date,
         registeredBy: data.registeredByOffice.name.trim(),
         registeredByPosition: data.registeredByOffice.title.trim(),
-        registrationDate: new Date(data.registeredByOffice.date),
-
+        registrationDate: data.registeredByOffice.date,
         remarks: data.remarks?.trim(),
       },
     });
@@ -785,16 +764,40 @@ export async function createBirthCertificate(data: BirthCertificateFormValues) {
       message: 'Birth certificate created successfully',
     };
   } catch (error) {
-    console.error('Error creating birth certificate:', error);
-    if (error instanceof Error) {
-      return {
-        success: false,
-        error: `Failed to create birth certificate: ${error.message}`,
-      };
-    }
     return {
       success: false,
-      error: 'Failed to create birth certificate',
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to create birth certificate',
+    };
+  }
+}
+
+export async function checkRegistryNumberExists(
+  registryNumber: string,
+  formType: FormType
+) {
+  try {
+    if (!registryNumber || !formType) {
+      throw new Error(
+        'Invalid input. Registry number and form type are required.'
+      );
+    }
+
+    // Check if the registry number exists
+    const existingRegistry = await prisma.baseRegistryForm.findFirst({
+      where: {
+        registryNumber,
+        formType,
+      },
+    });
+
+    return { exists: !!existingRegistry };
+  } catch (error) {
+    console.error('Error checking registry number:', error);
+    return {
+      error: 'Failed to check registry number. Please try again later.',
     };
   }
 }

@@ -1,16 +1,16 @@
-// src\components\custom\users\data-table-row-actions.tsx
 'use client'
 
 import { Button } from '@/components/ui/button'
 import { Icons } from '@/components/ui/icons'
 import { deactivateUser, enableUser } from '@/hooks/users-action'
 import { hasPermission } from '@/types/auth'
-import { User } from '@prisma/client'
+import { Permission } from '@prisma/client'
 import { Row } from '@tanstack/react-table'
-import { useSession } from 'next-auth/react'
+import { useUser } from '@/context/user-context'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { EditUserDialog } from './actions/edit-user-dialog'
+import { UserWithRoleAndProfile } from '@/types/user'
 
 import {
   AlertDialog,
@@ -41,46 +41,41 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 interface DataTableRowActionsProps {
-  row: Row<User>
-  onUpdateUser?: (updatedUser: User) => void
+  row: Row<UserWithRoleAndProfile>
+  onUpdateUser?: (updatedUser: UserWithRoleAndProfile) => void
 }
 
 export function DataTableRowActions({
   row,
   onUpdateUser,
 }: DataTableRowActionsProps) {
-  const { data: session } = useSession()
   const user = row.original
+
+  const { permissions } = useUser()
   const [isLoading, setIsLoading] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
   const [showEnableAlert, setShowEnableAlert] = useState(false)
   const [showDeactivateAlert, setShowDeactivateAlert] = useState(false)
 
-  const canManageUsers = hasPermission(
-    session?.user?.permissions ?? [],
-    'USERS_MANAGE'
-  )
-  if (!canManageUsers) return null
+  const canCreateUser = hasPermission(permissions, Permission.USER_CREATE)
+  const canUpdateUser = hasPermission(permissions, Permission.USER_UPDATE)
+  const canDeleteUser = hasPermission(permissions, Permission.USER_DELETE)
 
-  const isCurrentUser = session?.user?.email === user.email
+  if (!canCreateUser && !canUpdateUser && !canDeleteUser) return null
 
   const handleEnable = async () => {
     setIsLoading(true)
     try {
       const result = await enableUser(user.id)
       if (result.success) {
-        const updatedUser = {
-          ...user,
-          emailVerified: true
-        }
+        const updatedUser = { ...user, emailVerified: true }
         onUpdateUser?.(updatedUser)
         toast.success(result.message)
       } else {
         toast.error(result.message)
       }
     } catch (error) {
-      console.error('Error enabling user:', error)
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
@@ -93,17 +88,13 @@ export function DataTableRowActions({
     try {
       const result = await deactivateUser(user.id)
       if (result.success) {
-        const updatedUser = {
-          ...user,
-          emailVerified: false
-        }
+        const updatedUser = { ...user, emailVerified: false }
         onUpdateUser?.(updatedUser)
         toast.success(result.message)
       } else {
         toast.error(result.message)
       }
     } catch (error) {
-      console.error('Error deactivating user:', error)
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
@@ -111,7 +102,7 @@ export function DataTableRowActions({
     }
   }
 
-  const handleSave = (updatedUser: User) => {
+  const handleSave = (updatedUser: UserWithRoleAndProfile) => {
     onUpdateUser?.(updatedUser)
     toast.success(`User ${updatedUser.name} has been updated successfully!`)
     setEditDialogOpen(false)
@@ -121,11 +112,7 @@ export function DataTableRowActions({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="h-8 w-8 p-0"
-            disabled={isCurrentUser}
-          >
+          <Button variant="ghost" className="h-8 w-8 p-0">
             <Icons.moreHorizontal className="h-4 w-4" />
             <span className="sr-only">Open menu</span>
           </Button>
@@ -133,39 +120,19 @@ export function DataTableRowActions({
         <DropdownMenuContent align="end" className="w-[160px]">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setViewDetailsOpen(true)}>
-            View Details
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setEditDialogOpen(true)}
-            disabled={isCurrentUser}
-          >
-            <Icons.edit className="mr-2 h-4 w-4" />
-            Edit
-            {isCurrentUser && <span className="ml-2 text-xs text-muted-foreground">(Disabled)</span>}
-          </DropdownMenuItem>
-
-          {!user.emailVerified ? (
-            <DropdownMenuItem
-              onSelect={(e) => e.preventDefault()}
-              onClick={() => setShowEnableAlert(true)}
-              disabled={isLoading || isCurrentUser}
-              className="text-green-600 focus:text-green-600"
-            >
-              <Icons.check className="mr-2 h-4 w-4" />
-              Enable
-              {isCurrentUser && <span className="ml-2 text-xs text-muted-foreground">(Disabled)</span>}
+          {canUpdateUser && (
+            <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+              <Icons.edit className="mr-2 h-4 w-4" /> Edit
             </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem
-              onSelect={(e) => e.preventDefault()}
-              onClick={() => setShowDeactivateAlert(true)}
-              disabled={isLoading || isCurrentUser}
-              className="text-destructive focus:text-destructive"
-            >
-              <Icons.trash className="mr-2 h-4 w-4" />
-              Deactivate
-              {isCurrentUser && <span className="ml-2 text-xs text-muted-foreground">(Disabled)</span>}
+          )}
+          {canDeleteUser && (
+            <DropdownMenuItem onClick={() => setShowDeactivateAlert(true)} className="text-destructive">
+              <Icons.trash className="mr-2 h-4 w-4" /> Deactivate
+            </DropdownMenuItem>
+          )}
+          {!user.emailVerified && canCreateUser && (
+            <DropdownMenuItem onClick={() => setShowEnableAlert(true)} className="text-green-600">
+              <Icons.check className="mr-2 h-4 w-4" /> Enable
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>
@@ -183,7 +150,7 @@ export function DataTableRowActions({
               <div className="text-sm">
                 <p><strong>User:</strong> {user.name}</p>
                 <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Role:</strong> {user.role}</p>
+                <p><strong>Roles:</strong> {user.roles.map(ur => ur.role.name).join(', ')}</p>
               </div>
             </div>
           </AlertDialogHeader>
@@ -212,7 +179,7 @@ export function DataTableRowActions({
               <div className="text-sm">
                 <p><strong>User:</strong> {user.name}</p>
                 <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Role:</strong> {user.role}</p>
+                <p><strong>Roles:</strong> {user.roles.map(ur => ur.role.name).join(', ')}</p>
               </div>
             </div>
           </AlertDialogHeader>
@@ -232,7 +199,7 @@ export function DataTableRowActions({
       {/* Edit User Dialog */}
       <EditUserDialog
         user={user}
-        open={editDialogOpen && !isCurrentUser}
+        open={editDialogOpen && canUpdateUser}
         onOpenChangeAction={(open) => setEditDialogOpen(open)}
         onSave={handleSave}
       />
@@ -256,8 +223,10 @@ export function DataTableRowActions({
               <span className='col-span-3'>{user.email}</span>
             </div>
             <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Role</span>
-              <span className='col-span-3'>{user.role}</span>
+              <span className='font-medium'>Roles</span>
+              <span className='col-span-3'>
+                {user.roles.map(ur => ur.role.name).join(', ')}
+              </span>
             </div>
             <div className='grid grid-cols-4 items-center gap-4'>
               <span className='font-medium'>Status</span>

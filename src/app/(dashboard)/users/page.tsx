@@ -1,32 +1,27 @@
-// src\app\(dashboard)\users\page.tsx
-import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header.tsx'
-import { UsersTableClient } from '@/components/custom/users/users-table-client'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { prisma } from '@/lib/prisma'
 import { Suspense } from 'react'
-
-// Environment variable
-const REGULAR_USER_ACC = process.env.NEXT_PUBLIC_REGULAR_USER_ACC === 'true'
+import { prisma } from '@/lib/prisma'
+import { Skeleton } from '@/components/ui/skeleton'
+import { UsersTableClient } from '@/components/custom/users/users-table-client'
+import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 async function getUsers() {
   try {
     const users = await prisma.user.findMany({
-      where: {
-        // Query 'STAFF' if REGULAR_USER_ACC is false, otherwise query 'USER'
-        role: REGULAR_USER_ACC ? 'USER' : 'STAFF',
-      },
       orderBy: {
         createdAt: 'desc',
       },
       include: {
         profile: true,
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: true,
+              },
+            },
+          },
+        },
       },
     })
     return users
@@ -58,13 +53,13 @@ function UsersTableSkeleton() {
   )
 }
 
-export default async function UsersPage() {
+export default async function Users() {
   const users = await getUsers()
 
   return (
     <>
       <DashboardHeader
-        breadcrumbs={[{ label: 'Users', href: '/manage-users', active: true }]}
+        breadcrumbs={[{ label: 'Users', href: '/manage-staffs', active: true }]}
       />
 
       <div className='flex flex-1 flex-col gap-4 p-4'>

@@ -15,32 +15,127 @@ datasource db {
 /// * - One-to-many with Sessions, Accounts, Queues
 /// * - One-to-one with Profile
 /// * - Many-to-many with Permissions
-model User {
-  id            String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email         String             @unique
-  name          String
-  emailVerified Boolean
-  image         String?
-  username      String?            @unique
-  role          UserRole           @default(ADMIN)
-  permissions   Permission[]
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  lastLoginAt   DateTime?
-  language      String?            @default("en")
-  active        Boolean            @default(true)
-  accounts      Account[]
-  attachments   Attachment[]
-  auditLogs     AuditLog[]
-  preparedForms BaseRegistryForm[] @relation("PreparedBy")
-  verifiedForms BaseRegistryForm[] @relation("VerifiedBy")
-  feedback      Feedback[]
-  notifications Notification[]
-  profile       Profile?
-  queues        Queue[]
-  sessions      Session[]
-  workflows     Workflow[]
 
+/// *
+/// * Defines granular system permissions
+/// * @enum {string}
+/// * Each permission controls access to specific system functionality
+enum Permission {
+  // User Management
+  USER_CREATE
+  USER_READ
+  USER_UPDATE
+  USER_DELETE
+
+  // Role Management
+  ROLE_CREATE
+  ROLE_READ
+  ROLE_UPDATE
+  ROLE_DELETE
+
+  // Queue Management
+  // QUEUE_CREATE
+  // QUEUE_READ
+  // QUEUE_UPDATE
+  // QUEUE_DELETE
+  // QUEUE_PROCESS
+  // QUEUE_ADD_NOTES
+
+  // Document Management
+  DOCUMENT_CREATE
+  DOCUMENT_READ
+  DOCUMENT_UPDATE
+  DOCUMENT_DELETE
+  DOCUMENT_VERIFY
+
+  // Workflow Management
+  // WORKFLOW_CREATE
+  // WORKFLOW_READ
+  // WORKFLOW_UPDATE
+  // WORKFLOW_DELETE
+
+  // Report Management
+  REPORT_CREATE
+  REPORT_READ
+  REPORT_EXPORT
+
+  // System Settings
+  // SYSTEM_SETTINGS_READ
+  // SYSTEM_SETTINGS_UPDATE
+
+  // Audit Logs
+  AUDIT_LOG_READ
+
+  // API Access
+  // API_ACCESS
+
+  // Notifications
+  FEEDBACK_DELETE
+  FEEDBACK_READ
+  FEEDBACK_EXPORT
+}
+
+model Role {
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String           @unique
+  description String?
+  permissions RolePermission[]
+  users       UserRole[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("role")
+}
+
+// Junction table for Role-Permission many-to-many relationship
+model RolePermission {
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roleId     String     @db.Uuid
+  permission Permission
+  createdAt  DateTime   @default(now())
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permission])
+  @@map("role_permission")
+}
+
+// Junction table for User-Role many-to-many relationship
+model UserRole {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  roleId    String   @db.Uuid
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_role")
+}
+
+model User {
+  id                         String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email                      String                  @unique
+  name                       String
+  emailVerified              Boolean
+  image                      String?
+  username                   String?                 @unique
+  active                     Boolean                 @default(true)
+  roles                      UserRole[]
+  createdAt                  DateTime                @default(now())
+  updatedAt                  DateTime                @updatedAt
+  lastLoginAt                DateTime?
+  language                   String?                 @default("en")
+  accounts                   Account[]
+  attachments                Attachment[]
+  auditLogs                  AuditLog[]
+  preparedForms              BaseRegistryForm[]      @relation("PreparedBy")
+  verifiedForms              BaseRegistryForm[]      @relation("VerifiedBy")
+  feedback                   Feedback[]
+  notifications              Notification[]
+  profile                    Profile?
+  queues                     Queue[]
+  sessions                   Session[]
+  workflows                  Workflow[]
   preparedCivilRegistryForms CivilRegistryFormBase[] @relation("PreparedCivilRegistryForms")
   verifiedCivilRegistryForms CivilRegistryFormBase[] @relation("VerifiedCivilRegistryForms")
 
@@ -50,7 +145,7 @@ model User {
 /// *
 /// * BaseRegistryForm Model
 /// * @model
-/// * Central model for all civil registry forms that stores common data and relationships
+/// * Central model for all municipal forms that stores common data and relationships
 /// * Common model for Form 97 (Marriage), Form 102 (Birth), and Form 103 (Death)
 /// * Features:
 /// * - Common fields across all civil registry forms
@@ -60,7 +155,7 @@ model BaseRegistryForm {
   id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   formNumber              String                   @db.VarChar(3)
   formType                FormType
-  registryNumber          String
+  registryNumber          String                   @unique
   province                String
   cityMunicipality        String
   pageNumber              String
@@ -154,37 +249,41 @@ model MarriageCertificateForm {
 /// * BirthCertificateForm Model (Form 102)
 /// * @model
 model BirthCertificateForm {
-  id                      String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseFormId              String           @unique @db.Uuid
-  childName               Json
-  sex                     String
-  dateOfBirth             DateTime
-  placeOfBirth            Json
-  typeOfBirth             String
-  multipleBirthOrder      String?
-  birthOrder              String?
-  weightAtBirth           Float
-  motherMaidenName        Json
-  motherCitizenship       String
-  motherReligion          String?
-  motherOccupation        String?
-  motherAge               Int
-  motherResidence         Json
-  totalChildrenBornAlive  Int?
-  childrenStillLiving     Int?
-  childrenNowDead         Int?
-  fatherName              Json
-  fatherCitizenship       String
-  fatherReligion          String?
-  fatherOccupation        String?
-  fatherAge               Int
-  fatherResidence         Json
-  parentMarriage          Json?
-  attendant               Json
-  informant               Json
-  preparer                Json
-  hasAffidavitOfPaternity Boolean          @default(false)
-  baseForm                BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
+  id                             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId                     String           @unique @db.Uuid
+  childName                      Json
+  sex                            String
+  dateOfBirth                    DateTime
+  placeOfBirth                   Json
+  typeOfBirth                    String
+  multipleBirthOrder             String?
+  birthOrder                     String?
+  weightAtBirth                  Float
+  motherMaidenName               Json
+  motherCitizenship              String
+  motherReligion                 String?
+  motherOccupation               String?
+  motherAge                      Int
+  motherResidence                Json
+  totalChildrenBornAlive         Int?
+  childrenStillLiving            Int?
+  childrenNowDead                Int?
+  fatherName                     Json
+  fatherCitizenship              String
+  fatherReligion                 String?
+  fatherOccupation               String?
+  fatherAge                      Int
+  fatherResidence                Json
+  parentMarriage                 Json?
+  attendant                      Json
+  informant                      Json
+  preparer                       Json
+  hasAffidavitOfPaternity        Boolean          @default(false)
+  affidavitOfPaternityDetails    Json? // For the first affidavit
+  affidavitOfDelayedRegistration Json? // For the second affidavit
+  isDelayedRegistration          Boolean          @default(false)
+  reasonForDelay                 String?
+  baseForm                       BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
 
   @@index([dateOfBirth])
   @@map("birth_certificate_form")
@@ -512,6 +611,7 @@ model Notification {
   read      Boolean          @default(false)
   createdAt DateTime         @default(now())
   readAt    DateTime?
+  status    String?
   user      User             @relation(fields: [userId], references: [id])
 
   @@map("notification")
@@ -599,18 +699,6 @@ enum FormType {
 }
 
 /// *
-/// * Defines user role levels in the system
-/// * @enum {string}
-/// * - ADMIN: Full system access and management capabilities
-/// * - STAFF: Limited administrative access for daily operations
-/// * - USER: Basic access for standard users
-enum UserRole {
-  ADMIN
-  STAFF
-  USER
-}
-
-/// *
 /// * Defines the possible states of a queue item
 /// * @enum {string}
 /// * - WAITING: Initial state when request is created
@@ -636,23 +724,6 @@ enum ServiceType {
   VERIFY
   CERTIFICATION
   AUTHENTICATION
-}
-
-/// *
-/// * Defines granular system permissions
-/// * @enum {string}
-/// * Each permission controls access to specific system functionality
-enum Permission {
-  QUEUE_VIEW
-  QUEUE_PROCESS
-  QUEUE_DELETE
-  QUEUE_UPDATE
-  QUEUE_ADD_NOTES
-  USERS_MANAGE
-  DOCUMENTS_MANAGE
-  WORKFLOW_MANAGE
-  REPORTS_VIEW
-  SYSTEM_SETTINGS
 }
 
 /// *
@@ -818,3 +889,7 @@ enum CivilRegistryFormType {
   FORM_2A // Civil Registry Form No. 2A (Death)
   FORM_3A // Civil Registry Form No. 3A (Marriage)
 }
+
+// pnpm prisma generate   # for generate the Prisma Client with new models
+// pnpm prisma migrate dev --name add_rbac_system   # for ceate and run the migration
+// pnpm prisma db seed # for seeding our seed and seed-data

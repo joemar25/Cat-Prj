@@ -2,11 +2,9 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import {
-  BirthAnnotationFormValues,
-  DeathAnnotationFormValues,
-  MarriageAnnotationFormValues,
-} from '@/lib/types/zod-form-annotations/formSchemaAnnotation';
+import { BirthAnnotationFormValues } from '@/lib/types/zod-form-annotations/birth-annotation-form-schema';
+import { DeathAnnotationFormValues } from '@/lib/types/zod-form-annotations/death-annotation-form-schema';
+import { MarriageAnnotationFormValues } from '@/lib/types/zod-form-annotations/marriage-annotation-form-schema';
 
 import { revalidatePath } from 'next/cache';
 export async function createDeathAnnotation(data: DeathAnnotationFormValues) {

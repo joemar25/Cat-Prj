@@ -1,24 +1,23 @@
 'use client'
 
-import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
-import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
-import { Button } from '@/components/ui/button'
+import { useCallback } from 'react'
+import { User } from '@prisma/client'
 import { Icons } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { User, UserRole } from '@prisma/client'
-import { Cross2Icon } from '@radix-ui/react-icons'
+import { Button } from '@/components/ui/button'
 import { Table } from '@tanstack/react-table'
-import { useCallback } from 'react'
+import { Cross2Icon } from '@radix-ui/react-icons'
+import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
+import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
+import { useTranslation } from 'react-i18next'
+import { AddUserDialog } from './actions/add-user-dialog'
+import { useUser } from '@/context/user-context'
+import { hasPermission } from '@/types/auth'
+import { Permission } from '@prisma/client'
 
 interface DataTableToolbarProps<TData extends User> {
   table: Table<TData>
 }
-
-const userRoles = [
-  { label: 'Administrator', value: UserRole.ADMIN },
-  { label: 'Staff', value: UserRole.STAFF },
-  { label: 'User', value: UserRole.USER },
-]
 
 const verificationStatus = [
   { label: 'Verified', value: 'true' },
@@ -28,11 +27,15 @@ const verificationStatus = [
 export function DataTableToolbar<TData extends User>({
   table,
 }: DataTableToolbarProps<TData>) {
+  const { t } = useTranslation()
+  const { permissions } = useUser()
   const isFiltered = table.getState().columnFilters.length > 0
 
   const nameColumn = table.getColumn('name')
-  const roleColumn = table.getColumn('role')
   const statusColumn = table.getColumn('emailVerified')
+
+  const canExport = hasPermission(permissions, Permission.REPORT_EXPORT)
+  const canAddUser = hasPermission(permissions, Permission.USER_CREATE)
 
   const handleSearch = useCallback(
     (value: string) => {
@@ -42,22 +45,25 @@ export function DataTableToolbar<TData extends User>({
   )
 
   const handleExport = () => {
-    console.log('Export functionality to be implemented')
+    if (canExport) {
+      console.log('Export functionality to be implemented')
+    }
   }
 
   return (
-    <div className='flex items-center justify-between'>
-      <div className='flex flex-1 items-center space-x-4'>
-        <div className='relative'>
-          <Icons.search className='absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2 text-gray-400' />
+    <div className="flex items-center justify-between">
+      <div className="flex flex-1 items-center space-x-4">
+        <div className="relative">
+          <Icons.search className="absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <Input
-            placeholder='Search users...'
+            placeholder={t('dataTableToolbar.searchPlaceholder')}
             value={(nameColumn?.getFilterValue() as string) ?? ''}
             onChange={(event) => handleSearch(event.target.value)}
-            className='h-10 w-[200px] lg:w-[300px] pl-10'
+            className="h-10 w-[200px] lg:w-[300px] pl-10"
           />
         </div>
-
+        {/* 
+        mar-note: Do not remove this comment, as this role column can be used for future purposes.
         {roleColumn && (
           <DataTableFacetedFilter
             column={roleColumn}
@@ -73,42 +79,43 @@ export function DataTableToolbar<TData extends User>({
                     : Icons.userCog,
             }))}
           />
-        )}
+        )} */}
 
         {statusColumn && (
           <DataTableFacetedFilter
             column={statusColumn}
-            title='Status'
+            title={t('dataTableToolbar.status')}
             options={verificationStatus}
           />
         )}
 
         {isFiltered && (
           <Button
-            variant='ghost'
+            variant="ghost"
             onClick={() => table.resetColumnFilters()}
-            className='h-10 px-3'
+            className="h-10 px-3"
           >
-            Reset
-            <Cross2Icon className='ml-2 h-5 w-5' />
+            {t('dataTableToolbar.resetFilters')}
+            <Cross2Icon className="ml-2 h-5 w-5" />
           </Button>
         )}
       </div>
-      <div className='flex items-center space-x-4'>
-        <Button variant='outline' className='h-10' onClick={handleExport}>
-          <Icons.download className='mr-2 h-4 w-4' />
-          Scan
-        </Button>
-        <Button variant='outline' className='h-10' onClick={handleExport}>
-          <Icons.download className='mr-2 h-4 w-4' />
-          Upload
-        </Button>
-        {/* <AddUserDialog
-          onSuccess={() => {
-            table.resetColumnFilters()
-            table.resetSorting()
-          }}
-        /> */}
+      <div className="flex items-center space-x-4">
+        {canExport && (
+          <Button variant="outline" className="h-10" onClick={handleExport}>
+            <Icons.download className="mr-2 h-4 w-4" />
+            {t('dataTableToolbar.export')}
+          </Button>
+        )}
+
+        {canAddUser && (
+          <AddUserDialog
+            onSuccess={() => {
+              table.resetColumnFilters()
+              table.resetSorting()
+            }}
+          />
+        )}
 
         <DataTableViewOptions table={table} />
       </div>

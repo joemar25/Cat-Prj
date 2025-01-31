@@ -1,3 +1,5 @@
+'use client';
+
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -15,20 +17,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
-import {
-  getAllProvinces,
-  getCitiesMunicipalities,
-} from '@/lib/utils/location-helpers';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
+
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import LocationSelector from '../shared-components/location-selector';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const ChildInformationCard: React.FC = () => {
   const { control } = useFormContext<BirthCertificateFormValues>();
-  const [selectedProvince, setSelectedProvince] = useState('');
-
-  const allProvinces = getAllProvinces();
-  const citiesMunicipalities = getCitiesMunicipalities(selectedProvince);
+  const [isNCRMode, setIsNCRMode] = useState(false);
 
   return (
     <Card>
@@ -52,7 +50,11 @@ const ChildInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter first name' {...field} />
+                      <Input
+                        className='h-10'
+                        placeholder='Enter first name'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -65,7 +67,11 @@ const ChildInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Middle Name</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter middle name' {...field} />
+                      <Input
+                        className='h-10'
+                        placeholder='Enter middle name'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -78,7 +84,11 @@ const ChildInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter last name' {...field} />
+                      <Input
+                        className='h-10'
+                        placeholder='Enter last name'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -101,12 +111,9 @@ const ChildInformationCard: React.FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Sex</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
                           <SelectValue placeholder='Select sex' />
                         </SelectTrigger>
                       </FormControl>
@@ -124,24 +131,18 @@ const ChildInformationCard: React.FC = () => {
                 name='childInfo.weightAtBirth'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Weight at Birth (grams)</FormLabel>
+                    <FormLabel>Weight at Birth (kilograms)</FormLabel>
                     <FormControl>
                       <Input
-                        type='number'
-                        placeholder='Enter weight'
+                        className='h-10'
+                        placeholder='Enter weight (e.g., 3.5)'
                         {...field}
-                        onInput={(e) => {
-                          const input = e.target as HTMLInputElement;
-                          const value = input.value;
-
-                          // Prevent negative numbers
-                          if (parseFloat(value) < 0) {
-                            input.value = value.slice(1); // Remove the minus sign
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^\d*\.?\d*$/.test(value) || value === '') {
+                            field.onChange(value);
                           }
-
-                          field.onChange(input.value); // Update the form value
                         }}
-                        min='0' // Prevents users from incrementing to a negative value using stepper controls
                       />
                     </FormControl>
                     <FormMessage />
@@ -161,52 +162,27 @@ const ChildInformationCard: React.FC = () => {
             <FormField
               control={control}
               name='childInfo.dateOfBirth'
-              render={({ field }) => {
-                // Convert the separate date fields to a Date object
-                const dateValue = field.value
-                  ? new Date(
-                      parseInt(field.value.year),
-                      parseInt(field.value.month) - 1, // Months are 0-based in JavaScript
-                      parseInt(field.value.day)
-                    )
-                  : undefined;
-
-                return (
-                  <DatePickerField
-                    field={{
-                      value: dateValue,
-                      onChange: (date) => {
-                        if (date) {
-                          // Convert back to your form's expected format
-                          field.onChange({
-                            year: date.getFullYear().toString(),
-                            month: (date.getMonth() + 1).toString(), // Add 1 because months are 0-based
-                            day: date.getDate().toString(),
-                          });
-                        } else {
-                          field.onChange({
-                            year: '',
-                            month: '',
-                            day: '',
-                          });
-                        }
-                      },
-                    }}
-                    label='Birth Date'
-                    placeholder='Select birth date'
-                  />
-                );
-              }}
+              render={({ field }) => (
+                <DatePickerField
+                  field={{
+                    value: field.value,
+                    onChange: field.onChange,
+                  }}
+                  label='Birth Date'
+                  placeholder='Select birth date'
+                />
+              )}
             />
           </CardContent>
         </Card>
-
-        {/* Place of Birth Section */}
+        {/* Place of birth */}
         <Card>
           <CardHeader className='pb-3'>
             <h3 className='text-sm font-semibold'>Place of Birth</h3>
           </CardHeader>
           <CardContent>
+            <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
+
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <FormField
                 control={control}
@@ -215,75 +191,27 @@ const ChildInformationCard: React.FC = () => {
                   <FormItem>
                     <FormLabel>Hospital/Clinic/Institution</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter place of birth' {...field} />
+                      <Input
+                        className='h-10'
+                        placeholder='Enter place of birth'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={control}
-                name='childInfo.placeOfBirth.province'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Province</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        const provinceObj = allProvinces.find(
-                          (p) => p.id === value
-                        );
-                        field.onChange(provinceObj?.name || '');
-                        setSelectedProvince(value);
-                      }}
-                      value={
-                        allProvinces.find((p) => p.name === field.value)?.id ||
-                        ''
-                      }
-                    >
-                      <FormControl>
-                        <SelectTrigger className='h-10'>
-                          <SelectValue placeholder='Select province' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {allProvinces.map((province) => (
-                          <SelectItem key={province.id} value={province.id}>
-                            {province.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={control}
-                name='childInfo.placeOfBirth.cityMunicipality'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City/Municipality</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ''}
-                      disabled={!selectedProvince}
-                    >
-                      <FormControl>
-                        <SelectTrigger className='h-10'>
-                          <SelectValue placeholder='Select city/municipality' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {citiesMunicipalities.map((city) => (
-                          <SelectItem key={city} value={city}>
-                            {city}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+
+              <LocationSelector
+                provinceFieldName='childInfo.placeOfBirth.province'
+                municipalityFieldName='childInfo.placeOfBirth.cityMunicipality'
+                provinceLabel='Province'
+                municipalityLabel='City/Municipality'
+                selectTriggerClassName='h-10 px-3 text-base md:text-sm'
+                provincePlaceholder='Select province'
+                municipalityPlaceholder='Select city/municipality'
+                className='col-span-2 grid grid-cols-2 gap-4'
+                isNCRMode={isNCRMode}
               />
             </div>
           </CardContent>
@@ -302,12 +230,9 @@ const ChildInformationCard: React.FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Type of Birth</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
                           <SelectValue placeholder='Select type' />
                         </SelectTrigger>
                       </FormControl>
@@ -330,10 +255,10 @@ const ChildInformationCard: React.FC = () => {
                     <FormLabel>If Multiple Birth</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value || ''}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
                           <SelectValue placeholder='Select order' />
                         </SelectTrigger>
                       </FormControl>
@@ -350,12 +275,22 @@ const ChildInformationCard: React.FC = () => {
               />
               <FormField
                 control={control}
-                name='childInfo.multipleBirthOrder'
+                name='childInfo.birthOrder'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Birth Order</FormLabel>
                     <FormControl>
-                      <Input placeholder='Enter birth order' {...field} />
+                      <Input
+                        className='h-10'
+                        placeholder='Enter birth order'
+                        {...field}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^\d*$/.test(value) || value === '') {
+                            field.onChange(value);
+                          }
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

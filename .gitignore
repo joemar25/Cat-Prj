@@ -43,4 +43,11 @@ next-env.d.ts
 */migrations
 /data
 *.note*
-*/assets
+
+# Ignore public folder
+/public/assets/avatar-profile/*
+!public/assets/avatar-profile/.gitkeep
+/public/assets/pdf/*
+!public/assets/pdf/.gitkeep
+
+docker-data

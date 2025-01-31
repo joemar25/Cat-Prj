@@ -1,10 +1,12 @@
-import { StyleSheet} from '@react-pdf/renderer';
+import { StyleSheet } from '@react-pdf/renderer';
 
 export const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#E4E4E4',
     padding: 10,
+    width: '100%',
+    height: '100%',
   },
   header: {
     flexDirection: "row",
@@ -78,6 +80,13 @@ export const styles = StyleSheet.create({
   value: {
     fontSize: 10,
   },
+  valueCenter: {
+    fontSize: 10,
+    textAlign: 'center'
+  },
+  paddingGlobal: {
+    padding: 5
+  },
 
   flexRow: {
     flexDirection: 'row',
@@ -85,5 +94,5 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  
+
 });

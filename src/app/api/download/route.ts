@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { readFile } from 'fs/promises'
+// src\app\api\download\route.ts
 import path from 'path'
+
+import { readFile } from 'fs/promises'
+import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams

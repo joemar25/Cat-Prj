@@ -1,3 +1,7 @@
+'use client';
+
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
+import TimePicker from '@/components/custom/time-picker/time-picker';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
@@ -8,19 +12,13 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import React, { useState } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 
 const AttendantInformationCard: React.FC = () => {
-  const { control, setValue } = useFormContext<BirthCertificateFormValues>();
+  const { control } = useFormContext<BirthCertificateFormValues>();
   const [showOtherInput, setShowOtherInput] = useState(false);
-
-  // Watch the value of `attendant.type`
-  const attendantType = useWatch({
-    control,
-    name: 'attendant.type',
-  });
 
   return (
     <Card>
@@ -42,15 +40,10 @@ const AttendantInformationCard: React.FC = () => {
                   <FormControl>
                     <RadioGroup
                       onValueChange={(value) => {
-                        field.onChange(value); // Update the form value
-                        setShowOtherInput(value === 'Others'); // Show/hide the input field
-                        if (value === 'Others') {
-                          setValue('attendant.type', ''); // Reset the value to empty string when "Others" is selected
-                        } else {
-                          setValue('attendant.type', value); // Set the value directly if not "Others"
-                        }
+                        setShowOtherInput(value === 'Others');
+                        field.onChange(value);
                       }}
-                      defaultValue={field.value}
+                      value={field.value}
                       className='grid grid-cols-2 md:grid-cols-5 gap-4'
                     >
                       {['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others'].map(
@@ -71,30 +64,117 @@ const AttendantInformationCard: React.FC = () => {
                     </RadioGroup>
                   </FormControl>
                   {showOtherInput && (
-                    <FormField
-                      control={control}
-                      name='attendant.type'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              placeholder='Please specify'
-                              {...field}
-                              onChange={(e) => {
-                                field.onChange(e.target.value); // Update the form value with the custom input
-                              }}
-                              value={attendantType} // Bind the value to the current form value
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                    <Input
+                      placeholder='Please specify other attendant type'
+                      value={field.value === 'Others' ? '' : field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      className='mt-2 h-10'
                     />
                   )}
                   <FormMessage />
                 </FormItem>
               )}
             />
+          </CardContent>
+        </Card>
+
+        {/* Certification Details Card */}
+        <Card>
+          <CardHeader className='pb-3'>
+            <h3 className='text-sm font-semibold'>Certification Details</h3>
+          </CardHeader>
+          <CardContent>
+            <div className='space-y-4'>
+              <FormField
+                control={control}
+                name='attendant.certification.time'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Time of Birth</FormLabel>
+                    <FormControl>
+                      <TimePicker
+                        value={field.value} // field.value is Date | null
+                        onChange={(value) => {
+                          field.onChange(value); // Pass Date | null directly
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <FormField
+                  control={control}
+                  name='attendant.certification.name'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name of Attendant</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='Enter full name'
+                          {...field}
+                          className='h-10'
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={control}
+                  name='attendant.certification.title'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title/Designation</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='Enter title/designation'
+                          {...field}
+                          className='h-10'
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={control}
+                name='attendant.certification.address'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder='Enter complete address'
+                        {...field}
+                        className='h-10'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={control}
+                name='attendant.certification.date'
+                render={({ field }) => (
+                  <DatePickerField
+                    field={{
+                      value: field.value,
+                      onChange: field.onChange,
+                    }}
+                    label='Date'
+                    placeholder='Select date'
+                  />
+                )}
+              />
+            </div>
           </CardContent>
         </Card>
       </CardContent>

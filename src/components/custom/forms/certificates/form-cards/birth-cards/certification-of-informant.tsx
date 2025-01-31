@@ -1,3 +1,5 @@
+'use client';
+
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -8,7 +10,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/formSchemaCertificate';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -29,7 +31,7 @@ const CertificationOfInformantCard: React.FC = () => {
             <FormItem>
               <FormLabel>Signature</FormLabel>
               <FormControl>
-                <Input placeholder='Signature' {...field} />
+                <Input placeholder='Signature' {...field} className='h-10' />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -45,7 +47,7 @@ const CertificationOfInformantCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter name' {...field} />
+                  <Input placeholder='Enter name' {...field} className='h-10' />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -58,7 +60,11 @@ const CertificationOfInformantCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Relationship to the Child</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter relationship' {...field} />
+                  <Input
+                    placeholder='Enter relationship'
+                    {...field}
+                    className='h-10'
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -74,37 +80,31 @@ const CertificationOfInformantCard: React.FC = () => {
             <FormItem>
               <FormLabel>Address</FormLabel>
               <FormControl>
-                <Input placeholder='Enter complete address' {...field} />
+                <Input
+                  placeholder='Enter complete address'
+                  {...field}
+                  className='h-10'
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Date */}
+        {/* Informant Date */}
         <FormField
           control={control}
           name='informant.date'
-          render={({ field }) => {
-            const dateValue = field.value ? new Date(field.value) : undefined;
-
-            return (
-              <DatePickerField
-                field={{
-                  value: dateValue,
-                  onChange: (date) => {
-                    if (date) {
-                      field.onChange(date.toISOString());
-                    } else {
-                      field.onChange('');
-                    }
-                  },
-                }}
-                label='Date'
-                placeholder='Select date'
-              />
-            );
-          }}
+          render={({ field }) => (
+            <DatePickerField
+              field={{
+                value: field.value,
+                onChange: field.onChange,
+              }}
+              label='Date'
+              placeholder='Select date'
+            />
+          )}
         />
       </CardContent>
     </Card>

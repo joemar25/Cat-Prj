@@ -1,165 +1,125 @@
-'use client'
+// src\components\custom\sidebar\app-sidebar.tsx
+"use client"
 
-import Image from 'next/image'
-import { useMemo, useState } from 'react'
-import { toast } from 'sonner'
-import { NavMain } from './nav-main'
-import { UserRole } from '@prisma/client'
-import { Icons } from '@/components/ui/icons'
-import { NavSecondary } from './nav-secondary'
-import { Button } from '@/components/ui/button'
-import { handleSignOut } from '@/hooks/auth-actions'
-import { useNavigationStore } from '@/lib/stores/navigation'
+import { useEffect, useState } from "react"
+import { NavMain } from "./nav-main"
+import { LucideIcon } from "lucide-react"
+import { Permission } from "@prisma/client"
+import { NavProjects } from "./nav-projects"
+import { Icons } from "@/components/ui/icons"
+import { useTranslation } from "react-i18next"
+import { NavSecondary } from "./nav-secondary"
+import { useRoles } from "@/hooks/use-roles"
+import { useNavigationStore } from "@/lib/stores/navigation"
 import {
   navigationConfig,
   transformToMainNavItem,
   transformToSecondaryNavItem,
-} from '@/lib/config/navigation'
+} from "@/lib/config/navigation"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+} from "@/components/ui/sidebar"
+import { NavMainItem } from "@/lib/types/navigation"
+import Link from "next/link"
+import Image from "next/image"
 
 type AppSidebarProps = {
-  role: UserRole
+  user: {
+    roles: {
+      role: {
+        name: string
+        permissions: {
+          permission: Permission
+        }[]
+      }
+    }[]
+  }
 }
 
-export function AppSidebar({ role, ...props }: AppSidebarProps) {
-  const { visibleMainItems, visibleSecondaryItems } = useNavigationStore()
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const [isLogoutOpen, setIsLogoutOpen] = useState(false)
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
+  const { t } = useTranslation();
+  const { roles, loading, error } = useRoles();
+  const { visibleMainItems, visibleSecondaryItems } = useNavigationStore();
+  const [mainNavItems, setMainNavItems] = useState<NavMainItem[]>([]);
 
-  // Transform and filter navigation items
-  const visibleMainNav = useMemo(() => {
-    return navigationConfig.mainNav
-      .filter(item => visibleMainItems.includes(item.id)) // Filter by visible items
-      .map(item => transformToMainNavItem(item, role)) // Transform to NavMainItem
-      .filter(item => !item.hidden); // Filter out hidden items
-  }, [visibleMainItems, role])
+  const roleName = user.roles[0]?.role.name || "User";
 
-  const visibleSecondaryNav = useMemo(() => {
-    return navigationConfig.secondaryNav
-      .filter(item => visibleSecondaryItems.includes(item.id)) // Filter by visible items
-      .map(transformToSecondaryNavItem); // Transform to NavSecondaryItem
-  }, [visibleSecondaryItems])
+  useEffect(() => {
+    if (loading) return;
 
-  const closeLogout = () => setIsLogoutOpen(false)
+    if (error) {
+      console.error("Error loading roles:", error);
+      return;
+    }
 
-  const handleLogout = async () => {
-    setIsLoggingOut(true)
-    await handleSignOut()
-    toast.success('Successfully logged out', { duration: 3000 })
-    setIsLoggingOut(false)
-    closeLogout()
-  }
+    async function loadNavItems() {
+      try {
+        const transformedItems = await Promise.all(
+          navigationConfig.mainNav
+            .filter((item) => visibleMainItems.includes(item.id))
+            .map((item) => transformToMainNavItem(item, user, roles, t))
+        );
 
-  const roleLabel = {
-    ADMIN: 'Administrator',
-    STAFF: 'Staff',
-    USER: 'User',
-  }
+        setMainNavItems(transformedItems.filter((item) => !item.hidden));
+      } catch (err) {
+        console.error("Error transforming navigation items:", err);
+      }
+    }
+
+    loadNavItems();
+  }, [visibleMainItems, user, roles, loading, error, t]);
+
+  const visibleProjectNav = navigationConfig.projectsNav.map(item => ({
+    title: t(item.id),
+    url: item.url,
+    icon: (item.iconName ? Icons[item.iconName] : Icons.folder) as LucideIcon | null
+  }));
+
+  if (loading) return <p className="p-4 text-center text-sm">Loading sidebar...</p>;
+  if (error) return <p className="p-4 text-center text-sm text-red-500">Error loading sidebar</p>;
 
   return (
-    <Sidebar variant="inset" {...props} className='border border-border p-0'>
-      {/* Sidebar Header */}
+    <Sidebar variant="inset" {...props} className="border border-border p-0">
       <SidebarHeader className="border-b p-4 duration-300">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <div className="flex items-center gap-3 ">
-                {/* Logo */}
+              <Link href="/dashboard" className="flex items-center gap-3">
                 <Image
-                  src={"/images/lgu-legazpi.png"}
+                  src="/images/new.png"
                   alt="Logo"
-                  width={40}
-                  height={40}
+                  width={45}
+                  height={45}
                   priority
                   className="rounded-full flex-shrink-0"
                 />
-
-                {/* Title */}
                 <div className="flex-1 overflow-hidden">
                   <span className="block font-semibold text-muted-foreground leading-normal break-words max-h-16 overflow-auto">
                     Legazpi City Civil Registry
                   </span>
                 </div>
-              </div>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
-      {/* Role Panel */}
       <div className="p-4 border-b bg-muted">
-        <div className="text-sm font-medium text-muted-foreground">
-          {roleLabel[role]} Panel
+        <div className="text-sm text-center font-medium text-muted-foreground">
+          {t(roleName)} {t("panel").toUpperCase()}
         </div>
       </div>
 
-      {/* Sidebar Content */}
       <SidebarContent>
-        <NavMain items={visibleMainNav} />
-        <NavSecondary items={visibleSecondaryNav} className="mt-auto" />
+        <NavMain items={mainNavItems} />
+        <NavProjects items={visibleProjectNav} />
+        <NavSecondary items={navigationConfig.secondaryNav} className="mt-auto" />
       </SidebarContent>
-
-      {/* Sidebar Footer */}
-      <SidebarFooter>
-        <Dialog open={isLogoutOpen} onOpenChange={setIsLogoutOpen}>
-          <DialogTrigger asChild>
-            <div className="flex pb-4 cursor-pointer">
-              <button
-                className="text-red-600 w-full flex rounded-md overflow-hidden duration-300 justify-start text-base p-2 items-center hover:text-white hover:bg-red-500 dark:hover:text-white dark:bg-muted dark:hover:bg-red-600 bg-muted dark:text-red-400"
-                disabled={isLoggingOut}
-              >
-                {isLoggingOut ? (
-                  <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Icons.logout className="mr-2 h-4 w-4" />
-                )}
-                {isLoggingOut ? "Logging out..." : "Log out"}
-              </button>
-            </div>
-          </DialogTrigger>
-          <DialogContent className="flex flex-col items-center justify-center text-center space-y-6 p-8 max-w-sm mx-auto rounded-lg">
-            <DialogHeader className="flex flex-col items-center">
-              <DialogTitle className="text-lg font-semibold">Confirm Logout</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
-                Are you sure you want to log out?
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="flex justify-center space-x-4 mt-4">
-              <Button
-                onClick={closeLogout}
-                variant="outline"
-                className="px-4 py-2 text-sm rounded-md"
-                disabled={isLoggingOut}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-sm text-white rounded-md hover:bg-red-700 disabled:bg-red-400"
-                disabled={isLoggingOut}
-              >
-                {isLoggingOut ? (
-                  <>
-                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                    Logging out...
-                  </>
-                ) : (
-                  "Log out"
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

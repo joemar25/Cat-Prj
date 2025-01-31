@@ -29,7 +29,7 @@ export const POST = async (req: Request) => {
             : (file as File).name.replaceAll(' ', '_')
 
         // Create assets directory path
-        const assetsDir = path.join(process.cwd(), 'public/assets')
+        const assetsDir = path.join(process.cwd(), 'public/assets/pdf')
 
         // Create the assets directory if it doesn't exist
         try {
@@ -48,7 +48,7 @@ export const POST = async (req: Request) => {
         return NextResponse.json({
             Message: 'Success',
             status: 201,
-            filepath: `/assets/${filename}`
+            filepath: `/assets/pdf/${filename}`
         })
     } catch (error) {
         console.error('Detailed error:', error)
