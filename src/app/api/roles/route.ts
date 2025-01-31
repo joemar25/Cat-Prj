@@ -1,6 +1,78 @@
 // src/app/api/roles/route.ts
-import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { NextResponse } from "next/server"
+import { createRoleSchema } from "@/lib/types/roles"
+
+export async function POST(request: Request) {
+    try {
+        const body = await request.json()
+
+        // Validate request body
+        const validatedData = createRoleSchema.parse(body)
+
+        // Check if role name already exists
+        const existingRole = await prisma.role.findUnique({
+            where: { name: validatedData.name }
+        })
+
+        if (existingRole) {
+            return NextResponse.json(
+                { success: false, error: "Role name already exists" },
+                { status: 400 }
+            )
+        }
+
+        // Create role with permissions in a transaction
+        const newRole = await prisma.$transaction(async (tx) => {
+            // Create the role
+            const role = await tx.role.create({
+                data: {
+                    name: validatedData.name,
+                    description: validatedData.description,
+                },
+            })
+
+            // Create permissions
+            await tx.rolePermission.createMany({
+                data: validatedData.permissions.map(permission => ({
+                    roleId: role.id,
+                    permission: permission,
+                })),
+            })
+
+            // Return the created role with its permissions
+            return await tx.role.findUnique({
+                where: { id: role.id },
+                include: {
+                    permissions: {
+                        select: {
+                            permission: true,
+                        },
+                    },
+                },
+            })
+        })
+
+        return NextResponse.json(
+            { success: true, role: newRole },
+            { status: 201 }
+        )
+
+    } catch (error) {
+        if (error) {
+            return NextResponse.json(
+                { success: false, error: error },
+                { status: 400 }
+            )
+        }
+
+        console.error("Error creating role:", error)
+        return NextResponse.json(
+            { success: false, error: "Failed to create role" },
+            { status: 500 }
+        )
+    }
+}
 
 export async function GET() {
     try {

@@ -26,12 +26,15 @@ enum Permission {
   USER_READ
   USER_UPDATE
   USER_DELETE
+  USER_ACTIVATE
+  USER_DEACTIVATE
 
   // Role Management
   ROLE_CREATE
   ROLE_READ
   ROLE_UPDATE
   ROLE_DELETE
+  ROLE_ASSIGN
 
   // Queue Management
   // QUEUE_CREATE
@@ -47,6 +50,7 @@ enum Permission {
   DOCUMENT_UPDATE
   DOCUMENT_DELETE
   DOCUMENT_VERIFY
+  DOCUMENT_EXPORT
 
   // Workflow Management
   // WORKFLOW_CREATE
