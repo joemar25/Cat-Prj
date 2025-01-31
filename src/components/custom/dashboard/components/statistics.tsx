@@ -143,12 +143,12 @@ export default function RegistryStatisticsDashboard() {
               <div className="flex items-center gap-2 font-medium leading-none">
                 {trend.isUp ? (
                   <>
-                    {t("trending_up", { percentage: trend.percentage })} {/* Translated trending up message */}
+                    {t("trending_up", { percentage: trend.percentage.toString() })} {/* Translated trending up message */}
                     <TrendingUp className="h-4 w-4" />
                   </>
                 ) : (
                   <>
-                    {t("trending_down", { percentage: trend.percentage })} {/* Translated trending down message */}
+                    {t("trending_down", { percentage: trend.percentage.toString() })} {/* Translated trending down message */}
                     <TrendingDown className="h-4 w-4" />
                   </>
                 )}
