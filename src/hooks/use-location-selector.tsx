@@ -83,7 +83,7 @@ export const useLocationSelector = ({
     if (isNCRMode) {
       const ncrProvinceId = 'region-1';
       setSelectedProvince(ncrProvinceId);
-      setValue(provinceFieldName, 'N/A');
+      setValue(provinceFieldName, 'Metro Manila');
       setValue(municipalityFieldName, '');
       if (barangayFieldName) setValue(barangayFieldName, '');
       setSelectedMunicipality('');

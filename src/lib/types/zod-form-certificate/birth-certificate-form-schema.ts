@@ -117,6 +117,7 @@ export const birthCertificateSchema = z.object({
         signature: z.string(),
         name: z.string().min(1, 'Officer name is required'),
         position: z.string().min(1, 'Position is required'),
+        address: addressSchema,
       }),
       ctcInfo: z.object({
         number: z.string().min(1, 'CTC number is required'),
@@ -159,6 +160,216 @@ export const birthCertificateSchema = z.object({
 export type BirthCertificateFormValues = WithNullableDates<
   z.infer<typeof birthCertificateSchema>
 >;
+
+// For testing purposes
+
+export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
+  // Registry Information
+  registryNumber: '2024-00001',
+  province: 'Metro Manila',
+  cityMunicipality: 'Quezon City',
+
+  // Child Information
+  childInfo: {
+    firstName: 'Juan',
+    middleName: 'Santos',
+    lastName: 'Dela Cruz',
+    sex: 'Male',
+    dateOfBirth: new Date('2024-01-15'),
+    placeOfBirth: {
+      hospital: "St. Luke's Medical Center",
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
+    },
+    typeOfBirth: 'Single',
+    multipleBirthOrder: '',
+    birthOrder: '1',
+    weightAtBirth: '3.2',
+  },
+
+  // Mother Information
+  motherInfo: {
+    firstName: 'Maria',
+    middleName: 'Garcia',
+    lastName: 'Santos',
+    citizenship: 'Filipino',
+    religion: 'Roman Catholic',
+    occupation: 'Teacher',
+    age: '28',
+    totalChildrenBornAlive: '1',
+    childrenStillLiving: '1',
+    childrenNowDead: '0',
+    residence: {
+      houseNumber: '123',
+      street: 'Maginhawa Street',
+      barangay: 'Teachers Village',
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
+      country: 'Philippines',
+    },
+  },
+
+  // Father Information
+  fatherInfo: {
+    firstName: 'Jose',
+    middleName: 'Martinez',
+    lastName: 'Dela Cruz',
+    citizenship: 'Filipino',
+    religion: 'Roman Catholic',
+    occupation: 'Software Engineer',
+    age: '30',
+    residence: {
+      houseNumber: '123',
+      street: 'Maginhawa Street',
+      barangay: 'Teachers Village',
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
+      country: 'Philippines',
+    },
+  },
+
+  // Marriage of Parents
+  parentMarriage: {
+    date: new Date('2022-06-15'),
+    place: {
+      houseNumber: '123',
+      street: 'Maginhawa Street',
+      barangay: 'Teachers Village',
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
+      country: 'Philippines',
+    },
+  },
+
+  // Birth Attendant
+  attendant: {
+    type: 'Physician',
+    certification: {
+      time: parseTimeStringToDate('14:30'),
+      signature: 'DrSantos',
+      name: 'Dr. Ana Santos',
+      title: 'OB-GYN',
+      address: {
+        houseNumber: '279',
+        street: 'E Rodriguez Sr. Avenue',
+        barangay: 'Kalusugan',
+        cityMunicipality: 'Quezon City',
+        province: 'Metro Manila',
+        country: 'Philippines',
+      },
+      date: new Date('2024-01-15'),
+    },
+  },
+
+  // Informant
+  informant: {
+    signature: 'JoseDC',
+    name: 'Jose Dela Cruz',
+    relationship: 'Father',
+    address: {
+      houseNumber: '279',
+      street: 'E Rodriguez Sr. Avenue',
+      barangay: 'Kalusugan',
+      cityMunicipality: 'Quezon City',
+      province: '',
+      country: 'Philippines',
+    },
+    date: new Date('2024-01-16'),
+  },
+
+  // Prepared By
+  preparedBy: {
+    signature: 'Staff3',
+    name: 'Staff User 3',
+    title: 'Registration Officer',
+    date: new Date('2024-01-16'),
+  },
+
+  // Received By
+  receivedBy: {
+    signature: 'Staff4',
+    name: 'Staff User 4',
+    title: 'Document Processing Officer',
+    date: new Date('2024-01-16'),
+  },
+
+  // Registered By Civil Registry
+  registeredByOffice: {
+    signature: 'Admin1',
+    name: 'Admin User 1',
+    title: 'Civil Registrar',
+    date: new Date('2024-01-16'),
+  },
+
+  // Affidavit of Paternity
+  hasAffidavitOfPaternity: false,
+  affidavitOfPaternityDetails: {
+    father: {
+      signature: 'JoseDC',
+      name: 'Jose Dela Cruz',
+      title: 'Father',
+    },
+    mother: {
+      signature: 'MariaS',
+      name: 'Maria Santos',
+      title: 'Mother',
+    },
+    dateSworn: new Date('2024-01-16'),
+    adminOfficer: {
+      signature: 'AdminSign',
+      name: 'Administrator Name',
+      position: 'Notary Public',
+      address: {
+        houseNumber: '456',
+        street: 'Padre Faura Street',
+        barangay: 'Ermita',
+        cityMunicipality: 'Manila',
+        province: 'Metro Manila',
+        country: 'Philippines',
+      },
+    },
+    ctcInfo: {
+      number: '12345-2024',
+      dateIssued: new Date('2024-01-16'),
+      placeIssued: 'Quezon City',
+    },
+  },
+
+  // Delayed Registration
+  isDelayedRegistration: false,
+  affidavitOfDelayedRegistration: {
+    affiant: {
+      name: 'Jose Dela Cruz',
+      address: {
+        houseNumber: '279',
+        street: 'E Rodriguez Sr. Avenue',
+        barangay: 'Kalusugan',
+        cityMunicipality: 'Quezon City',
+        province: 'Metro Manila',
+        country: 'Philippines',
+      },
+      civilStatus: 'Married',
+      citizenship: 'Filipino',
+    },
+    registrationType: 'SELF',
+    parentMaritalStatus: 'MARRIED',
+    reasonForDelay: 'Documentation processing delay',
+    dateSworn: new Date('2024-01-16'),
+    adminOfficer: {
+      signature: 'AdminSign',
+      name: 'Administrator Name',
+      position: 'Notary Public',
+    },
+    ctcInfo: {
+      number: '12345-2024',
+      dateIssued: new Date('2024-01-16'),
+      placeIssued: 'Quezon City',
+    },
+  },
+
+  // Remarks
+  remarks: 'No special remarks',
+};
 
 // export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
 //   // Registry Information
@@ -280,205 +491,3 @@ export type BirthCertificateFormValues = WithNullableDates<
 //   // Remarks
 //   remarks: '',
 // };
-
-// For testing purposes
-
-export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
-  // Registry Information
-  registryNumber: '2024-00001',
-  province: 'Metro Manila',
-  cityMunicipality: 'Quezon City',
-
-  // Child Information
-  childInfo: {
-    firstName: 'Juan',
-    middleName: 'Santos',
-    lastName: 'Dela Cruz',
-    sex: 'Male',
-    dateOfBirth: new Date('2024-01-15'),
-    placeOfBirth: {
-      hospital: "St. Luke's Medical Center",
-      cityMunicipality: 'Quezon City',
-      province: 'Metro Manila',
-    },
-    typeOfBirth: 'Single',
-    multipleBirthOrder: '',
-    birthOrder: '1',
-    weightAtBirth: '3.2',
-  },
-
-  // Mother Information
-  motherInfo: {
-    firstName: 'Maria',
-    middleName: 'Garcia',
-    lastName: 'Santos',
-    citizenship: 'Filipino',
-    religion: 'Roman Catholic',
-    occupation: 'Teacher',
-    age: '28',
-    totalChildrenBornAlive: '1',
-    childrenStillLiving: '1',
-    childrenNowDead: '0',
-    residence: {
-      houseNumber: '123',
-      street: 'Maginhawa Street',
-      barangay: 'Teachers Village',
-      cityMunicipality: 'Quezon City',
-      province: 'Metro Manila',
-      country: 'Philippines',
-    },
-  },
-
-  // Father Information
-  fatherInfo: {
-    firstName: 'Jose',
-    middleName: 'Martinez',
-    lastName: 'Dela Cruz',
-    citizenship: 'Filipino',
-    religion: 'Roman Catholic',
-    occupation: 'Software Engineer',
-    age: '30',
-    residence: {
-      houseNumber: '123',
-      street: 'Maginhawa Street',
-      barangay: 'Teachers Village',
-      cityMunicipality: 'Quezon City',
-      province: 'Metro Manila',
-      country: 'Philippines',
-    },
-  },
-
-  // Marriage of Parents
-  parentMarriage: {
-    date: new Date('2022-06-15'),
-    place: {
-      houseNumber: '123',
-      street: 'Maginhawa Street',
-      barangay: 'Teachers Village',
-      cityMunicipality: 'Quezon City',
-      province: 'Metro Manila',
-      country: 'Philippines',
-    },
-  },
-
-  // Birth Attendant
-  attendant: {
-    type: 'Physician',
-    certification: {
-      time: parseTimeStringToDate('14:30'),
-      signature: 'DrSantos',
-      name: 'Dr. Ana Santos',
-      title: 'OB-GYN',
-      address: {
-        houseNumber: '279',
-        street: 'E Rodriguez Sr. Avenue',
-        barangay: 'Kalusugan',
-        cityMunicipality: 'Quezon City',
-        province: 'Metro Manila',
-        country: 'Philippines',
-      },
-      date: new Date('2024-01-15'),
-    },
-  },
-
-  // Informant
-  informant: {
-    signature: 'JoseDC',
-    name: 'Jose Dela Cruz',
-    relationship: 'Father',
-    address: {
-      houseNumber: '279',
-      street: 'E Rodriguez Sr. Avenue',
-      barangay: 'Kalusugan',
-      cityMunicipality: 'Quezon City',
-      province: 'Metro Manila',
-      country: 'Philippines',
-    },
-    date: new Date('2024-01-16'),
-  },
-
-  // Prepared By
-  preparedBy: {
-    signature: 'Staff3',
-    name: 'Staff User 3',
-    title: 'Registration Officer',
-    date: new Date('2024-01-16'),
-  },
-
-  // Received By
-  receivedBy: {
-    signature: 'Staff4',
-    name: 'Staff User 4',
-    title: 'Document Processing Officer',
-    date: new Date('2024-01-16'),
-  },
-
-  // Registered By Civil Registry
-  registeredByOffice: {
-    signature: 'Admin1',
-    name: 'Admin User 1',
-    title: 'Civil Registrar',
-    date: new Date('2024-01-16'),
-  },
-
-  // Affidavit of Paternity
-  hasAffidavitOfPaternity: false,
-  affidavitOfPaternityDetails: {
-    father: {
-      signature: 'JoseDC',
-      name: 'Jose Dela Cruz',
-      title: 'Father',
-    },
-    mother: {
-      signature: 'MariaS',
-      name: 'Maria Santos',
-      title: 'Mother',
-    },
-    dateSworn: new Date('2024-01-16'),
-    adminOfficer: {
-      signature: 'AdminSign',
-      name: 'Administrator Name',
-      position: 'Notary Public',
-    },
-    ctcInfo: {
-      number: '12345-2024',
-      dateIssued: new Date('2024-01-16'),
-      placeIssued: 'Quezon City',
-    },
-  },
-
-  // Delayed Registration
-  isDelayedRegistration: false,
-  affidavitOfDelayedRegistration: {
-    affiant: {
-      name: 'Jose Dela Cruz',
-      address: {
-        houseNumber: '279',
-        street: 'E Rodriguez Sr. Avenue',
-        barangay: 'Kalusugan',
-        cityMunicipality: 'Quezon City',
-        province: 'Metro Manila',
-        country: 'Philippines',
-      },
-      civilStatus: 'Married',
-      citizenship: 'Filipino',
-    },
-    registrationType: 'SELF',
-    parentMaritalStatus: 'MARRIED',
-    reasonForDelay: 'Documentation processing delay',
-    dateSworn: new Date('2024-01-16'),
-    adminOfficer: {
-      signature: 'AdminSign',
-      name: 'Administrator Name',
-      position: 'Notary Public',
-    },
-    ctcInfo: {
-      number: '12345-2024',
-      dateIssued: new Date('2024-01-16'),
-      placeIssued: 'Quezon City',
-    },
-  },
-
-  // Remarks
-  remarks: 'No special remarks',
-};

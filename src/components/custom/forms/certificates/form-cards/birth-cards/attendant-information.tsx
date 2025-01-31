@@ -16,9 +16,13 @@ import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/bir
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
+import LocationSelector from '../shared-components/location-selector';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+
 const AttendantInformationCard: React.FC = () => {
   const { control } = useFormContext<BirthCertificateFormValues>();
   const [showOtherInput, setShowOtherInput] = useState(false);
+  const [isNCRMode, setIsNCRMode] = useState(false);
 
   return (
     <Card>
@@ -142,18 +146,63 @@ const AttendantInformationCard: React.FC = () => {
                 />
               </div>
 
+              <NCRModeSwitch
+                isNCRMode={isNCRMode}
+                setIsNCRMode={setIsNCRMode}
+              />
+
               <FormField
                 control={control}
-                name='attendant.certification.address'
+                name='attendant.certification.address.houseNumber'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
+                    <FormLabel>House Number</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder='Enter complete address'
+                        placeholder='Enter house number'
                         {...field}
                         className='h-10'
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={control}
+                name='attendant.certification.address.street'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Street</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder='Enter street'
+                        {...field}
+                        className='h-10'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <LocationSelector
+                provinceFieldName='attendant.certification.address.province'
+                municipalityFieldName='attendant.certification.address.cityMunicipality'
+                barangayFieldName='attendant.certification.address.barangay'
+                showBarangay={true}
+                isNCRMode={isNCRMode}
+              />
+
+              <FormField
+                control={control}
+                name='attendant.certification.address.country'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <FormControl>
+                      <Input {...field} disabled className='h-10' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

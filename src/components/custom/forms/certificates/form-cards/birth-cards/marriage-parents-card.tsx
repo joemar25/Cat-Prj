@@ -12,12 +12,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const MarriageOfParentsCard: React.FC = () => {
   const { control } = useFormContext<BirthCertificateFormValues>();
+  const [isNCRMode, setIsNCRMode] = useState(false);
 
   return (
     <Card>
@@ -54,6 +56,7 @@ const MarriageOfParentsCard: React.FC = () => {
             <h3 className='text-sm font-semibold'>Place of Marriage</h3>
           </CardHeader>
           <CardContent>
+            <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <LocationSelector
                 provinceFieldName='parentMarriage.place.province'
@@ -68,6 +71,7 @@ const MarriageOfParentsCard: React.FC = () => {
                 provincePlaceholder='Select province'
                 municipalityPlaceholder='Select city/municipality'
                 className='col-span-2 grid grid-cols-2 gap-4'
+                isNCRMode={isNCRMode}
               />
 
               <FormField

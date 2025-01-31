@@ -928,6 +928,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
       {/* Back Page */}
       <Page size='LEGAL' style={[back.page]}>
         <View style={back.container}>
+          {/*  AFFIDAVIT OF ACKNOWLEDGEMENT/ADMISSION OF PATERNITY */}
           <View style={[back.container, back.page]}>
             <View style={back.columnContainer}>
               <Text style={[back.headerTitle]}>
@@ -950,6 +951,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 </Text>
               </View>
             </View>
+
             <View style={[back.formRow, { marginTop: 15 }]}>
               <Text style={[back.textStyle, { marginLeft: 40 }]}>I/We,</Text>
               <Text style={[back.textStyle, back.formField]}>
@@ -966,7 +968,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 of legal age, am/are the natural mother and/or father off:
               </Text>
               <Text style={[back.textStyle, back.formFieldWide]}>
-                {'Jane Doe'}
+                {`${childInfo?.firstName || ''} ${
+                  childInfo?.middleName || ''
+                } ${childInfo?.lastName || ''}`}
               </Text>
               ,
               <Text style={[back.textStyle, { marginLeft: 12 }]}>who was </Text>
@@ -978,11 +982,15 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <Text
                 style={[back.textStyle, back.signatureText, { marginLeft: 12 }]}
               >
-                {'Jane Doe'}
+                {childInfo?.dateOfBirth
+                  ? new Date(childInfo.dateOfBirth).toLocaleDateString()
+                  : ''}
               </Text>
               <Text style={[back.textStyle, { marginLeft: 12 }]}>at</Text>
               <Text style={[back.textStyle, back.formFieldWider]}>
-                {'Jane Doe'}
+                {`${childInfo?.placeOfBirth?.hospital || ''}, ${
+                  childInfo?.placeOfBirth?.cityMunicipality || ''
+                }, ${childInfo?.placeOfBirth?.province || ''}`}
               </Text>
             </View>
             <View
@@ -1003,7 +1011,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
             <View style={[back.rowContainer, { marginTop: 15 }]}>
               <View style={back.signatureBlock}>
                 <Text style={[back.textStyle, back.signatureText]}>
-                  {'Jane Doe'}
+                  {`${affidavitOfPaternityDetails?.father?.signature || ''}`}
                 </Text>
                 <Text style={[back.textStyle, back.captionText]}>
                   (Signature Over Printed Name of Father)
@@ -1011,7 +1019,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </View>
               <View style={back.signatureBlock}>
                 <Text style={[back.textStyle, back.signatureText]}>
-                  {'Jane Doe'}
+                  {`${affidavitOfPaternityDetails?.mother?.signature || ''}`}
                 </Text>
                 <Text style={[back.textStyle, back.captionText]}>
                   (Signature Over Printed Name of Mother)
@@ -1039,13 +1047,19 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   { marginLeft: 12, width: 70 },
                 ]}
               >
-                {'Jane Doe'}
+                {affidavitOfPaternityDetails?.dateSworn
+                  ? new Date(affidavitOfPaternityDetails.dateSworn).getDate()
+                  : ''}
               </Text>
               <Text style={[back.textStyle, { marginLeft: 12 }]}>day of</Text>
               <Text
                 style={[back.textStyle, back.formFieldWider, { width: 150 }]}
               >
-                {'Jane Doe'}
+                {affidavitOfPaternityDetails?.dateSworn
+                  ? new Date(
+                      affidavitOfPaternityDetails.dateSworn
+                    ).toLocaleString('default', { month: 'long' })
+                  : ''}
               </Text>
               <Text style={[back.textStyle]}>,</Text>
               <Text
@@ -1055,7 +1069,11 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   { marginLeft: 12, width: 70 },
                 ]}
               >
-                {'Jane Doe'}
+                {affidavitOfPaternityDetails?.dateSworn
+                  ? new Date(
+                      affidavitOfPaternityDetails.dateSworn
+                    ).getFullYear()
+                  : ''}
               </Text>
             </View>
             <View style={[back.formRow]}>
@@ -1065,7 +1083,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <Text
                 style={[back.textStyle, back.signatureText, { width: 180 }]}
               >
-                {'Jane Doe'}
+                {`${affidavitOfPaternityDetails?.father?.name || ''}`}
               </Text>
               <Text style={[back.textStyle, { marginLeft: 10 }]}>and</Text>
               <Text
@@ -1075,7 +1093,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   { marginLeft: 10, width: 180 },
                 ]}
               >
-                {'Jane Doe'}
+                {`${affidavitOfPaternityDetails?.mother?.name || ''}`}
               </Text>
               <Text style={[back.textStyle]}>,</Text>
               <Text style={[back.textStyle, { marginLeft: 10 }]}>
@@ -1087,7 +1105,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <Text
                 style={[back.textStyle, back.signatureText, { width: '30%' }]}
               >
-                {'Jane Doe'}
+                {`${affidavitOfPaternityDetails?.ctcInfo?.number || ''}`}
               </Text>
               <Text style={[back.textStyle, { marginLeft: 10 }]}>
                 issued on{' '}
@@ -1095,7 +1113,11 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <Text
                 style={[back.textStyle, back.signatureText, { width: '40%' }]}
               >
-                {'Jane Doe'}
+                {affidavitOfPaternityDetails?.ctcInfo?.dateIssued
+                  ? new Date(
+                      affidavitOfPaternityDetails.ctcInfo.dateIssued
+                    ).toLocaleDateString()
+                  : ''}
               </Text>
             </View>
             <View style={[back.formRow]}>
@@ -1103,13 +1125,15 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <Text
                 style={[back.textStyle, back.signatureText, { width: '40%' }]}
               >
-                {'Jane Doe'}
+                {`${affidavitOfPaternityDetails?.ctcInfo?.placeIssued || ''}`}
               </Text>
             </View>
             <View style={[back.rowContainer, { marginTop: 30 }]}>
               <View style={back.signatureBlock}>
                 <Text style={[back.textStyle, back.signatureText]}>
-                  {'Jane Doe'}
+                  {`${
+                    affidavitOfPaternityDetails?.adminOfficer?.signature || ''
+                  }`}
                 </Text>
                 <Text style={[back.textStyle, back.captionText]}>
                   (Signature of the Administering Officer)
@@ -1117,7 +1141,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </View>
               <View style={back.signatureBlock}>
                 <Text style={[back.textStyle, back.signatureText]}>
-                  {'Jane Doe'}
+                  {`${
+                    affidavitOfPaternityDetails?.adminOfficer?.position || ''
+                  }`}
                 </Text>
                 <Text style={[back.textStyle, back.captionText]}>
                   (Position/Title Designation)
@@ -1127,7 +1153,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
             <View style={[back.rowContainer, { marginTop: 30 }]}>
               <View style={back.signatureBlock}>
                 <Text style={[back.textStyle, back.signatureText]}>
-                  {'Jane Doe'}
+                  {`${affidavitOfPaternityDetails?.adminOfficer?.name || ''}`}
                 </Text>
                 <Text style={[back.textStyle, back.captionText]}>
                   (Name in Print)
@@ -1135,7 +1161,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </View>
               <View style={back.signatureBlock}>
                 <Text style={[back.textStyle, back.signatureText]}>
-                  {'Jane Doe'}
+                  {`${
+                    affidavitOfPaternityDetails?.adminOfficer?.address
+                      ?.cityMunicipality || 'ako dito madami'
+                  }, ${
+                    affidavitOfPaternityDetails?.adminOfficer?.address
+                      ?.province || 'Lorem'
+                  }`}
                 </Text>
                 <Text style={[back.textStyle, back.captionText]}>
                   (Address)
@@ -1143,6 +1175,8 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </View>
             </View>
           </View>
+
+          {/*  AFFIDAVIT FOR DELAYED REGISTRATION OF BIRTH */}
           <View style={[back.container, back.page]}>
             <View style={back.columnContainer}>
               <Text style={[back.headerTitle]}>

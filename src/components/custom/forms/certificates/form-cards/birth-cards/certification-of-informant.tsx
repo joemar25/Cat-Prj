@@ -11,11 +11,14 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import LocationSelector from '../shared-components/location-selector';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const CertificationOfInformantCard: React.FC = () => {
   const { control } = useFormContext<BirthCertificateFormValues>();
+  const [isNCRMode, setIsNCRMode] = useState(false);
 
   return (
     <Card>
@@ -72,24 +75,83 @@ const CertificationOfInformantCard: React.FC = () => {
           />
         </div>
 
-        {/* Address */}
-        <FormField
-          control={control}
-          name='informant.address'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Address</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder='Enter complete address'
-                  {...field}
-                  className='h-10'
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Address Fields */}
+        <div className='space-y-4'>
+          <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
+          {/* House Number and Street */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <FormField
+              control={control}
+              name='informant.address.houseNumber'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>House Number</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='Enter house number'
+                      {...field}
+                      className='h-10'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name='informant.address.street'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Street</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='Enter street name'
+                      {...field}
+                      className='h-10'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Location Selector */}
+          <LocationSelector
+            provinceFieldName='informant.address.province'
+            municipalityFieldName='informant.address.cityMunicipality'
+            barangayFieldName='informant.address.barangay'
+            showBarangay={true}
+            selectTriggerClassName='h-10'
+            provincePlaceholder='Select province'
+            municipalityPlaceholder='Select city/municipality'
+            barangayPlaceholder='Select barangay'
+            isNCRMode={isNCRMode}
+          />
+
+          {/* Country */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <FormField
+              control={control}
+              name='informant.address.country'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Country</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='Enter country'
+                      disabled
+                      {...field}
+                      className='h-10'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
 
         {/* Informant Date */}
         <FormField
