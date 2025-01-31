@@ -152,8 +152,7 @@ const ChildInformationCard: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Birth Date Section */}
+        {/* Date of Birth */}
         <Card>
           <CardHeader className='pb-3'>
             <h3 className='text-sm font-semibold'>Birth Date</h3>
@@ -165,7 +164,7 @@ const ChildInformationCard: React.FC = () => {
               render={({ field }) => (
                 <DatePickerField
                   field={{
-                    value: field.value,
+                    value: field.value ? new Date(field.value) : null,
                     onChange: field.onChange,
                   }}
                   label='Birth Date'
