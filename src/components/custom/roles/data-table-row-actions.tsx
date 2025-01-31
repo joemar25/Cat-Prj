@@ -8,7 +8,8 @@ import { Icons } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
 import { useUser } from '@/context/user-context'
 import { Role, Permission } from '@prisma/client'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { RoleDetailsDialog } from './components/role-details-dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 type RoleRow = Role & {
@@ -37,15 +38,14 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         method: 'DELETE',
       })
 
+      const data = await response.json()
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to delete role')
+        throw new Error(data.error || 'Failed to delete role')
       }
 
-      toast.success(`Role deleted successfully!`)
+      toast.success('Role deleted successfully!')
       setConfirmDeleteOpen(false)
     } catch (error) {
-      console.error('Error deleting role:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to delete role')
     } finally {
       setIsDeleting(false)
@@ -70,7 +70,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
               View Details
             </DropdownMenuItem>
           )}
-          {canDelete && (
+          {canDelete && role.name !== 'Super Admin' && (
             <DropdownMenuItem
               onClick={() => setConfirmDeleteOpen(true)}
               className="text-destructive focus:text-destructive"
@@ -82,14 +82,19 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Confirmation Dialog */}
+      <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
+        <DialogContent>
+          <RoleDetailsDialog role={role} onCloseAction={() => setViewDetailsOpen(false)} />
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
-            <DialogDescription>
+            <div className="text-sm text-muted-foreground">
               Are you sure you want to delete the role "{role.name}"? This action cannot be undone.
-            </DialogDescription>
+            </div>
           </DialogHeader>
           <DialogFooter>
             <Button variant="secondary" onClick={() => setConfirmDeleteOpen(false)}>
