@@ -83,34 +83,32 @@ model Role {
   id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String           @unique
   description String?
-  permissions RolePermission[]
-  users       UserRole[]
+  permissions RolePermission[] @relation("RoleToPermission")
+  users       UserRole[]       @relation("RoleToUser")
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
   @@map("role")
 }
 
-// Junction table for Role-Permission many-to-many relationship
 model RolePermission {
   id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   roleId     String     @db.Uuid
   permission Permission
   createdAt  DateTime   @default(now())
-  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  role       Role       @relation("RoleToPermission", fields: [roleId], references: [id], onDelete: Cascade)
 
   @@unique([roleId, permission])
   @@map("role_permission")
 }
 
-// Junction table for User-Role many-to-many relationship
 model UserRole {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @db.Uuid
   roleId    String   @db.Uuid
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserToRole", fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation("RoleToUser", fields: [roleId], references: [id], onDelete: Cascade)
 
   @@unique([userId, roleId])
   @@map("user_role")
@@ -124,7 +122,7 @@ model User {
   image                      String?
   username                   String?                 @unique
   active                     Boolean                 @default(true)
-  roles                      UserRole[]
+  roles                      UserRole[]              @relation("UserToRole")
   createdAt                  DateTime                @default(now())
   updatedAt                  DateTime                @updatedAt
   lastLoginAt                DateTime?
