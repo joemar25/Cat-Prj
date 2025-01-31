@@ -93,11 +93,8 @@ export function transformToMainNavItem(
             .filter((role) => canManageRole(userPermissions, role.permissions.map((p) => p.permission)))
             .map(({ name }) => ({
                 title: `${name}s`,
-                url: `/users/${getRoleSlug(name)}`,
+                url: `/${item.id}/${getRoleSlug(name)}`,
             }))
-    } else {
-        // need to read the permissions for the user
-        // need to read the sub-items 
     }
 
     return baseItem
@@ -146,20 +143,8 @@ export const navigationConfig: NavigationConfiguration = {
             id: 'roles-and-permissions',
             type: 'main',
             title: 'Roles & Permissions',
-            url: '',
+            url: '/roles',
             iconName: 'shield',
-            items: [
-                {
-                    id: 'roles', // for creating roles
-                    title: 'Roles',
-                    url: '/roles',
-                },
-                {
-                    id: 'permissions', // for assigning permissions to roles
-                    title: 'Permissions',
-                    url: '/permissions',
-                },
-            ],
         },
         {
             id: "civil-registry",

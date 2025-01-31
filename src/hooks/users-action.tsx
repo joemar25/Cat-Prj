@@ -7,8 +7,9 @@ import { hash, compare } from 'bcryptjs'
 import { revalidatePath } from 'next/cache'
 import { changePasswordSchema } from '@/lib/validation/auth/change-password'
 import { CertifiedCopyFormData } from '@/lib/validation/forms/certified-copy'
-import { AttachmentType, DocumentStatus, Profile, User, UserRole } from '@prisma/client'
+import { AttachmentType, DocumentStatus } from '@prisma/client'
 import { getEmailSchema, getPasswordSchema, getNameSchema } from '@/lib/validation/shared'
+import { UserWithRoleAndProfile } from '@/types/user'
 
 // Schema for creating a user in the admin panel
 const createUserSchema = z.object({
@@ -343,5 +344,84 @@ export async function enableUser(userId: string) {
   } catch (error) {
     console.error('Error enabling user:', error)
     return { success: false, message: 'Failed to enable user' }
+  }
+}
+
+// src\hooks\users-action.tsx
+export async function updateUserRole(userId: string, roleId: string) {
+  try {
+    if (!userId || typeof userId !== 'string') {
+      throw new Error('Invalid user ID provided')
+    }
+    if (!roleId || typeof roleId !== 'string') {
+      throw new Error('Invalid role ID provided')
+    }
+
+    // Validate if the role exists
+    const role = await prisma.role.findUnique({
+      where: { id: roleId },
+    })
+    if (!role) {
+      throw new Error('Role not found')
+    }
+
+    // Validate if the user exists
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    })
+    if (!user) {
+      throw new Error('User not found')
+    }
+
+    // Perform role update inside a transaction
+    await prisma.$transaction(async (tx) => {
+      // Remove any existing role assignments
+      await tx.userRole.deleteMany({
+        where: { userId },
+      })
+
+      // Assign the new role
+      await tx.userRole.create({
+        data: {
+          userId,
+          roleId,
+        },
+      })
+    })
+
+    // Fetch updated user data with roles and profile included
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        profile: true,
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  select: { permission: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (!updatedUser) {
+      throw new Error('Updated user not found')
+    }
+
+    return {
+      success: true,
+      message: 'User role updated successfully',
+      data: updatedUser as UserWithRoleAndProfile,
+    }
+  } catch (error) {
+    console.error('Error updating user role:', error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Failed to update role',
+    }
   }
 }

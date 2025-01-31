@@ -2,15 +2,28 @@
 
 import { Button } from '@/components/ui/button'
 import { Icons } from '@/components/ui/icons'
-import { deactivateUser, enableUser } from '@/hooks/users-action'
+import { deactivateUser, enableUser, updateUserRole } from '@/hooks/users-action'
 import { hasPermission } from '@/types/auth'
 import { Permission } from '@prisma/client'
 import { Row } from '@tanstack/react-table'
 import { useUser } from '@/context/user-context'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { EditUserDialog } from './actions/edit-user-dialog'
 import { UserWithRoleAndProfile } from '@/types/user'
+import { useRoles } from '@/hooks/use-roles'
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 import {
   AlertDialog,
@@ -21,24 +34,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@/components/ui/alert-dialog'
 
 interface DataTableRowActionsProps {
   row: Row<UserWithRoleAndProfile>
@@ -49,20 +45,19 @@ export function DataTableRowActions({
   row,
   onUpdateUser,
 }: DataTableRowActionsProps) {
+  const { roles, loading: rolesLoading, error: rolesError } = useRoles()
   const user = row.original
 
   const { permissions } = useUser()
   const [isLoading, setIsLoading] = useState(false)
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
-  const [showEnableAlert, setShowEnableAlert] = useState(false)
-  const [showDeactivateAlert, setShowDeactivateAlert] = useState(false)
+  const [selectedRole, setSelectedRole] = useState<string | null>(null)
+  const [showRoleDialog, setShowRoleDialog] = useState(false)
 
-  const canCreateUser = hasPermission(permissions, Permission.USER_CREATE)
   const canUpdateUser = hasPermission(permissions, Permission.USER_UPDATE)
   const canDeleteUser = hasPermission(permissions, Permission.USER_DELETE)
+  const canAssignRoles = hasPermission(permissions, Permission.ROLE_ASSIGN)
 
-  if (!canCreateUser && !canUpdateUser && !canDeleteUser) return null
+  if (!canUpdateUser && !canDeleteUser) return null
 
   const handleEnable = async () => {
     setIsLoading(true)
@@ -79,7 +74,6 @@ export function DataTableRowActions({
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
-      setShowEnableAlert(false)
     }
   }
 
@@ -98,14 +92,28 @@ export function DataTableRowActions({
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
-      setShowDeactivateAlert(false)
     }
   }
 
-  const handleSave = (updatedUser: UserWithRoleAndProfile) => {
-    onUpdateUser?.(updatedUser)
-    toast.success(`User ${updatedUser.name} has been updated successfully!`)
-    setEditDialogOpen(false)
+  const handleRoleUpdate = async () => {
+    if (!selectedRole) return
+    setIsLoading(true)
+    try {
+      const result = await updateUserRole(user.id, selectedRole)
+
+      if (result.success && result.data) {
+        const updatedUser = result.data as UserWithRoleAndProfile
+        onUpdateUser?.(updatedUser)
+        toast.success('Role updated successfully')
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error) {
+      toast.error('Failed to update role')
+    } finally {
+      setIsLoading(false)
+      setShowRoleDialog(false)
+    }
   }
 
   return (
@@ -117,126 +125,65 @@ export function DataTableRowActions({
             <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[160px]">
+        <DropdownMenuContent align="end" className="w-[200px]">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {canUpdateUser && (
-            <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
-              <Icons.edit className="mr-2 h-4 w-4" /> Edit
+            <DropdownMenuItem onClick={handleEnable}>
+              <Icons.check className="mr-2 h-4 w-4" /> Enable
             </DropdownMenuItem>
           )}
           {canDeleteUser && (
-            <DropdownMenuItem onClick={() => setShowDeactivateAlert(true)} className="text-destructive">
+            <DropdownMenuItem onClick={handleDeactivate} className="text-destructive">
               <Icons.trash className="mr-2 h-4 w-4" /> Deactivate
             </DropdownMenuItem>
           )}
-          {!user.emailVerified && canCreateUser && (
-            <DropdownMenuItem onClick={() => setShowEnableAlert(true)} className="text-green-600">
-              <Icons.check className="mr-2 h-4 w-4" /> Enable
-            </DropdownMenuItem>
+          {canAssignRoles && (
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <Icons.user className="mr-2 h-4 w-4" /> Assign Role
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {rolesLoading ? (
+                  <DropdownMenuItem disabled>Loading roles...</DropdownMenuItem>
+                ) : rolesError ? (
+                  <DropdownMenuItem className="text-destructive">{rolesError}</DropdownMenuItem>
+                ) : (
+                  roles.map((role) => (
+                    <DropdownMenuItem
+                      key={role.id}
+                      onClick={() => {
+                        setSelectedRole(role.id)
+                        setShowRoleDialog(true)
+                      }}
+                    >
+                      {role.name}
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Enable User Alert Dialog */}
-      <AlertDialog open={showEnableAlert} onOpenChange={setShowEnableAlert}>
+      {/* Alert Dialog for Role Confirmation */}
+      <AlertDialog open={showRoleDialog} onOpenChange={setShowRoleDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Enable User Account</AlertDialogTitle>
+            <AlertDialogTitle>Confirm Role Change</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to enable this user account? This will allow the user to access the system again.
+              Are you sure you want to assign this role to <b>{user.name}</b>? This action cannot be undone.
             </AlertDialogDescription>
-            <div className="mt-4 rounded-md bg-muted p-4">
-              <div className="text-sm">
-                <p><strong>User:</strong> {user.name}</p>
-                <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Roles:</strong> {user.roles.map(ur => ur.role.name).join(', ')}</p>
-              </div>
-            </div>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleEnable}
-              className="bg-green-600 hover:bg-green-700"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Enabling...' : 'Enable User'}
+            <AlertDialogCancel onClick={() => setShowRoleDialog(false)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRoleUpdate} disabled={isLoading}>
+              {isLoading ? 'Updating...' : 'Confirm'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Deactivate User Alert Dialog */}
-      <AlertDialog open={showDeactivateAlert} onOpenChange={setShowDeactivateAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Deactivate User Account</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to deactivate this user account? They will no longer be able to access the system.
-            </AlertDialogDescription>
-            <div className="mt-4 rounded-md bg-muted p-4">
-              <div className="text-sm">
-                <p><strong>User:</strong> {user.name}</p>
-                <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Roles:</strong> {user.roles.map(ur => ur.role.name).join(', ')}</p>
-              </div>
-            </div>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeactivate}
-              className="bg-destructive hover:bg-destructive/90"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Deactivating...' : 'Deactivate User'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Edit User Dialog */}
-      <EditUserDialog
-        user={user}
-        open={editDialogOpen && canUpdateUser}
-        onOpenChangeAction={(open) => setEditDialogOpen(open)}
-        onSave={handleSave}
-      />
-
-      {/* View Details Dialog */}
-      <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
-        <DialogContent className='sm:max-w-[425px]'>
-          <DialogHeader>
-            <DialogTitle>User Details</DialogTitle>
-            <DialogDescription>
-              Detailed information about the user.
-            </DialogDescription>
-          </DialogHeader>
-          <div className='grid gap-4 py-4'>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Name</span>
-              <span className='col-span-3'>{user.name}</span>
-            </div>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Email</span>
-              <span className='col-span-3'>{user.email}</span>
-            </div>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Roles</span>
-              <span className='col-span-3'>
-                {user.roles.map(ur => ur.role.name).join(', ')}
-              </span>
-            </div>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <span className='font-medium'>Status</span>
-              <span className='col-span-3'>
-                {user.emailVerified ? 'Verified' : 'Unverified'}
-              </span>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   )
 }
