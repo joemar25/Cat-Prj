@@ -283,7 +283,7 @@
   "notificationList": {
     "title": "List Notification",
     "unread": "unread",
-    "searchPlaceholder": "Search by Email title",
+    "searchPlaceholder": "Search...",
     "all": "All",
     "archive": "Archive",
     "favorite": "Favorite",

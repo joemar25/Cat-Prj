@@ -220,7 +220,7 @@
     "nonResidentPercentage": "Porsyento ng Non-Residente"
   },
   "dataTableToolbar": {
-    "searchPlaceholder": "Maghanap ng mga gumagamit...",
+    "searchPlaceholder": "Maghanap ng mga users...",
     "resetFilters": "I-reset",
     "status": "Katayuan",
     "scan": "I-scan",
@@ -288,7 +288,7 @@
   "notificationList": {
     "title": "Listahan ng mga Notipikasyon",
     "unread": "hindi nabasa",
-    "searchPlaceholder": "Maghanap ng Produkto",
+    "searchPlaceholder": "Maghanap...",
     "all": "Lahat",
     "archive": "Arkibo",
     "favorite": "Paborito",
