@@ -72,6 +72,7 @@ enum Permission {
   // Notifications
   FEEDBACK_DELETE
   FEEDBACK_READ
+  FEEDBACK_EXPORT
 }
 
 model Role {
