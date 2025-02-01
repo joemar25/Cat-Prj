@@ -1,18 +1,17 @@
 'use client'
 
 import { Session } from "next-auth"
+import { Permission } from '@prisma/client'
 import { Icons } from '@/components/ui/icons'
 import { Badge } from '@/components/ui/badge'
 import { formatDistanceToNow } from 'date-fns'
 import { useTranslation } from 'react-i18next'
+import { UserWithRoleAndProfile } from '@/types/user'
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { Permission } from '@prisma/client'
 import { DataTableRowActions } from './data-table-row-actions'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { UserWithRoleAndProfile } from '@/types/user'
 
 interface UserCellProps {
     row: Row<UserWithRoleAndProfile>
@@ -61,7 +60,8 @@ const EmailCell = ({ email }: EmailCellProps) => {
 
 export const createColumns = (
     session: Session | null,
-    onUpdateUser?: (user: UserWithRoleAndProfile) => void
+    onUpdateUser?: (user: UserWithRoleAndProfile) => void,
+    onDeleteUser?: (id: string) => void
 ): ColumnDef<UserWithRoleAndProfile>[] => {
     const { t } = useTranslation()
 
@@ -108,14 +108,16 @@ export const createColumns = (
                 <DataTableColumnHeader column={column} title={t("dataTable.permissions")} />
             ),
             cell: ({ row }) => {
-                const permissions = new Set<Permission>()
+                const permissions = new Set<Permission>();
                 row.original.roles.forEach(({ role }) => {
                     role.permissions.forEach(({ permission }) => {
-                        permissions.add(permission)
-                    })
-                })
+                        permissions.add(permission);
+                    });
+                });
 
-                return (
+                const hasPermissions = permissions.size > 0;
+
+                return hasPermissions ? (
                     <Popover>
                         <PopoverTrigger>
                             <Badge variant="secondary" className="cursor-pointer hover:bg-secondary/80">
@@ -144,7 +146,12 @@ export const createColumns = (
                             </div>
                         </PopoverContent>
                     </Popover>
-                )
+                ) : (
+                    <Badge variant="secondary" className="opacity-50">
+                        <Icons.shield className="w-3 h-3 mr-1" />
+                        {t('dataTable.noPermissions')}
+                    </Badge>
+                );
             },
         },
         {
@@ -208,10 +215,18 @@ export const createColumns = (
             enableSorting: false,
             enableHiding: false,
             cell: ({ row }) => {
+                // If this is the currently logged-in user, hide actions
                 if (session?.user?.email === row.original.email) {
                     return null
                 }
-                return <DataTableRowActions row={row} onUpdateUser={onUpdateUser} />
+                // Pass both callbacks to <DataTableRowActions>
+                return (
+                    <DataTableRowActions
+                        row={row}
+                        onUpdateUser={onUpdateUser}
+                        onDeleteUser={onDeleteUser}
+                    />
+                )
             },
         },
     ]

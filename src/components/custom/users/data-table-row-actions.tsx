@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Icons } from '@/components/ui/icons'
-import { deactivateUser, enableUser, updateUserRole } from '@/hooks/users-action'
+import { deactivateUser, deleteUser, enableUser, updateUserRole } from '@/hooks/users-action'
 import { hasPermission } from '@/types/auth'
 import { Permission } from '@prisma/client'
 import { Row } from '@tanstack/react-table'
@@ -15,7 +15,6 @@ import { useRoles } from '@/hooks/use-roles'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -24,40 +23,36 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { FormActionDialog } from './components/edit-user-dialog/form-action-dialog'
 
 interface DataTableRowActionsProps {
   row: Row<UserWithRoleAndProfile>
   onUpdateUser?: (updatedUser: UserWithRoleAndProfile) => void
+  onDeleteUser?: (id: string) => void
 }
 
 export function DataTableRowActions({
   row,
   onUpdateUser,
+  onDeleteUser,
 }: DataTableRowActionsProps) {
-  const { roles, loading: rolesLoading, error: rolesError } = useRoles()
   const user = row.original
 
+  const { roles, loading: rolesLoading, error: rolesError } = useRoles()
   const { permissions } = useUser()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedRole, setSelectedRole] = useState<string | null>(null)
   const [showRoleDialog, setShowRoleDialog] = useState(false)
+  const [showDisableDialog, setShowDisableDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const canUpdateUser = hasPermission(permissions, Permission.USER_UPDATE)
   const canDeleteUser = hasPermission(permissions, Permission.USER_DELETE)
   const canAssignRoles = hasPermission(permissions, Permission.ROLE_ASSIGN)
 
   if (!canUpdateUser && !canDeleteUser) return null
+
+  const isUserDisabled = !user.emailVerified
 
   const handleEnable = async () => {
     setIsLoading(true)
@@ -70,7 +65,7 @@ export function DataTableRowActions({
       } else {
         toast.error(result.message)
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
@@ -88,10 +83,11 @@ export function DataTableRowActions({
       } else {
         toast.error(result.message)
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
+      setShowDisableDialog(false)
     }
   }
 
@@ -108,11 +104,32 @@ export function DataTableRowActions({
       } else {
         toast.error(result.message)
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to update role')
     } finally {
       setIsLoading(false)
       setShowRoleDialog(false)
+    }
+  }
+
+  const handleDeleteUser = async () => {
+    setIsLoading(true)
+    try {
+      const result = await deleteUser(user.id)
+      if (result.success) {
+        toast.success('User deleted successfully')
+        /**
+         * Instead of passing null user,
+         * just tell the parent which user was deleted.
+         */
+        onDeleteUser?.(user.id)
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -128,13 +145,17 @@ export function DataTableRowActions({
         <DropdownMenuContent align="end" className="w-[200px]">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {canUpdateUser && (
-            <DropdownMenuItem onClick={handleEnable}>
+          {canUpdateUser && isUserDisabled && (
+            <DropdownMenuItem onClick={handleEnable} disabled={isLoading}>
               <Icons.check className="mr-2 h-4 w-4" /> Enable
             </DropdownMenuItem>
           )}
-          {canDeleteUser && (
-            <DropdownMenuItem onClick={handleDeactivate} className="text-destructive">
+          {canDeleteUser && !isUserDisabled && (
+            <DropdownMenuItem
+              onClick={() => setShowDisableDialog(true)}
+              className="text-destructive"
+              disabled={isLoading}
+            >
               <Icons.trash className="mr-2 h-4 w-4" /> Deactivate
             </DropdownMenuItem>
           )}
@@ -164,26 +185,23 @@ export function DataTableRowActions({
               </DropdownMenuSubContent>
             </DropdownMenuSub>
           )}
+          {canDeleteUser && (
+            <DropdownMenuItem
+              onClick={() => setShowDeleteDialog(true)}
+              className="text-destructive"
+              disabled={isLoading}
+            >
+              <Icons.trash className="mr-2 h-4 w-4" /> Delete User
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Alert Dialog for Role Confirmation */}
-      <AlertDialog open={showRoleDialog} onOpenChange={setShowRoleDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Role Change</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to assign this role to <b>{user.name}</b>? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowRoleDialog(false)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleRoleUpdate} disabled={isLoading}>
-              {isLoading ? 'Updating...' : 'Confirm'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <FormActionDialog open={showRoleDialog} title="Confirm Role Change" description="Are you sure?" confirmText="Confirm" isLoading={isLoading} onConfirm={handleRoleUpdate} onCancel={() => setShowRoleDialog(false)} />
+
+      <FormActionDialog open={showDisableDialog} title="Deactivate User" description="Are you sure?" confirmText="Deactivate" isLoading={isLoading} onConfirm={handleDeactivate} onCancel={() => setShowDisableDialog(false)} />
+
+      <FormActionDialog open={showDeleteDialog} title="Delete User" description="Are you sure?" confirmText="Delete" isLoading={isLoading} onConfirm={handleDeleteUser} onCancel={() => setShowDeleteDialog(false)} />
     </>
   )
 }

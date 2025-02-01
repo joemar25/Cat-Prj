@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { DataTable } from '@/components/custom/users/data-table'
 import { createColumns } from '@/components/custom/users/columns'
-import { useSession } from 'next-auth/react'
 import { UserWithRoleAndProfile } from '@/types/user'
+import { useSession } from 'next-auth/react'
 
 interface UsersTableClientProps {
     users: UserWithRoleAndProfile[]
@@ -14,17 +14,20 @@ export function UsersTableClient({ users: initialUsers }: UsersTableClientProps)
     const { data: session } = useSession()
     const [users, setUsers] = useState<UserWithRoleAndProfile[]>(initialUsers)
 
+    // Handles normal user updates
     const handleUserUpdate = (updatedUser: UserWithRoleAndProfile) => {
-        setUsers(prevUsers =>
-            prevUsers.map(user =>
-                user.id === updatedUser.id ? updatedUser : user
-            )
+        setUsers((prev) =>
+            prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
         )
     }
 
-    const columns = createColumns(session ?? null, handleUserUpdate)
+    // Handles user removal
+    const handleUserDelete = (deletedUserId: string) => {
+        setUsers((prev) => prev.filter((u) => u.id !== deletedUserId))
+    }
 
-    if (!columns || columns.length === 0) return <p className="text-center text-red-500">Error loading table columns</p>
+    // Pass both callbacks into your columns or row actions
+    const columns = createColumns(session ?? null, handleUserUpdate, handleUserDelete)
 
     return <DataTable data={users} columns={columns} selection={false} />
 }

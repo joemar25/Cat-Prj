@@ -176,8 +176,10 @@ model BaseRegistryForm {
   status                  DocumentStatus           @default(PENDING)
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
-  preparedBy              User?                    @relation("PreparedBy", fields: [preparedById], references: [id])
-  verifiedBy              User?                    @relation("VerifiedBy", fields: [verifiedById], references: [id])
+  preparedByName          String?
+  verifiedByName          String?
+  preparedBy              User?                    @relation("PreparedBy", fields: [preparedById], references: [id], onDelete: SetNull)
+  verifiedBy              User?                    @relation("VerifiedBy", fields: [verifiedById], references: [id], onDelete: SetNull)
   birthCertificateForm    BirthCertificateForm?
   deathCertificateForm    DeathCertificateForm?
   marriageCertificateForm MarriageCertificateForm?
@@ -457,7 +459,8 @@ model Queue {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   completedAt     DateTime?
-  user            User?       @relation(fields: [userId], references: [id])
+  userName        String?
+  user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("queue")
 }
@@ -558,15 +561,16 @@ model Attachment {
 /// * - Active status tracking
 /// * - Creator attribution
 model Workflow {
-  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String
-  description String?
-  isActive    Boolean        @default(true)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  createdBy   String         @db.Uuid
-  user        User           @relation(fields: [createdBy], references: [id])
-  steps       WorkflowStep[]
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String
+  description   String?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  createdBy     String?        @db.Uuid
+  createdByName String
+  user          User?          @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  steps         WorkflowStep[]
 
   @@map("workflow")
 }
@@ -606,7 +610,8 @@ model WorkflowStep {
 /// * - Timestamp logging
 model Notification {
   id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String           @db.Uuid
+  userId    String?          @db.Uuid
+  userName  String?          @default("Anonymous")
   type      NotificationType
   title     String
   message   String
@@ -614,7 +619,7 @@ model Notification {
   createdAt DateTime         @default(now())
   readAt    DateTime?
   status    String?
-  user      User             @relation(fields: [userId], references: [id])
+  user      User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("notification")
 }
@@ -629,7 +634,8 @@ model Notification {
 /// * - User attribution
 model AuditLog {
   id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId     String   @db.Uuid
+  userId     String?  @db.Uuid
+  userName   String
   action     String
   entityType String
   entityId   String   @db.Uuid
@@ -638,7 +644,7 @@ model AuditLog {
   userAgent  String?
   createdAt  DateTime @default(now())
   document   Document @relation(fields: [entityId], references: [id])
-  user       User     @relation(fields: [userId], references: [id])
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   civilRegistryFormId String?                @db.Uuid
   civilRegistryForm   CivilRegistryFormBase? @relation(fields: [civilRegistryFormId], references: [id])
@@ -651,12 +657,13 @@ model AuditLog {
 /// * @model
 /// * Allows for user-submitted feedback
 model Feedback {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  feedback    String
-  submittedBy String?  @db.Uuid
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User?    @relation(fields: [submittedBy], references: [id])
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  feedback      String
+  submittedBy   String?  @db.Uuid
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  submitterName String?
+  user          User?    @relation(fields: [submittedBy], references: [id], onDelete: SetNull)
 
   @@map("feedback")
 }
@@ -796,10 +803,12 @@ model CivilRegistryFormBase {
   deathForm    CivilRegistryForm2A?
   marriageForm CivilRegistryForm3A?
 
-  preparedByUserId String? @db.Uuid
-  verifiedByUserId String? @db.Uuid
-  preparedByUser   User?   @relation("PreparedCivilRegistryForms", fields: [preparedByUserId], references: [id])
-  verifiedByUser   User?   @relation("VerifiedCivilRegistryForms", fields: [verifiedByUserId], references: [id])
+  preparedByUserId   String? @db.Uuid
+  verifiedByUserId   String? @db.Uuid
+  preparedByUserName String?
+  verifiedByUserName String?
+  preparedByUser     User?   @relation("PreparedCivilRegistryForms", fields: [preparedByUserId], references: [id], onDelete: SetNull)
+  verifiedByUser     User?   @relation("VerifiedCivilRegistryForms", fields: [verifiedByUserId], references: [id], onDelete: SetNull)
 
   documentId String?   @db.Uuid
   document   Document? @relation(fields: [documentId], references: [id])

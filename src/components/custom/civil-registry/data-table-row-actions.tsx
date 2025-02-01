@@ -80,7 +80,13 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           {canUpload && (
             <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
               <Icons.add className='mr-2 h-4 w-4' />
-              {t('importDocument')}
+              {t('uploadDocument')}
+            </DropdownMenuItem>
+          )}
+          {canUpload && (
+            <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
+              <Icons.add className='mr-2 h-4 w-4' />
+              {t('scanDocument')}
             </DropdownMenuItem>
           )}
           {canPrint && form.documentUrl && (

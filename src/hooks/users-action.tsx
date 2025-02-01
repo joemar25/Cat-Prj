@@ -7,7 +7,7 @@ import { hash, compare } from 'bcryptjs'
 import { revalidatePath } from 'next/cache'
 import { changePasswordSchema } from '@/lib/validation/auth/change-password'
 import { CertifiedCopyFormData } from '@/lib/validation/forms/certified-copy'
-import { AttachmentType, DocumentStatus } from '@prisma/client'
+import { AttachmentType, DocumentStatus, NotificationType } from '@prisma/client'
 import { getEmailSchema, getPasswordSchema, getNameSchema } from '@/lib/validation/shared'
 import { UserWithRoleAndProfile } from '@/types/user'
 
@@ -207,27 +207,51 @@ export async function handleGetUser(userId: string) {
 
 export async function deleteUser(userId: string) {
   try {
-    // Create an audit log entry before deletion
-    await prisma.auditLog.create({
-      data: {
-        userId,
-        action: 'DELETE_USER',
-        entityType: 'USER',
-        entityId: userId,
-        details: { reason: 'User deleted through admin interface' },
+    const existingUser = await prisma.user.findUnique({ where: { id: userId } })
+    if (!existingUser) {
+      return { success: false, message: 'User not found' }
+    }
+
+    // 1. Find all users who have the USER_DELETE permission
+    const usersWithDeletePerm = await prisma.user.findMany({
+      where: {
+        roles: {
+          some: {
+            role: {
+              permissions: {
+                some: { permission: 'USER_DELETE' },
+              },
+            },
+          },
+        },
       },
+      select: { id: true },
     })
 
-    // Delete the user - Prisma will handle cascading deletes based on schema
-    await prisma.user.delete({
-      where: { id: userId },
-    })
+    await prisma.$transaction([
+      // 2. Delete the user
+      prisma.user.delete({ where: { id: userId } }),
 
-    revalidatePath('/users')
-    return { success: true, message: 'User deleted successfully' }
+      ...usersWithDeletePerm.map((u) =>
+        prisma.notification.create({
+          data: {
+            userId: u.id,
+            userName: 'System',
+            type: NotificationType.SYSTEM,
+            title: 'User Deleted',
+            message: `User "${existingUser.email}" was deleted.`,
+          },
+        })
+      ),
+    ])
+
+    return { success: true, message: 'User deleted, notifications sent.' }
   } catch (error) {
-    console.error('Error deleting user:', error)
-    return { success: false, message: 'Failed to delete user', error }
+    console.error('Delete user error:', error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Failed to delete user',
+    }
   }
 }
 

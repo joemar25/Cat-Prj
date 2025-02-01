@@ -1,10 +1,9 @@
 // src/lib/config/navigation.ts
-
+import { LucideIcon } from "lucide-react"
 import { Permission } from "@prisma/client"
 import { Icons } from "@/components/ui/icons"
-import { NavConfig, NavMainItem, NavSecondaryItem, NavigationConfiguration } from "@/lib/types/navigation"
 import { UserWithPermissions, hasAnyPermission, getRoleSlug, canManageRole } from "@/types/auth"
-import type { LucideIcon } from "lucide-react"
+import { NavConfig, NavMainItem, NavSecondaryItem, NavigationConfiguration } from "@/lib/types/navigation"
 
 // Environment variables
 const KIOSK = process.env.NEXT_PUBLIC_KIOSK === "true"
@@ -20,6 +19,7 @@ const navPermissionRequirements = {
     },
     "civil-registry": ["DOCUMENT_READ"],
     "certified-true-copies": ["DOCUMENT_VERIFY"],
+    "roles-and-permissions": ["USER_DELETE"],
     reports: ["REPORT_READ"],
     feedback: [],
     settings: [],
@@ -120,6 +120,20 @@ export const navigationConfig: NavigationConfiguration = {
             url: "/dashboard",
             iconName: "layoutDashboard",
         },
+        {
+            id: "civil-registry",
+            type: "main",
+            title: "Civil Registry",
+            url: "/civil-registry",
+            iconName: "briefcase",
+        },
+        {
+            id: "certified-true-copies",
+            type: "main",
+            title: "Transactions", // Manage CTC
+            url: "/certified-true-copies",
+            iconName: "building",
+        },
         ...(KIOSK
             ? [
                 {
@@ -147,23 +161,9 @@ export const navigationConfig: NavigationConfiguration = {
             iconName: 'shield',
         },
         {
-            id: "civil-registry",
-            type: "main",
-            title: "Civil Registry",
-            url: "/civil-registry",
-            iconName: "briefcase",
-        },
-        {
-            id: "certified-true-copies",
-            type: "main",
-            title: "Manage CTC",
-            url: "/certified-true-copies",
-            iconName: "lifeBuoy",
-        },
-        {
             id: "reports",
             type: "main",
-            title: "Report Generation",
+            title: "Report",
             url: "/reports",
             iconName: "report",
         },
@@ -197,18 +197,18 @@ export const navigationConfig: NavigationConfiguration = {
     ],
     projectsNav: [
         {
-            id: 'project-1',
+            id: 'notifications',
             type: 'projects',
-            title: 'Project One',
-            url: '/projects/1',
-            iconName: 'folder',
+            title: 'Notifications',
+            url: 'notifications',
+            iconName: 'fileText',
         },
-        {
-            id: 'project-2',
-            type: 'projects',
-            title: 'Project Two',
-            url: '/projects/2',
-            iconName: 'folder',
-        },
+        // {
+        //     id: 'project-2',
+        //     type: 'projects',
+        //     title: 'Project Two',
+        //     url: '/projects/2',
+        //     iconName: 'folder',
+        // },
     ],
 }
