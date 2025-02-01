@@ -30,11 +30,24 @@ export function getRoleDisplayName(slug: string): string | undefined {
 }
 
 /**
- * Checks if a user has a specific permission
+ * Checks if a user has a specific permission.
+ * Supports both a flat array of Permission enums and an array of objects with a "permission" property.
  */
-export function hasPermission(permissions: Permission[] | undefined, permission: Permission): boolean {
+export function hasPermission(
+    permissions: (Permission | { permission: Permission })[] | undefined,
+    permission: Permission
+): boolean {
     if (!permissions || !Array.isArray(permissions)) return false;
-    return permissions.includes(permission);
+
+    // If the first element is an object, assume each element has a `permission` property.
+    if (permissions.length > 0 && typeof permissions[0] === 'object' && permissions[0] !== null) {
+        return (permissions as { permission: Permission }[]).some(
+            (p) => p.permission === permission
+        );
+    }
+
+    // Otherwise, assume it's a flat array of Permission enums.
+    return (permissions as Permission[]).includes(permission);
 }
 
 /**

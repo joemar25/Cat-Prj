@@ -1,3 +1,4 @@
+// src/lib/auth.config.ts
 'use server'
 
 import bcryptjs from 'bcryptjs'
@@ -5,8 +6,11 @@ import { hash } from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { AuthError } from 'next-auth'
 import { signIn, signOut } from '@/lib/auth'
-import { signUpSchema } from '@/lib/validation'
+import { createSignUpSchema } from '@/lib/validation'
 
+// -----------------------------------------------------------------------------
+// SIGN-IN FUNCTION
+// -----------------------------------------------------------------------------
 export async function handleCredentialsSignin({
   email,
   password,
@@ -15,27 +19,36 @@ export async function handleCredentialsSignin({
   password: string;
 }) {
   try {
-    // Fetch the user with roles
+    // Fetch the user with roles from the database.
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
         roles: {
           include: {
-            role: true
-          }
-        }
-      }
+            role: true,
+          },
+        },
+      },
     });
 
-    // Check if the user exists and has appropriate roles
-    if (!user || user.roles.every(ur => ur.role.name === 'User')) {
+    // Deny access if the user is not found or if all assigned roles have the name "User"
+    // (meaning regular users are not allowed to sign in).
+    if (!user || user.roles.every((ur) => ur.role.name === 'User')) {
       return {
         success: false,
         message: 'Access denied. Regular users are not allowed to log in.',
       };
     }
 
-    // Attempt to sign in
+    // If the account is deactivated (for example, not verified), return a custom error.
+    if (!user.emailVerified) {
+      return {
+        success: false,
+        message: 'Account disabled. Contact admin.',
+      };
+    }
+
+    // Attempt sign in using NextAuth's signIn function.
     const result = await signIn('credentials', {
       email,
       password,
@@ -70,17 +83,43 @@ export async function handleCredentialsSignin({
   }
 }
 
+// -----------------------------------------------------------------------------
+// SIGN-OUT FUNCTION
+// -----------------------------------------------------------------------------
 export async function handleSignOut() {
-  await signOut()
+  await signOut();
 }
 
+// -----------------------------------------------------------------------------
+// SIGN-UP FUNCTION
+// -----------------------------------------------------------------------------
+// Define the input type. Note that role is a plain string, as the dynamic schema will
+// ensure that the submitted value is one of the allowed roles.
 type SignUpInput = {
   name: string
   email: string
   password: string
   confirmPassword: string
-  role?: 'Super Admin' | 'Admin'
+  role?: string
 }
+
+/*
+  Option A (Default Allowed Roles)
+  ---------------------------------
+  // If desired, you can define a default allowed roles array for the server side sign-up.
+  // This is useful if you want to have a fallback in case dynamic role query is not available.
+  const defaultAllowedRoles = ["Admin", "Super Admin"];
+  const signUpSchema = createSignUpSchema(defaultAllowedRoles);
+  
+  Option B (Dynamic Allowed Roles)
+  --------------------------------
+  In production the client should supply the allowed roles via a role query.
+  For the server side sign-up here, you might prioritize a default set.
+  For now, we use Option A as a fallback.
+*/
+const defaultAllowedRoles = ["Admin", "Super Admin"];
+// Create a default sign-up schema instance using the default allowed roles.
+const signUpSchema = createSignUpSchema(defaultAllowedRoles);
 
 export async function handleSignUp({
   name,
@@ -90,34 +129,37 @@ export async function handleSignUp({
   role = 'Admin',
 }: SignUpInput) {
   try {
+    // Validate input using the dynamic schema.
     const parsedCredentials = signUpSchema.safeParse({
       name,
       email,
       password,
       confirmPassword,
       role,
-    })
+    });
 
     if (!parsedCredentials.success) {
-      return { success: false, message: 'Invalid data' }
+      return { success: false, message: 'Invalid data' };
     }
 
+    // Check if a user with the same email already exists.
     const existingUser = await prisma.user.findUnique({
       where: { email },
-    })
+    });
 
     if (existingUser) {
-      return { success: false, message: 'Email already exists' }
+      return { success: false, message: 'Email already exists' };
     }
 
-    const hashedPassword = await bcryptjs.hash(password, 10)
-    const now = new Date()
+    const hashedPassword = await bcryptjs.hash(password, 10);
+    const now = new Date();
 
-    // Determine the role based on environment
-    const userRoleName = process.env.NODE_ENV === 'development' ? role : 'Staff'
+    // Determine the role based on environment:
+    // In development we use the provided role; in production we assign a default (e.g., 'Staff').
+    const userRoleName = process.env.NODE_ENV === 'development' ? role : 'Staff';
 
     await prisma.$transaction(async (tx) => {
-      // Create user
+      // Create the user.
       const user = await tx.user.create({
         data: {
           email,
@@ -127,26 +169,26 @@ export async function handleSignUp({
           createdAt: now,
           updatedAt: now,
         },
-      })
+      });
 
-      // Get the role
+      // Get the role record from the database.
       const roleRecord = await tx.role.findUnique({
-        where: { name: userRoleName }
-      })
+        where: { name: userRoleName },
+      });
 
       if (!roleRecord) {
-        throw new Error('Role not found')
+        throw new Error('Role not found');
       }
 
-      // Assign role to user
+      // Assign role to the user.
       await tx.userRole.create({
         data: {
           userId: user.id,
-          roleId: roleRecord.id
-        }
-      })
+          roleId: roleRecord.id,
+        },
+      });
 
-      // Create account
+      // Create the account.
       await tx.account.create({
         data: {
           userId: user.id,
@@ -156,16 +198,19 @@ export async function handleSignUp({
           createdAt: now,
           updatedAt: now,
         },
-      })
-    })
+      });
+    });
 
-    return { success: true, message: 'Account created successfully' }
+    return { success: true, message: 'Account created successfully' };
   } catch (error) {
-    console.error('Signup error:', error)
-    return { success: false, message: 'An unexpected error occurred' }
+    console.error('Signup error:', error);
+    return { success: false, message: 'An unexpected error occurred' };
   }
 }
 
+// -----------------------------------------------------------------------------
+// REGISTRATION FUNCTION
+// -----------------------------------------------------------------------------
 type RegisterData = {
   name: string
   email: string
@@ -186,17 +231,17 @@ export async function handleRegistration(data: RegisterData) {
   try {
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
-    })
+    });
 
     if (existingUser) {
-      return { success: false, message: 'Email already exists' }
+      return { success: false, message: 'Email already exists' };
     }
 
-    const hashedPassword = await hash(data.password, 10)
-    const now = new Date()
+    const hashedPassword = await hash(data.password, 10);
+    const now = new Date();
 
     await prisma.$transaction(async (tx) => {
-      // Create user
+      // Create user.
       const user = await tx.user.create({
         data: {
           name: data.name,
@@ -206,26 +251,26 @@ export async function handleRegistration(data: RegisterData) {
           createdAt: now,
           updatedAt: now,
         },
-      })
+      });
 
-      // Get the 'User' role
+      // Get the 'User' role.
       const userRole = await tx.role.findUnique({
-        where: { name: 'User' }
-      })
+        where: { name: 'User' },
+      });
 
       if (!userRole) {
-        throw new Error('User role not found')
+        throw new Error('User role not found');
       }
 
-      // Assign role to user
+      // Assign role to user.
       await tx.userRole.create({
         data: {
           userId: user.id,
-          roleId: userRole.id
-        }
-      })
+          roleId: userRole.id,
+        },
+      });
 
-      // Create account
+      // Create account.
       await tx.account.create({
         data: {
           userId: user.id,
@@ -235,9 +280,9 @@ export async function handleRegistration(data: RegisterData) {
           createdAt: now,
           updatedAt: now,
         },
-      })
+      });
 
-      // Create profile
+      // Create profile.
       await tx.profile.create({
         data: {
           userId: user.id,
@@ -252,12 +297,12 @@ export async function handleRegistration(data: RegisterData) {
           gender: data.gender || null,
           nationality: data.nationality || null,
         },
-      })
-    })
+      });
+    });
 
-    return { success: true, message: 'Registration successful' }
+    return { success: true, message: 'Registration successful' };
   } catch (error) {
-    console.error('Registration error:', error)
-    return { success: false, message: 'Registration failed' }
+    console.error('Registration error:', error);
+    return { success: false, message: 'Registration failed' };
   }
 }

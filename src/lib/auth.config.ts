@@ -1,4 +1,4 @@
-// src\lib\auth.config.ts
+// src/lib/auth.config.ts
 import { prisma } from '@/lib/prisma'
 import { signInSchema } from '@/lib/validation'
 import { Permission } from '@prisma/client'
@@ -42,15 +42,19 @@ export default {
                 include: {
                   role: {
                     include: {
-                      permissions: true
-                    }
-                  }
-                }
-              }
+                      permissions: true,
+                    },
+                  },
+                },
+              },
             },
           })
 
-          if (!user || !user.accounts[0]?.password) return null
+          // Restrict login if user does not exist, has no password,
+          // or is deactivated (email not verified).
+          if (!user || !user.accounts[0]?.password || !user.emailVerified) {
+            return null
+          }
 
           const isPasswordValid = await compare(
             credentials.password as string,
@@ -60,8 +64,8 @@ export default {
 
           // Flatten permissions from all roles
           const permissions = new Set<Permission>()
-          user.roles.forEach(userRole => {
-            userRole.role.permissions.forEach(p => {
+          user.roles.forEach((userRole) => {
+            userRole.role.permissions.forEach((p) => {
               permissions.add(p.permission)
             })
           })
@@ -72,8 +76,8 @@ export default {
             email: user.email,
             emailVerified: user.emailVerified,
             image: user.image,
-            roles: user.roles.map(ur => ur.role.name),
-            permissions: Array.from(permissions)
+            roles: user.roles.map((ur) => ur.role.name),
+            permissions: Array.from(permissions),
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -124,7 +128,7 @@ export default {
           name: token.name as string,
           image: token.image as string | null,
         },
-        expires: session.expires
+        expires: session.expires,
       }
     },
   },

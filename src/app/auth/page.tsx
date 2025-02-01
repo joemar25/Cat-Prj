@@ -1,34 +1,34 @@
 // src\app\auth\sign-in\page.tsx
-"use client";
+"use client"
 
-import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
-import { SignInForm } from "@/components/custom/auth/sign-in-form";
-import { SignUpForm } from "@/components/custom/auth/sign-up-form";
-import { useState, useEffect, useRef } from "react";
+import Image from "next/image"
+import { AnimatePresence, motion } from "framer-motion"
+import { SignInFormComponent } from "@/components/custom/auth/sign-in-form"
+import { SignUpFormComponent } from "@/components/custom/auth/sign-up-form"
+import { useState, useEffect, useRef } from "react"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Lottie, { LottieRefCurrentProps } from "lottie-react";
-import files from "@lottie/files.json";
-import lock from "@lottie/lock.json";
-import check from "@lottie/check.json";
-import red from "@lottie/red.json";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import Lottie, { LottieRefCurrentProps } from "lottie-react"
+import files from "@lottie/files.json"
+import lock from "@lottie/lock.json"
+import check from "@lottie/check.json"
+import red from "@lottie/red.json"
 
-import { ThemeChange } from "@/components/theme/theme-change";
+import { ThemeChange } from "@/components/theme/theme-change"
 
 const Login = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [isDevelopment, setIsDevelopment] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false)
+  const [isDevelopment, setIsDevelopment] = useState(false)
 
   useEffect(() => {
-    setIsDevelopment(process.env.NEXT_PUBLIC_NODE_ENV === "development");
-  }, []);
+    setIsDevelopment(process.env.NEXT_PUBLIC_NODE_ENV === "development")
+  }, [])
 
   return (
     <div className="w-full h-screen font-manrope">
@@ -83,11 +83,11 @@ const Login = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-2">
-                      <SignInForm />
+                      <SignInFormComponent />
                       {isDevelopment && (
                         <div className="text-center text-sm mt-6">
                           <p className="text-muted-foreground">
-                            Don&apost have an account?{" "}
+                            Don&apos;t have an account?{" "}
                             <Button
                               variant="link"
                               className="text-primary p-0"
@@ -119,7 +119,7 @@ const Login = () => {
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="p-6 sm:p-12 pt-6">
-                        <SignUpForm />
+                        <SignUpFormComponent />
                         <div className="text-center text-sm mt-6">
                           <p className="text-muted-foreground">
                             Already have an account?{" "}
@@ -145,34 +145,34 @@ const Login = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
 
 const lottieSet = [
   { animationData: red, color: "#fcd000" },
   { animationData: check, color: "#fcd000" },
   { animationData: lock, color: "#fcd000" },
   { animationData: files, color: "#fcd000" },
-];
+]
 
 const RightSide = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isSliding, setIsSliding] = useState(false); // Controls the sliding animation
-  const lottieRef = useRef<LottieRefCurrentProps>(null);
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isSliding, setIsSliding] = useState(false) // Controls the sliding animation
+  const lottieRef = useRef<LottieRefCurrentProps>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsSliding(true); // Start the sliding animation
+      setIsSliding(true) // Start the sliding animation
       setTimeout(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % lottieSet.length); // Update the index
-        setIsSliding(false); // Reset sliding state after transition
-      }, 500); // Match the CSS transition duration
-    }, 7000); // Change animation every 7 seconds
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % lottieSet.length) // Update the index
+        setIsSliding(false) // Reset sliding state after transition
+      }, 500) // Match the CSS transition duration
+    }, 7000) // Change animation every 7 seconds
 
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, []);
+    return () => clearInterval(interval) // Cleanup on unmount
+  }, [])
 
   return (
     <div className="w-full hidden lg:flex flex-col items-center justify-center dark:bg-blueColor/15 bg-blueColor/80 relative overflow-hidden">
@@ -221,19 +221,17 @@ const RightSide = () => {
         {lottieSet.map((_, index) => (
           <div
             key={index}
-            className={` rounded-full transition-colors duration-300 ${
-              currentIndex === index
-                ? "bg-transparent bg-yellow-500 dark:bg-blueColor/80 h-3 w-6"
-                : " border-2 border-yellowColor dark:border-blueColor w-3 h-3"
-            }`}
+            className={` rounded-full transition-colors duration-300 ${currentIndex === index
+              ? "bg-transparent bg-yellow-500 dark:bg-blueColor/80 h-3 w-6"
+              : " border-2 border-yellowColor dark:border-blueColor w-3 h-3"
+              }`}
           />
         ))}
       </div>
 
       <div
-        className={`w-fit h-full overflow-hidden transition-transform duration-500 ${
-          isSliding ? "translate-y-full" : "translate-y-[30%]"
-        }`}
+        className={`w-fit h-full overflow-hidden transition-transform duration-500 ${isSliding ? "translate-y-full" : "translate-y-[30%]"
+          }`}
       >
         <Lottie
           lottieRef={lottieRef}
@@ -244,5 +242,5 @@ const RightSide = () => {
         />
       </div>
     </div>
-  );
-};
+  )
+}

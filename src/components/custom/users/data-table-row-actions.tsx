@@ -1,29 +1,29 @@
 'use client'
 
+import { useState } from 'react'
+import { Row } from '@tanstack/react-table'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Icons } from '@/components/ui/icons'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from '@/components/ui/dropdown-menu'
+import { FormActionDialog } from './components/edit-user-dialog/form-action-dialog'
+
 import { deactivateUser, deleteUser, enableUser, updateUserRole } from '@/hooks/users-action'
 import { hasPermission } from '@/types/auth'
 import { Permission } from '@prisma/client'
-import { Row } from '@tanstack/react-table'
-import { useUser } from '@/context/user-context'
-import { useState } from 'react'
-import { toast } from 'sonner'
 import { UserWithRoleAndProfile } from '@/types/user'
+import { useUser } from '@/context/user-context'
 import { useRoles } from '@/hooks/use-roles'
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { FormActionDialog } from './components/edit-user-dialog/form-action-dialog'
 
 interface DataTableRowActionsProps {
   row: Row<UserWithRoleAndProfile>
@@ -39,6 +39,7 @@ export function DataTableRowActions({
   const user = row.original
 
   const { roles, loading: rolesLoading, error: rolesError } = useRoles()
+  // The permissions here may be a flat array (e.g. Permission[]). Our hasPermission helper supports that.
   const { permissions } = useUser()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedRole, setSelectedRole] = useState<string | null>(null)
@@ -46,12 +47,17 @@ export function DataTableRowActions({
   const [showDisableDialog, setShowDisableDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
+  // Permission checks
   const canUpdateUser = hasPermission(permissions, Permission.USER_UPDATE)
+  const canActivateUser = hasPermission(permissions, Permission.USER_ACTIVATE)
+  const canDeactivateUser = hasPermission(permissions, Permission.USER_DEACTIVATE)
   const canDeleteUser = hasPermission(permissions, Permission.USER_DELETE)
   const canAssignRoles = hasPermission(permissions, Permission.ROLE_ASSIGN)
 
+  // If the current user has neither update nor delete permissions, don't render any actions.
   if (!canUpdateUser && !canDeleteUser) return null
 
+  // Determine if the user is disabled (not verified)
   const isUserDisabled = !user.emailVerified
 
   const handleEnable = async () => {
@@ -96,7 +102,6 @@ export function DataTableRowActions({
     setIsLoading(true)
     try {
       const result = await updateUserRole(user.id, selectedRole)
-
       if (result.success && result.data) {
         const updatedUser = result.data as UserWithRoleAndProfile
         onUpdateUser?.(updatedUser)
@@ -118,10 +123,6 @@ export function DataTableRowActions({
       const result = await deleteUser(user.id)
       if (result.success) {
         toast.success('User deleted successfully')
-        /**
-         * Instead of passing null user,
-         * just tell the parent which user was deleted.
-         */
         onDeleteUser?.(user.id)
       } else {
         toast.error(result.message)
@@ -150,7 +151,7 @@ export function DataTableRowActions({
               <Icons.check className="mr-2 h-4 w-4" /> Enable
             </DropdownMenuItem>
           )}
-          {canDeleteUser && !isUserDisabled && (
+          {canDeactivateUser && !isUserDisabled && (
             <DropdownMenuItem
               onClick={() => setShowDisableDialog(true)}
               className="text-destructive"
@@ -159,7 +160,8 @@ export function DataTableRowActions({
               <Icons.trash className="mr-2 h-4 w-4" /> Deactivate
             </DropdownMenuItem>
           )}
-          {canAssignRoles && (
+          {/* Only show the "Assign Role" option if the user is enabled */}
+          {canAssignRoles && !isUserDisabled && (
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <Icons.user className="mr-2 h-4 w-4" /> Assign Role
@@ -168,12 +170,15 @@ export function DataTableRowActions({
                 {rolesLoading ? (
                   <DropdownMenuItem disabled>Loading roles...</DropdownMenuItem>
                 ) : rolesError ? (
-                  <DropdownMenuItem className="text-destructive">{rolesError}</DropdownMenuItem>
+                  <DropdownMenuItem className="text-destructive">
+                    {rolesError}
+                  </DropdownMenuItem>
                 ) : (
                   roles.map((role) => (
                     <DropdownMenuItem
                       key={role.id}
                       onClick={() => {
+                        // Here we assume that selectedRole should be the role's id.
                         setSelectedRole(role.id)
                         setShowRoleDialog(true)
                       }}
@@ -197,11 +202,35 @@ export function DataTableRowActions({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <FormActionDialog open={showRoleDialog} title="Confirm Role Change" description="Are you sure?" confirmText="Confirm" isLoading={isLoading} onConfirm={handleRoleUpdate} onCancel={() => setShowRoleDialog(false)} />
+      <FormActionDialog
+        open={showRoleDialog}
+        title="Confirm Role Change"
+        description="Are you sure?"
+        confirmText="Confirm"
+        isLoading={isLoading}
+        onConfirm={handleRoleUpdate}
+        onCancel={() => setShowRoleDialog(false)}
+      />
 
-      <FormActionDialog open={showDisableDialog} title="Deactivate User" description="Are you sure?" confirmText="Deactivate" isLoading={isLoading} onConfirm={handleDeactivate} onCancel={() => setShowDisableDialog(false)} />
+      <FormActionDialog
+        open={showDisableDialog}
+        title="Deactivate User"
+        description="Are you sure?"
+        confirmText="Deactivate"
+        isLoading={isLoading}
+        onConfirm={handleDeactivate}
+        onCancel={() => setShowDisableDialog(false)}
+      />
 
-      <FormActionDialog open={showDeleteDialog} title="Delete User" description="Are you sure?" confirmText="Delete" isLoading={isLoading} onConfirm={handleDeleteUser} onCancel={() => setShowDeleteDialog(false)} />
+      <FormActionDialog
+        open={showDeleteDialog}
+        title="Delete User"
+        description="Are you sure?"
+        confirmText="Delete"
+        isLoading={isLoading}
+        onConfirm={handleDeleteUser}
+        onCancel={() => setShowDeleteDialog(false)}
+      />
     </>
   )
 }

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { handleCredentialsSignin } from "@/hooks/auth-actions"
-import { signInSchema, SignInForm as SignInData } from "@/lib/validation"
+import { signInSchema, SignInForm } from "@/lib/validation"
 import { PasswordInput } from "@/components/custom/general/password-input"
 import {
     Form,
@@ -18,10 +18,10 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 
-export const SignInForm = () => {
+export const SignInFormComponent = () => {
     const [isLoading, setIsLoading] = useState(false)
 
-    const form = useForm<SignInData>({
+    const form = useForm<SignInForm>({
         resolver: zodResolver(signInSchema),
         defaultValues: {
             email: "",
@@ -29,7 +29,7 @@ export const SignInForm = () => {
         },
     })
 
-    const onSubmit = async (values: SignInData) => {
+    const onSubmit = async (values: SignInForm) => {
         setIsLoading(true)
 
         try {
