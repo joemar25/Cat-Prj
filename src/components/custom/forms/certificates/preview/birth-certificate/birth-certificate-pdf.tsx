@@ -88,7 +88,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </View>
               <View style={styles.leftGrid}>
                 {/* Name Field */}
-                <View style={styles.nameFieldContainer}>
+                <View style={[styles.nameFieldContainer, {padding: 3}]}>
                   <Text style={styles.nameLabel}>Name:</Text>
                   <View style={styles.nameInputContainer}>
                     <Text style={styles.nameInput}>(First Name)</Text>
@@ -218,7 +218,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </View>
               <View style={styles.leftGrid}>
                 {/* Name Field */}
-                <View style={styles.nameFieldContainer}>
+                <View style={[styles.nameFieldContainer, {padding: 3}]}>
                   <Text style={styles.nameLabel}>Name:</Text>
                   <View style={styles.nameInputContainer}>
                     <Text style={styles.nameInput}>(First Name)</Text>
@@ -342,14 +342,14 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 <View
                   style={{
                     flexDirection: 'row',
-                    borderBottom: '1px solid #000',
+                   
                   }}
                 >
                   <View style={{ width: '40%', borderRight: '1px solid #000' }}>
                     <View
                       style={[
                         styles.fieldContainer,
-                        { flexDirection: 'column', padding: 1 },
+                        { flexDirection: 'column', border: 'none' },
                       ]}
                     >
                       <Text style={[styles.label]}>Residence:</Text>
@@ -414,7 +414,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </View>
               <View style={styles.leftGrid}>
                 {/* Name Field */}
-                <View style={styles.nameFieldContainer}>
+                <View style={[styles.nameFieldContainer, {padding: 3}]}>
                   <Text style={styles.nameLabel}>Name:</Text>
                   <View style={styles.nameInputContainer}>
                     <Text style={styles.nameInput}>(First Name)</Text>
@@ -564,17 +564,17 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
           </View>
 
           <View style={styles.sectionGrid}>
-            <Text style={styles.title}>Marriage of Parents</Text>
-            <View style={styles.marriageGridContainer}>
+            <Text style={[styles.title, { padding: 5,}]}>Marriage of Parents</Text>
+            <View style={[styles.marriageGridContainer,]}>
               {/* Left Grid: Date */}
-              <View style={styles.marriageLeftGrid}>
+              <View style={[styles.marriageLeftGrid, { padding: 5,}]}>
                 <Text style={styles.label}>Date:</Text>
-                <View style={styles.dateInputContainer}>
+                <View style={[styles.dateInputContainer,]}>
                   <Text style={styles.dateInput}>(Month)</Text>
                   <Text style={styles.dateInput}>(Day)</Text>
                   <Text style={styles.dateInput}>(Year)</Text>
                 </View>
-                <View style={styles.dateInputContainer}>
+                <View style={[styles.dateInputContainer,]}>
                   <Text style={styles.dateInput}>
                     {data.parentMarriage?.date
                       ? new Date(data.parentMarriage.date).getMonth() + 1 // Months are 0-indexed, so add 1
@@ -594,14 +594,14 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </View>
 
               {/* Right Grid: Place */}
-              <View style={styles.marriageRightGrid}>
+              <View style={[styles.marriageRightGrid, { padding: 5,}]}>
                 <Text style={styles.label}>Place:</Text>
-                <View style={styles.dateInputContainer}>
+                <View style={[styles.dateInputContainer,]}>
                   <Text style={styles.dateInput}>(City/Municipality)</Text>
                   <Text style={styles.dateInput}>(Province)</Text>
                   <Text style={styles.dateInput}>(Country)</Text>
                 </View>
-                <View style={styles.dateInputContainer}>
+                <View style={[styles.dateInputContainer,]}>
                   <Text style={styles.dateInput}>
                     {data.parentMarriage?.place?.cityMunicipality || ''}
                   </Text>

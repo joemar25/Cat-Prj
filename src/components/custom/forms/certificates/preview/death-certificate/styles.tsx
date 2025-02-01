@@ -26,7 +26,7 @@ export const style = StyleSheet.create({
         textAlign: "center",
     },
     headerTitle: {
-        fontSize: 14,
+        fontSize: 13,
         fontFamily: "Helvetica-Bold",
         fontWeight: "extrabold",
         textTransform: 'uppercase',
@@ -120,4 +120,14 @@ export const style = StyleSheet.create({
         width: '100%',
         marginBottom: '8px',
     },
+    radio: {
+        width: 16,
+        height: 16,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: "#000",
+        marginRight: 6,
+        justifyContent: "center",
+        alignItems: "center",
+      },
 })

@@ -67,37 +67,37 @@ export function transformToMainNavItem(
         title: t(item.id),
         url: item.url,
         notViewedCount: item.notViewedCount,
-    };
-
-    if (item.iconName && Icons[item.iconName]) {
-        baseItem.icon = Icons[item.iconName] as LucideIcon;
-    } else {
-        baseItem.icon = Icons.folder; // Fallback icon
     }
 
-    const userPermissions = user.roles.flatMap((role) => role.role.permissions.map((p) => p.permission));
+    if (item.iconName && Icons[item.iconName]) {
+        baseItem.icon = Icons[item.iconName] as LucideIcon
+    } else {
+        baseItem.icon = Icons.folder
+    }
 
-    const requiredPermissions = navPermissionRequirements[item.id as keyof typeof navPermissionRequirements];
+    const userPermissions = user.roles.flatMap((role) => role.role.permissions.map((p) => p.permission))
+
+    const requiredPermissions = navPermissionRequirements[item.id as keyof typeof navPermissionRequirements]
     if (Array.isArray(requiredPermissions) && requiredPermissions.length > 0) {
         if (!hasAnyPermission(userPermissions, requiredPermissions)) {
-            return { ...baseItem, hidden: true };
+            return { ...baseItem, hidden: true }
         }
     }
 
     if (item.id === "users") {
         if (!hasAnyPermission(userPermissions, navPermissionRequirements.users.view)) {
-            return { ...baseItem, hidden: true };
+            return { ...baseItem, hidden: true }
         }
 
         baseItem.items = roles
             .filter((role) => canManageRole(userPermissions, role.permissions.map((p) => p.permission)))
             .map(({ name }) => ({
                 title: `${name}s`,
-                url: `/users/${getRoleSlug(name)}`,
-            }));
+                url: `/${item.id}/${getRoleSlug(name)}`,
+            }))
     }
 
-    return baseItem;
+    return baseItem
 }
 
 export function transformToSecondaryNavItem(item: NavConfig, t: (key: string) => string): NavSecondaryItem {
@@ -138,6 +138,13 @@ export const navigationConfig: NavigationConfiguration = {
             url: "/users",
             iconName: "user",
             items: [],
+        },
+        {
+            id: 'roles-and-permissions',
+            type: 'main',
+            title: 'Roles & Permissions',
+            url: '/roles',
+            iconName: 'shield',
         },
         {
             id: "civil-registry",

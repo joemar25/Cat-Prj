@@ -57,7 +57,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 0,
     padding: 3,
-    borderBottom: '1px solid #000',
+    // borderBottom: '1px solid #000',
   },
   nameFieldContainer: {
     width: '100%',
@@ -208,7 +208,7 @@ export const styles = StyleSheet.create({
   sectionGrid: {
     border: '1px solid #000',
     marginBottom: 0, // Remove marginBottom to stick sections together
-    padding: 5,
+
   },
   receivedByGrid: {
     width: '50%',

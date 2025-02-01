@@ -12,28 +12,30 @@ async function main() {
       name: 'Super Admin',
       description: 'Has complete system access',
       permissions: [
-        'USER_CREATE', 'USER_READ', 'USER_UPDATE', 'USER_DELETE',
-        'ROLE_CREATE', 'ROLE_READ', 'ROLE_UPDATE', 'ROLE_DELETE',
-        'DOCUMENT_CREATE', 'DOCUMENT_READ', 'DOCUMENT_UPDATE', 'DOCUMENT_DELETE', 'DOCUMENT_VERIFY',
+        'USER_CREATE', 'USER_READ', 'USER_UPDATE', 'USER_DELETE', 'USER_ACTIVATE', 'USER_DEACTIVATE',
+        'ROLE_CREATE', 'ROLE_READ', 'ROLE_UPDATE', 'ROLE_DELETE', 'ROLE_ASSIGN',
+        'DOCUMENT_CREATE', 'DOCUMENT_READ', 'DOCUMENT_UPDATE', 'DOCUMENT_DELETE', 'DOCUMENT_VERIFY', 'DOCUMENT_EXPORT',
         'REPORT_CREATE', 'REPORT_READ', 'REPORT_EXPORT',
-        'AUDIT_LOG_READ', 'FEEDBACK_READ', 'FEEDBACK_DELETE', 'FEEDBACK_EXPORT'
+        'AUDIT_LOG_READ',
+        'FEEDBACK_READ', 'FEEDBACK_DELETE', 'FEEDBACK_EXPORT'
       ] as Permission[]
     },
     {
       name: 'Admin',
       description: 'Has high-level administrative privileges',
       permissions: [
-        'USER_CREATE', 'USER_READ', 'USER_UPDATE',
-        'DOCUMENT_CREATE', 'DOCUMENT_READ', 'DOCUMENT_UPDATE', 'DOCUMENT_VERIFY',
+        'USER_CREATE', 'USER_READ', 'USER_UPDATE', 'USER_ACTIVATE', 'USER_DEACTIVATE',
+        'DOCUMENT_CREATE', 'DOCUMENT_READ', 'DOCUMENT_UPDATE', 'DOCUMENT_VERIFY', 'DOCUMENT_EXPORT',
         'REPORT_READ', 'REPORT_EXPORT',
-        'AUDIT_LOG_READ', 'FEEDBACK_READ', 'FEEDBACK_DELETE', 'FEEDBACK_EXPORT'
+        'AUDIT_LOG_READ',
+        'FEEDBACK_READ', 'FEEDBACK_DELETE', 'FEEDBACK_EXPORT'
       ] as Permission[]
     },
     {
       name: 'Registrar Officer',
       description: 'Handles document registration and verification',
       permissions: [
-        'DOCUMENT_CREATE', 'DOCUMENT_READ', 'DOCUMENT_UPDATE', 'DOCUMENT_VERIFY',
+        'DOCUMENT_CREATE', 'DOCUMENT_READ', 'DOCUMENT_UPDATE', 'DOCUMENT_VERIFY', 'DOCUMENT_EXPORT',
         'REPORT_READ'
       ] as Permission[]
     },
@@ -98,6 +100,7 @@ async function main() {
             emailVerified: true,
             active: true,
             roles: { create: { roleId: roleMap[roleName] } },
+            username: `${emailPrefix}${index + 1}`,
             accounts: {
               create: {
                 accountId: `local-${emailPrefix}-${index + 1}`,
@@ -133,7 +136,7 @@ async function main() {
     country: 'Philippines',
     postalCode: '1000',
     occupation: user.roles[0]?.role.name,
-    gender: 'Other',
+    gender: 'male',
     nationality: 'Filipino'
   }))
 
