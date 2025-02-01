@@ -5,11 +5,72 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { hash, compare } from 'bcryptjs'
 import { revalidatePath } from 'next/cache'
+import { UserWithRoleAndProfile } from '@/types/user'
 import { changePasswordSchema } from '@/lib/validation/auth/change-password'
 import { CertifiedCopyFormData } from '@/lib/validation/forms/certified-copy'
-import { AttachmentType, DocumentStatus, NotificationType } from '@prisma/client'
 import { getEmailSchema, getPasswordSchema, getNameSchema } from '@/lib/validation/shared'
-import { UserWithRoleAndProfile } from '@/types/user'
+import { AttachmentType, DocumentStatus, NotificationType, Permission } from '@prisma/client'
+
+/**
+ * Sends a notification to a single user.
+ */
+async function notify(
+  userId: string | null,
+  title: string,
+  message: string,
+  tx?: typeof prisma
+) {
+  const db = tx || prisma
+  return db.notification.create({
+    data: {
+      userId,
+      userName: 'System',
+      type: NotificationType.SYSTEM,
+      title,
+      message,
+    },
+  })
+}
+
+/**
+ * Finds all users having a specific permission and sends them a notification.
+ * The permission parameter is typed as Permission (enum) to match Prisma's expectations.
+ */
+async function notifyUsersWithPermission(
+  permission: Permission,
+  title: string,
+  message: string,
+  tx?: typeof prisma
+) {
+  const db = tx || prisma
+  const users = await db.user.findMany({
+    where: {
+      roles: {
+        some: {
+          role: {
+            permissions: {
+              some: { permission },
+            },
+          },
+        },
+      },
+    },
+    select: { id: true },
+  })
+  return Promise.all(
+    users.map((user) =>
+      db.notification.create({
+        data: {
+          userId: user.id,
+          userName: 'System',
+          type: NotificationType.SYSTEM,
+          title,
+          message,
+        },
+      })
+    )
+  )
+}
 
 // Schema for creating a user in the admin panel
 const createUserSchema = z.object({
@@ -19,7 +80,9 @@ const createUserSchema = z.object({
   role: z.enum(['ADMIN', 'USER']).default('USER'),
 })
 
-// Password change action
+// ===================================================
+// PASSWORD CHANGE ACTION (notifies only the affected user)
+// ===================================================
 export async function handleChangePassword(
   userId: string,
   data: z.infer<typeof changePasswordSchema>
@@ -56,6 +119,9 @@ export async function handleChangePassword(
       data: { password: hashedNewPassword },
     })
 
+    // Notify the affected user
+    await notify(userId, 'Password Changed', 'Your password was changed successfully.')
+
     // Revalidate paths if necessary
     revalidatePath('/profile')
 
@@ -69,7 +135,9 @@ export async function handleChangePassword(
   }
 }
 
-// Existing functions (createUser, handleGetUser, deleteUser, etc.) remain unchanged
+// ===================================================
+// CREATE USER ACTION (notifies affected user and broadcast to those with USER_CREATE permission)
+// ===================================================
 export async function handleCreateUser(data: FormData) {
   try {
     const parsedData = createUserSchema.parse({
@@ -144,7 +212,10 @@ export async function handleCreateUser(data: FormData) {
         },
       })
 
-      // Return user with roles included
+      // Notify the new user about account creation (inside the transaction)
+      await notify(createdUser.id, 'Account Created', 'Your account has been created successfully.')
+
+      // Return user with roles and profile included
       return await tx.user.findUnique({
         where: { id: createdUser.id },
         include: {
@@ -152,15 +223,22 @@ export async function handleCreateUser(data: FormData) {
             include: {
               role: {
                 include: {
-                  permissions: true
-                }
-              }
-            }
+                  permissions: true,
+                },
+              },
+            },
           },
-          profile: true
-        }
+          profile: true,
+        },
       })
     })
+
+    // Broadcast notification to all users with the USER_CREATE permission
+    await notifyUsersWithPermission(
+      Permission.USER_CREATE,
+      'New User Created',
+      `User "${result?.email}" was created successfully.`
+    )
 
     revalidatePath('/manage-users')
     return {
@@ -177,6 +255,9 @@ export async function handleCreateUser(data: FormData) {
   }
 }
 
+// ===================================================
+// GET USER ACTION (no notifications for read-only actions)
+// ===================================================
 export async function handleGetUser(userId: string) {
   try {
     const user = await prisma.user.findUnique({
@@ -205,6 +286,9 @@ export async function handleGetUser(userId: string) {
   }
 }
 
+// ===================================================
+// DELETE USER ACTION (broadcast notification to those with USER_DELETE permission)
+// ===================================================
 export async function deleteUser(userId: string) {
   try {
     const existingUser = await prisma.user.findUnique({ where: { id: userId } })
@@ -212,38 +296,17 @@ export async function deleteUser(userId: string) {
       return { success: false, message: 'User not found' }
     }
 
-    // 1. Find all users who have the USER_DELETE permission
-    const usersWithDeletePerm = await prisma.user.findMany({
-      where: {
-        roles: {
-          some: {
-            role: {
-              permissions: {
-                some: { permission: 'USER_DELETE' },
-              },
-            },
-          },
-        },
-      },
-      select: { id: true },
+    // Delete the user in a transaction
+    await prisma.$transaction(async (tx) => {
+      await tx.user.delete({ where: { id: userId } })
     })
 
-    await prisma.$transaction([
-      // 2. Delete the user
-      prisma.user.delete({ where: { id: userId } }),
-
-      ...usersWithDeletePerm.map((u) =>
-        prisma.notification.create({
-          data: {
-            userId: u.id,
-            userName: 'System',
-            type: NotificationType.SYSTEM,
-            title: 'User Deleted',
-            message: `User "${existingUser.email}" was deleted.`,
-          },
-        })
-      ),
-    ])
+    // Notify all users with the USER_DELETE permission
+    await notifyUsersWithPermission(
+      Permission.USER_DELETE,
+      'User Deleted',
+      `User "${existingUser.email}" was deleted.`
+    )
 
     return { success: true, message: 'User deleted, notifications sent.' }
   } catch (error) {
@@ -255,12 +318,18 @@ export async function deleteUser(userId: string) {
   }
 }
 
+// ===================================================
+// ACTIVATE USER ACTION (notifies only the affected user)
+// ===================================================
 export async function activateUser(userId: string) {
   try {
     const user = await prisma.user.update({
       where: { id: userId },
       data: { emailVerified: true, updatedAt: new Date() },
     })
+
+    await notify(userId, 'Account Activated', 'Your account has been activated successfully.')
+
     return {
       success: true,
       message: 'User activated successfully',
@@ -272,12 +341,18 @@ export async function activateUser(userId: string) {
   }
 }
 
+// ===================================================
+// DEACTIVATE USER ACTION (notifies only the affected user)
+// ===================================================
 export async function deactivateUser(userId: string) {
   try {
     const user = await prisma.user.update({
       where: { id: userId },
       data: { emailVerified: false, updatedAt: new Date() },
     })
+
+    await notify(userId, 'Account Deactivated', 'Your account has been deactivated.')
+
     return {
       success: true,
       message: 'User deactivated successfully',
@@ -289,6 +364,9 @@ export async function deactivateUser(userId: string) {
   }
 }
 
+// ===================================================
+// CREATE CERTIFIED COPY ACTION (notifies only the affected user)
+// ===================================================
 export async function createCertifiedCopy(
   data: CertifiedCopyFormData,
   userId: string
@@ -339,6 +417,13 @@ export async function createCertifiedCopy(
         },
       })
 
+      // Notify the affected user within the transaction
+      await notify(
+        userId,
+        'Certified Copy Request',
+        'Your certified copy request has been submitted successfully.',
+      )
+
       return { certifiedCopy, attachment, document }
     })
 
@@ -354,12 +439,18 @@ export async function createCertifiedCopy(
   }
 }
 
+// ===================================================
+// ENABLE USER ACTION (notifies only the affected user)
+// ===================================================
 export async function enableUser(userId: string) {
   try {
     const user = await prisma.user.update({
       where: { id: userId },
       data: { emailVerified: true, updatedAt: new Date() },
     })
+
+    await notify(userId, 'Account Enabled', 'Your account has been enabled successfully.')
+
     return {
       success: true,
       message: 'User enabled successfully',
@@ -371,7 +462,9 @@ export async function enableUser(userId: string) {
   }
 }
 
-// src\hooks\users-action.tsx
+// ===================================================
+// UPDATE USER ROLE ACTION (notifies affected user and broadcast to those with ROLE_ASSIGN permission)
+// ===================================================
 export async function updateUserRole(userId: string, roleId: string) {
   try {
     if (!userId || typeof userId !== 'string') {
@@ -435,6 +528,16 @@ export async function updateUserRole(userId: string, roleId: string) {
     if (!updatedUser) {
       throw new Error('Updated user not found')
     }
+
+    // Notify the affected user about the role update
+    await notify(userId, 'Role Updated', 'Your user role has been updated successfully.')
+
+    // Broadcast notification to all users with the ROLE_ASSIGN permission
+    await notifyUsersWithPermission(
+      Permission.ROLE_ASSIGN,
+      'User Role Updated',
+      `User "${updatedUser.email}" role has been updated.`
+    )
 
     return {
       success: true,
