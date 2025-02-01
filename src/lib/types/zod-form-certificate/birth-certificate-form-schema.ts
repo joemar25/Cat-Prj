@@ -151,6 +151,8 @@ export const birthCertificateSchema = z.object({
         dateIssued: dateSchema,
         placeIssued: z.string().min(1, 'Place issued is required'),
       }),
+      spouseName: z.string().optional(), // Add this line
+      applicantRelationship: z.string().optional(), // Add this line
     })
     .optional(),
 
@@ -365,6 +367,8 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
       dateIssued: new Date('2024-01-16'),
       placeIssued: 'Quezon City',
     },
+    spouseName: 'Maria Santos Dela Cruz',
+    applicantRelationship: 'Self',
   },
 
   // Remarks
