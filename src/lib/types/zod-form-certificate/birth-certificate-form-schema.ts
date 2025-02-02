@@ -19,6 +19,10 @@ export interface BirthCertificateFormProps {
   onCancel: () => void;
 }
 
+const flexibleAddressSchema = addressSchema.or(
+  z.string().min(1, 'Address is required')
+);
+
 export const birthCertificateSchema = z.object({
   // Registry Information
   registryNumber: registryNumberSchema,
@@ -55,7 +59,7 @@ export const birthCertificateSchema = z.object({
     totalChildrenBornAlive: z.string().min(1, 'Required'),
     childrenStillLiving: z.string().min(1, 'Required'),
     childrenNowDead: z.string().min(1, 'Required'),
-    residence: addressSchema,
+    residence: flexibleAddressSchema,
   }),
 
   // Father Information
@@ -67,13 +71,13 @@ export const birthCertificateSchema = z.object({
     religion: z.string().min(1, 'Religion is required'),
     occupation: z.string().min(1, 'Occupation is required'),
     age: z.string().min(1, 'Age is required'),
-    residence: addressSchema,
+    residence: flexibleAddressSchema,
   }),
 
   // Marriage of Parents
   parentMarriage: z.object({
     date: dateSchema,
-    place: addressSchema,
+    place: flexibleAddressSchema,
   }),
 
   // Certification of Birth Attendant
@@ -84,7 +88,7 @@ export const birthCertificateSchema = z.object({
       signature: signatureSchema.shape.signature,
       name: signatureSchema.shape.name,
       title: signatureSchema.shape.title,
-      address: addressSchema,
+      address: flexibleAddressSchema,
       date: dateSchema,
     }),
   }),
@@ -94,7 +98,7 @@ export const birthCertificateSchema = z.object({
     signature: signatureSchema.shape.signature,
     name: signatureSchema.shape.name,
     relationship: z.string().min(1, 'Relationship is required'),
-    address: addressSchema,
+    address: flexibleAddressSchema,
     date: dateSchema,
   }),
 
@@ -117,7 +121,7 @@ export const birthCertificateSchema = z.object({
         signature: z.string(),
         name: z.string().min(1, 'Officer name is required'),
         position: z.string().min(1, 'Position is required'),
-        address: addressSchema,
+        address: flexibleAddressSchema,
       }),
       ctcInfo: z.object({
         number: z.string().min(1, 'CTC number is required'),
@@ -133,7 +137,7 @@ export const birthCertificateSchema = z.object({
     .object({
       affiant: z.object({
         name: z.string().min(1, 'Affiant name is required'),
-        address: addressSchema,
+        address: flexibleAddressSchema,
         civilStatus: z.string().min(1, 'Civil status is required'),
         citizenship: z.string().min(1, 'Citizenship is required'),
       }),
