@@ -1,3 +1,4 @@
+// src/components/custom/civil-registry/data-table-row-actions.tsx
 'use client'
 
 import { toast } from 'sonner'
@@ -8,7 +9,7 @@ import { Icons } from '@/components/ui/icons'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { useUser } from '@/context/user-context'
-import { FormType, Permission, DocumentStatus, AttachmentType } from '@prisma/client'
+import { FormType, Permission, Attachment } from '@prisma/client'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { useDeleteFormAction } from '@/components/custom/civil-registry/actions/delete-form-action'
@@ -23,7 +24,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Attachment } from '@prisma/client'
+import { DeleteConfirmationDialog } from '@/components/custom/civil-registry/components/delete-confirmation-dialog'
+import { Attachment as AttachmentType } from '@prisma/client'
 
 interface DataTableRowActionsProps {
   row: Row<BaseRegistryFormWithRelations>
@@ -40,6 +42,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [attachmentsDialogOpen, setAttachmentsDialogOpen] = useState(false)
+  const [deletionAlertOpen, setDeletionAlertOpen] = useState(false)
 
   const { handleDelete, isLoading } = useDeleteFormAction({ form, onUpdateAction })
 
@@ -60,7 +63,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
               fileUrl,
               fileName: fileUrl.split('/').pop() || fileUrl,
               fileSize: 0,
-            } as unknown as Attachment
+            } as unknown as AttachmentType
 
             if (form.document) {
               onUpdateAction?.({
@@ -123,7 +126,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           {canDelete && (
             <DropdownMenuItem
               onSelect={(e) => e.preventDefault()}
-              onClick={handleDelete}
+              onClick={() => setDeletionAlertOpen(true)}
               disabled={isLoading}
               className="text-destructive focus:text-destructive"
             >
@@ -160,6 +163,19 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           open={attachmentsDialogOpen}
           onOpenChangeAction={setAttachmentsDialogOpen}
           attachments={form.document.attachments}
+        />
+      )}
+
+      {/* Deletion Confirmation Dialog */}
+      {canDelete && (
+        <DeleteConfirmationDialog
+          open={deletionAlertOpen}
+          onOpenChangeAction={setDeletionAlertOpen}
+          onConfirmAction={() => {
+            handleDelete()
+            setDeletionAlertOpen(false)
+          }}
+          isLoading={isLoading}
         />
       )}
     </>

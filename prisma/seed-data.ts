@@ -429,7 +429,9 @@ const generateBirthCertificate = (userIds: string[]) => {
           'Philippine General Hospital',
           'Asian Hospital',
         ]),
+        // Merging a generated location with a country override
         ...generatePhLocation(),
+        country: 'Philippines'
       },
       typeOfBirth: faker.helpers.arrayElement(['Single', 'Twin', 'Triplet']),
       birthOrder: faker.number.int({ min: 1, max: 5 }).toString(),
@@ -445,7 +447,15 @@ const generateBirthCertificate = (userIds: string[]) => {
       ]),
       motherOccupation: faker.person.jobTitle(),
       motherAge,
-      motherResidence: `${motherResidenceLocation.houseNo}, ${motherResidenceLocation.street}, ${motherResidenceLocation.barangay}, ${motherResidenceLocation.cityMunicipality}, ${motherResidenceLocation.province}, Philippines`,
+      // Instead of a string, we now return a JSON object for the residence:
+      motherResidence: {
+        houseNo: motherResidenceLocation.houseNo,
+        street: motherResidenceLocation.street,
+        barangay: motherResidenceLocation.barangay,
+        cityMunicipality: motherResidenceLocation.cityMunicipality,
+        province: motherResidenceLocation.province,
+        country: 'Philippines'
+      },
 
       totalChildrenBornAlive: faker.number.int({ min: 1, max: 5 }),
       childrenStillLiving: faker.number.int({ min: 1, max: 5 }),
@@ -460,7 +470,15 @@ const generateBirthCertificate = (userIds: string[]) => {
       ]),
       fatherOccupation: faker.person.jobTitle(),
       fatherAge,
-      fatherResidence: `${fatherResidenceLocation.houseNo}, ${fatherResidenceLocation.street}, ${fatherResidenceLocation.barangay}, ${fatherResidenceLocation.cityMunicipality}, ${fatherResidenceLocation.province}, Philippines`,
+      // Similarly, the father's residence is now a JSON object:
+      fatherResidence: {
+        houseNo: fatherResidenceLocation.houseNo,
+        street: fatherResidenceLocation.street,
+        barangay: fatherResidenceLocation.barangay,
+        cityMunicipality: fatherResidenceLocation.cityMunicipality,
+        province: fatherResidenceLocation.province,
+        country: 'Philippines'
+      },
 
       parentMarriage: {
         date: randomDate(new Date(2015, 0, 1), birthDate),
@@ -521,9 +539,13 @@ const generateDeathCertificate = (userIds: string[]) => {
       dateOfDeath: deathDate,
       placeOfDeath: {
         ...generatePhLocation(),
+        country: 'Philippines'
       },
       dateOfBirth: birthDate,
-      placeOfBirth: generatePhLocation(),
+      placeOfBirth: {
+        ...generatePhLocation(),
+        country: 'Philippines'
+      },
       civilStatus: faker.helpers.arrayElement([
         'Single',
         'Married',
@@ -532,7 +554,14 @@ const generateDeathCertificate = (userIds: string[]) => {
       ]),
       religion: faker.helpers.arrayElement(['Catholic', 'Protestant', 'Islam']),
       citizenship: 'Filipino',
-      residence: `${residenceLocation.houseNo}, ${residenceLocation.street}, ${residenceLocation.barangay}, ${residenceLocation.cityMunicipality}, ${residenceLocation.province}, Philippines`,
+      residence: {
+        houseNo: residenceLocation.houseNo,
+        street: residenceLocation.street,
+        barangay: residenceLocation.barangay,
+        cityMunicipality: residenceLocation.cityMunicipality,
+        province: residenceLocation.province,
+        country: 'Philippines'
+      },
       occupation: faker.person.jobTitle(),
       nameOfFather: generatePersonName(),
       nameOfMother: generatePersonName(),

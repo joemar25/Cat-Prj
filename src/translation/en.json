@@ -118,12 +118,14 @@
   "rejected": "Rejected",
   "actions": "Actions",
   "viewDetails": "View Details",
+  "importDocument": "Import Document",
   "uploadDocument": "Upload Document",
   "scanDocument": "Scan Document",
   "viewAttachments": "View Document",
   "latestAttachment": "Latest Document Attachment",
   "uploadedOn": "Uploaded on",
   "exportDocument": "Export Document",
+  "noDocumentFound": "No Document Found",
   "issueCertificate": "Issue Certificate",
   "delete": "Delete",
   "deleting": "Deleting...",
@@ -309,7 +311,7 @@
     "submitting": "Submitting...",
     "submit": "Submit Feedback"
   },
-  
+
   "baseRegistryForm_distribution": "Registry Distribution",
   "birthCertificateForm_distribution": "Birth Certificate Distribution",
   "deathCertificateForm_distribution": "Death Certificate Distribution",

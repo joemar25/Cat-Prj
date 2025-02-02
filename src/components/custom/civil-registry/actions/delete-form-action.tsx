@@ -9,7 +9,6 @@ interface DeleteFormActionProps {
 }
 
 export function useDeleteFormAction({ form, onUpdateAction }: DeleteFormActionProps) {
-    const { t } = useTranslation()
     const [isLoading, setIsLoading] = useState(false)
 
     const handleDelete = async () => {
