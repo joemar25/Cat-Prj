@@ -1,13 +1,21 @@
+'use client'
+
 import { FormType } from '@prisma/client'
 import { Badge } from '@/components/ui/badge'
 import { useTranslation } from 'react-i18next'
 import { JsonValue } from '@prisma/client/runtime/library'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog'
 
-interface ViewDetailsDialogProps {
+export interface ViewDetailsDialogProps {
     open: boolean
-    onOpenChange: (open: boolean) => void
+    onOpenChangeAction: (open: boolean) => void
     form: BaseRegistryFormWithRelations
 }
 
@@ -44,7 +52,11 @@ interface ShortNameFormat {
 
 type NameObject = FullNameFormat | ShortNameFormat
 
-export function ViewDetailsDialog({ open, onOpenChange, form }: ViewDetailsDialogProps) {
+export function ViewDetailsDialog({
+    open,
+    onOpenChangeAction,
+    form,
+}: ViewDetailsDialogProps) {
     const { t } = useTranslation()
 
     const isNameObject = (value: unknown): value is NameObject => {
@@ -66,9 +78,18 @@ export function ViewDetailsDialog({ open, onOpenChange, form }: ViewDetailsDialo
                 const parsed = JSON.parse(nameObj)
                 if (!isNameObject(parsed)) return nameObj
 
-                const firstName = (parsed as FullNameFormat).firstName || (parsed as ShortNameFormat).first || ''
-                const middleName = (parsed as FullNameFormat).middleName || (parsed as ShortNameFormat).middle || ''
-                const lastName = (parsed as FullNameFormat).lastName || (parsed as ShortNameFormat).last || ''
+                const firstName =
+                    (parsed as FullNameFormat).firstName ||
+                    (parsed as ShortNameFormat).first ||
+                    ''
+                const middleName =
+                    (parsed as FullNameFormat).middleName ||
+                    (parsed as ShortNameFormat).middle ||
+                    ''
+                const lastName =
+                    (parsed as FullNameFormat).lastName ||
+                    (parsed as ShortNameFormat).last ||
+                    ''
 
                 return `${firstName} ${middleName ? middleName + ' ' : ''}${lastName}`.trim()
             } catch {
@@ -77,9 +98,18 @@ export function ViewDetailsDialog({ open, onOpenChange, form }: ViewDetailsDialo
         }
 
         if (isNameObject(nameObj)) {
-            const firstName = (nameObj as FullNameFormat).firstName || (nameObj as ShortNameFormat).first || ''
-            const middleName = (nameObj as FullNameFormat).middleName || (nameObj as ShortNameFormat).middle || ''
-            const lastName = (nameObj as FullNameFormat).lastName || (nameObj as ShortNameFormat).last || ''
+            const firstName =
+                (nameObj as FullNameFormat).firstName ||
+                (nameObj as ShortNameFormat).first ||
+                ''
+            const middleName =
+                (nameObj as FullNameFormat).middleName ||
+                (nameObj as ShortNameFormat).middle ||
+                ''
+            const lastName =
+                (nameObj as FullNameFormat).lastName ||
+                (nameObj as ShortNameFormat).last ||
+                ''
 
             return `${firstName} ${middleName ? middleName + ' ' : ''}${lastName}`.trim()
         }
@@ -91,21 +121,21 @@ export function ViewDetailsDialog({ open, onOpenChange, form }: ViewDetailsDialo
         if (form.marriageCertificateForm) {
             return (
                 <>
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                        <span className='font-medium'>{t('husband')}</span>
-                        <span className='col-span-3'>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <span className="font-medium">{t('husband')}</span>
+                        <span className="col-span-3">
                             {`${form.marriageCertificateForm.husbandFirstName} ${form.marriageCertificateForm.husbandLastName}`}
                         </span>
                     </div>
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                        <span className='font-medium'>{t('wife')}</span>
-                        <span className='col-span-3'>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <span className="font-medium">{t('wife')}</span>
+                        <span className="col-span-3">
                             {`${form.marriageCertificateForm.wifeFirstName} ${form.marriageCertificateForm.wifeLastName}`}
                         </span>
                     </div>
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                        <span className='font-medium'>{t('dateOfMarriage')}</span>
-                        <span className='col-span-3'>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <span className="font-medium">{t('dateOfMarriage')}</span>
+                        <span className="col-span-3">
                             {new Date(form.marriageCertificateForm.dateOfMarriage).toLocaleDateString()}
                         </span>
                     </div>
@@ -114,38 +144,38 @@ export function ViewDetailsDialog({ open, onOpenChange, form }: ViewDetailsDialo
         } else if (form.birthCertificateForm) {
             return (
                 <>
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                        <span className='font-medium'>{t('childName')}</span>
-                        <span className='col-span-3'>{formatName(form.birthCertificateForm.childName)}</span>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <span className="font-medium">{t('childName')}</span>
+                        <span className="col-span-3">{formatName(form.birthCertificateForm.childName)}</span>
                     </div>
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                        <span className='font-medium'>{t('dateOfBirth')}</span>
-                        <span className='col-span-3'>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <span className="font-medium">{t('dateOfBirth')}</span>
+                        <span className="col-span-3">
                             {new Date(form.birthCertificateForm.dateOfBirth).toLocaleDateString()}
                         </span>
                     </div>
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                        <span className='font-medium'>{t('sex')}</span>
-                        <span className='col-span-3'>{form.birthCertificateForm.sex}</span>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <span className="font-medium">{t('sex')}</span>
+                        <span className="col-span-3">{form.birthCertificateForm.sex}</span>
                     </div>
                 </>
             )
         } else if (form.deathCertificateForm) {
             return (
                 <>
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                        <span className='font-medium'>{t('deceasedName')}</span>
-                        <span className='col-span-3'>{formatName(form.deathCertificateForm.deceasedName)}</span>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <span className="font-medium">{t('deceasedName')}</span>
+                        <span className="col-span-3">{formatName(form.deathCertificateForm.deceasedName)}</span>
                     </div>
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                        <span className='font-medium'>{t('dateOfDeath')}</span>
-                        <span className='col-span-3'>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <span className="font-medium">{t('dateOfDeath')}</span>
+                        <span className="col-span-3">
                             {new Date(form.deathCertificateForm.dateOfDeath).toLocaleDateString()}
                         </span>
                     </div>
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                        <span className='font-medium'>{t('sex')}</span>
-                        <span className='col-span-3'>{form.deathCertificateForm.sex}</span>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <span className="font-medium">{t('sex')}</span>
+                        <span className="col-span-3">{form.deathCertificateForm.sex}</span>
                     </div>
                 </>
             )
@@ -153,32 +183,58 @@ export function ViewDetailsDialog({ open, onOpenChange, form }: ViewDetailsDialo
         return null
     }
 
+    // If the form has an associated document with attachments, fetch the latest one
+    const latestAttachment =
+        form.document && form.document.attachments && form.document.attachments.length > 0
+            ? [...form.document.attachments].sort(
+                (a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+            )[0]
+            : null
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className='sm:max-w-[425px]'>
+        <Dialog open={open} onOpenChange={onOpenChangeAction}>
+            <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>{t('formDetails.title')}</DialogTitle>
                     <DialogDescription>{t('formDetails.description')}</DialogDescription>
                 </DialogHeader>
-                <div className='grid gap-4 py-4'>
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                        <span className='font-medium'>{t('formDetails.formType')}</span>
-                        <span className='col-span-3'>{formTypeLabels[form.formType]}</span>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <span className="font-medium">{t('formDetails.formType')}</span>
+                        <span className="col-span-3">{formTypeLabels[form.formType]}</span>
                     </div>
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                        <span className='font-medium'>{t('formDetails.registryNo')}</span>
-                        <span className='col-span-3'>{form.registryNumber}</span>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <span className="font-medium">{t('formDetails.registryNo')}</span>
+                        <span className="col-span-3">{form.registryNumber}</span>
                     </div>
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                        <span className='font-medium'>{t('formDetails.status')}</span>
-                        <span className='col-span-3'>
-                            <Badge variant={statusVariants[form.status].variant}>
-                                {statusVariants[form.status].label}
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <span className="font-medium">{t('formDetails.status')}</span>
+                        <span className="col-span-3">
+                            <Badge variant={statusVariants[form.status]?.variant || 'default'}>
+                                {statusVariants[form.status]?.label || form.status}
                             </Badge>
                         </span>
                     </div>
                     {getSpecificFormDetails()}
                 </div>
+                {latestAttachment && (
+                    <div className="border-t pt-4">
+                        <h4 className="font-medium text-lg">{t('latestAttachment')}</h4>
+                        <div className="mt-2">
+                            <a
+                                href={latestAttachment.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline"
+                            >
+                                {latestAttachment.fileName}
+                            </a>
+                            <p className="text-xs text-muted-foreground">
+                                {t('uploadedOn')} {new Date(latestAttachment.uploadedAt).toLocaleString()}
+                            </p>
+                        </div>
+                    </div>
+                )}
             </DialogContent>
         </Dialog>
     )

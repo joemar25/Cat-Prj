@@ -25,6 +25,7 @@ async function getCivilRegistryForms() {
         birthCertificateForm: true,
         deathCertificateForm: true,
         marriageCertificateForm: true,
+        document: { include: { attachments: true } },
       },
     })
     return forms

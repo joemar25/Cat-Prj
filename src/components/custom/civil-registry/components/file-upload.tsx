@@ -1,4 +1,3 @@
-// src\components\custom\civil-registry\components\file-upload.tsx
 'use client'
 
 import { useState } from 'react'
@@ -51,7 +50,6 @@ export function FileUploadDialog({
         }
     }
 
-    // In the FileUploadDialog component
     const handleUpload = async () => {
         if (!file) {
             toast.error('Please select a file to upload.')
@@ -61,27 +59,67 @@ export function FileUploadDialog({
         setIsLoading(true)
 
         try {
-            // Step 1: Create a Document record first
-            const documentResponse = await fetch('/api/documents', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    type: formType === 'BIRTH' ? 'BIRTH_CERTIFICATE' :
-                        formType === 'DEATH' ? 'DEATH_CERTIFICATE' :
-                            'MARRIAGE_CERTIFICATE',
-                    title: `${formType} Document - ${registryNumber}`,
-                    status: 'PENDING'
-                }),
+            let documentId: string | undefined
+
+            // Step 0: Fetch the current form to check if it already has a document.
+            const formResponse = await fetch(`/api/forms/${formId}`, {
+                method: 'GET',
             })
-
-            if (!documentResponse.ok) {
-                const errorData = await documentResponse.json()
-                throw new Error(`Document creation failed: ${errorData.error || 'Unknown error'}`)
+            const formJson = await formResponse.json()
+            if (!formResponse.ok) {
+                throw new Error(formJson.error || 'Failed to fetch form data')
             }
+            // If a document already exists, reuse its id.
+            documentId = formJson.data?.documentId
 
-            const { data: { id: documentId } } = await documentResponse.json()
+            if (!documentId) {
+                // Step 1: Create a new Document record because none exists
+                const documentResponse = await fetch('/api/documents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type:
+                            formType === 'BIRTH'
+                                ? 'BIRTH_CERTIFICATE'
+                                : formType === 'DEATH'
+                                    ? 'DEATH_CERTIFICATE'
+                                    : 'MARRIAGE_CERTIFICATE',
+                        title: `${formType} Document - ${registryNumber}`,
+                        status: 'PENDING',
+                    }),
+                })
+
+                const documentJson = await documentResponse.json()
+                console.log('Document API response:', documentJson)
+
+                if (!documentResponse.ok) {
+                    throw new Error(
+                        `Document creation failed: ${documentJson.error || 'Unknown error'}`
+                    )
+                }
+
+                documentId = documentJson.data?.id
+                if (!documentId) {
+                    throw new Error(
+                        'Document creation failed: Missing document ID in response'
+                    )
+                }
+
+                // Step 1b: Update the form with the new documentId
+                const updateFormResponse = await fetch(`/api/forms/${formId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ documentId }),
+                })
+
+                const updateFormJson = await updateFormResponse.json()
+                console.log('Form update after document creation:', updateFormJson)
+                if (!updateFormResponse.ok) {
+                    throw new Error(`Form update failed: ${JSON.stringify(updateFormJson)}`)
+                }
+            } else {
+                console.log('Reusing existing documentId:', documentId)
+            }
 
             // Step 2: Upload the file
             const formData = new FormData()
@@ -93,12 +131,19 @@ export function FileUploadDialog({
                 body: formData,
             })
 
+            const uploadJson = await uploadResponse.json()
+            console.log('Upload API response:', uploadJson)
+
             if (!uploadResponse.ok) {
-                const errorData = await uploadResponse.json()
-                throw new Error(`File upload failed: ${errorData.error || 'Unknown error'}`)
+                throw new Error(
+                    `File upload failed: ${uploadJson.error || 'Unknown error'}`
+                )
             }
 
-            const { filepath: fileUrl } = await uploadResponse.json()
+            const fileUrl = uploadJson.filepath
+            if (!fileUrl) {
+                throw new Error('File upload failed: Missing file URL in response')
+            }
 
             // Step 3: Create attachment record
             const attachmentPayload = {
@@ -115,37 +160,21 @@ export function FileUploadDialog({
 
             const attachmentResponse = await fetch('/api/attachments', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(attachmentPayload),
             })
 
+            const attachmentJson = await attachmentResponse.json()
+            console.log('Attachment API response:', attachmentJson)
+
             if (!attachmentResponse.ok) {
-                const errorData = await attachmentResponse.json()
-                throw new Error(`Attachment creation failed: ${JSON.stringify(errorData)}`)
+                throw new Error(
+                    `Attachment creation failed: ${JSON.stringify(attachmentJson)}`
+                )
             }
 
-            const attachmentData = await attachmentResponse.json()
-
-            if (!attachmentData.success) {
+            if (!attachmentJson.success) {
                 throw new Error('Attachment creation failed: No success response')
-            }
-
-            // Step 4: Update BaseRegistryForm
-            const updateFormResponse = await fetch(`/api/forms/${formId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    documentUrl: fileUrl,
-                }),
-            })
-
-            if (!updateFormResponse.ok) {
-                const errorData = await updateFormResponse.json()
-                throw new Error(`Form update failed: ${JSON.stringify(errorData)}`)
             }
 
             toast.success('File uploaded successfully!')
@@ -153,7 +182,9 @@ export function FileUploadDialog({
             onOpenChangeAction(false)
         } catch (error) {
             console.error('Upload process error:', error)
-            toast.error(error instanceof Error ? error.message : 'Failed to upload file')
+            toast.error(
+                error instanceof Error ? error.message : 'Failed to upload file'
+            )
         } finally {
             setIsLoading(false)
         }
@@ -189,9 +220,7 @@ export function FileUploadDialog({
                         <div className="mt-4">
                             <p className="text-sm font-medium">Selected File:</p>
                             <div className="mt-2 flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">
-                                    {file.name}
-                                </span>
+                                <span className="text-sm text-muted-foreground">{file.name}</span>
                                 <span className="text-sm text-muted-foreground">
                                     ({(file.size / 1024).toFixed(2)} KB)
                                 </span>

@@ -44,7 +44,7 @@ export function DataTable({
     data,
     selection = true,
 }: DataTableProps) {
-    const { t } = useTranslation() // Initialize translation hook
+    const { t } = useTranslation()
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])

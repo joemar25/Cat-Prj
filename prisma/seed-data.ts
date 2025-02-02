@@ -264,6 +264,7 @@ const generateBaseRegistryForm = (formType: FormType, userIds: string[]) => {
     registeredByPosition: 'Civil Registrar',
     registrationDate,
     dateOfRegistration: registrationDate,
+    isLateRegistered: faker.datatype.boolean(),
     remarks: faker.helpers.maybe(() => faker.lorem.sentence()),
     lcroNotations: faker.helpers.maybe(() => faker.string.alpha(10)),
     status: faker.helpers.arrayElement(Object.values(DocumentStatus)),

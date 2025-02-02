@@ -26,11 +26,22 @@ const formTypeVariants: Record<
   DEATH: { label: 'Death', variant: 'default' },
 }
 
+const statusVariants: Record<
+  DocumentStatus,
+  { label: string; variant: 'default' | 'secondary' | 'destructive' }
+> = {
+  PENDING: { label: 'Pending', variant: 'secondary' },
+  VERIFIED: { label: 'Verified', variant: 'default' },
+  LATE_REGISTRATION: { label: 'Late Registration', variant: 'destructive' },
+  READY_FOR_RELEASE: { label: 'Ready for Release', variant: 'default' },
+  RELEASED: { label: 'Released', variant: 'default' }
+}
+
 export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
   {
     accessorKey: 'formType',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={useTranslation().t('formType')} /> // Translated title
+      <DataTableColumnHeader column={column} title={useTranslation().t('formType')} />
     ),
     cell: ({ row }) => {
       const formType = row.getValue('formType') as FormType
@@ -139,7 +150,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     },
     id: 'details',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={useTranslation().t('details')} /> // Translated title
+      <DataTableColumnHeader column={column} title={useTranslation().t('details')} />
     ),
     cell: ({ row }) => {
       const details = JSON.parse(row.getValue('details')) as {
@@ -258,7 +269,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     accessorFn: (row) => `${row.province}, ${row.cityMunicipality}`,
     id: 'location',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={useTranslation().t('location')} /> // Translated title
+      <DataTableColumnHeader column={column} title={useTranslation().t('location')} />
     ),
     cell: ({ row }) => {
       const location = row.getValue('location') as string
@@ -279,7 +290,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     id: 'preparedBy',
     accessorFn: (row) => row.preparedBy?.name,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={useTranslation().t('preparedBy')} /> // Translated title
+      <DataTableColumnHeader column={column} title={useTranslation().t('preparedBy')} />
     ),
     cell: ({ row }) => {
       const preparedBy = row.original.preparedBy?.name || 'N/A'
@@ -299,7 +310,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     id: 'verifiedBy',
     accessorFn: (row) => row.verifiedBy?.name,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={useTranslation().t('verifiedBy')} /> // Translated title
+      <DataTableColumnHeader column={column} title={useTranslation().t('verifiedBy')} />
     ),
     cell: ({ row }) => {
       const verifiedBy = row.original.verifiedBy?.name || 'N/A'
@@ -323,7 +334,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     },
     id: 'received',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={useTranslation().t('received')} /> // Translated title
+      <DataTableColumnHeader column={column} title={useTranslation().t('received')} />
     ),
     cell: ({ row }) => {
       const received = row.getValue('received') as string
@@ -344,7 +355,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     accessorFn: (row) => `${row.registeredBy || ''} ${row.registeredByPosition || ''}`.trim(),
     id: 'registeredBy',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={useTranslation().t('registeredBy')} /> // Translated title
+      <DataTableColumnHeader column={column} title={useTranslation().t('registeredBy')} />
     ),
     cell: ({ row }) => {
       const registeredBy = row.getValue('registeredBy') as string
@@ -368,7 +379,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
       return new Date(date).getFullYear().toString();
     },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={useTranslation().t('year')} /> // Translated title
+      <DataTableColumnHeader column={column} title={useTranslation().t('year')} />
     ),
     cell: ({ row }) => {
       const year = row.getValue('year') as string;
@@ -383,13 +394,16 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
   {
     accessorKey: 'status',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={useTranslation().t('status')} /> // Translated title
+      <DataTableColumnHeader column={column} title={useTranslation().t('status')} />
     ),
     cell: ({ row }) => {
       const status = row.getValue('status') as DocumentStatus
+      const statusInfo = statusVariants[status]
+      const translationKey = statusInfo.label.replace(/ /g, ' ')
+
       return (
-        <Badge variant={status === 'PENDING' ? 'secondary' : 'default'}>
-          {useTranslation().t(status.toLowerCase())}
+        <Badge variant={statusInfo.variant} className='font-medium'>
+          {translationKey}
         </Badge>
       )
     },
@@ -400,7 +414,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
   {
     accessorKey: 'createdAt',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={useTranslation().t('createdAt')} /> // Translated title
+      <DataTableColumnHeader column={column} title={useTranslation().t('createdAt')} />
     ),
     cell: ({ row }) => {
       const createdAt = row.getValue('createdAt') as Date

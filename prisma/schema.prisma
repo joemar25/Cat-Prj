@@ -171,11 +171,14 @@ model BaseRegistryForm {
   registeredByPosition    String?
   registrationDate        DateTime?
   dateOfRegistration      DateTime
+  isLateRegistered        Boolean?
   remarks                 String?
   lcroNotations           String?
   status                  DocumentStatus           @default(PENDING)
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
+  documentId              String?                  @db.Uuid
+  document                Document?                @relation(fields: [documentId], references: [id])
   preparedByName          String?
   verifiedByName          String?
   preparedBy              User?                    @relation("PreparedBy", fields: [preparedById], references: [id], onDelete: SetNull)
@@ -183,7 +186,6 @@ model BaseRegistryForm {
   birthCertificateForm    BirthCertificateForm?
   deathCertificateForm    DeathCertificateForm?
   marriageCertificateForm MarriageCertificateForm?
-  documentUrl             String?
 
   @@index([registryNumber])
   @@index([formNumber])
@@ -342,7 +344,7 @@ model DeathCertificateForm {
 /// * - Relationship to the original attachment
 model CertifiedCopy {
   id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  formId              String                @db.Uuid // mar --> Links to CivilRegistryFormBa
+  formId              String                @db.Uuid // mar --> Links to CivilRegistryFormBase
   status              CertifiedCopyStatus   @default(PENDING)
   lcrNo               String?
   bookNo              String?
@@ -517,6 +519,7 @@ model Document {
   auditLogs          AuditLog[]
   workflowSteps      WorkflowStep[]
   civilRegistryForms CivilRegistryFormBase[]
+  BaseRegistryForm   BaseRegistryForm[]
 
   @@map("document")
 }
@@ -740,10 +743,11 @@ enum ServiceType {
 /// * @enum {string}
 /// * Tracks the verification status of documents
 enum DocumentStatus {
-  PENDING
-  VERIFIED
-  REJECTED
-  EXPIRED
+  PENDING // Request received; document is awaiting processing or verification by the civil registrar (within the first 30 days)
+  VERIFIED // Document request is approved, but no attachment (soft copy) is available yet
+  LATE_REGISTRATION // Request is for a late registration (after 30 days) and is still pending verification
+  READY_FOR_RELEASE // The soft copy has been generated and is ready for export, but not yet given to the requester
+  RELEASED // The document copy has been officially handed over to the requester - Cannot Happen (Only for Certified XROX Copy)
 }
 
 /// *
@@ -751,9 +755,9 @@ enum DocumentStatus {
 /// * @enum {string}
 /// * Supports multiple communication methods
 enum NotificationType {
-  EMAIL
   SYSTEM
-  SMS
+  // EMAIL
+  // SMS
 }
 
 /// *
@@ -901,6 +905,7 @@ enum CivilRegistryFormType {
   FORM_3A // Civil Registry Form No. 3A (Marriage)
 }
 
+// pnpm prisma db push --force-reset
 // pnpm prisma generate   # for generate the Prisma Client with new models
 // pnpm prisma migrate dev --name add_rbac_system   # for ceate and run the migration
 // pnpm prisma db seed # for seeding our seed and seed-data
