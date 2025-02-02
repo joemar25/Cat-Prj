@@ -17,6 +17,7 @@ interface Metric {
   currentCount: number
   percentageChange: number
   icon: JSX.Element
+  model: "baseRegistryForm" | "birthCertificateForm" | "deathCertificateForm" | "marriageCertificateForm"
 }
 
 const METRIC_ITEMS: MetricItem[] = [
@@ -42,31 +43,38 @@ const METRIC_ITEMS: MetricItem[] = [
   },
 ]
 
-export default function MetricsDashboard() {
+export default function MetricsDashboard({
+  onSelectMetric,
+}: {
+  onSelectMetric: (
+    model: "baseRegistryForm" | "birthCertificateForm" | "deathCertificateForm" | "marriageCertificateForm",
+    currentCount: number
+  ) => void;
+}) {
   const { t } = useTranslation()
   const [metrics, setMetrics] = useState<Metric[]>([])
-  const [selectedMetric, setSelectedMetric] = useState<string>("metrics.total_registrations") // Default selection
+  const [selectedMetric, setSelectedMetric] = useState<string>("metrics.total_registrations") 
   const [error, setError] = useState<string>("")
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
     async function fetchMetrics() {
       try {
         const data = await Promise.all(
           METRIC_ITEMS.map(async ({ model, titleKey, icon }) => {
-            const [currentCount, previousCount] = await Promise.all([
+            const [currentCount, previousCount] = await Promise.all([ 
               getCurrentMonthRegistrations(model),
-              getPreviousMonthRegistrations(model)
+              getPreviousMonthRegistrations(model),
             ])
-
-            const percentageChange = previousCount === 0
-              ? 100
-              : ((currentCount - previousCount) / previousCount) * 100
+            const percentageChange =
+              previousCount === 0 ? 100 : ((currentCount - previousCount) / previousCount) * 100
 
             return {
               titleKey,
               currentCount,
               percentageChange,
-              icon
+              icon,
+              model,
             }
           })
         )
@@ -75,11 +83,26 @@ export default function MetricsDashboard() {
       } catch (err) {
         setError(t("metrics.fetch_error"))
         console.error("Error fetching metrics:", err)
+      } finally {
+        setIsLoading(false)
       }
     }
 
-    void fetchMetrics()
+    fetchMetrics()
   }, [t])
+
+  const handleSelectMetric = (
+    titleKey: string,
+    model: "baseRegistryForm" | "birthCertificateForm" | "deathCertificateForm" | "marriageCertificateForm",
+    currentCount: number
+  ) => {
+    setSelectedMetric(titleKey)
+    onSelectMetric(model, currentCount)
+  }
+
+  if (isLoading) {
+    return <div className="text-center">Loading metrics...</div>
+  }
 
   if (error) {
     return <div className="text-red-500">{error}</div>
@@ -91,16 +114,12 @@ export default function MetricsDashboard() {
         <Card
           key={metric.titleKey}
           className={`cursor-pointer transition-all ${
-            selectedMetric === metric.titleKey
-              ? "dark:bg-chart-1/55 bg-chart-3" // Selected metric
-              : "bg-transparent hover:bg-muted" // Unselected metric (transparent + hover effect)
+            selectedMetric === metric.titleKey ? "dark:bg-chart-1/55 bg-chart-3" : "bg-transparent hover:bg-muted"
           }`}
-          onClick={() => setSelectedMetric(metric.titleKey)} // Set selected metric on click
+          onClick={() => handleSelectMetric(metric.titleKey, metric.model, metric.currentCount)}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t(metric.titleKey)}
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">{t(metric.titleKey)}</CardTitle>
             {metric.icon}
           </CardHeader>
           <CardContent>

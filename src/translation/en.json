@@ -305,5 +305,26 @@
     "placeholder": "What's on your mind?",
     "submitting": "Submitting...",
     "submit": "Submit Feedback"
-  }
+  },
+  
+  "baseRegistryForm_distribution": "Registry Distribution",
+  "birthCertificateForm_distribution": "Birth Certificate Distribution",
+  "deathCertificateForm_distribution": "Death Certificate Distribution",
+  "marriageCertificateForm_distribution": "Marriage Certificate Distribution",
+  "past_six_months_baseRegistryForm_statistics": "Statistics for registrations in the past six months.",
+  "past_six_months_birthCertificateForm_statistics": "Birth registrations in the past six months.",
+  "past_six_months_deathCertificateForm_statistics": "Death registrations in the past six months.",
+  "past_six_months_marriageCertificateForm_statistics": "Marriage registrations in the past six months.",
+  "total_baseRegistryForm": "Total Registrations",
+  "total_birthCertificateForm": "Total Birth Registrations",
+  "total_deathCertificateForm": "Total Death Registrations",
+  "total_marriageCertificateForm": "Total Marriage Registrations",
+  "birthCertificateForm_registration_distribution": "Birth Registration Distribution",
+  "deathCertificateForm_registration_distribution": "Death Registration Distribution",
+  "marriageCertificateForm_registration_distribution": "Marriage Registration Distribution",
+  "baseRegistryForm_registration_distribution": "Marriage Registration Distribution",
+  "monthly_breakdown_baseRegistryForm": "Monthly breakdown of all registrations.",
+  "monthly_breakdown_birthCertificateForm": "Monthly breakdown of birth registrations.",
+  "monthly_breakdown_deathCertificateForm": "Monthly breakdown of death registrations.",
+  "monthly_breakdown_marriageCertificateForm": "Monthly breakdown of marriage registrations."
 }

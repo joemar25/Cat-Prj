@@ -1,20 +1,30 @@
-// app/(dashboard)/dashboard/DashboardContent.tsx
-"use client"; // Mark this as a client component
+"use client"
 
-import { Icons } from "@/components/ui/icons";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import Link from "next/link";
-import ChartsDashboard from "@/components/custom/dashboard/components/charts";
-import MetricsDashboard from "@/components/custom/dashboard/components/metrics";
-import StatisticsDashboard from "@/components/custom/dashboard/components/statistics";
-import { useTranslation } from "react-i18next"; // Use the translation hook
+import { useState } from "react"
+import { useTranslation } from "react-i18next"
+import { Icons } from "@/components/ui/icons"
+import Link from "next/link"
+import ChartsDashboard from "@/components/custom/dashboard/components/charts"
+import MetricsDashboard from "@/components/custom/dashboard/components/metrics"
+import StatisticsDashboard from "@/components/custom/dashboard/components/statistics"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default function DashboardContent() {
-  const { t } = useTranslation(); // Initialize the translation function
+  const { t } = useTranslation()
+  const [selectedMetric, setSelectedMetric] = useState<{
+    model: "baseRegistryForm" | "birthCertificateForm" | "deathCertificateForm" | "marriageCertificateForm" | null
+    currentCount: number | null
+  }>({
+    model: null,
+    currentCount: null,
+  })
+
+  const handleSelectMetric = (model: "baseRegistryForm" | "birthCertificateForm" | "deathCertificateForm" | "marriageCertificateForm", currentCount: number) => {
+    setSelectedMetric({ model, currentCount })
+  }
 
   return (
     <div className="w-full h-fit flex flex-1 flex-col gap-4 p-4">
-      {/* Notification Alert */}
       <Alert>
         <Icons.infoCircledIcon className="h-4 w-4" />
         <AlertTitle>{t("summary_view")}</AlertTitle>
@@ -27,10 +37,11 @@ export default function DashboardContent() {
         </AlertDescription>
       </Alert>
 
-      {/* Dashboard Components */}
-      <MetricsDashboard />
-      <StatisticsDashboard />
+      <MetricsDashboard onSelectMetric={handleSelectMetric} />
+
+      <StatisticsDashboard selectedMetric={selectedMetric} />
+
       <ChartsDashboard />
     </div>
-  );
+  )
 }

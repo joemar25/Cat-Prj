@@ -310,5 +310,24 @@
     "placeholder": "Ano ang nasa iyong isipan?",
     "submitting": "Isinusumite...",
     "submit": "I-submit ang puna"
-  }
+  },
+  "baseRegistryForm_registration_distribution": "Distribusyon ng Rehistro",
+  "birthCertificateForm_distribution": "Distribusyon ng Sertipiko ng Kapanganakan",
+  "deathCertificateForm_distribution": "Distribusyon ng Sertipiko ng Pagkamatay",
+  "marriageCertificateForm_distribution": "Distribusyon ng Sertipiko ng Kasal",
+  "past_six_months_baseRegistryForm_statistics": "Istatistika ng pagrerehistro sa nakaraang anim na buwan.",
+  "past_six_months_birthCertificateForm_statistics": "Mga rehistrasyon ng kapanganakan sa nakaraang anim na buwan.",
+  "past_six_months_deathCertificateForm_statistics": "Mga rehistrasyon ng pagkamatay sa nakaraang anim na buwan.",
+  "past_six_months_marriageCertificateForm_statistics": "Mga rehistrasyon ng kasal sa nakaraang anim na buwan.",
+  "total_baseRegistryForm": "Kabuuang Rehistrasyon",
+  "total_birthCertificateForm": "Kabuuang Rehistrasyon ng Kapanganakan",
+  "total_deathCertificateForm": "Kabuuang Rehistrasyon ng Pagkamatay",
+  "total_marriageCertificateForm": "Kabuuang Rehistrasyon ng Kasal",
+  "birthCertificateForm_registration_distribution": "Distribusyon ng Rehistrasyon ng Kapanganakan",
+  "deathCertificateForm_registration_distribution": "Distribusyon ng Rehistrasyon ng Pagkamatay",
+  "marriageCertificateForm_registration_distribution": "Distribusyon ng Rehistrasyon ng Kasal",
+  "monthly_breakdown_baseRegistryForm": "Buwanang buod ng lahat ng rehistrasyon.",
+  "monthly_breakdown_birthCertificateForm": "Buwanang buod ng mga rehistrasyon ng kapanganakan.",
+  "monthly_breakdown_deathCertificateForm": "Buwanang buod ng mga rehistrasyon ng pagkamatay.",
+  "monthly_breakdown_marriageCertificateForm": "Buwanang buod ng mga rehistrasyon ng kasal."
 }

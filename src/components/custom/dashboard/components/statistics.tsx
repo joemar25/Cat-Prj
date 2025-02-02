@@ -1,12 +1,10 @@
-"use client"
-
 import { useEffect, useMemo, useState } from "react"
 import { getRegistryMetrics } from "@/hooks/count-metrics"
 import { TrendingUp, TrendingDown, PieChart as PieChartIcon } from "lucide-react"
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Area, AreaChart, CartesianGrid, XAxis, ResponsiveContainer, Label, Pie, PieChart } from "recharts"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useTranslation } from "react-i18next" // Import the translation hook
+import { useTranslation } from "react-i18next"
 
 const areaChartConfig = {
   birth: {
@@ -34,8 +32,15 @@ interface AreaChartProps {
   data: { month: string; birth: number; death: number; marriage: number }[]
 }
 
-export default function RegistryStatisticsDashboard() {
-  const { t } = useTranslation() // Initialize the translation function
+interface RegistryStatisticsDashboardProps {
+  selectedMetric: {
+    model: "baseRegistryForm" | "birthCertificateForm" | "deathCertificateForm" | "marriageCertificateForm" | null;
+    currentCount: number | null;
+  };
+}
+
+export default function RegistryStatisticsDashboard({ selectedMetric }: RegistryStatisticsDashboardProps) {
+  const { t } = useTranslation()
   const [chartData, setChartData] = useState<AreaChartProps["data"]>([])
   const [trend, setTrend] = useState({ percentage: "0", isUp: true })
   const [isLoading, setIsLoading] = useState(true)
@@ -45,16 +50,28 @@ export default function RegistryStatisticsDashboard() {
     return chartData.reduce((sum, item) => sum + item.marriage, 0)
   }, [chartData])
 
-  // Transform data for pie chart
+  // Transform data for pie chart based on selectedMetric
   const pieData = useMemo(() => {
+    
+    if (!selectedMetric.model || selectedMetric.currentCount === null) {
+      selectedMetric.model = "baseRegistryForm"
+      selectedMetric.currentCount = selectedMetric.currentCount || 0
+    }
+
+    const modelKey = selectedMetric.model === "marriageCertificateForm"
+      ? "marriage"
+      : selectedMetric.model === "birthCertificateForm"
+        ? "birth"
+        : selectedMetric.model === "deathCertificateForm"
+          ? "death"
+          : "birth" 
+
     return chartData.map((item) => ({
       name: item.month,
-      value: item.marriage,
-      fill: `hsl(var(--chart-3) / ${(item.marriage / Math.max(...chartData.map((d) => d.marriage))) * 0.9 +
-        0.1
-        })`,
+      value: item[modelKey], 
+      fill: `hsl(var(--chart-3) / ${(item[modelKey] / Math.max(...chartData.map((d) => d[modelKey]))) * 0.9 + 0.1})`, 
     }))
-  }, [chartData])
+  }, [chartData, selectedMetric])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,41 +90,26 @@ export default function RegistryStatisticsDashboard() {
   }, [])
 
   if (isLoading) {
-    return <div>{t("loading_statistics")}</div> // Translated loading message
+    return <div>{t("loading_statistics")}</div> 
   }
 
   return (
     <div className="w-full grid gap-4 md:grid-cols-2 lg:grid-cols-7">
       <Card className="lg:col-span-4">
         <CardHeader>
-          <CardTitle>{t("registry_statistics")}</CardTitle> {/* Translated title */}
-          <CardDescription>
-            {t("monthly_registration_trends")} {/* Translated description */}
-          </CardDescription>
+          <CardTitle>{t("registry_statistics")}</CardTitle>
+          <CardDescription>{t("monthly_registration_trends")}</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={areaChartConfig}>
             <ResponsiveContainer width="100%" height={400}>
               <AreaChart
                 data={chartData}
-                margin={{
-                  top: 20,
-                  right: 20,
-                  left: 20,
-                  bottom: 20,
-                }}
+                margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
               >
                 <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="dot" />}
-                />
+                <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
+                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
                 <Area
                   type="monotone"
                   dataKey="marriage"
@@ -124,7 +126,6 @@ export default function RegistryStatisticsDashboard() {
                   fill={areaChartConfig.death.color}
                   fillOpacity={0.4}
                 />
-
                 <Area
                   type="monotone"
                   dataKey="birth"
@@ -143,18 +144,18 @@ export default function RegistryStatisticsDashboard() {
               <div className="flex items-center gap-2 font-medium leading-none">
                 {trend.isUp ? (
                   <>
-                    {t("trending_up", { percentage: trend.percentage.toString() })} {/* Translated trending up message */}
+                    {t("trending_up", { percentage: trend.percentage.toString() })}
                     <TrendingUp className="h-4 w-4" />
                   </>
                 ) : (
                   <>
-                    {t("trending_down", { percentage: trend.percentage.toString() })} {/* Translated trending down message */}
+                    {t("trending_down", { percentage: trend.percentage.toString() })}
                     <TrendingDown className="h-4 w-4" />
                   </>
                 )}
               </div>
               <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                {t("showing_registration_data")} {/* Translated description */}
+                {t("showing_registration_data")}
               </div>
             </div>
           </div>
@@ -163,16 +164,11 @@ export default function RegistryStatisticsDashboard() {
 
       <Card className="flex flex-col lg:col-span-3">
         <CardHeader className="text-center">
-          <CardTitle>{t("marriage_distribution")}</CardTitle> {/* Translated title */}
-          <CardDescription>
-            {t("past_six_months_marriage_statistics")} {/* Translated description */}
-          </CardDescription>
+          <CardTitle>{t(`${selectedMetric.model}_distribution`)}</CardTitle>
+          <CardDescription>{t(`past_six_months_${selectedMetric.model}_statistics`)}</CardDescription>
         </CardHeader>
         <CardContent className="flex-1">
-          <ChartContainer
-            config={pieChartConfig}
-            className="mx-auto aspect-square h-[300px]"
-          >
+          <ChartContainer config={pieChartConfig} className="mx-auto aspect-square h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <ChartTooltip content={<ChartTooltipContent hideLabel />} />
@@ -200,17 +196,17 @@ export default function RegistryStatisticsDashboard() {
                               y={viewBox.cy}
                               className="fill-foreground text-2xl font-bold"
                             >
-                              {totalMarriages.toLocaleString()}
+                              {pieData.reduce((total, item) => total + item.value, 0).toLocaleString()}
                             </tspan>
                             <tspan
                               x={viewBox.cx}
                               y={(viewBox.cy || 0) + 20}
                               className="fill-muted-foreground text-sm"
                             >
-                              {t("total_marriages")} {/* Translated label */}
+                              {t(`total_${selectedMetric.model}`)}
                             </tspan>
                           </text>
-                        )
+                        );
                       }
                     }}
                   />
@@ -222,10 +218,10 @@ export default function RegistryStatisticsDashboard() {
         <CardFooter className="flex flex-col gap-2 text-sm">
           <div className="flex items-center gap-2 font-medium">
             <PieChartIcon className="h-4 w-4" />
-            {t("marriage_registration_distribution")} {/* Translated title */}
+            {t(`${selectedMetric.model}_registration_distribution`)}
           </div>
           <span className="text-muted-foreground">
-            {t("monthly_breakdown_marriages")} {/* Translated description */}
+            {t(`monthly_breakdown_${selectedMetric.model}`)}
           </span>
         </CardFooter>
       </Card>
