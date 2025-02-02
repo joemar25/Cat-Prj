@@ -6,7 +6,6 @@ const prisma = new PrismaClient()
 
 export const POST = async (req: Request) => {
     try {
-        // First check if we can parse the request body
         let body
         try {
             body = await req.json()
@@ -20,7 +19,6 @@ export const POST = async (req: Request) => {
 
         const { type, title, status } = body
 
-        // Validate required fields
         if (!type || !title) {
             return NextResponse.json({
                 error: 'Missing required fields',
@@ -31,7 +29,6 @@ export const POST = async (req: Request) => {
             }, { status: 400 })
         }
 
-        // Create the document
         const document = await prisma.document.create({
             data: {
                 type,
@@ -44,7 +41,6 @@ export const POST = async (req: Request) => {
 
     } catch (error) {
         console.error('Error creating document:', error)
-
         return NextResponse.json({
             error: 'Failed to create document',
             details: error instanceof Error ? error.message : 'Unknown error'

@@ -1,3 +1,5 @@
+'use client'
+
 import { useTranslation } from 'react-i18next'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -5,20 +7,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 interface EditCivilRegistryFormDialogProps {
     form: BaseRegistryFormWithRelations
     open: boolean
-    onOpenChange: (open: boolean) => void
+    onOpenChangeAction: (open: boolean) => void
     onSave: (updatedForm: BaseRegistryFormWithRelations) => void
 }
 
 export function EditCivilRegistryFormDialog({
     form,
     open,
-    onOpenChange,
-    onSave,
+    onOpenChangeAction,
 }: EditCivilRegistryFormDialogProps) {
     const { t } = useTranslation()
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChangeAction}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{t('editForm.title')}</DialogTitle>
