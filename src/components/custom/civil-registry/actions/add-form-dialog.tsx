@@ -39,7 +39,7 @@ export function AddCivilRegistryFormDialog() {
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
+        <DialogTrigger asChild className=' h-fit'>
           <Button>
             <Icons.plus className='mr-2 h-4 w-4' />
             {t('Create New Form')} {/* Translatable text */}
