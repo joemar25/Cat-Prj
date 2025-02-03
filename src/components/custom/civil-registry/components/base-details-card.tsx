@@ -16,7 +16,6 @@ import { hasPermission } from '@/types/auth'
 import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
 import { useDeleteFormAction } from '@/components/custom/civil-registry/actions/delete-form-action'
-import { DeleteConfirmationDialog } from '@/components/custom/civil-registry/components/delete-confirmation-dialog'
 
 const formTypeLabels: Record<FormType, string> = {
     MARRIAGE: 'Marriage (Form 97)',
@@ -51,7 +50,6 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
     // State variables for dialogs
     const [editDialogOpen, setEditDialogOpen] = useState(false)
     const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
-    const [deletionAlertOpen, setDeletionAlertOpen] = useState(false)
 
     // Delete action hook (assumes onUpdateAction is provided)
     const { handleDelete, isLoading } = useDeleteFormAction({ form, onUpdateAction })
@@ -66,12 +64,6 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                     new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
             )[0]
             : null
-
-    // Handler for deletion confirmation.
-    const onConfirmDelete = () => {
-        handleDelete()
-        setDeletionAlertOpen(false)
-    }
 
     return (
         <Card className="border shadow-sm">
@@ -141,13 +133,13 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                         <div className="flex flex-wrap gap-4 mt-2">
                             {canUpload && (
                                 <>
-                                    <Button onClick={() => setUploadDialogOpen(true)} variant="outline">
+                                    {/* <Button onClick={() => setUploadDialogOpen(true)} variant="outline">
                                         <Icons.add className="mr-2 h-4 w-4" />
                                         {t('importDocument')}
-                                    </Button>
+                                    </Button> */}
                                     <Button onClick={() => setUploadDialogOpen(true)} variant="outline">
                                         <Icons.add className="mr-2 h-4 w-4" />
-                                        {t('scanDocument')}
+                                        {t('scanDocumentUpload')}
                                     </Button>
                                 </>
                             )}
@@ -155,16 +147,6 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                                 <Button onClick={() => setEditDialogOpen(true)} variant="secondary">
                                     <Icons.file className="mr-2 h-4 w-4" />
                                     {t('issueCertificate')}
-                                </Button>
-                            )}
-                            {canDelete && (
-                                <Button
-                                    onClick={() => setDeletionAlertOpen(true)}
-                                    variant="destructive"
-                                    disabled={isLoading}
-                                >
-                                    <Icons.trash className="mr-2 h-4 w-4" />
-                                    {isLoading ? t('deleting') : t('delete')}
                                 </Button>
                             )}
                         </div>
@@ -196,16 +178,6 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                     )}
                 </div>
             </CardContent>
-
-            {/* Deletion Confirmation Dialog */}
-            {canDelete && (
-                <DeleteConfirmationDialog
-                    open={deletionAlertOpen}
-                    onOpenChangeAction={setDeletionAlertOpen}
-                    onConfirmAction={onConfirmDelete}
-                    isLoading={isLoading}
-                />
-            )}
 
             {/* Dialogs */}
             {canUpload && (

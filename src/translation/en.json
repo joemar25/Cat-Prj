@@ -120,7 +120,7 @@
   "viewDetails": "View Details",
   "importDocument": "Import Document",
   "uploadDocument": "Upload Document",
-  "scanDocument": "Scan Document",
+  "scanDocumentUpload": "Scanned Document Upload",
   "viewAttachments": "View Document",
   "latestAttachment": "Latest Document Attachment",
   "uploadedOn": "Uploaded on",
