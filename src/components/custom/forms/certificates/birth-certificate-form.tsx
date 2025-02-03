@@ -67,11 +67,10 @@ export default function BirthCertificateForm({
         onOpenChange(false);
         form.reset();
       } else if (result.warning) {
-        // Show the confirmation dialog if a warning is returned
-        setPendingSubmission(values); // Save the form data
-        setShowAlert(true); // Show the confirmation dialog
+        // Save the form data and show the confirmation dialog.
+        setPendingSubmission(values);
+        setShowAlert(true);
       } else {
-        // Handle other errors
         toast.error('Registration Error', {
           description: result.error || 'Failed to register birth certificate',
         });
@@ -93,8 +92,6 @@ export default function BirthCertificateForm({
     if (pendingSubmission) {
       try {
         setIsSubmitting(true);
-
-        // Call the backend function with the pending data and ignoreDuplicateChild flag
         const result = await createBirthCertificate(pendingSubmission, true);
 
         if (result.success) {
@@ -118,38 +115,30 @@ export default function BirthCertificateForm({
         });
       } finally {
         setIsSubmitting(false);
-        setShowAlert(false); // Hide the dialog
-        setPendingSubmission(null); // Clear the pending submission
+        setShowAlert(false);
+        setPendingSubmission(null);
       }
     }
   };
 
   const handleError = () => {
-    // Get all form errors
     const errors = form.formState.errors;
-
-    // Check for specific field errors and show appropriate messages
     if (errors.registryNumber) {
       toast.error(errors.registryNumber.message);
       return;
     }
-
     if (errors.childInfo) {
       toast.error("Please check the child's information section for errors");
       return;
     }
-
     if (errors.motherInfo) {
       toast.error("Please check the mother's information section for errors");
       return;
     }
-
     if (errors.fatherInfo) {
       toast.error("Please check the father's information section for errors");
       return;
     }
-
-    // Default error message if no specific error is found
     toast.error('Please check all required fields and try again');
   };
 
@@ -180,7 +169,6 @@ export default function BirthCertificateForm({
                       <ChildInformationCard />
                       <MotherInformationCard />
                       <FatherInformationCard />
-
                       <MarriageOfParentsCard />
                       <AttendantInformationCard />
                       <CertificationOfInformantCard />
@@ -188,8 +176,6 @@ export default function BirthCertificateForm({
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard />
                       <RemarksCard />
-
-                      {/* Back Page Part */}
                       <AffidavitFormsCard />
 
                       <DialogFooter>
@@ -223,6 +209,9 @@ export default function BirthCertificateForm({
                     </form>
                   </Form>
 
+                  {/* Always render the ConfirmationDialog.
+                      Its internal logic (based on the "open" prop)
+                      will determine its visibility. */}
                   <ConfirmationDialog
                     open={showAlert}
                     onOpenChange={setShowAlert}
@@ -242,9 +231,7 @@ export default function BirthCertificateForm({
             <div className='w-1/2'>
               <div className='h-[calc(95vh-120px)] p-6'>
                 <PDFViewer width='100%' height='100%'>
-                  <BirthCertificatePDF
-                    data={form.watch()} // Pass the current form data to the PDF preview
-                  />
+                  <BirthCertificatePDF data={form.watch()} />
                 </PDFViewer>
               </div>
             </div>
