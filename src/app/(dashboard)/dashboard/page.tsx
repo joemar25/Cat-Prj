@@ -1,6 +1,6 @@
 // app/(dashboard)/dashboard/page.tsx
 import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header";
-import DashboardContent from "./dashboardConent";
+import DashboardContent from "./dashboard-content";
 
 
 export default async function DashboardPage() {
@@ -8,10 +8,10 @@ export default async function DashboardPage() {
     <div className="w-full h-full flex flex-1 flex-col">
       <DashboardHeader
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard", active: true }, // You can translate this in the client component if needed
+          { label: "Dashboard", href: "/dashboard", active: true },
         ]}
       />
-      <DashboardContent /> {/* Use the client component here */}
+      <DashboardContent />
     </div>
   );
 }
