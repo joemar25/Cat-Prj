@@ -3,212 +3,121 @@ import { LucideIcon } from "lucide-react"
 import { Permission } from "@prisma/client"
 import { Icons } from "@/components/ui/icons"
 import { UserWithPermissions, hasAnyPermission, getRoleSlug, canManageRole } from "@/types/auth"
-import { NavConfig, NavMainItem, NavSecondaryItem, NavigationConfiguration } from "@/lib/types/navigation"
+import { NavMainItem, NavSecondaryItem, NavigationConfiguration } from "@/lib/types/navigation"
+import { routeConfigs, RouteConfig } from "@/lib/config/route-config"
 
-// Environment variables
+// Use the local constants rather than re-reading process.env directly.
 const KIOSK = process.env.NEXT_PUBLIC_KIOSK === "true"
-const SETTINGS = process.env.NEXT_PUBLIC_SETTINGS === "true"
 
-// Define permission requirements for each navigation item
-const navPermissionRequirements = {
-    dashboard: [] as Permission[],
-    "manage-queue": [] as Permission[],
-    users: {
-        view: ["USER_READ"] as Permission[],
-        manage: ["USER_CREATE", "USER_UPDATE", "USER_DELETE"] as Permission[],
-    },
-    "civil-registry": ["DOCUMENT_READ"],
-    "certified-true-copies": ["DOCUMENT_VERIFY"],
-    "roles-and-permissions": ["USER_DELETE"],
-    reports: ["REPORT_READ"],
-    feedback: [],
-    settings: [],
-} as const
-
-// Fetch roles with permissions
-export async function getRoles(): Promise<{ id: string; name: string; permissions: { permission: Permission }[] }[]> {
-    try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/roles`, {
-            cache: "no-store",
-        })
-        const data = await response.json()
-
-        if (!data.success) throw new Error("Failed to fetch roles")
-
-        // Fetch permissions for each role to ensure complete data
-        const rolesWithPermissions = await Promise.all(
-            data.roles.map(async (role: { id: string; name: string }) => {
-                const permissionsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/roles/${role.id}/permissions`, {
-                    cache: "no-store",
-                })
-                const permissionsData = await permissionsResponse.json()
-                return {
-                    id: role.id,
-                    name: role.name,
-                    permissions: permissionsData.permissions || [],
-                }
-            })
-        )
-
-        return rolesWithPermissions
-    } catch (error) {
-        console.error("Error fetching roles:", error)
-        return []
-    }
-}
-
+/**
+ * Transforms a single route configuration into a NavMainItem.
+ * Special handling is applied for the "users" route to create role management sub-items.
+ */
 export function transformToMainNavItem(
-    item: NavConfig,
+    route: RouteConfig,
     user: UserWithPermissions,
     roles: { id: string; name: string; permissions: { permission: Permission }[] }[],
     t: (key: string) => string
-): NavMainItem {
-    const baseItem: NavMainItem = {
-        title: t(item.id),
-        url: item.url,
-        notViewedCount: item.notViewedCount,
-    }
+): NavMainItem & { id: string } { // Note the extra "id" property in the return type.
+    // Gather the user’s permissions.
+    const userPermissions = user.roles.flatMap((role) => role.role.permissions.map((p) => p.permission));
 
-    if (item.iconName && Icons[item.iconName]) {
-        baseItem.icon = Icons[item.iconName] as LucideIcon
+    const baseItem: NavMainItem & { id: string } = {
+        id: route.id, // Attach the route id here
+        title: t(route.id),
+        url: route.path,
+        notViewedCount: 0, // Set as needed
+    };
+
+    // Set the icon – fallback to folder.
+    if (route.iconName && Icons[route.iconName]) {
+        baseItem.icon = Icons[route.iconName] as LucideIcon;
     } else {
-        baseItem.icon = Icons.folder
+        baseItem.icon = Icons.folder;
     }
 
-    const userPermissions = user.roles.flatMap((role) => role.role.permissions.map((p) => p.permission))
-
-    const requiredPermissions = navPermissionRequirements[item.id as keyof typeof navPermissionRequirements]
-    if (Array.isArray(requiredPermissions) && requiredPermissions.length > 0) {
-        if (!hasAnyPermission(userPermissions, requiredPermissions)) {
-            return { ...baseItem, hidden: true }
+    // Check for required permissions for the route.
+    if (route.requiredPermissions && route.requiredPermissions.length > 0) {
+        if (!hasAnyPermission(userPermissions, route.requiredPermissions)) {
+            return { ...baseItem, hidden: true };
         }
     }
 
-    if (item.id === "users") {
-        if (!hasAnyPermission(userPermissions, navPermissionRequirements.users.view)) {
-            return { ...baseItem, hidden: true }
+    // Special handling for "users": add role-specific sub-items if allowed.
+    if (route.id === "users") {
+        if (!hasAnyPermission(userPermissions, [Permission.USER_READ])) {
+            return { ...baseItem, hidden: true };
         }
-
         baseItem.items = roles
-            .filter((role) => canManageRole(userPermissions, role.permissions.map((p) => p.permission)))
+            .filter((role) =>
+                canManageRole(userPermissions, role.permissions.map((p) => p.permission))
+            )
             .map(({ name }) => ({
                 title: `${name}s`,
-                url: `/${item.id}/${getRoleSlug(name)}`,
-            }))
+                url: `/${route.id}/${getRoleSlug(name)}`,
+            }));
     }
 
-    return baseItem
+    return baseItem;
 }
 
-export function transformToSecondaryNavItem(item: NavConfig, t: (key: string) => string): NavSecondaryItem {
-    const IconComponent = item.iconName && Icons[item.iconName] ? (Icons[item.iconName] as LucideIcon) : undefined
+/**
+ * Returns the main navigation items based on the centralized route config.
+ * This function transforms all UI routes (and applies extra feature flags)
+ * into a list of NavMainItem objects.
+ */
+export function getMainNavItems(
+    user: UserWithPermissions,
+    roles: { id: string; name: string; permissions: { permission: Permission }[] }[],
+    t: (key: string) => string
+): NavMainItem[] {
+    return routeConfigs
+        // Only include UI routes that are not hidden from navigation.
+        .filter((route) => {
+            // Exclude any routes explicitly marked as hidden.
+            if (route.hideFromNav) return false;
+            // For manage-queue, include only if KIOSK is true.
+            if (route.id === "manage-queue" && !KIOSK) return false;
+            return route.type === "ui";
+        })
+        .map((route) => transformToMainNavItem(route, user, roles, t));
+}
+
+/**
+ * Transforms a route config into a secondary nav item.
+ * (This can be used for additional navigation sections.)
+ */
+export function transformToSecondaryNavItem(routeId: string, t: (key: string) => string): NavSecondaryItem {
+    const route = routeConfigs.find((r) => r.id === routeId)
+    const IconComponent =
+        route && route.iconName && Icons[route.iconName]
+            ? (Icons[route.iconName] as LucideIcon)
+            : Icons.folder
 
     return {
-        title: item.title || t(item.id),
-        url: item.url,
-        notViewedCount: item.notViewedCount,
-        icon: IconComponent ?? Icons.folder,
+        title: route?.title || t(routeId),
+        url: route?.path || "/",
+        notViewedCount: 0,
+        icon: IconComponent,
     }
 }
 
+/**
+ * Example export of the navigation configuration.
+ * You can use getMainNavItems(...) in your layout/page components.
+ */
 export const navigationConfig: NavigationConfiguration = {
-    mainNav: [
-        {
-            id: "dashboard",
-            type: "main",
-            title: "Dashboard",
-            url: "/dashboard",
-            iconName: "layoutDashboard",
-        },
-        {
-            id: "civil-registry",
-            type: "main",
-            title: "Civil Registry",
-            url: "/civil-registry",
-            iconName: "briefcase",
-        },
-        {
-            id: "certified-true-copies",
-            type: "main",
-            title: "Transactions", // Manage CTC
-            url: "/certified-true-copies",
-            iconName: "building",
-        },
-        ...(KIOSK
-            ? [
-                {
-                    id: "manage-queue",
-                    type: "main",
-                    title: "Manage Queue",
-                    url: "/manage-queue",
-                    iconName: "userCheck",
-                } as const,
-            ]
-            : []),
-        {
-            id: "users",
-            type: "main",
-            title: "Manage Users",
-            url: "/users",
-            iconName: "user",
-            items: [],
-        },
-        {
-            id: 'roles-and-permissions',
-            type: 'main',
-            title: 'Roles & Permissions',
-            url: '/roles',
-            iconName: 'shield',
-        },
-        {
-            id: "reports",
-            type: "main",
-            title: "Report",
-            url: "/reports",
-            iconName: "report",
-        },
-        {
-            id: "feedback",
-            type: "main",
-            title: "Feedback",
-            url: "/feedback",
-            iconName: "mail",
-        },
-        ...(SETTINGS
-            ? [
-                {
-                    id: "settings",
-                    type: "main",
-                    title: "Settings",
-                    url: "/settings",
-                    iconName: "settings",
-                } as const,
-            ]
-            : []),
-    ],
+    mainNav: [], // Populate at runtime via getMainNavItems(user, roles, t)
     secondaryNav: [
-        // {
-        //     id: "notifications",
-        //     type: "secondary",
-        //     title: "Notifications",
-        //     url: "/notifications",
-        //     iconName: "messageSquare",
-        // },
+        // You can add secondary nav items using transformToSecondaryNavItem()
     ],
     projectsNav: [
         {
-            id: 'notifications',
-            type: 'projects',
-            title: 'Notifications',
-            url: 'notifications',
-            iconName: 'fileText',
+            id: "notifications",
+            type: "projects",
+            title: "Notifications",
+            url: "notifications",
+            iconName: "fileText",
         },
-        // {
-        //     id: 'project-2',
-        //     type: 'projects',
-        //     title: 'Project Two',
-        //     url: '/projects/2',
-        //     iconName: 'folder',
-        // },
     ],
 }

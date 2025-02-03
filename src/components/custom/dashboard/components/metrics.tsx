@@ -114,7 +114,7 @@ export default function MetricsDashboard({
         <Card
           key={metric.titleKey}
           className={`cursor-pointer transition-all ${
-            selectedMetric === metric.titleKey ? "dark:bg-chart-1/55 bg-chart-3" : "bg-transparent hover:bg-muted"
+            selectedMetric === metric.titleKey ? "dark:bg-chart-1/55 bg-chart-3/60" : "bg-transparent hover:bg-muted"
           }`}
           onClick={() => handleSelectMetric(metric.titleKey, metric.model, metric.currentCount)}
         >
