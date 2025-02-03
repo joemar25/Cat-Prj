@@ -53,7 +53,7 @@ export default function MetricsDashboard({
 }) {
   const { t } = useTranslation()
   const [metrics, setMetrics] = useState<Metric[]>([])
-  const [selectedMetric, setSelectedMetric] = useState<string>("metrics.total_registrations") 
+  const [selectedMetric, setSelectedMetric] = useState<string>("metrics.total_registrations")
   const [error, setError] = useState<string>("")
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
@@ -62,7 +62,7 @@ export default function MetricsDashboard({
       try {
         const data = await Promise.all(
           METRIC_ITEMS.map(async ({ model, titleKey, icon }) => {
-            const [currentCount, previousCount] = await Promise.all([ 
+            const [currentCount, previousCount] = await Promise.all([
               getCurrentMonthRegistrations(model),
               getPreviousMonthRegistrations(model),
             ])
@@ -113,11 +113,23 @@ export default function MetricsDashboard({
       {metrics.map((metric) => (
         <Card
           key={metric.titleKey}
-          className={`cursor-pointer transition-all ${
-            selectedMetric === metric.titleKey ? "dark:bg-chart-1/55 bg-chart-3/60" : "bg-transparent hover:bg-muted"
-          }`}
+          className="cursor-pointer transition-all"
+          style={{
+            backgroundColor: selectedMetric === metric.titleKey
+              ? metric.titleKey === "metrics.death_certificates"
+                ? "hsl(var(--chart-2))"
+                : metric.titleKey === "metrics.marriage_certificates"
+                  ? "hsl(var(--chart-3) / 0.75)" // Change opacity to 0.5 (50%)
+                  : metric.titleKey === "metrics.birth_certificates"
+                    ? "hsl(var(--chart-1))"
+                    : "hsl(var(--chart-3) / 0.7)"
+              : "transparent"
+          }}
           onClick={() => handleSelectMetric(metric.titleKey, metric.model, metric.currentCount)}
         >
+
+
+
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t(metric.titleKey)}</CardTitle>
             {metric.icon}
