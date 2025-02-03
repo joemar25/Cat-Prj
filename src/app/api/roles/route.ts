@@ -1,23 +1,21 @@
 // src/app/api/roles/route.ts
-import { prisma } from "@/lib/prisma"
-import { NextResponse } from "next/server"
-import { createRoleSchema } from "@/lib/types/roles"
+import { prisma } from '@/lib/prisma'
+import { NextResponse } from 'next/server'
+import { createRoleSchema } from '@/lib/types/roles'
 
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-
-        // Validate request body
         const validatedData = createRoleSchema.parse(body)
 
-        // Check if role name already exists
+        // Check if role name already exists (server-side precaution)
         const existingRole = await prisma.role.findUnique({
-            where: { name: validatedData.name }
+            where: { name: validatedData.name },
         })
 
         if (existingRole) {
             return NextResponse.json(
-                { success: false, error: "Role name already exists" },
+                { success: false, error: 'Role name already exists' },
                 { status: 400 }
             )
         }
@@ -34,7 +32,7 @@ export async function POST(request: Request) {
 
             // Create permissions
             await tx.rolePermission.createMany({
-                data: validatedData.permissions.map(permission => ({
+                data: validatedData.permissions.map((permission) => ({
                     roleId: role.id,
                     permission: permission,
                 })),
@@ -53,23 +51,12 @@ export async function POST(request: Request) {
             })
         })
 
+        return NextResponse.json({ success: true, role: newRole }, { status: 201 })
+    } catch (error: any) {
+        console.error('Error creating role:', error)
         return NextResponse.json(
-            { success: true, role: newRole },
-            { status: 201 }
-        )
-
-    } catch (error) {
-        if (error) {
-            return NextResponse.json(
-                { success: false, error: error },
-                { status: 400 }
-            )
-        }
-
-        console.error("Error creating role:", error)
-        return NextResponse.json(
-            { success: false, error: "Failed to create role" },
-            { status: 500 }
+            { success: false, error: error?.message || 'Failed to create role' },
+            { status: 400 }
         )
     }
 }
@@ -86,12 +73,12 @@ export async function GET() {
                     },
                 },
             },
-        });
+        })
 
-        return NextResponse.json({ success: true, roles }, { status: 200 });
+        return NextResponse.json({ success: true, roles }, { status: 200 })
     } catch (error) {
-        console.error("Error fetching roles:", error);
-        return NextResponse.json({ success: false, error: "Failed to fetch roles" }, { status: 500 });
+        console.error('Error fetching roles:', error)
+        return NextResponse.json({ success: false, error: 'Failed to fetch roles' }, { status: 500 })
     }
 }
 

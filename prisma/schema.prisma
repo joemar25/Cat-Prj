@@ -28,6 +28,7 @@ enum Permission {
   USER_DELETE
   USER_ACTIVATE
   USER_DEACTIVATE
+  USER_EXPORT
 
   // Role Management
   ROLE_CREATE
@@ -35,6 +36,7 @@ enum Permission {
   ROLE_UPDATE
   ROLE_DELETE
   ROLE_ASSIGN
+  ROLE_EXPORT
 
   // Queue Management
   // QUEUE_CREATE
@@ -617,24 +619,20 @@ enum NotificationStatus {
 }
 
 model Notification {
-  id        String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String?             @db.Uuid
-  userName  String?             @default("Anonymous")
+  id        String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?              @db.Uuid
+  userName  String?              @default("Anonymous")
   type      NotificationType
   title     String
   message   String
-  read      Boolean             @default(false)
-  createdAt DateTime            @default(now())
+  read      Boolean              @default(false)
+  createdAt DateTime             @default(now())
   readAt    DateTime?
   status    NotificationStatus[] @default([]) // Default to an empty array
-  user      User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user      User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("notification")
 }
-
-
-
-
 
 /// *
 /// * AuditLog Model
