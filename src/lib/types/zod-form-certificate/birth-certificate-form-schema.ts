@@ -177,7 +177,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     middleName: 'Santos',
     lastName: 'Dela Cruz',
     sex: 'Male',
-    dateOfBirth: new Date('2024-01-15'),
+    dateOfBirth: null,
     placeOfBirth: {
       hospital: "St. Luke's Medical Center",
       cityMunicipality: 'Quezon City',
@@ -232,7 +232,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
 
   // Marriage of Parents
   parentMarriage: {
-    date: new Date('2022-06-15'),
+    date: null,
     place: {
       houseNumber: '123',
       street: 'Maginhawa Street',
@@ -259,7 +259,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
         province: 'Metro Manila',
         country: 'Philippines',
       },
-      date: new Date('2024-01-15'),
+      date: null,
     },
   },
 
@@ -276,7 +276,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
       province: '',
       country: 'Philippines',
     },
-    date: new Date('2024-01-16'),
+    date: null,
   },
 
   // Prepared By
@@ -284,7 +284,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     signature: 'Staff3',
     name: 'Staff User 3',
     title: 'Registration Officer',
-    date: new Date('2024-01-16'),
+    date: null,
   },
 
   // Received By
@@ -292,7 +292,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     signature: 'Staff4',
     name: 'Staff User 4',
     title: 'Document Processing Officer',
-    date: new Date('2024-01-16'),
+    date: null,
   },
 
   // Registered By Civil Registry
@@ -300,40 +300,40 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     signature: 'Admin1',
     name: 'Admin User 1',
     title: 'Civil Registrar',
-    date: new Date('2024-01-16'),
+    date: null,
   },
 
   // Affidavit of Paternity
   hasAffidavitOfPaternity: false,
   affidavitOfPaternityDetails: {
     father: {
-      signature: 'JoseDC',
-      name: 'Jose Dela Cruz',
-      title: 'Father',
+      signature: '',
+      name: '',
+      title: '',
     },
     mother: {
-      signature: 'MariaS',
-      name: 'Maria Santos',
-      title: 'Mother',
+      signature: '',
+      name: '',
+      title: '',
     },
-    dateSworn: new Date('2024-01-16'),
+    dateSworn: new Date(),
     adminOfficer: {
-      signature: 'AdminSign',
-      name: 'Administrator Name',
-      position: 'Notary Public',
+      signature: '',
+      name: '',
+      position: '',
       address: {
-        houseNumber: '456',
-        street: 'Padre Faura Street',
-        barangay: 'Ermita',
-        cityMunicipality: 'Manila',
-        province: 'Metro Manila',
-        country: 'Philippines',
+        houseNumber: '',
+        street: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: '',
       },
     },
     ctcInfo: {
-      number: '12345-2024',
-      dateIssued: new Date('2024-01-16'),
-      placeIssued: 'Quezon City',
+      number: '',
+      dateIssued: new Date(),
+      placeIssued: '',
     },
   },
 
@@ -354,9 +354,9 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
       citizenship: 'Filipino',
     },
     registrationType: 'SELF',
-    parentMaritalStatus: 'MARRIED',
+    parentMaritalStatus: 'NOT_MARRIED',
     reasonForDelay: 'Documentation processing delay',
-    dateSworn: new Date('2024-01-16'),
+    dateSworn: new Date(),
     adminOfficer: {
       signature: 'AdminSign',
       name: 'Administrator Name',
@@ -364,7 +364,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     },
     ctcInfo: {
       number: '12345-2024',
-      dateIssued: new Date('2024-01-16'),
+      dateIssued: new Date(),
       placeIssued: 'Quezon City',
     },
     spouseName: 'Maria Santos Dela Cruz',

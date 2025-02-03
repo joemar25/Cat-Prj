@@ -960,10 +960,12 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
             <View style={[back.formRow, { marginTop: 15 }]}>
               <Text style={[back.textStyle, { marginLeft: 40 }]}>I/We,</Text>
               <Text style={[back.textStyle, back.formField]}>
+                {/* Father Name */}
                 {`${affidavitOfPaternityDetails?.father?.name || ''}`}
               </Text>
               <Text style={[back.textStyle, { marginLeft: 12 }]}>and</Text>
               <Text style={[back.textStyle, back.formField]}>
+                {/* Mother Name */}
                 {`${affidavitOfPaternityDetails?.mother?.name || ''}`}
               </Text>
               <Text style={[back.textStyle]}>,</Text>
@@ -972,6 +974,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <Text style={[back.textStyle, { marginRight: 12 }]}>
                 of legal age, am/are the natural mother and/or father off:
               </Text>
+              {/* Child Name */}
               <Text style={[back.textStyle, back.formFieldWide]}>
                 {`${childInfo?.firstName || ''} ${
                   childInfo?.middleName || ''
@@ -987,6 +990,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <Text
                 style={[back.textStyle, back.signatureText, { marginLeft: 12 }]}
               >
+                {/* Child date of birth */}
                 {childInfo?.dateOfBirth
                   ? new Date(childInfo.dateOfBirth).toLocaleDateString()
                   : ''}

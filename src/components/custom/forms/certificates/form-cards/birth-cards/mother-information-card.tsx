@@ -260,8 +260,7 @@ const MotherInformationCard: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Updated Residence Card */}
+        {/* Residence Information Card */}
         <Card>
           <CardHeader className='pb-3'>
             <h3 className='text-sm font-semibold'>Residence Information</h3>
@@ -269,8 +268,8 @@ const MotherInformationCard: React.FC = () => {
           <CardContent>
             <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
             <div className='space-y-4'>
-              {/* House Number and Street Inputs */}
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                {/* House Number */}
                 <FormField
                   control={control}
                   name='motherInfo.residence.houseNumber'
@@ -288,6 +287,8 @@ const MotherInformationCard: React.FC = () => {
                     </FormItem>
                   )}
                 />
+
+                {/* Street */}
                 <FormField
                   control={control}
                   name='motherInfo.residence.street'
@@ -305,10 +306,8 @@ const MotherInformationCard: React.FC = () => {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              {/* Location Selector and Country */}
-              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                {/* Province */}
                 <LocationSelector
                   provinceFieldName='motherInfo.residence.province'
                   municipalityFieldName='motherInfo.residence.cityMunicipality'
@@ -329,6 +328,7 @@ const MotherInformationCard: React.FC = () => {
                   barangayPlaceholder='Select barangay'
                 />
 
+                {/* Country */}
                 <FormField
                   control={control}
                   name='motherInfo.residence.country'
