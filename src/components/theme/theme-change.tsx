@@ -13,7 +13,7 @@ export function ThemeChange() {
             <Tooltip delayDuration={50}>
                 <TooltipTrigger asChild>
                     <Button
-                        className='switch rounded-sm w-8 h-8 bg-white text-black darK:bg-transparent mr-2'
+                        className='switch rounded-sm w-9 h-9 bg-white text-black darK:bg-transparent mr-2'
                         variant={'outline'}
                         size='icon'
                         id='switch'

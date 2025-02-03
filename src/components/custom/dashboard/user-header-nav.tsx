@@ -110,13 +110,13 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link href="/profile" className="cursor-pointer">
-              <Icons.user className="mr-2 h-4 w-4" />
+              <Icons.user className="h-2 w-2" />
               {t('profile')}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/notifications" className="cursor-pointer">
-              <Icons.bell className="mr-2 h-4 w-4" />
+              <Icons.bell className="h-4 w-4" />
               {t('notifications')}
             </Link>
           </DropdownMenuItem>

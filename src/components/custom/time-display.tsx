@@ -16,7 +16,7 @@ export default function TimeDisplay() {
     if (!currentTime) return null
 
     return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-base">
             <span className="tabular-nums">
                 {new Intl.DateTimeFormat(i18n.language, {
                     day: '2-digit',

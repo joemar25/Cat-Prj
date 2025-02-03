@@ -77,7 +77,7 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
             </div>
 
             {/* Right Section */}
-            <div className="ml-auto flex items-center gap-3 sm:gap-4">
+            <div className="ml-auto flex items-center gap-3 sm:gap-4 ">
                 {/* Date & Time */}
                 <div className="hidden sm:flex items-center">
                     <Button
@@ -91,16 +91,15 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                 </div>
 
                 {/* Utilities */}
-                <div className="flex items-center gap-2 sm:gap-4">
-                    <div className="hidden sm:flex gap-2">
+                <div className="flex items-center sm:gap-[0.6rem] gap-[1rem]">
+                    <div className="hidden sm:flex gap-4">
                         <LanguageSelector />
                         <FullscreenToggle />
                         <ThemeChange />
                     </div>
-
-                    {/* Notifications & User */}
                     {user && <NotificationBell userId={user.id} />}
                     <UserHeaderNav user={user} />
+                 
                 </div>
             </div>
         </header>
