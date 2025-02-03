@@ -37,7 +37,7 @@ export function LanguageSelector() {
                     <DropdownMenuItem
                         key={language.code}
                         onClick={() => handleLanguageChange(language.code)}
-                        className={language.code === selectedLanguage ? 'font-bold' : ''}
+                        className={`cursor-pointer ${language.code === selectedLanguage ? 'font-bold' : ''}`}
                     >
                         {language.label}
                     </DropdownMenuItem>

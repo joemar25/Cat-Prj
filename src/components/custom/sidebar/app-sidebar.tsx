@@ -108,7 +108,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
 
-      <div className="p-4 border-b dark:bg-chart-1/55 bg-chart-3/70">
+      <div className="p-4 border-b bg-muted/50">
         <div className="text-sm text-left font-medium capitalize">
           {t(roleName)} {t("panel")}
         </div>

@@ -67,6 +67,26 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const canAdd = hasPermission(permissions, Permission.DOCUMENT_CREATE)
 
   useEffect(() => {
+    const defaultVisibleColumns = [
+      'formType',
+      'registryDetails',
+      'details',
+      'preparedBy',
+      'verifiedBy',
+      'registeredBy',
+      'createdAt'
+    ]
+
+    table.getAllColumns().forEach((column) => {
+      const columnId = column.id
+      const isVisible = defaultVisibleColumns.includes(columnId)
+      if (column.getCanHide()) {
+        column.toggleVisibility(isVisible)
+      }
+    })
+  }, [table])
+
+  useEffect(() => {
     const rows = table.getFilteredRowModel().rows
     const uniqueYears = new Set<number>()
 
@@ -394,28 +414,14 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
         </div>
 
         <div className="flex items-center gap-4">
+        {canAdd && (
+          <div className="flex items-center gap-2">
+            <AddCivilRegistryFormDialog />
+          </div>
+        )}
 
-          {/* <div className="flex items-center gap-2">
-                {canExport && (
-                  <Button
-                    variant={"outline"}
-                    className="w-full sm:w-auto"
-                    onClick={handleExport}
-                  >
-                    <Icons.download className="mr-2 h-4 w-4" />
-                    {t("Export")}
-                  </Button>
-                )}
-
-              </div> */}
-          {canAdd && (
-            <div className="flex items-center gap-2">
-              <AddCivilRegistryFormDialog />
-            </div>
-          )}
-
-          <DataTableViewOptions table={table} />
-        </div>
+        <DataTableViewOptions table={table} />
+      </div>
       </div>
     </div>
   )

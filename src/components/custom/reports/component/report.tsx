@@ -6,6 +6,7 @@ import { BirthData, DeathData, MarriageData } from "@/lib/types/reports"
 import { DataTable } from "@/components/custom/reports/component/data-table"
 import { DebugInfo } from "@/components/custom/reports/component/debug-info"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ReportSkeleton } from "./report-skeleton"
 
 type ReportData = BirthData | DeathData | MarriageData
 
@@ -53,7 +54,12 @@ export const ReportComponent = <T extends ReportData[number]>({
         handleFetchData()
     }, [fetchDataAction, yearFrom, yearTo])
 
-    if (loading) return <div>Loading...</div>
+    if (loading) return (
+        <div className="w-full min-h-screen ">
+            <ReportSkeleton />
+        </div>
+    )
+
     if (error) return <div>Error: {error}</div>
 
     // Ensure data is valid before attempting to determine keys
@@ -67,7 +73,7 @@ export const ReportComponent = <T extends ReportData[number]>({
             : []
 
     return (
-        <div className="w-full p-6 space-y-6">
+        <div className="w-full my-2 space-y-4">
             {/* {process.env.NEXT_PUBLIC_NODE_ENV === "development" && (
                 <DebugInfo
                     dataLength={data?.length || 0}
@@ -77,11 +83,11 @@ export const ReportComponent = <T extends ReportData[number]>({
                 />
             )} */}
 
-            <Card className="p-4">
-                <CardHeader>
-                    <CardTitle className="text-xl font-bold">{title}</CardTitle>
-                </CardHeader>
-                <CardContent>
+            <Card className="p-2.5">
+                {/* <CardHeader>
+                    <CardTitle className="text-lg font-bold">{title}</CardTitle>
+                </CardHeader> */}
+                <CardContent className="py-2 px-1">
                     <Filters
                         yearFrom={yearFrom}
                         yearTo={yearTo}
@@ -104,7 +110,7 @@ export const ReportComponent = <T extends ReportData[number]>({
                         renderTableRowAction={renderTableRowAction}
                     />
                 ) : (
-                    <CardContent className="p-4 text-yellow-600 bg-yellow-50 rounded-md">
+                    <CardContent className=" text-yellow-600 bg-yellow-50 rounded-md">
                         No data found for the selected period.
                     </CardContent>
                 )}

@@ -1,8 +1,6 @@
 import { Separator } from '@/components/ui/separator'
-import { BirthReport } from '@/components/custom/reports/birth-report'
-import { DeathReport } from '@/components/custom/reports/death-report'
-import { MarriageReport } from '@/components/custom/reports/marriage-report'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
+import { TabsReports } from '@/components/custom/reports/tabs-reports'
 
 export default function ProfilePage() {
     return (
@@ -13,9 +11,10 @@ export default function ProfilePage() {
                 ]}
             />
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <BirthReport />
+                {/* <BirthReport />
                 <DeathReport />
-                <MarriageReport />
+                <MarriageReport /> */}
+                <TabsReports />
                 <Separator />
                 <div>
                     Note:
