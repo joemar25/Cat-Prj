@@ -39,7 +39,6 @@ export function DataTableRowActions({
   const user = row.original
 
   const { roles, loading: rolesLoading, error: rolesError } = useRoles()
-  // The permissions here may be a flat array (e.g. Permission[]). Our hasPermission helper supports that.
   const { permissions } = useUser()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedRole, setSelectedRole] = useState<string | null>(null)
@@ -146,22 +145,14 @@ export function DataTableRowActions({
         <DropdownMenuContent align="end" className="w-[200px]">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {canUpdateUser && isUserDisabled && (
+
+          {canActivateUser && isUserDisabled && (
             <DropdownMenuItem onClick={handleEnable} disabled={isLoading}>
               <Icons.check className="mr-2 h-4 w-4" /> Enable
             </DropdownMenuItem>
           )}
-          {canDeactivateUser && !isUserDisabled && (
-            <DropdownMenuItem
-              onClick={() => setShowDisableDialog(true)}
-              className="text-destructive"
-              disabled={isLoading}
-            >
-              <Icons.trash className="mr-2 h-4 w-4" /> Deactivate
-            </DropdownMenuItem>
-          )}
-          {/* Only show the "Assign Role" option if the user is enabled */}
-          {canAssignRoles && !isUserDisabled && (
+
+          {canAssignRoles && (
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <Icons.user className="mr-2 h-4 w-4" /> Assign Role
@@ -174,22 +165,35 @@ export function DataTableRowActions({
                     {rolesError}
                   </DropdownMenuItem>
                 ) : (
-                  roles.map((role) => (
+                  roles.map((roleItem) => (
                     <DropdownMenuItem
-                      key={role.id}
+                      key={roleItem.id}
                       onClick={() => {
-                        // Here we assume that selectedRole should be the role's id.
-                        setSelectedRole(role.id)
+                        setSelectedRole(roleItem.id)
                         setShowRoleDialog(true)
                       }}
                     >
-                      {role.name}
+                      {roleItem.name}
+                      {user.roles.some(r => r.role.id === roleItem.id) && (
+                        <Icons.check className="ml-auto h-4 w-4" />
+                      )}
                     </DropdownMenuItem>
                   ))
                 )}
               </DropdownMenuSubContent>
             </DropdownMenuSub>
           )}
+
+          {canDeactivateUser && !isUserDisabled && (
+            <DropdownMenuItem
+              onClick={() => setShowDisableDialog(true)}
+              className="text-destructive"
+              disabled={isLoading}
+            >
+              <Icons.trash className="mr-2 h-4 w-4" /> Deactivate
+            </DropdownMenuItem>
+          )}
+
           {canDeleteUser && (
             <DropdownMenuItem
               onClick={() => setShowDeleteDialog(true)}
