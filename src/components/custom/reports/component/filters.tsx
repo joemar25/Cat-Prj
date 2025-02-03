@@ -48,7 +48,7 @@ export const Filters = <T extends { year: number }>({
                 {/* Year From */}
                 {hasPermission(userPermissions, Permission.REPORT_READ) && (
                     <div>
-                        <Label htmlFor="yearFrom">{t('filters.yearFrom')}</Label>
+                        <Label className='text-sm text-muted-foreground px-1.5' htmlFor="yearFrom">{t('filters.yearFrom')}</Label>
                         <Select
                             onValueChange={(value) => setYearFromAction(Number(value))}
                             defaultValue={yearFrom.toString()}
@@ -70,7 +70,7 @@ export const Filters = <T extends { year: number }>({
                 {/* Year To */}
                 {hasPermission(userPermissions, Permission.REPORT_READ) && (
                     <div>
-                        <Label htmlFor="yearTo">{t('filters.yearTo')}</Label>
+                        <Label className='text-sm text-muted-foreground px-1.5' htmlFor="yearTo">{t('filters.yearTo')}</Label>
                         <Select
                             onValueChange={(value) => setYearToAction(Number(value))}
                             defaultValue={yearTo.toString()}
