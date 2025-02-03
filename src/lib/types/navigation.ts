@@ -24,6 +24,7 @@ export type NavSecondaryConfig = NavigationItem & { type: 'secondary' }
 
 // Transformed navigation item interfaces
 export interface NavMainItem {
+    id: string
     title: string
     url: string
     icon?: LucideIcon

@@ -135,39 +135,41 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                 </div>
 
                 {/* Actions Section */}
-                <div className="border-t pt-4 mt-4">
-                    <h4 className="font-medium text-lg">{t('Actions')}</h4>
-                    <div className="flex flex-wrap gap-4 mt-2">
-                        {canUpload && (
-                            <>
-                                <Button onClick={() => setUploadDialogOpen(true)} variant="outline">
-                                    <Icons.add className="mr-2 h-4 w-4" />
-                                    {t('importDocument')}
+                {(canUpload || canEdit || canDelete) && (
+                    <div className="border-t pt-4 mt-4">
+                        <h4 className="font-medium text-lg">{t('Actions')}</h4>
+                        <div className="flex flex-wrap gap-4 mt-2">
+                            {canUpload && (
+                                <>
+                                    <Button onClick={() => setUploadDialogOpen(true)} variant="outline">
+                                        <Icons.add className="mr-2 h-4 w-4" />
+                                        {t('importDocument')}
+                                    </Button>
+                                    <Button onClick={() => setUploadDialogOpen(true)} variant="outline">
+                                        <Icons.add className="mr-2 h-4 w-4" />
+                                        {t('scanDocument')}
+                                    </Button>
+                                </>
+                            )}
+                            {canEdit && (
+                                <Button onClick={() => setEditDialogOpen(true)} variant="secondary">
+                                    <Icons.file className="mr-2 h-4 w-4" />
+                                    {t('issueCertificate')}
                                 </Button>
-                                <Button onClick={() => setUploadDialogOpen(true)} variant="outline">
-                                    <Icons.add className="mr-2 h-4 w-4" />
-                                    {t('scanDocument')}
+                            )}
+                            {canDelete && (
+                                <Button
+                                    onClick={() => setDeletionAlertOpen(true)}
+                                    variant="destructive"
+                                    disabled={isLoading}
+                                >
+                                    <Icons.trash className="mr-2 h-4 w-4" />
+                                    {isLoading ? t('deleting') : t('delete')}
                                 </Button>
-                            </>
-                        )}
-                        {canEdit && (
-                            <Button onClick={() => setEditDialogOpen(true)} variant="secondary">
-                                <Icons.file className="mr-2 h-4 w-4" />
-                                {t('issueCertificate')}
-                            </Button>
-                        )}
-                        {canDelete && (
-                            <Button
-                                onClick={() => setDeletionAlertOpen(true)}
-                                variant="destructive"
-                                disabled={isLoading}
-                            >
-                                <Icons.trash className="mr-2 h-4 w-4" />
-                                {isLoading ? t('deleting') : t('delete')}
-                            </Button>
-                        )}
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Latest Attachment Section */}
                 <div className="border-t pt-4 mt-4">
