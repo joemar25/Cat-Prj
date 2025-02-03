@@ -9,8 +9,21 @@ import { Button } from '@/components/ui/button'
 import { useUser } from '@/context/user-context'
 import { Role, Permission } from '@prisma/client'
 import { RoleDetailsDialog } from './components/role-details-dialog'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { UpdateRoleDialog } from './components/update-role-dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader, DialogTitle
+} from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 type RoleRow = Role & {
   permissions: Permission[]
@@ -26,10 +39,12 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
   const { permissions } = useUser()
 
   const canDelete = hasPermission(permissions, Permission.ROLE_DELETE)
   const canViewDetails = hasPermission(permissions, Permission.ROLE_READ)
+  const canEdit = hasPermission(permissions, Permission.ROLE_UPDATE)
 
   const handleDelete = async () => {
     try {
@@ -70,6 +85,12 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
               View Details
             </DropdownMenuItem>
           )}
+          {canEdit && (
+            <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
+              <Icons.edit className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+          )}
           {canDelete && role.name !== 'Super Admin' && (
             <DropdownMenuItem
               onClick={() => setConfirmDeleteOpen(true)}
@@ -82,12 +103,39 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
+      {/* View Details Dialog */}
       <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
         <DialogContent>
           <RoleDetailsDialog role={role} onCloseAction={() => setViewDetailsOpen(false)} />
         </DialogContent>
       </Dialog>
 
+      {/* Edit Role Dialog – rendered directly without extra wrapping */}
+      {isEditOpen && (
+        <UpdateRoleDialog
+          isOpen={isEditOpen}
+          role={role}
+          onOpenChangeAction={async (open) => setIsEditOpen(open)}
+          updateRoleAction={async (id, data) => {
+            try {
+              const response = await fetch(`/api/roles/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+              })
+              if (!response.ok) throw new Error('Failed to update role')
+              return await response.json()
+            } catch (error) {
+              console.error('Error updating role:', error)
+              return {
+                error: error instanceof Error ? error.message : 'Failed to update role',
+              }
+            }
+          }}
+        />
+      )}
+
+      {/* Confirm Delete Dialog */}
       <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
         <DialogContent>
           <DialogHeader>

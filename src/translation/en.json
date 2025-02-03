@@ -15,6 +15,9 @@
     "afternoon": "Good afternoon",
     "evening": "Good evening"
   },
+  "editForm": {
+    "title": "Edit Form"
+  },
   "registry_statistics": "Registry Statistics",
   "monthly_registration_trends": "Monthly registration trends for the past 6 months",
   "trending_up": "Trending up by {{percentage}}% this month",
@@ -120,7 +123,7 @@
   "viewDetails": "View Details",
   "importDocument": "Import Document",
   "uploadDocument": "Upload Document",
-  "scanDocument": "Scan Document",
+  "scanDocumentUpload": "Scanned Document Upload",
   "viewAttachments": "View Document",
   "latestAttachment": "Latest Document Attachment",
   "uploadedOn": "Uploaded on",

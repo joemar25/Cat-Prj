@@ -53,36 +53,6 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
 
   return (
     <>
-      {canUpload && (
-        <FileUploadDialog
-          open={uploadDialogOpen}
-          onOpenChangeAction={setUploadDialogOpen}
-          onUploadSuccess={(fileUrl: string) => {
-            // Create a minimal attachment object for UI purposes.
-            const newAttachment = {
-              fileUrl,
-              fileName: fileUrl.split('/').pop() || fileUrl,
-              fileSize: 0,
-            } as unknown as AttachmentType
-
-            if (form.document) {
-              onUpdateAction?.({
-                ...form,
-                document: {
-                  ...form.document,
-                  attachments: form.document.attachments
-                    ? [...form.document.attachments, newAttachment]
-                    : [newAttachment],
-                },
-              })
-            }
-          }}
-          formId={form.id}
-          formType={form.formType}
-          registryNumber={form.registryNumber}
-        />
-      )}
-
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -99,16 +69,16 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
               {t('viewDetails')}
             </DropdownMenuItem>
           )}
-          {canUpload && (
+          {/* {canUpload && (
             <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
               <Icons.add className="mr-2 h-4 w-4" />
               {t('uploadDocument')}
             </DropdownMenuItem>
-          )}
+          )} */}
           {canUpload && (
             <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
               <Icons.add className="mr-2 h-4 w-4" />
-              {t('scanDocument')}
+              {t('scanDocumentUpload')}
             </DropdownMenuItem>
           )}
           {form.document?.attachments && form.document.attachments.length > 0 && (
@@ -176,6 +146,36 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             setDeletionAlertOpen(false)
           }}
           isLoading={isLoading}
+        />
+      )}
+
+      {canUpload && (
+        <FileUploadDialog
+          open={uploadDialogOpen}
+          onOpenChangeAction={setUploadDialogOpen}
+          onUploadSuccess={(fileUrl: string) => {
+            // Create a minimal attachment object for UI purposes.
+            const newAttachment = {
+              fileUrl,
+              fileName: fileUrl.split('/').pop() || fileUrl,
+              fileSize: 0,
+            } as unknown as AttachmentType
+
+            if (form.document) {
+              onUpdateAction?.({
+                ...form,
+                document: {
+                  ...form.document,
+                  attachments: form.document.attachments
+                    ? [...form.document.attachments, newAttachment]
+                    : [newAttachment],
+                },
+              })
+            }
+          }}
+          formId={form.id}
+          formType={form.formType}
+          registryNumber={form.registryNumber}
         />
       )}
     </>
