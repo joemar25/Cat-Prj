@@ -19,10 +19,6 @@ export interface BirthCertificateFormProps {
   onCancel: () => void;
 }
 
-const flexibleAddressSchema = addressSchema.or(
-  z.string().min(1, 'Address is required')
-);
-
 export const birthCertificateSchema = z.object({
   // Registry Information
   registryNumber: registryNumberSchema,
@@ -59,7 +55,7 @@ export const birthCertificateSchema = z.object({
     totalChildrenBornAlive: z.string().min(1, 'Required'),
     childrenStillLiving: z.string().min(1, 'Required'),
     childrenNowDead: z.string().min(1, 'Required'),
-    residence: flexibleAddressSchema,
+    residence: addressSchema,
   }),
 
   // Father Information
@@ -71,13 +67,13 @@ export const birthCertificateSchema = z.object({
     religion: z.string().min(1, 'Religion is required'),
     occupation: z.string().min(1, 'Occupation is required'),
     age: z.string().min(1, 'Age is required'),
-    residence: flexibleAddressSchema,
+    residence: addressSchema,
   }),
 
   // Marriage of Parents
   parentMarriage: z.object({
     date: dateSchema,
-    place: flexibleAddressSchema,
+    place: addressSchema,
   }),
 
   // Certification of Birth Attendant
@@ -88,7 +84,7 @@ export const birthCertificateSchema = z.object({
       signature: signatureSchema.shape.signature,
       name: signatureSchema.shape.name,
       title: signatureSchema.shape.title,
-      address: flexibleAddressSchema,
+      address: addressSchema,
       date: dateSchema,
     }),
   }),
@@ -98,7 +94,7 @@ export const birthCertificateSchema = z.object({
     signature: signatureSchema.shape.signature,
     name: signatureSchema.shape.name,
     relationship: z.string().min(1, 'Relationship is required'),
-    address: flexibleAddressSchema,
+    address: addressSchema,
     date: dateSchema,
   }),
 
@@ -121,7 +117,7 @@ export const birthCertificateSchema = z.object({
         signature: z.string(),
         name: z.string().min(1, 'Officer name is required'),
         position: z.string().min(1, 'Position is required'),
-        address: flexibleAddressSchema,
+        address: addressSchema,
       }),
       ctcInfo: z.object({
         number: z.string().min(1, 'CTC number is required'),
@@ -137,7 +133,7 @@ export const birthCertificateSchema = z.object({
     .object({
       affiant: z.object({
         name: z.string().min(1, 'Affiant name is required'),
-        address: flexibleAddressSchema,
+        address: addressSchema,
         civilStatus: z.string().min(1, 'Civil status is required'),
         citizenship: z.string().min(1, 'Citizenship is required'),
       }),
@@ -181,7 +177,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     middleName: 'Santos',
     lastName: 'Dela Cruz',
     sex: 'Male',
-    dateOfBirth: new Date('2024-01-15'),
+    dateOfBirth: null,
     placeOfBirth: {
       hospital: "St. Luke's Medical Center",
       cityMunicipality: 'Quezon City',
@@ -236,7 +232,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
 
   // Marriage of Parents
   parentMarriage: {
-    date: new Date('2022-06-15'),
+    date: null,
     place: {
       houseNumber: '123',
       street: 'Maginhawa Street',
@@ -263,7 +259,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
         province: 'Metro Manila',
         country: 'Philippines',
       },
-      date: new Date('2024-01-15'),
+      date: null,
     },
   },
 
@@ -280,7 +276,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
       province: '',
       country: 'Philippines',
     },
-    date: new Date('2024-01-16'),
+    date: null,
   },
 
   // Prepared By
@@ -288,7 +284,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     signature: 'Staff3',
     name: 'Staff User 3',
     title: 'Registration Officer',
-    date: new Date('2024-01-16'),
+    date: null,
   },
 
   // Received By
@@ -296,7 +292,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     signature: 'Staff4',
     name: 'Staff User 4',
     title: 'Document Processing Officer',
-    date: new Date('2024-01-16'),
+    date: null,
   },
 
   // Registered By Civil Registry
@@ -304,40 +300,40 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     signature: 'Admin1',
     name: 'Admin User 1',
     title: 'Civil Registrar',
-    date: new Date('2024-01-16'),
+    date: null,
   },
 
   // Affidavit of Paternity
   hasAffidavitOfPaternity: false,
   affidavitOfPaternityDetails: {
     father: {
-      signature: 'JoseDC',
-      name: 'Jose Dela Cruz',
-      title: 'Father',
+      signature: '',
+      name: '',
+      title: '',
     },
     mother: {
-      signature: 'MariaS',
-      name: 'Maria Santos',
-      title: 'Mother',
+      signature: '',
+      name: '',
+      title: '',
     },
-    dateSworn: new Date('2024-01-16'),
+    dateSworn: new Date(),
     adminOfficer: {
-      signature: 'AdminSign',
-      name: 'Administrator Name',
-      position: 'Notary Public',
+      signature: '',
+      name: '',
+      position: '',
       address: {
-        houseNumber: '456',
-        street: 'Padre Faura Street',
-        barangay: 'Ermita',
-        cityMunicipality: 'Manila',
-        province: 'Metro Manila',
-        country: 'Philippines',
+        houseNumber: '',
+        street: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: '',
       },
     },
     ctcInfo: {
-      number: '12345-2024',
-      dateIssued: new Date('2024-01-16'),
-      placeIssued: 'Quezon City',
+      number: '',
+      dateIssued: new Date(),
+      placeIssued: '',
     },
   },
 
@@ -358,9 +354,9 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
       citizenship: 'Filipino',
     },
     registrationType: 'SELF',
-    parentMaritalStatus: 'MARRIED',
+    parentMaritalStatus: 'NOT_MARRIED',
     reasonForDelay: 'Documentation processing delay',
-    dateSworn: new Date('2024-01-16'),
+    dateSworn: new Date(),
     adminOfficer: {
       signature: 'AdminSign',
       name: 'Administrator Name',
@@ -368,7 +364,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     },
     ctcInfo: {
       number: '12345-2024',
-      dateIssued: new Date('2024-01-16'),
+      dateIssued: new Date(),
       placeIssued: 'Quezon City',
     },
     spouseName: 'Maria Santos Dela Cruz',
@@ -378,124 +374,3 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
   // Remarks
   remarks: 'No special remarks',
 };
-
-// export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
-//   // Registry Information
-//   registryNumber: '',
-//   province: '',
-//   cityMunicipality: '',
-
-//   // Child Information
-//   childInfo: {
-//     firstName: '',
-//     middleName: '',
-//     lastName: '',
-//     sex: '',
-//     dateOfBirth: null,
-//     placeOfBirth: {
-//       hospital: '',
-//       cityMunicipality: '',
-//       province: '',
-//     },
-//     typeOfBirth: '',
-//     multipleBirthOrder: '',
-//     birthOrder: '',
-//     weightAtBirth: '',
-//   },
-
-//   // Mother Information
-//   motherInfo: {
-//     firstName: '',
-//     middleName: '',
-//     lastName: '',
-//     citizenship: '',
-//     religion: '',
-//     occupation: '',
-//     age: '',
-//     totalChildrenBornAlive: '',
-//     childrenStillLiving: '',
-//     childrenNowDead: '',
-//     residence: {
-//       address: '',
-//       cityMunicipality: '',
-//       province: '',
-//       country: '',
-//     },
-//   },
-
-//   // Father Information
-//   fatherInfo: {
-//     firstName: '',
-//     middleName: '',
-//     lastName: '',
-//     citizenship: '',
-//     religion: '',
-//     occupation: '',
-//     age: '',
-//     residence: {
-//       address: '',
-//       cityMunicipality: '',
-//       province: '',
-//       country: '',
-//     },
-//   },
-
-//   // Marriage of Parents
-//   parentMarriage: {
-//     date: null, // Default to null
-//     place: {
-//       cityMunicipality: '',
-//       province: '',
-//       country: '',
-//     },
-//   },
-
-//   // Birth Attendant
-//   attendant: {
-//     type: '',
-//     certification: {
-//       time: '',
-//       signature: '',
-//       name: '',
-//       title: '',
-//       address: '',
-//       date: null, // Default to null
-//     },
-//   },
-
-//   // Informant
-//   informant: {
-//     signature: '',
-//     name: '',
-//     relationship: '',
-//     address: '',
-//     date: null, // Default to null
-//   },
-
-//   // Prepared By
-//   preparedBy: {
-//     signature: '',
-//     name: '',
-//     title: '',
-//     date: null, // Default to null
-//   },
-
-//   // Received By
-//   receivedBy: {
-//     signature: '',
-//     name: '',
-//     title: '',
-//     date: null, // Default to null
-//   },
-
-//   // Registered By Civil Registry
-//   registeredByOffice: {
-//     signature: '',
-//     name: '',
-//     title: '',
-//     date: null, // Default to null
-//   },
-
-//   // Remarks
-//   remarks: '',
-// };

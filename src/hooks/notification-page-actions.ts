@@ -76,11 +76,17 @@ export function useNotificationPageActions(userId: string) {
   // Update the notification status (archive or favorite)
   const updateNotificationStatus = async (input: MarkAsStatusInput) => {
     try {
+      // Ensure status is always an array, even if it's a single string
+      const statusArray = Array.isArray(input.status) ? input.status : [input.status];
+
       // Optimistically update the status locally
       setNotifications((prevNotifications) =>
-        prevNotifications.map((notification) =>
-          notification.id === input.id ? { ...notification, status: input.status } : notification
-        )
+        prevNotifications.map((notification) => {
+          if (notification.id === input.id) {
+            return { ...notification, status: statusArray } as Notification; // Type assertion
+          }
+          return notification;
+        })
       );
 
       const response = await fetch(`/api/notifications/page/${input.id}`, {
@@ -88,12 +94,11 @@ export function useNotificationPageActions(userId: string) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: input.status }),
+        body: JSON.stringify({ status: statusArray }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        // If the API call fails, revert the optimistic update
         setNotifications((prevNotifications) =>
           prevNotifications.map((notification) =>
             notification.id === input.id
@@ -112,31 +117,25 @@ export function useNotificationPageActions(userId: string) {
   // Function to archive the notification or remove the archive status
   const archiveNotification = (id: string) => {
     const notification = notifications.find((notif) => notif.id === id);
-    if (notification?.status === 'archive') {
-      removearchiveNotification(id); // If it's already archived, remove the archive status
+    if (notification?.status.includes('archive')) {
+      const updatedStatus = notification.status.filter(status => status !== 'archive');
+      updateNotificationStatus({ id, status: updatedStatus });
     } else {
-      updateNotificationStatus({ id, status: 'archive' }); // Archive the notification
+      const updatedStatus = [...notification?.status || [], 'archive'];
+      updateNotificationStatus({ id, status: updatedStatus });
     }
   };
 
   // Function to favorite the notification
   const favoriteNotification = (id: string) => {
     const notification = notifications.find((notif) => notif.id === id);
-    if (notification?.status === 'favorite') {
-      removefavoriteNotification(id); // If it's already favorite, remove the favorite status
+    if (notification?.status.includes('favorite')) {
+      const updatedStatus = notification.status.filter(status => status !== 'favorite');
+      updateNotificationStatus({ id, status: updatedStatus });
     } else {
-      updateNotificationStatus({ id, status: 'favorite' }); // Favorite the notification
+      const updatedStatus = [...notification?.status || [], 'favorite'];
+      updateNotificationStatus({ id, status: updatedStatus });
     }
-  };
-
-  // Function to remove the archive status
-  const removearchiveNotification = (id: string) => {
-    updateNotificationStatus({ id, status: null });
-  };
-
-  // Function to remove the favorite status
-  const removefavoriteNotification = (id: string) => {
-    updateNotificationStatus({ id, status: null });
   };
 
   // Fetch notifications on mount

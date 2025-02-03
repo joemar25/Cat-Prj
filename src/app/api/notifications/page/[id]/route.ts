@@ -6,14 +6,14 @@ export async function PUT(
   request: Request,
   context: { params: { id: string } }
 ) {
-  const { id } = await context.params; // Await `params` before using
+  const { id } = context.params; // Destructure directly from `params`
 
-  const { status } = await request.json(); // Now we expect `status` instead of `read`
+  const { status } = await request.json(); // Expecting `status` to be an array of `NotificationStatus`
 
   try {
     const notification = await prisma.notification.update({
       where: { id },
-      data: { status }, // Update the `status` instead of `read`
+      data: { status: { set: status } }, // Use `set` to replace the current `status` array with the new one
     });
     return NextResponse.json(notification);
   } catch (error) {

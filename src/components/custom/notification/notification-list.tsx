@@ -36,8 +36,12 @@ export function NotificationList({ userId }: { userId: string }) {
   )
 
   // Filter notifications by status
-  const archivedNotifications = filteredNotifications.filter((notification) => notification.status === 'archive')
-  const favoriteNotifications = filteredNotifications.filter((notification) => notification.status === 'favorite')
+  const archivedNotifications = filteredNotifications.filter((notification) =>
+    notification.status.includes('archive') // Use includes() to check if 'archive' is in the status array
+  )
+  const favoriteNotifications = filteredNotifications.filter((notification) =>
+    notification.status.includes('favorite') // Use includes() to check if 'favorite' is in the status array
+  )
 
   return (
     <div className="w-full mx-auto bg-background rounded-lg shadow-lg">
@@ -62,9 +66,9 @@ export function NotificationList({ userId }: { userId: string }) {
       </div>
 
       <Tabs defaultValue="all" className="p-4">
-        <TabsList className="grid w-full grid-cols-3 mb-4">
+        <TabsList className="grid w-96 h-10 grid-cols-3 mb-4">
           <TabsTrigger value="all">
-            {t('notificationList.all')} ({filteredNotifications.filter(n => n.status !== 'archive').length})
+            {t('notificationList.all')} ({filteredNotifications.filter(n => !n.status.includes('archive')).length})
           </TabsTrigger>
           <TabsTrigger value="archive">
             {t('notificationList.archive')} ({archivedNotifications.length}) 
@@ -79,11 +83,11 @@ export function NotificationList({ userId }: { userId: string }) {
             <div className="text-center text-muted-foreground">{t('notificationList.loading')}</div> 
           ) : error ? (
             <div className="text-center text-destructive">{error}</div>
-          ) : filteredNotifications.filter(n => n.status !== 'archive').length === 0 ? (
+          ) : filteredNotifications.filter(n => !n.status.includes('archive')).length === 0 ? (
             <div className="text-center text-muted-foreground py-8">{t('notificationList.noNotifications')}</div>
           ) : (
             filteredNotifications
-              .filter((notification) => notification.status !== 'archive') // Exclude archived notifications
+              .filter((notification) => !notification.status.includes('archive')) // Exclude archived notifications
               .map((notification) => (
                 <NotificationItem
                   key={notification.id}

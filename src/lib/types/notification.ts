@@ -1,7 +1,7 @@
 type NotificationType = 'EMAIL' | 'SYSTEM' | 'SMS';
 
 export interface Notification {
-  status: string;
+  status: string[];
   id: string;
   userId: string;
   type: NotificationType;

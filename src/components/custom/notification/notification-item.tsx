@@ -21,8 +21,9 @@ export function NotificationItem({ notification, onClick, onArchive, onFavorite 
   const Icon = icons[notification.type]
 
   // Determine if the notification is archived or favorite
-  const isArchived = notification.status === 'archive'
-  const isFavorite = notification.status === 'favorite'
+const isArchived = notification.status.includes('archive')
+const isFavorite = notification.status.includes('favorite')
+
   const isRead = notification.read == false
 
   const handleArchiveClick = (e: React.MouseEvent) => {
@@ -39,8 +40,9 @@ export function NotificationItem({ notification, onClick, onArchive, onFavorite 
   return (
     <div
       className={cn(
-        'flex items-start gap-4 p-4 hover:bg-accent/50 rounded-lg transition-colors cursor-pointer',
-        !notification.read && 'bg-accent/30'
+        'flex items-start gap-4 p-4 dark:hover:bg-accent/65 hover:bg-black/20 rounded-lg transition-colors cursor-pointer',
+        !notification.read && 'dark:bg-accent/60',
+        !notification.read && 'bg-black/15'
       )}
       onClick={() => onClick(notification)}
     >
@@ -49,7 +51,7 @@ export function NotificationItem({ notification, onClick, onArchive, onFavorite 
         <Icon
           className={cn(
             'h-5 w-5',
-            isRead ? 'text-primary' : 'text-muted-foreground' // Change color when archived or favorite
+            isRead ? 'text-primary fill-black dark:fill-white' : 'text-muted-foreground' // Change color when archived or favorite
           )}
         />
       </div>

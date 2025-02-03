@@ -611,21 +611,30 @@ model WorkflowStep {
 /// * - Multiple notification types
 /// * - Read status tracking
 /// * - Timestamp logging
+enum NotificationStatus {
+  favorite
+  archive
+}
+
 model Notification {
-  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String?          @db.Uuid
-  userName  String?          @default("Anonymous")
+  id        String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?             @db.Uuid
+  userName  String?             @default("Anonymous")
   type      NotificationType
   title     String
   message   String
-  read      Boolean          @default(false)
-  createdAt DateTime         @default(now())
+  read      Boolean             @default(false)
+  createdAt DateTime            @default(now())
   readAt    DateTime?
-  status    String?
-  user      User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status    NotificationStatus[] @default([]) // Default to an empty array
+  user      User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("notification")
 }
+
+
+
+
 
 /// *
 /// * AuditLog Model

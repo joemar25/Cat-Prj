@@ -88,27 +88,46 @@ const AttendantInformationCard: React.FC = () => {
             <h3 className='text-sm font-semibold'>Certification Details</h3>
           </CardHeader>
           <CardContent>
+            <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
             <div className='space-y-4'>
-              <FormField
-                control={control}
-                name='attendant.certification.time'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Time of Birth</FormLabel>
-                    <FormControl>
-                      <TimePicker
-                        value={field.value} // field.value is Date | null
-                        onChange={(value) => {
-                          field.onChange(value); // Pass Date | null directly
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                {/* Time of Birth */}
+                <FormField
+                  control={control}
+                  name='attendant.certification.time'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Time of Birth</FormLabel>
+                      <FormControl>
+                        <TimePicker
+                          value={field.value}
+                          onChange={(value) => {
+                            field.onChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Date */}
+                <FormField
+                  control={control}
+                  name='attendant.certification.date'
+                  render={({ field }) => (
+                    <DatePickerField
+                      field={{
+                        value: field.value,
+                        onChange: field.onChange,
+                      }}
+                      label='Date'
+                      placeholder='Select date'
+                    />
+                  )}
+                />
+
+                {/* Name and Title */}
                 <FormField
                   control={control}
                   name='attendant.certification.name'
@@ -144,85 +163,80 @@ const AttendantInformationCard: React.FC = () => {
                     </FormItem>
                   )}
                 />
+
+                {/* House Number and Street */}
+                <FormField
+                  control={control}
+                  name='attendant.certification.address.houseNumber'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>House Number</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='Enter house number'
+                          {...field}
+                          className='h-10'
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={control}
+                  name='attendant.certification.address.street'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Street</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='Enter street'
+                          {...field}
+                          className='h-10'
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Location Selector - Spans 2 columns */}
+                <LocationSelector
+                  provinceFieldName='attendant.certification.address.province'
+                  municipalityFieldName='attendant.certification.address.cityMunicipality'
+                  barangayFieldName='attendant.certification.address.barangay'
+                  provinceLabel='Province'
+                  municipalityLabel='City/Municipality'
+                  selectTriggerClassName='h-10 px-3 text-base md:text-sm'
+                  formItemClassName=''
+                  formLabelClassName=''
+                  selectContentClassName=''
+                  selectItemClassName=''
+                  provincePlaceholder='Select province'
+                  municipalityPlaceholder='Select city/municipality'
+                  className='col-span-2 grid grid-cols-2 gap-4'
+                  isNCRMode={isNCRMode}
+                  showBarangay={true}
+                  barangayLabel='Barangay'
+                  barangayPlaceholder='Select barangay'
+                />
+
+                {/* Country */}
+                <FormField
+                  control={control}
+                  name='attendant.certification.address.country'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Country</FormLabel>
+                      <FormControl>
+                        <Input {...field} disabled className='h-10' />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-
-              <NCRModeSwitch
-                isNCRMode={isNCRMode}
-                setIsNCRMode={setIsNCRMode}
-              />
-
-              <FormField
-                control={control}
-                name='attendant.certification.address.houseNumber'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>House Number</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='Enter house number'
-                        {...field}
-                        className='h-10'
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={control}
-                name='attendant.certification.address.street'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Street</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='Enter street'
-                        {...field}
-                        className='h-10'
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <LocationSelector
-                provinceFieldName='attendant.certification.address.province'
-                municipalityFieldName='attendant.certification.address.cityMunicipality'
-                barangayFieldName='attendant.certification.address.barangay'
-                showBarangay={true}
-                isNCRMode={isNCRMode}
-              />
-
-              <FormField
-                control={control}
-                name='attendant.certification.address.country'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Country</FormLabel>
-                    <FormControl>
-                      <Input {...field} disabled className='h-10' />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={control}
-                name='attendant.certification.date'
-                render={({ field }) => (
-                  <DatePickerField
-                    field={{
-                      value: field.value,
-                      onChange: field.onChange,
-                    }}
-                    label='Date'
-                    placeholder='Select date'
-                  />
-                )}
-              />
             </div>
           </CardContent>
         </Card>

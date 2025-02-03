@@ -182,8 +182,8 @@ const FatherInformationCard: React.FC = () => {
           <CardContent>
             <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
             <div className='space-y-4'>
-              {/* House Number and Street Inputs */}
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                {/* House Number */}
                 <FormField
                   control={control}
                   name='fatherInfo.residence.houseNumber'
@@ -201,6 +201,8 @@ const FatherInformationCard: React.FC = () => {
                     </FormItem>
                   )}
                 />
+
+                {/* Street */}
                 <FormField
                   control={control}
                   name='fatherInfo.residence.street'
@@ -218,10 +220,8 @@ const FatherInformationCard: React.FC = () => {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              {/* Location Selector and Country */}
-              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                {/* Province */}
                 <LocationSelector
                   provinceFieldName='fatherInfo.residence.province'
                   municipalityFieldName='fatherInfo.residence.cityMunicipality'
@@ -242,6 +242,7 @@ const FatherInformationCard: React.FC = () => {
                   barangayPlaceholder='Select barangay'
                 />
 
+                {/* Country */}
                 <FormField
                   control={control}
                   name='fatherInfo.residence.country'
