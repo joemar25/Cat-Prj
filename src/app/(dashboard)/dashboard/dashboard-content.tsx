@@ -15,7 +15,7 @@ export default function DashboardContent() {
     model: "baseRegistryForm" | "birthCertificateForm" | "deathCertificateForm" | "marriageCertificateForm" | null
     currentCount: number | null
   }>({
-    model: null,
+    model: "baseRegistryForm",  // Default to baseRegistryForm
     currentCount: null,
   })
 

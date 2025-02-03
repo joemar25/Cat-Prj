@@ -22,11 +22,19 @@ const areaChartConfig = {
 } satisfies ChartConfig
 
 const pieChartConfig = {
+  birth: {
+    label: "Births",
+    color: "hsl(var(--chart-1))",
+  },
+  death: {
+    label: "Deaths",
+    color: "hsl(var(--chart-2))",
+  },
   marriage: {
     label: "Marriages",
     color: "hsl(var(--chart-3))",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 interface AreaChartProps {
   data: { month: string; birth: number; death: number; marriage: number }[]
@@ -52,27 +60,38 @@ export default function RegistryStatisticsDashboard({ selectedMetric }: Registry
 
   // Transform data for pie chart based on selectedMetric
   const pieData = useMemo(() => {
-    
-    if (!selectedMetric.model || selectedMetric.currentCount === null) {
-      selectedMetric.model = "baseRegistryForm"
-      selectedMetric.currentCount = selectedMetric.currentCount || 0
+    const model = selectedMetric.model || "baseRegistryForm"; // Default to baseRegistryForm if model is null
+  
+    if (model === "baseRegistryForm") {
+      const totalBirths = chartData.reduce((sum, item) => sum + item.birth, 0);
+      const totalDeaths = chartData.reduce((sum, item) => sum + item.death, 0);
+      const totalMarriages = chartData.reduce((sum, item) => sum + item.marriage, 0);
+  
+      return [
+        { name: t("births"), value: totalBirths, fill: pieChartConfig.birth?.color || "hsl(var(--chart-1))" },
+        { name: t("deaths"), value: totalDeaths, fill: pieChartConfig.death?.color || "hsl(var(--chart-2))" },
+        { name: t("marriages"), value: totalMarriages, fill: pieChartConfig.marriage.color },
+      ];
     }
-
-    const modelKey = selectedMetric.model === "marriageCertificateForm"
-      ? "marriage"
-      : selectedMetric.model === "birthCertificateForm"
+  
+    const modelKey =
+      model === "marriageCertificateForm"
+        ? "marriage"
+        : model === "birthCertificateForm"
         ? "birth"
-        : selectedMetric.model === "deathCertificateForm"
-          ? "death"
-          : "birth" 
-
+        : model === "deathCertificateForm"
+        ? "death"
+        : null;
+  
+    if (!modelKey) return [];
+  
     return chartData.map((item) => ({
       name: item.month,
-      value: item[modelKey], 
-      fill: `hsl(var(--chart-3) / ${(item[modelKey] / Math.max(...chartData.map((d) => d[modelKey]))) * 0.9 + 0.1})`, 
-    }))
-  }, [chartData, selectedMetric])
-
+      value: item[modelKey],
+      fill: pieChartConfig[modelKey]?.color || "hsl(var(--chart-3))",
+    }));
+  }, [chartData, selectedMetric, t]);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
