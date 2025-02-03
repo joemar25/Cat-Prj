@@ -192,9 +192,9 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4">
         <Card className="flex-1">
-          <CardContent className="p-4">
+          <CardContent className="p-2.5">
             <Tabs defaultValue="basic" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsList className="grid w-full grid-cols-2 mb-3">
                 <TabsTrigger value="basic">{t("Basic Search")}</TabsTrigger>
                 <TabsTrigger value="advanced">{t("Name Search")}</TabsTrigger>
               </TabsList>
@@ -271,7 +271,8 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
           </CardContent>
         </Card>
 
-        <Card className="w-full sm:w-auto">
+        {/* create new form container */}
+        {/* <Card className="w-full sm:w-auto">
           <CardContent className="p-4">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
@@ -285,19 +286,22 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                     {t("Export")}
                   </Button>
                 )}
-                <DataTableViewOptions table={table} />
+
               </div>
               {canAdd && (
                 <div className="flex items-center gap-2">
                   <AddCivilRegistryFormDialog />
                 </div>
               )}
+              <DataTableViewOptions table={table} />
             </div>
+            
           </CardContent>
-        </Card>
+          
+        </Card> */}
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 justify-between items-center">
         <div className="flex flex-wrap gap-2">
           {formTypeColumn && (
             <DataTableFacetedFilter
@@ -343,51 +347,74 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               options={verifierOptions}
             />
           )}
+          <div className="flex gap-2 items-start">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "justify-start text-left font-normal h-8",
+                    !dateRange && "text-muted-foreground"
+                  )}
+                >
+                  <Icons.calendar className="mr-2 h-4 w-4" />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                        {format(dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>{t("Pick a date range")}</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={handleDateRangeSelect}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {isFiltered && (
+              <Button variant="ghost" onClick={handleReset} size="sm">
+                {t("Reset")}
+                <Cross2Icon className="ml-2 h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
 
-        <div className="flex gap-2 items-start">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "justify-start text-left font-normal",
-                  !dateRange && "text-muted-foreground"
-                )}
-              >
-                <Icons.calendar className="mr-2 h-4 w-4" />
-                {dateRange?.from ? (
-                  dateRange.to ? (
-                    <>
-                      {format(dateRange.from, "LLL dd, y")} -{" "}
-                      {format(dateRange.to, "LLL dd, y")}
-                    </>
-                  ) : (
-                    format(dateRange.from, "LLL dd, y")
-                  )
-                ) : (
-                  <span>{t("Pick a date range")}</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={dateRange?.from}
-                selected={dateRange}
-                onSelect={handleDateRangeSelect}
-                numberOfMonths={2}
-              />
-            </PopoverContent>
-          </Popover>
+        <div className="flex items-center gap-4">
 
-          {isFiltered && (
-            <Button variant="ghost" onClick={handleReset} size="sm">
-              {t("Reset")}
-              <Cross2Icon className="ml-2 h-4 w-4" />
-            </Button>
+          {/* <div className="flex items-center gap-2">
+                {canExport && (
+                  <Button
+                    variant={"outline"}
+                    className="w-full sm:w-auto"
+                    onClick={handleExport}
+                  >
+                    <Icons.download className="mr-2 h-4 w-4" />
+                    {t("Export")}
+                  </Button>
+                )}
+
+              </div> */}
+          {canAdd && (
+            <div className="flex items-center gap-2">
+              <AddCivilRegistryFormDialog />
+            </div>
           )}
+
+          <DataTableViewOptions table={table} />
         </div>
       </div>
     </div>

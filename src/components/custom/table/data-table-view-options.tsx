@@ -11,31 +11,51 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
-import { useTranslation } from 'react-i18next' // Import useTranslation
+import { useTranslation } from 'react-i18next'
+import { useEffect } from 'react'
 
 interface DataTableViewOptionsProps<TData> {
     table: Table<TData>
 }
 
+const defaultVisibleColumns = [
+    'formType',
+    'registryDetails',
+    'details',
+    'preparedBy',
+    'verifiedBy',
+    'registeredBy',
+    'createdAt',
+]
+
 export function DataTableViewOptions<TData>({
     table,
 }: DataTableViewOptionsProps<TData>) {
-    const { t } = useTranslation() // Initialize translation hook
+    const { t } = useTranslation()
+
+    // Set default visible columns on component mount
+    useEffect(() => {
+        table.getAllColumns().forEach((column) => {
+            if (typeof column.accessorFn !== 'undefined' && column.getCanHide()) {
+                column.toggleVisibility(defaultVisibleColumns.includes(column.id))
+            }
+        })
+    }, [table])
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
-                    variant={'outline'}
-                    size='sm'
-                    className='h-10 px-4'
+                    variant="outline"
+                    size="sm"
+                    className="h-10 px-4"
                 >
-                    <MixerHorizontalIcon className='mr-2 h-4 w-4' />
-                    {t('View')} {/* Use translation for the button label */}
+                    <MixerHorizontalIcon className="mr-2 h-4 w-4" />
+                    {t('View')}
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align='end' className='w-[150px]'>
-                <DropdownMenuLabel>{t('Toggle columns')}</DropdownMenuLabel> {/* Use translation for the label */}
+            <DropdownMenuContent align="end" className="w-[150px]">
+                <DropdownMenuLabel>{t('Toggle columns')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {table
                     .getAllColumns()
@@ -47,15 +67,14 @@ export function DataTableViewOptions<TData>({
                         return (
                             <DropdownMenuCheckboxItem
                                 key={column.id}
-                                className='capitalize'
+                                className="capitalize"
                                 checked={column.getIsVisible()}
                                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
                             >
-                                {t(column.id)} {/* Translate the column ID */}
+                                {t(column.id)}
                             </DropdownMenuCheckboxItem>
                         )
                     })}
-
             </DropdownMenuContent>
         </DropdownMenu>
     )

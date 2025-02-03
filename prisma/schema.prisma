@@ -64,7 +64,7 @@ enum Permission {
   REPORT_EXPORT
 
   // System Settings
-  // SYSTEM_SETTINGS_READ
+  SYSTEM_SETTINGS_READ
   // SYSTEM_SETTINGS_UPDATE
 
   // Audit Logs

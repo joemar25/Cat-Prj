@@ -1,4 +1,4 @@
-// src\components\custom\sidebar\app-sidebar.tsx
+// src/components/custom/sidebar/app-sidebar.tsx
 "use client"
 
 import { useEffect, useState } from "react"
@@ -11,11 +11,7 @@ import { useTranslation } from "react-i18next"
 import { NavSecondary } from "./nav-secondary"
 import { useRoles } from "@/hooks/use-roles"
 import { useNavigationStore } from "@/lib/stores/navigation"
-import {
-  navigationConfig,
-  transformToMainNavItem,
-  transformToSecondaryNavItem,
-} from "@/lib/config/navigation"
+import { getMainNavItems } from "@/lib/config/navigation"
 import {
   Sidebar,
   SidebarContent,
@@ -44,7 +40,7 @@ type AppSidebarProps = {
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const { t } = useTranslation();
   const { roles, loading, error } = useRoles();
-  const { visibleMainItems, visibleSecondaryItems } = useNavigationStore();
+  const { visibleMainItems } = useNavigationStore();
   const [mainNavItems, setMainNavItems] = useState<NavMainItem[]>([]);
 
   const roleName = user.roles[0]?.role.name || "User";
@@ -57,31 +53,34 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       return;
     }
 
-    async function loadNavItems() {
-      try {
-        const transformedItems = await Promise.all(
-          navigationConfig.mainNav
-            .filter((item) => visibleMainItems.includes(item.id))
-            .map((item) => transformToMainNavItem(item, user, roles, t))
-        );
-
-        setMainNavItems(transformedItems.filter((item) => !item.hidden));
-      } catch (err) {
-        console.error("Error transforming navigation items:", err);
-      }
-    }
-
-    loadNavItems();
+    // Use the centralized helper function to get the main navigation items.
+    const transformedItems = getMainNavItems(user, roles, t);
+    // Optionally, if you still want to filter by visibleMainItems from your store,
+    // you can do so here. For example:
+    const filteredItems =
+      visibleMainItems && visibleMainItems.length > 0
+        ? transformedItems.filter((item) => visibleMainItems.includes(item.id))
+        : transformedItems;
+    setMainNavItems(filteredItems.filter((item) => !item.hidden));
   }, [visibleMainItems, user, roles, loading, error, t]);
 
-  const visibleProjectNav = navigationConfig.projectsNav.map(item => ({
-    title: t(item.id),
-    url: item.url,
-    icon: (item.iconName ? Icons[item.iconName] : Icons.folder) as LucideIcon | null
-  }));
+  // For project navigation, here we assume notifications is the only project nav.
+  const visibleProjectNav = [
+    {
+      title: t("notifications"),
+      url: "notifications",
+      icon: (Icons.fileText) as LucideIcon,
+    },
+  ];
 
-  if (loading) return <p className="p-4 text-center text-sm">Loading sidebar...</p>;
-  if (error) return <p className="p-4 text-center text-sm text-red-500">Error loading sidebar</p>;
+  if (loading)
+    return <p className="p-4 text-center text-sm">Loading sidebar...</p>;
+  if (error)
+    return (
+      <p className="p-4 text-center text-sm text-red-500">
+        Error loading sidebar
+      </p>
+    );
 
   return (
     <Sidebar variant="inset" {...props} className="border border-border p-0">
@@ -109,16 +108,16 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
 
-      <div className="p-4 border-b bg-muted">
-        <div className="text-sm text-center font-medium text-muted-foreground">
-          {t(roleName)} {t("panel").toUpperCase()}
+      <div className="p-4 border-b dark:bg-chart-1/55 bg-chart-3/70">
+        <div className="text-sm text-left font-medium capitalize">
+          {t(roleName)} {t("panel")}
         </div>
       </div>
 
       <SidebarContent>
         <NavMain items={mainNavItems} />
         <NavProjects items={visibleProjectNav} />
-        <NavSecondary items={navigationConfig.secondaryNav} className="mt-auto" />
+        <NavSecondary items={[]} className="mt-auto" />
       </SidebarContent>
     </Sidebar>
   );

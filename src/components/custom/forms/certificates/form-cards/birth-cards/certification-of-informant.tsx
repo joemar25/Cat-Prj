@@ -25,61 +25,82 @@ const CertificationOfInformantCard: React.FC = () => {
       <CardHeader>
         <CardTitle>Certification of Informant</CardTitle>
       </CardHeader>
-      <CardContent className='space-y-4'>
-        {/* Signature */}
-        <FormField
-          control={control}
-          name='informant.signature'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Signature</FormLabel>
-              <FormControl>
-                <Input placeholder='Signature' {...field} className='h-10' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Name and Relationship */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          <FormField
-            control={control}
-            name='informant.name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name in Print</FormLabel>
-                <FormControl>
-                  <Input placeholder='Enter name' {...field} className='h-10' />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name='informant.relationship'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Relationship to the Child</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder='Enter relationship'
-                    {...field}
-                    className='h-10'
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Address Fields */}
+      <CardContent>
+        <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
         <div className='space-y-4'>
-          <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
-          {/* House Number and Street */}
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {/* Signature and Date */}
+            <FormField
+              control={control}
+              name='informant.signature'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Signature</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='Signature'
+                      {...field}
+                      className='h-10'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name='informant.date'
+              render={({ field }) => (
+                <DatePickerField
+                  field={{
+                    value: field.value,
+                    onChange: field.onChange,
+                  }}
+                  label='Date'
+                  placeholder='Select date'
+                />
+              )}
+            />
+
+            {/* Name and Relationship */}
+            <FormField
+              control={control}
+              name='informant.name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name in Print</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='Enter name'
+                      {...field}
+                      className='h-10'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name='informant.relationship'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Relationship to the Child</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='Enter relationship'
+                      {...field}
+                      className='h-10'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* House Number and Street */}
             <FormField
               control={control}
               name='informant.address.houseNumber'
@@ -115,23 +136,29 @@ const CertificationOfInformantCard: React.FC = () => {
                 </FormItem>
               )}
             />
-          </div>
 
-          {/* Location Selector */}
-          <LocationSelector
-            provinceFieldName='informant.address.province'
-            municipalityFieldName='informant.address.cityMunicipality'
-            barangayFieldName='informant.address.barangay'
-            showBarangay={true}
-            selectTriggerClassName='h-10'
-            provincePlaceholder='Select province'
-            municipalityPlaceholder='Select city/municipality'
-            barangayPlaceholder='Select barangay'
-            isNCRMode={isNCRMode}
-          />
+            {/* Location Selector - Spans 2 columns */}
+            <LocationSelector
+              provinceFieldName='informant.address.province'
+              municipalityFieldName='informant.address.cityMunicipality'
+              barangayFieldName='informant.address.barangay'
+              provinceLabel='Province'
+              municipalityLabel='City/Municipality'
+              selectTriggerClassName='h-10 px-3 text-base md:text-sm'
+              formItemClassName=''
+              formLabelClassName=''
+              selectContentClassName=''
+              selectItemClassName=''
+              provincePlaceholder='Select province'
+              municipalityPlaceholder='Select city/municipality'
+              className='col-span-2 grid grid-cols-2 gap-4'
+              isNCRMode={isNCRMode}
+              showBarangay={true}
+              barangayLabel='Barangay'
+              barangayPlaceholder='Select barangay'
+            />
 
-          {/* Country */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {/* Country */}
             <FormField
               control={control}
               name='informant.address.country'
@@ -152,22 +179,6 @@ const CertificationOfInformantCard: React.FC = () => {
             />
           </div>
         </div>
-
-        {/* Informant Date */}
-        <FormField
-          control={control}
-          name='informant.date'
-          render={({ field }) => (
-            <DatePickerField
-              field={{
-                value: field.value,
-                onChange: field.onChange,
-              }}
-              label='Date'
-              placeholder='Select date'
-            />
-          )}
-        />
       </CardContent>
     </Card>
   );
