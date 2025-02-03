@@ -112,21 +112,22 @@ export default function MetricsDashboard({
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {metrics.map((metric) => (
         <Card
-          key={metric.titleKey}
-          className="cursor-pointer transition-all"
-          style={{
-            backgroundColor: selectedMetric === metric.titleKey
-              ? metric.titleKey === "metrics.death_certificates"
-                ? "hsl(var(--chart-2))"
-                : metric.titleKey === "metrics.marriage_certificates"
-                  ? "hsl(var(--chart-3) / 0.75)" // Change opacity to 0.5 (50%)
-                  : metric.titleKey === "metrics.birth_certificates"
-                    ? "hsl(var(--chart-1))"
-                    : "hsl(var(--chart-3) / 0.7)"
-              : "transparent"
-          }}
-          onClick={() => handleSelectMetric(metric.titleKey, metric.model, metric.currentCount)}
-        >
+  key={metric.titleKey}
+  className={`cursor-pointer transition-all ${selectedMetric === metric.titleKey && ["metrics.birth_certificates", "metrics.death_certificates"].includes(metric.titleKey) ? "text-white" : ""}`}
+  style={{
+    backgroundColor: selectedMetric === metric.titleKey
+      ? metric.titleKey === "metrics.death_certificates"
+        ? "hsl(var(--chart-2))"
+        : metric.titleKey === "metrics.marriage_certificates"
+        ? "hsl(var(--chart-3) / 0.75)" // Change opacity to 0.75 (75%)
+        : metric.titleKey === "metrics.birth_certificates"
+        ? "hsl(var(--chart-1))"
+        : "hsl(var(--chart-3) / 0.7)"
+      : "transparent"
+  }}
+  onClick={() => handleSelectMetric(metric.titleKey, metric.model, metric.currentCount)}
+>
+
 
 
 
