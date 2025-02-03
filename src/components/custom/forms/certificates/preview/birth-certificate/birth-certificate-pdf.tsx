@@ -357,7 +357,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={[styles.label]}>Residence:</Text>
                       <Text style={styles.value}>
-                        {`${data.motherInfo?.residence?.houseNumber || ''} ${
+                        {`${data.motherInfo?.residence?.street || ''} ${
                           data.motherInfo?.residence?.street || ''
                         }, Brgy. ${data.motherInfo?.residence?.barangay || ''}`}
                       </Text>
@@ -516,9 +516,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={[styles.label]}>Residence:</Text>
                       <Text style={styles.value}>
-                        {`${data.fatherInfo?.residence?.houseNumber || ''} ${
-                          data.fatherInfo?.residence?.street || ''
-                        }, ${data.fatherInfo?.residence?.barangay || ''}`}
+                        {`${data.fatherInfo?.residence}`}
                       </Text>
                     </View>
                   </View>
@@ -608,13 +606,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 </View>
                 <View style={[styles.dateInputContainer]}>
                   <Text style={styles.dateInput}>
-                    {data.parentMarriage?.place?.cityMunicipality || ''}
-                  </Text>
-                  <Text style={styles.dateInput}>
-                    {data.parentMarriage?.place?.province || ''}
-                  </Text>
-                  <Text style={styles.dateInput}>
-                    {data.parentMarriage?.place?.country || ''}
+                    {data.parentMarriage?.place || ''}
                   </Text>
                 </View>
               </View>
@@ -662,15 +654,8 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 <Text style={[styles.label, { fontSize: 10 }]}>Address:</Text>
                 <Text style={[styles.value, { fontSize: 10 }]}>
                   {`${
-                    data.attendant?.certification?.address?.houseNumber || ''
-                  } ${data.attendant?.certification?.address?.street || ''}, ${
-                    data.attendant?.certification?.address?.barangay || ''
-                  }, ${
-                    data.attendant?.certification?.address?.cityMunicipality ||
-                    ''
-                  }, ${
-                    data.attendant?.certification?.address?.province || ''
-                  }, ${data.attendant?.certification?.address?.country || ''}`}
+                    data.attendant?.certification?.address || ''
+                  } `}
                 </Text>
               </View>
             </View>
@@ -756,12 +741,8 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 <View style={{ width: '50%' }}>
                   <Text style={[styles.label, { fontSize: 10 }]}>Address:</Text>
                   <Text style={[styles.value, { fontSize: 10 }]}>
-                    {`${data.informant?.address?.houseNumber || ''} ${
-                      data.informant?.address?.street || ''
-                    }, ${data.informant?.address?.barangay || ''}, ${
-                      data.informant?.address?.cityMunicipality || ''
-                    }, ${data.informant?.address?.province || ''}, ${
-                      data.informant?.address?.country || ''
+                    {`${data.informant?.address || ''} ${
+                      data.informant?.address || ''
                     }`}
                   </Text>
                 </View>
