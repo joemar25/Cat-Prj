@@ -15,6 +15,9 @@
     "afternoon": "Magandang hapon",
     "evening": "Magandang gabi"
   },
+  "editForm": {
+    "title": "Edit Form"
+  },
   "registry_statistics": "Mga Estadistika ng Rehistro",
   "monthly_registration_trends": "Buwanang mga trend ng rehistro sa nakaraang 6 na buwan",
   "trending_up": "Tumaas ng {{percentage}}% ngayong buwan",

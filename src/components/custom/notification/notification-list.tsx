@@ -56,11 +56,11 @@ export function NotificationList({ userId }: { userId: string }) {
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input 
+          <Input
             placeholder={t('notificationList.searchPlaceholder')}  // Replace hardcoded text with translation key
             className="pl-9"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)} 
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
       </div>
@@ -71,23 +71,23 @@ export function NotificationList({ userId }: { userId: string }) {
             {t('notificationList.all')} ({filteredNotifications.filter(n => !n.status.includes('archive')).length})
           </TabsTrigger>
           <TabsTrigger value="archive">
-            {t('notificationList.archive')} ({archivedNotifications.length}) 
+            {t('notificationList.archive')} ({archivedNotifications.length})
           </TabsTrigger>
           <TabsTrigger value="favorite">
-            {t('notificationList.favorite')} ({favoriteNotifications.length}) 
+            {t('notificationList.favorite')} ({favoriteNotifications.length})
           </TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="all" className="space-y-2">
+
+        <TabsContent value="all" className="space-y-2 max-h-[450px] overflow-y-auto">
           {isLoading ? (
-            <div className="text-center text-muted-foreground">{t('notificationList.loading')}</div> 
+            <div className="text-center text-muted-foreground">{t('notificationList.loading')}</div>
           ) : error ? (
             <div className="text-center text-destructive">{error}</div>
           ) : filteredNotifications.filter(n => !n.status.includes('archive')).length === 0 ? (
             <div className="text-center text-muted-foreground py-8">{t('notificationList.noNotifications')}</div>
           ) : (
             filteredNotifications
-              .filter((notification) => !notification.status.includes('archive')) // Exclude archived notifications
+              .filter((notification) => !notification.status.includes('archive'))
               .map((notification) => (
                 <NotificationItem
                   key={notification.id}
@@ -100,10 +100,9 @@ export function NotificationList({ userId }: { userId: string }) {
           )}
         </TabsContent>
 
-        {/* Archived notifications */}
-        <TabsContent value="archive" className="space-y-2">
+        <TabsContent value="archive" className="space-y-2 max-h-[460px] overflow-y-auto">
           {archivedNotifications.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">{t('notificationList.noArchived')}</p> 
+            <p className="text-center text-muted-foreground py-8">{t('notificationList.noArchived')}</p>
           ) : (
             archivedNotifications.map((notification) => (
               <NotificationItem
@@ -117,10 +116,9 @@ export function NotificationList({ userId }: { userId: string }) {
           )}
         </TabsContent>
 
-        {/* Favorite notifications */}
-        <TabsContent value="favorite" className="space-y-2">
+        <TabsContent value="favorite" className="space-y-2 max-h-[460px] overflow-y-auto">
           {favoriteNotifications.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">{t('notificationList.noFavorite')}</p> 
+            <p className="text-center text-muted-foreground py-8">{t('notificationList.noFavorite')}</p>
           ) : (
             favoriteNotifications.map((notification) => (
               <NotificationItem
@@ -133,6 +131,7 @@ export function NotificationList({ userId }: { userId: string }) {
             ))
           )}
         </TabsContent>
+
       </Tabs>
 
       <NotificationModal

@@ -1,4 +1,3 @@
-// src/app/api/notifications/[id]/route.ts
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
@@ -6,7 +5,7 @@ export async function PUT(
   request: Request,
   context: { params: { id: string } }
 ) {
-  const { id } = context.params; // Destructure directly from `params`
+  const { id } = await context.params; // Await to properly handle params
 
   const { status } = await request.json(); // Expecting `status` to be an array of `NotificationStatus`
 

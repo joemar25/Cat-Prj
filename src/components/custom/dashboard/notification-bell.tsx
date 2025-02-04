@@ -32,7 +32,7 @@ type NotificationType = 'EMAIL' | 'SYSTEM' | 'SMS';
 
 interface Notification {
   id: string;
-  userId: string;
+  userId: string | null;
   type: NotificationType;
   title: string;
   message: string;
@@ -102,11 +102,11 @@ export function NotificationBell({ userId }: { userId: string }) {
                 <Button
                   variant='outline'
                   size='icon'
-                  className='h-8 w-8 relative'
+                  className='h-9 w-9 relative'
                 >
                   <BellIcon className='h-[1.2rem] w-[1.2rem]' />
                   {unreadCount > 0 && (
-                    <span className='absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] font-medium flex items-center justify-center'>
+                    <span className='absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] font-medium flex items-center justify-center'>
                       {unreadCount}
                     </span>
                   )}
