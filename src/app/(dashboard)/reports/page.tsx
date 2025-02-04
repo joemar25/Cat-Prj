@@ -1,25 +1,17 @@
-import { Separator } from '@/components/ui/separator'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
-import { TabsReports } from '@/components/custom/reports/tabs-reports'
+import { ReportsDashboard } from '@/components/custom/reports/reports-dashboard'
 
 export default function ProfilePage() {
     return (
         <>
             <DashboardHeader
                 breadcrumbs={[
+                    { label: 'Dashboard', href: '/dashboard', active: false },
                     { label: 'Reports', href: '/reports', active: true },
                 ]}
             />
             <div className="flex flex-1 flex-col gap-4 p-4">
-                {/* <BirthReport />
-                <DeathReport />
-                <MarriageReport /> */}
-                <TabsReports />
-                <Separator />
-                <div>
-                    Note:
-                    Create detailed reports on civil registry document requests, processing times, and user activity.
-                </div>
+                <ReportsDashboard />
             </div>
         </>
     )

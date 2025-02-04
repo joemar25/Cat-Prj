@@ -24,6 +24,7 @@ export default async function ProfilePage() {
         <>
             <DashboardHeader
                 breadcrumbs={[
+                    { label: 'Dashboard', href: '/dashboard', active: false },
                     { label: 'Profile', href: '/profile', active: true },
                 ]}
             />

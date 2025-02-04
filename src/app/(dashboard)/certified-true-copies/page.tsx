@@ -56,7 +56,10 @@ export default async function RequestsPage() {
   return (
     <>
       <DashboardHeader
-        breadcrumbs={[{ label: 'Requests', href: '/requests', active: true }]}
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard', active: false },
+          { label: 'Requests', href: '/requests', active: true }
+        ]}
       />
 
       <div className='flex flex-1 flex-col gap-4 p-4'>

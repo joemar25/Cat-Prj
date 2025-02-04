@@ -24,7 +24,8 @@ export default async function ProfilePage() {
         <>
             <DashboardHeader
                 breadcrumbs={[
-                    { label: 'Profile', href: '/profile', active: true },
+                    { label: 'Dashboard', href: '/dashboard', active: false },
+                    { label: 'Notifications', href: '/notifications', active: true },
                 ]}
             />
             <div className="flex flex-1 flex-col gap-4 p-4">

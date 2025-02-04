@@ -59,7 +59,10 @@ export default async function Users() {
   return (
     <>
       <DashboardHeader
-        breadcrumbs={[{ label: 'Users', href: '/manage-staffs', active: true }]}
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard', active: false },
+          { label: 'Users', href: '/manage-staffs', active: true }
+        ]}
       />
 
       <div className='flex flex-1 flex-col gap-4 p-4'>

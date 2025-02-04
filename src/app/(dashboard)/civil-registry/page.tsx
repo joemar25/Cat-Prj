@@ -63,7 +63,10 @@ export default async function CivilRegistryPage() {
   return (
     <>
       <DashboardHeader
-        breadcrumbs={[{ label: 'Civil Registry', href: '/civil-registry', active: true }]}
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard', active: false },
+          { label: 'Civil Registry', href: '/civil-registry', active: true }
+        ]}
       />
 
       <div className='flex flex-1 flex-col gap-4 p-4'>

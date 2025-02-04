@@ -67,7 +67,7 @@ export default async function RolePage() {
       <DashboardHeader
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard', active: false },
-          { label: 'role', href: '/role', active: true },
+          { label: 'Role', href: '/role', active: true },
         ]}
       />
 
