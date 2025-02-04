@@ -32,6 +32,17 @@ export const getGroupKey = (date: Date, groupBy: GroupByOption): string => {
         }
         case 'quarterly': {
             const quarter = Math.floor(d.getMonth() / 3) + 1;
+
+            /**
+             * 12 / 3 = 4
+             * 
+             * Jan, Feb, March
+             * April, May, June
+             * July, Aug, Sept
+             * Oct, Nov, Dec
+             * 
+             */
+
             return `${year} Q${quarter}`;
         }
         case 'yearly':
