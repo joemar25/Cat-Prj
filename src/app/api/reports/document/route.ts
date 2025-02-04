@@ -1,134 +1,136 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient, Prisma } from '@prisma/client';
+import { NextResponse } from 'next/server'
+import { PrismaClient, Prisma, FormType } from '@prisma/client'
 import {
+    getWeekNumber,
     GroupByOption,
-    groupDocumentsByPeriod,
-    zeroFillGroups,
-    zeroFillMultipleYears,
-    countGlobalRegistrations,
     ReportDataItem,
-    DocumentWithBaseRegistryForm,
-} from '@/lib/report-helpers';
+    groupDocumentsByPeriod,
+    zeroFillMultipleYears,
+    zeroFillGroups,
+    countGlobalRegistrations,
+} from '@/lib/report-helpers'
+import { ApiResponse } from '@/types/report'
 
-const prisma = new PrismaClient();
-
-interface ApiResponse {
-    data: ReportDataItem[];
-    meta: {
-        totalGroups: number;
-        page: number;
-        pageSize: number;
-        classification: {
-            marriage: number;
-            birth: number;
-            death: number;
-        };
-        availableYears: number[];
-    };
-}
+const prisma = new PrismaClient()
 
 export async function GET(request: Request) {
     try {
-        const { searchParams } = new URL(request.url);
+        const { searchParams } = new URL(request.url)
+        const groupBy = (searchParams.get('groupBy') || 'yearly') as GroupByOption
+        const startDateParam = searchParams.get('startDate')
+        const endDateParam = searchParams.get('endDate')
+        const displayMode = searchParams.get('displayMode') || 'all'
+        const classification = searchParams.get('classification') || 'all'
+        const monthParam = searchParams.get('month') || 'All'
+        const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+        const pageSize = Math.max(1, parseInt(searchParams.get('pageSize') || '20', 10))
 
-        // Parse and validate parameters.
-        const groupBy = (searchParams.get('groupBy') || 'quarterly') as GroupByOption;
-        if (!['daily', 'weekly', 'monthly', 'quarterly', 'yearly'].includes(groupBy)) {
-            return NextResponse.json({ error: 'Invalid groupBy value' }, { status: 400 });
+        // Build where clause for BaseRegistryForm (registration date & classification)
+        const baseFormWhere: Prisma.BaseRegistryFormWhereInput = {}
+
+        if (classification !== 'all') {
+            baseFormWhere.formType = classification.toUpperCase() as FormType
         }
 
-        const yearParam = searchParams.get('year');
-        const startDate = searchParams.get('startDate');
-        const endDate = searchParams.get('endDate');
-        const displayMode = searchParams.get('displayMode') || 'all';
-        const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
-        const pageSize = Math.max(1, parseInt(searchParams.get('pageSize') || '20', 10));
-
-        // Build where clause for filtering documents by createdAt date.
-        const whereClause: Prisma.DocumentWhereInput = {};
-        if (yearParam) {
-            whereClause.createdAt = {
-                gte: new Date(`${yearParam}-01-01T00:00:00.000Z`),
-                lte: new Date(`${yearParam}-12-31T23:59:59.999Z`)
-            };
-        } else if (startDate || endDate) {
-            whereClause.createdAt = {};
-            if (startDate) whereClause.createdAt.gte = new Date(startDate);
-            if (endDate) whereClause.createdAt.lte = new Date(endDate);
+        // IMPORTANT: For filtering by registration date we apply the date filter to BaseRegistryForm.
+        if (startDateParam && endDateParam) {
+            baseFormWhere.createdAt = {
+                gte: new Date(startDateParam),
+                lte: new Date(endDateParam),
+            }
         }
 
-        // Only fetch documents that have an attached BaseRegistryForm.
-        whereClause.BaseRegistryForm = { some: {} };
+        // Build the document where clause to ensure at least one base form matches.
+        const whereClause: Prisma.DocumentWhereInput = {
+            BaseRegistryForm: {
+                some: baseFormWhere,
+            },
+        }
 
-        // Fetch documents along with their BaseRegistryForm data (including createdAt for processing time).
-        const documents: DocumentWithBaseRegistryForm[] = await prisma.document.findMany({
+        // Fetch documents along with their BaseRegistryForm data.
+        const documents = await prisma.document.findMany({
             where: whereClause,
             include: {
                 BaseRegistryForm: {
                     select: {
                         id: true,
                         formType: true,
-                        documentId: true,
                         createdAt: true,
+                        documentId: true,
                     },
                 },
             },
-        });
+            orderBy: { createdAt: 'asc' },
+        })
 
-        // Determine the full available year range based on the registration dates (earliest BaseRegistryForm.createdAt).
-        let availableYears: number[] = [];
-        if (documents.length > 0) {
-            const registrationYears = documents.map((doc) => {
-                const validForms = doc.BaseRegistryForm.filter(form => form.documentId && form.createdAt);
-                return validForms.length > 0
-                    ? new Date(Math.min(...validForms.map(form => new Date(form.createdAt).getTime()))).getFullYear()
-                    : new Date(doc.createdAt).getFullYear();
-            });
-            const minYear = Math.min(...registrationYears);
-            const maxYear = Math.max(...registrationYears);
-            for (let year = minYear; year <= maxYear; year++) {
-                availableYears.push(year);
-            }
-        }
+        // Group documents by period using the earliest valid base form's createdAt.
+        const groups = groupDocumentsByPeriod(documents, groupBy)
 
-        // Group the documents by the selected period (using the registration date).
-        const groups = groupDocumentsByPeriod(documents, groupBy);
-
-        let result: ReportDataItem[] = [];
-        if (yearParam) {
-            result = zeroFillGroups(groups, groupBy, yearParam);
+        // Use zero-fill helpers.
+        let reportData: ReportDataItem[] = []
+        if (!startDateParam && !endDateParam) {
+            reportData = zeroFillMultipleYears(groups, groupBy, documents)
         } else {
-            result = zeroFillMultipleYears(groups, groupBy, documents);
+            // Derive the years present in the filtered data.
+            const yearsSet = new Set<number>()
+            documents.forEach((doc) => {
+                const validForms = doc.BaseRegistryForm.filter(
+                    (form) => form.documentId && form.createdAt
+                )
+                if (validForms.length > 0) {
+                    const earliest = new Date(
+                        Math.min(...validForms.map((form) => new Date(form.createdAt).getTime()))
+                    )
+                    yearsSet.add(earliest.getFullYear())
+                } else {
+                    yearsSet.add(new Date(doc.createdAt).getFullYear())
+                }
+            })
+            yearsSet.forEach((year) => {
+                reportData = reportData.concat(zeroFillGroups(groups, groupBy, year.toString()))
+            })
         }
 
         if (displayMode === 'hasDocuments') {
-            result = result.filter((r) => r.totalDocuments > 0);
+            reportData = reportData.filter((item) => item.totalDocuments > 0)
         }
 
-        const { totalMarriageCount, totalBirthCount, totalDeathCount } = countGlobalRegistrations(documents);
+        const totalGroups = reportData.length
+        const paginatedData = reportData.slice((page - 1) * pageSize, page * pageSize)
 
-        const totalGroups = result.length;
-        const startIdx = (page - 1) * pageSize;
-        const paginatedResult = result.slice(startIdx, startIdx + pageSize);
+        // Use the filtered documents for counts.
+        const classificationCounts = countGlobalRegistrations(documents)
+
+        // ===== NEW: Fetch all available years (ignoring any date filters) =====
+        const allBaseForms = await prisma.baseRegistryForm.findMany({
+            where: {
+                documentId: { not: null },
+            },
+            select: { createdAt: true },
+        })
+        const availableYearsSet = new Set<number>()
+        allBaseForms.forEach((form) => {
+            availableYearsSet.add(new Date(form.createdAt).getFullYear())
+        })
+        const availableYears = Array.from(availableYearsSet).sort((a, b) => a - b)
 
         const response: ApiResponse = {
-            data: paginatedResult,
+            data: paginatedData,
             meta: {
                 totalGroups,
                 page,
                 pageSize,
-                classification: {
-                    marriage: totalMarriageCount,
-                    birth: totalBirthCount,
-                    death: totalDeathCount,
-                },
+                classification: classificationCounts,
                 availableYears,
             },
-        };
+        }
 
-        return NextResponse.json(response);
+        return NextResponse.json(response)
     } catch (error) {
-        console.error('Error fetching document report data:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        console.error('Error in document report API:', error)
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 }
+        )
     }
 }
