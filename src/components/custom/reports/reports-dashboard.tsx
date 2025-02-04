@@ -64,10 +64,6 @@ export const ReportsDashboard = () => {
             {/* Main Content */}
             <main className="flex-1 p-4">
                 {renderReport()}
-                <Separator className="my-4" />
-                <div className="text-sm text-muted-foreground">
-                    Note: Create detailed reports on civil registry document requests, processing times, and user activity.
-                </div>
             </main>
         </div>
     )

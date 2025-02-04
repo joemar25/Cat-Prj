@@ -69,7 +69,7 @@
     - [x] Enable secure connectivity with third-party systems for interoperability.
 
 11. **Reporting and Analytics**
-    - [ ] Create detailed reports on civil registry document requests, processing times, and user activity.
+    - [x] Create detailed reports on civil registry document requests, processing times, and user activity.
     - [x] Implement dashboards for insights into trends, such as frequently requested document types or peak request periods.
 
 12. **Multi-Language Support**
@@ -77,10 +77,8 @@
     - [x] Incorporate localization features to support regional or future expansion needs.
 
 13. **Notifications and Alerts**
-    - [ ] Add a dedicated notification page to display updates on document request statuses.
+    - [x] Add a dedicated notification page to display updates on document request statuses.
     - [x] Include a notification button for quick access to recent updates.
-    - [ ] Enable email notifications to inform users of status changes or additional requirements.
-    - [ ] Create an alert system for time-sensitive tasks or deadlines.
 
 14. **Customizable Workflows**
     - [ ] Allow customization of workflows to accommodate unique office processes (e.g., manual reviews or escalations for special cases).
@@ -95,7 +93,7 @@
 
 2. **Document Management**
    - [ ] Provide CRUD functionality for managing civil registry documents.
-   - [ ] Enable metadata tagging for efficient organization and retrieval.
+   - [x] Enable metadata tagging for efficient organization and retrieval.
    - [ ] Implement document versioning to maintain a history of updates and changes.
 
 3. **Feedback System**
@@ -108,8 +106,8 @@
    - [x] Provide functionality to change passwords securely.
 
 5. **User Management**
-   - [ ] Implement CRUD functionality for managing user accounts and roles.
-   - [ ] Allow `ADMIN` roles to manage staff accounts, including role assignment and access permissions.
+   - [x] Implement CRUD functionality for managing user accounts and roles.
+   - [x] Allow `ADMIN` roles to manage staff accounts, including role assignment and access permissions.
 
 6. **Citizen Portal for Civil Registry Requests**
    - [ ] Allow users to submit requests for civil registry documents through an online portal.

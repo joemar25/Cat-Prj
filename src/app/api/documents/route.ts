@@ -34,6 +34,7 @@ export const POST = async (req: Request) => {
                 type,
                 title,
                 status: status || 'PENDING',
+                metadata: {},
             },
         })
 

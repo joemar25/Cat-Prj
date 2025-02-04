@@ -236,12 +236,11 @@ export const seedNotificationData = async (
  * @param userIds - Array of user IDs
  * @returns Base registry form object
  */
-const generateBaseRegistryForm = (formType: FormType, userIds: string[]) => {
-  if (userIds.length === 0) {
-    throw new Error('No user IDs available for preparedById')
-  }
-
-  const registrationDate = randomDate(new Date(2023, 0, 1), new Date())
+const generateBaseRegistryForm = (
+  formType: FormType,
+  userIds: string[],
+  registrationDate: Date
+) => {
   const location = generatePhLocation()
 
   return {
@@ -262,7 +261,7 @@ const generateBaseRegistryForm = (formType: FormType, userIds: string[]) => {
     receivedDate: registrationDate,
     registeredBy: faker.person.fullName(),
     registeredByPosition: 'Civil Registrar',
-    registrationDate,
+    registrationDate: registrationDate,
     dateOfRegistration: registrationDate,
     isLateRegistered: faker.datatype.boolean(),
     remarks: faker.helpers.maybe(() => faker.lorem.sentence()),
@@ -285,19 +284,18 @@ const generateBaseRegistryForm = (formType: FormType, userIds: string[]) => {
  * @param userIds - Array of user IDs
  * @returns Marriage certificate object
  */
-const generateMarriageCertificate = (userIds: string[]) => {
-  const marriageDate = randomDate(new Date(2020, 0, 1), new Date())
+const generateMarriageCertificate = (userIds: string[], registrationDate: Date) => {
+  const marriageDate = registrationDate;
   const husbandBirthDate = randomDate(
     new Date(1970, 0, 1),
     new Date(2000, 0, 1)
   )
   const wifeBirthDate = randomDate(new Date(1970, 0, 1), new Date(2000, 0, 1))
-
   const husbandResidenceLocation = generatePhLocation()
   const wifeResidenceLocation = generatePhLocation()
 
   return {
-    baseForm: generateBaseRegistryForm(FormType.MARRIAGE, userIds),
+    baseForm: generateBaseRegistryForm(FormType.MARRIAGE, userIds, registrationDate),
     marriageCertificateForm: {
       husbandFirstName: faker.person.firstName('male'),
       husbandMiddleName: faker.person.lastName(),
@@ -408,7 +406,7 @@ const generateMarriageCertificate = (userIds: string[]) => {
  * @param userIds - Array of user IDs
  * @returns Birth certificate object
  */
-const generateBirthCertificate = (userIds: string[]) => {
+const generateBirthCertificate = (userIds: string[], registrationDate: Date) => {
   const birthDate = randomDate(new Date(2020, 0, 1), new Date())
   const motherAge = faker.number.int({ min: 18, max: 45 })
   const fatherAge = faker.number.int({ min: 20, max: 50 })
@@ -417,7 +415,7 @@ const generateBirthCertificate = (userIds: string[]) => {
   const fatherResidenceLocation = generatePhLocation()
 
   return {
-    baseForm: generateBaseRegistryForm(FormType.BIRTH, userIds),
+    baseForm: generateBaseRegistryForm(FormType.BIRTH, userIds, registrationDate),
     birthCertificateForm: {
       childName: generatePersonName(),
       sex: faker.helpers.arrayElement(['Male', 'Female']),
@@ -524,14 +522,14 @@ const generateBirthCertificate = (userIds: string[]) => {
  * @param userIds - Array of user IDs
  * @returns Death certificate object
  */
-const generateDeathCertificate = (userIds: string[]) => {
+const generateDeathCertificate = (userIds: string[], registrationDate: Date) => {
   const deathDate = randomDate(new Date(2020, 0, 1), new Date())
   const birthDate = randomDate(new Date(1940, 0, 1), new Date(2000, 0, 1))
 
   const residenceLocation = generatePhLocation()
 
   return {
-    baseForm: generateBaseRegistryForm(FormType.DEATH, userIds),
+    baseForm: generateBaseRegistryForm(FormType.DEATH, userIds, registrationDate),
     deathCertificateForm: {
       certificationType: faker.helpers.arrayElement(['ORIGINAL', 'COPY']),
       deceasedName: generatePersonName(),
@@ -889,58 +887,56 @@ export const generateBulkData = async (
   count = 1000
 ): Promise<void> => {
   if (userIds.length === 0) {
-    throw new Error('No user IDs available for preparedById')
+    throw new Error('No user IDs available for preparedById');
   }
 
-  console.log('Generating bulk data...')
+  console.log('Generating bulk data...');
 
-  // Generate a completely random sequence of record types
   const recordTypes = Array(count)
     .fill(null)
-    .map(() => faker.helpers.arrayElement(['marriage', 'birth', 'death']))
+    .map(() => faker.helpers.arrayElement(['marriage', 'birth', 'death']));
 
   for (let i = 0; i < recordTypes.length; i++) {
-    const recordType = recordTypes[i]
-    const createdAt = randomDate(new Date(2021, 0, 1), new Date())
+    const recordType = recordTypes[i];
+    const createdAt = randomDate(new Date(2021, 0, 1), new Date()); // Generate createdAt once per record
 
     if (recordType === 'marriage') {
       await prisma.baseRegistryForm.create({
         data: {
-          ...generateBaseRegistryForm(FormType.MARRIAGE, userIds),
+          ...generateBaseRegistryForm(FormType.MARRIAGE, userIds, createdAt), // Pass createdAt as registrationDate
           createdAt,
           marriageCertificateForm: {
-            create:
-              generateMarriageCertificate(userIds).marriageCertificateForm,
+            create: generateMarriageCertificate(userIds, createdAt).marriageCertificateForm,
           },
         },
-      })
+      });
     } else if (recordType === 'birth') {
       await prisma.baseRegistryForm.create({
         data: {
-          ...generateBaseRegistryForm(FormType.BIRTH, userIds),
+          ...generateBaseRegistryForm(FormType.BIRTH, userIds, createdAt), // Pass createdAt as registrationDate
           createdAt,
           birthCertificateForm: {
-            create: generateBirthCertificate(userIds).birthCertificateForm,
+            create: generateBirthCertificate(userIds, createdAt).birthCertificateForm,
           },
         },
-      })
+      });
     } else if (recordType === 'death') {
       await prisma.baseRegistryForm.create({
         data: {
-          ...generateBaseRegistryForm(FormType.DEATH, userIds),
+          ...generateBaseRegistryForm(FormType.DEATH, userIds, createdAt), // Pass createdAt as registrationDate
           createdAt,
           deathCertificateForm: {
-            create: generateDeathCertificate(userIds).deathCertificateForm,
+            create: generateDeathCertificate(userIds, createdAt).deathCertificateForm,
           },
         },
-      })
+      });
     }
 
-    if (i % 100 === 0) console.log(`Generated ${i} records...`)
+    if (i % 100 === 0) console.log(`Generated ${i} records...`);
   }
 
-  console.log('Bulk data generation completed!')
-}
+  console.log('Bulk data generation completed!');
+};
 
 // ======================================================================
 // Additional Test Data Generation
