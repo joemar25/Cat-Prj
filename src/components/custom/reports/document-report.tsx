@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import useSWR from "swr"
 import {
     Select,
@@ -20,67 +20,112 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useExportDialog } from "@/hooks/use-export-dialog"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 
-// Supported grouping options.
+export interface ReportDataItem {
+    period: string
+    totalDocuments: number
+    processedDocuments: number
+    pendingDocuments: number
+    averageProcessingTime: string
+    marriageCount: number
+    birthCount: number
+    deathCount: number
+}
+
+interface ApiResponse {
+    data: ReportDataItem[]
+    meta: {
+        classification: {
+            marriage: number
+            birth: number
+            death: number
+        }
+        availableYears: number[]
+    }
+}
+
 export type GroupByOption = "daily" | "weekly" | "monthly" | "quarterly" | "yearly"
-
-// Display modes: either show all periods or only those that have documents.
 export type DisplayMode = "all" | "hasDocuments"
+export type ClassificationFilter = "all" | "marriage" | "birth" | "death"
 
-// Get current year as a string.
-const currentYear = new Date().getFullYear().toString()
+const defaultGroupBy: GroupByOption = "yearly"
+const defaultYearFilter: string = "All"
+const defaultMonthFilter: string = "All"
+const defaultDisplayMode: DisplayMode = "all"
+const defaultClassification: ClassificationFilter = "all"
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
-
-// Import your export hook.
-// (Make sure the path matches where you store your export functions.)
+const fetcher = async (url: string): Promise<ApiResponse> => {
+    const response = await fetch(url)
+    if (!response.ok) {
+        throw new Error('Failed to fetch data')
+    }
+    return response.json()
+}
 
 export const DocumentReport = () => {
-    // Default filter values.
-    const defaultGroupBy: GroupByOption = "quarterly"
-    const defaultYearFilter: string = currentYear
-    const defaultMonthFilter: string = "All"
-    const defaultDisplayMode: DisplayMode = "all"
-
-    // State variables for filters.
+    const [availableYears, setAvailableYears] = useState<string[]>([])
     const [groupBy, setGroupBy] = useState<GroupByOption>(defaultGroupBy)
     const [yearFilter, setYearFilter] = useState<string>(defaultYearFilter)
     const [monthFilter, setMonthFilter] = useState<string>(defaultMonthFilter)
     const [displayMode, setDisplayMode] = useState<DisplayMode>(defaultDisplayMode)
+    const [classification, setClassification] = useState<ClassificationFilter>(defaultClassification)
 
-    // Build query parameters based on the filters.
     const queryParams = new URLSearchParams()
     queryParams.append("groupBy", groupBy)
     queryParams.append("displayMode", displayMode)
-
+    queryParams.append("classification", classification)
     if (yearFilter !== "All") {
         if (monthFilter !== "All") {
-            // When a specific month is selected, calculate startDate and endDate for that month.
             const yearNum = parseInt(yearFilter, 10)
             const monthNum = parseInt(monthFilter, 10)
-            // Month is 0-indexed in Date, so subtract 1.
             const startDate = new Date(yearNum, monthNum - 1, 1)
-            // End date: last day of the month. (Day 0 of the next month gives last day of current month.)
             const endDate = new Date(yearNum, monthNum, 0, 23, 59, 59, 999)
             queryParams.append("startDate", startDate.toISOString())
             queryParams.append("endDate", endDate.toISOString())
         } else {
-            // If only a specific year is selected, use the year parameter.
             queryParams.append("year", yearFilter)
         }
     }
 
-    const { data, error } = useSWR(
+    const { data, error } = useSWR<ApiResponse>(
         `/api/reports/document?${queryParams.toString()}`,
         fetcher
     )
 
-    // Reset filters to default values.
+    useEffect(() => {
+        if (data?.meta?.availableYears) {
+            const availableYearsData = data.meta.availableYears
+            const uniqueYears = Array.from(new Set<number>(availableYearsData))
+            const sortedYears = uniqueYears.sort((a: number, b: number) => b - a)
+            setAvailableYears(sortedYears.map((year: number) => year.toString()))
+            if (yearFilter !== "All" && !uniqueYears.includes(parseInt(yearFilter))) {
+                setYearFilter("All")
+            }
+        }
+    }, [data?.meta?.availableYears, yearFilter])
+
+    // Compute a flag to check if any filter is different from its default.
+    const filtersChanged =
+        groupBy !== defaultGroupBy ||
+        yearFilter !== defaultYearFilter ||
+        monthFilter !== defaultMonthFilter ||
+        displayMode !== defaultDisplayMode ||
+        classification !== defaultClassification
+
     const resetFilters = () => {
         setGroupBy(defaultGroupBy)
         setYearFilter(defaultYearFilter)
         setMonthFilter(defaultMonthFilter)
         setDisplayMode(defaultDisplayMode)
+        setClassification(defaultClassification)
     }
 
     if (error)
@@ -92,33 +137,100 @@ export const DocumentReport = () => {
     if (!data)
         return <div className="p-4 text-center">Loading document report...</div>
 
-    // Extract the paginated result from the response.
-    const reportData = data.data || []
+    console.log('Raw API Response:', data)
+    const reportData: ReportDataItem[] = Array.isArray(data?.data) ? data.data : []
 
-    // Initialize export functions using your hook.
-    // For PDF export, we pass null as the chart element since we're exporting table data.
-    const { exportToCSV, exportToExcel, exportToPDF } = useExportDialog(reportData, () => { }, "Document Request Report")
+    // Calculate the classification summary based on the current filter.
+    let classificationSummary = data.meta?.classification
+    if (classification !== "all") {
+        classificationSummary = {
+            marriage: classification === "marriage" ? classificationSummary.marriage : 0,
+            birth: classification === "birth" ? classificationSummary.birth : 0,
+            death: classification === "death" ? classificationSummary.death : 0,
+        }
+    }
+
+    const exportData = reportData.map((item: ReportDataItem) => ({
+        ...item,
+        averageProcessingTime: item.averageProcessingTime.toString(),
+    })) as Record<string, unknown>[]
+
+    const { exportToCSV, exportToExcel, exportToPDF } = useExportDialog(
+        exportData,
+        () => { },
+        "Document Request Report"
+    )
 
     return (
         <Card className="p-4">
-            <CardHeader>
-                <CardTitle>Document Request & Processing Report</CardTitle>
-                <p className="mt-2 text-sm text-muted-foreground">
-                    Overview of civil registry document requests and processing times.
-                </p>
+            <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <CardTitle>Document Request & Processing Report</CardTitle>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        Overview of civil registry document requests and processing times.
+                    </p>
+                    {classificationSummary && (
+                        <div className="mt-1 text-sm">
+                            Classification Summary:&nbsp;
+                            <span>Marriage: {classificationSummary.marriage}</span>,&nbsp;
+                            <span>Birth: {classificationSummary.birth}</span>,&nbsp;
+                            <span>Death: {classificationSummary.death}</span>
+                        </div>
+                    )}
+                </div>
+                <div className="flex items-center gap-2">
+                    {filtersChanged && (
+                        <Button onClick={resetFilters} variant="outline" size="sm">
+                            Reset Filters
+                        </Button>
+                    )}
+                    {/* Export buttons are always visible and aligned with Help */}
+                    <Button onClick={() => exportToCSV()} variant="outline" size="sm">
+                        Export CSV
+                    </Button>
+                    <Button onClick={() => exportToExcel()} variant="outline" size="sm">
+                        Export Excel
+                    </Button>
+                    <Button onClick={() => exportToPDF()} variant="outline" size="sm">
+                        Export PDF
+                    </Button>
+                    {/* Help */}
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                                Help
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Average Processing Time Formula</DialogTitle>
+                                <DialogDescription>
+                                    The average processing time is calculated as the difference (in days)
+                                    between the <strong>earliest Base Registry Form's</strong> creation date
+                                    (the registration time) and the <strong>Document's</strong> creation date
+                                    (the processing time). For documents with multiple forms, the earliest
+                                    Base Registry Form date is used.
+                                    <br />
+                                    <br />
+                                    The formula is:
+                                    <br />
+                                    <code>
+                                        Average Time = Σ (Document.createdAt - EarliestBaseForm.createdAt) / N
+                                    </code>
+                                    <br />
+                                    where N is the number of documents.
+                                </DialogDescription>
+                            </DialogHeader>
+                        </DialogContent>
+                    </Dialog>
+                </div>
             </CardHeader>
             <CardContent>
                 <div className="mb-4 flex flex-wrap gap-4">
-                    {/* Grouping filter */}
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium" htmlFor="groupBy">
-                            Group By:
-                        </label>
-                        <Select
-                            value={groupBy}
-                            onValueChange={(value: GroupByOption) => setGroupBy(value)}
-                        >
-                            <SelectTrigger className="w-[150px]">
+                        <label className="text-sm font-medium">Group By:</label>
+                        <Select value={groupBy} onValueChange={(value: GroupByOption) => setGroupBy(value)}>
+                            <SelectTrigger className="w-32">
                                 <SelectValue placeholder="Select group" />
                             </SelectTrigger>
                             <SelectContent>
@@ -130,76 +242,50 @@ export const DocumentReport = () => {
                             </SelectContent>
                         </Select>
                     </div>
-
-                    {/* Year filter */}
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium" htmlFor="yearFilter">
-                            Year:
-                        </label>
+                        <label className="text-sm font-medium">Year:</label>
                         <Select
                             value={yearFilter}
                             onValueChange={(value: string) => {
                                 setYearFilter(value)
-                                // When "All" is selected, reset monthFilter to "All".
-                                if (value === "All") {
-                                    setMonthFilter("All")
-                                }
+                                if (value === "All") setMonthFilter("All")
                             }}
                         >
-                            <SelectTrigger className="w-[120px]">
+                            <SelectTrigger className="w-32">
                                 <SelectValue placeholder="Select year" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="All">All</SelectItem>
-                                {/* List years as needed */}
-                                <SelectItem value="2023">2023</SelectItem>
-                                <SelectItem value="2024">2024</SelectItem>
-                                <SelectItem value="2025">2025</SelectItem>
+                                {availableYears.map(year => (
+                                    <SelectItem key={year} value={year}>{year}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
-
-                    {/* Month filter: enabled only when a specific year is selected */}
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium" htmlFor="monthFilter">
-                            Month:
-                        </label>
+                        <label className="text-sm font-medium">Month:</label>
                         <Select
                             value={monthFilter}
                             onValueChange={(value: string) => setMonthFilter(value)}
                             disabled={yearFilter === "All"}
                         >
-                            <SelectTrigger className="w-[120px]">
+                            <SelectTrigger className="w-32">
                                 <SelectValue placeholder="Select month" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="All">All</SelectItem>
-                                <SelectItem value="1">January</SelectItem>
-                                <SelectItem value="2">February</SelectItem>
-                                <SelectItem value="3">March</SelectItem>
-                                <SelectItem value="4">April</SelectItem>
-                                <SelectItem value="5">May</SelectItem>
-                                <SelectItem value="6">June</SelectItem>
-                                <SelectItem value="7">July</SelectItem>
-                                <SelectItem value="8">August</SelectItem>
-                                <SelectItem value="9">September</SelectItem>
-                                <SelectItem value="10">October</SelectItem>
-                                <SelectItem value="11">November</SelectItem>
-                                <SelectItem value="12">December</SelectItem>
+                                {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
+                                    <SelectItem key={month} value={month.toString()}>
+                                        {new Date(2000, month - 1).toLocaleString("default", { month: "long" })}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
-
-                    {/* Display mode filter */}
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium" htmlFor="displayMode">
-                            Display:
-                        </label>
-                        <Select
-                            value={displayMode}
-                            onValueChange={(value: DisplayMode) => setDisplayMode(value)}
-                        >
-                            <SelectTrigger className="w-[150px]">
+                        <label className="text-sm font-medium">Display:</label>
+                        <Select value={displayMode} onValueChange={(value: DisplayMode) => setDisplayMode(value)}>
+                            <SelectTrigger className="w-32">
                                 <SelectValue placeholder="Select display mode" />
                             </SelectTrigger>
                             <SelectContent>
@@ -208,29 +294,22 @@ export const DocumentReport = () => {
                             </SelectContent>
                         </Select>
                     </div>
-
-                    {/* Reset Filters Button */}
                     <div className="flex items-center gap-2">
-                        <Button onClick={resetFilters} variant="outline">
-                            Reset Filters
-                        </Button>
+                        <label className="text-sm font-medium">Classification:</label>
+                        <Select value={classification} onValueChange={(value: ClassificationFilter) => setClassification(value)}>
+                            <SelectTrigger className="w-32">
+                                <SelectValue placeholder="Select classification" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All</SelectItem>
+                                <SelectItem value="marriage">Marriage</SelectItem>
+                                <SelectItem value="birth">Birth</SelectItem>
+                                <SelectItem value="death">Death</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
 
-                {/* Export Buttons */}
-                <div className="mb-4 flex flex-wrap gap-2">
-                    <Button onClick={() => exportToCSV(reportData)} variant="outline">
-                        Export CSV
-                    </Button>
-                    <Button onClick={() => exportToExcel(reportData)} variant="outline">
-                        Export Excel
-                    </Button>
-                    <Button onClick={() => exportToPDF(reportData, null)} variant="outline">
-                        Export PDF
-                    </Button>
-                </div>
-
-                {/* If no data is found, display a friendly message */}
                 {reportData.length === 0 ? (
                     <div className="p-4 text-center text-muted-foreground">
                         No documents found matching the selected filters.
@@ -245,16 +324,22 @@ export const DocumentReport = () => {
                                     <TableHead className="text-right">Processed</TableHead>
                                     <TableHead className="text-right">Pending</TableHead>
                                     <TableHead className="text-right">Avg. Processing Time</TableHead>
+                                    <TableHead className="text-right">Marriage</TableHead>
+                                    <TableHead className="text-right">Birth</TableHead>
+                                    <TableHead className="text-right">Death</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {reportData.map((item: any) => (
+                                {reportData.map((item: ReportDataItem) => (
                                     <TableRow key={item.period}>
                                         <TableCell>{item.period}</TableCell>
                                         <TableCell className="text-right">{item.totalDocuments}</TableCell>
                                         <TableCell className="text-right">{item.processedDocuments}</TableCell>
                                         <TableCell className="text-right">{item.pendingDocuments}</TableCell>
                                         <TableCell className="text-right">{item.averageProcessingTime}</TableCell>
+                                        <TableCell className="text-right">{item.marriageCount}</TableCell>
+                                        <TableCell className="text-right">{item.birthCount}</TableCell>
+                                        <TableCell className="text-right">{item.deathCount}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
