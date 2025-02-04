@@ -179,6 +179,11 @@ export const DocumentReport = () => {
                     )}
                 </div>
                 <div className="flex items-center gap-2">
+                    {filtersChanged && (
+                        <Button onClick={resetFilters} variant="outline" size="sm">
+                            Reset Filters
+                        </Button>
+                    )}
                     {/* Export buttons are always visible and aligned with Help */}
                     <Button onClick={() => exportToCSV()} variant="outline" size="sm">
                         Export CSV
@@ -303,13 +308,6 @@ export const DocumentReport = () => {
                             </SelectContent>
                         </Select>
                     </div>
-                    {filtersChanged && (
-                        <div className="flex items-center gap-2">
-                            <Button onClick={resetFilters} variant="outline">
-                                Reset Filters
-                            </Button>
-                        </div>
-                    )}
                 </div>
 
                 {reportData.length === 0 ? (
