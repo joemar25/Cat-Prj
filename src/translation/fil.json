@@ -337,5 +337,23 @@
   "monthly_breakdown_baseRegistryForm": "Buwanang buod ng lahat ng rehistrasyon.",
   "monthly_breakdown_birthCertificateForm": "Buwanang buod ng mga rehistrasyon ng kapanganakan.",
   "monthly_breakdown_deathCertificateForm": "Buwanang buod ng mga rehistrasyon ng pagkamatay.",
-  "monthly_breakdown_marriageCertificateForm": "Buwanang buod ng mga rehistrasyon ng kasal."
+  "monthly_breakdown_marriageCertificateForm": "Buwanang buod ng mga rehistrasyon ng kasal.",
+
+  "settingsTitle": "Mga Setting",
+  "settingsDescription": "Pamahalaan ang mga setting at kagustuhan ng iyong account.",
+  
+  "interfaceTitle": "Interface",
+  "themeTitle": "Tema",
+  "themeDescription": "Piliin sa pagitan ng liwanag at madilim na mode.",
+  "languageTitle": "Wika",
+  "languageDescription": "Piliin ang iyong gustong wika.",
+
+  "backupTitle": "Backup",
+  "backupDescription": "I-enable ang awtomatikong pag-backup ng data ng Civil Registry Documents.",
+  "backupEnabled": "Awtomatikong pag-backup ay naka-enable",
+  "backupDisabled": "Awtomatikong pag-backup ay naka-disable",
+  "backupAutoMessage": "Awtomatikong ibe-backup ang iyong data tuwing 24 oras.",
+  "backupManualDescription": "Gawin ang isang manual backup ng iyong data.",
+  "backupManualButton": "I-backup Ngayon",
+  "backup.manual.initiated": "Nagsimula ang manual backup"
 }

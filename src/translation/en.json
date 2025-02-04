@@ -334,5 +334,23 @@
   "monthly_breakdown_baseRegistryForm": "Monthly breakdown of all registrations.",
   "monthly_breakdown_birthCertificateForm": "Monthly breakdown of birth registrations.",
   "monthly_breakdown_deathCertificateForm": "Monthly breakdown of death registrations.",
-  "monthly_breakdown_marriageCertificateForm": "Monthly breakdown of marriage registrations."
+  "monthly_breakdown_marriageCertificateForm": "Monthly breakdown of marriage registrations.",
+
+  "settingsTitle": "Settings",
+  "settingsDescription": "Manage your account settings and preferences.",
+  
+  "interfaceTitle": "Interface",
+  "themeTitle": "Theme",
+  "themeDescription": "Choose between light and dark mode.",
+  "languageTitle": "Language",
+  "languageDescription": "Select your preferred language.",
+
+  "backupTitle": "Backup",
+  "backupDescription": "Enable automatic backup of Civil Registry Documents data.",
+  "backupEnabled": "Automatic backup enabled",
+  "backupDisabled": "Automatic backup disabled",
+  "backupAutoMessage": "Your data will be automatically backed up every 24 hours.",
+  "backupManualDescription": "Perform a manual backup of your data.",
+  "backupManualButton": "Backup Now",
+  "backup.manual.initiated": "Manual backup initiated"
 }
