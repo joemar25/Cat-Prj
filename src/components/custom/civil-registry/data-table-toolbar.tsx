@@ -292,7 +292,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
         </Card>
 
         {/* create new form container */}
-        <Card className="w-full sm:w-auto">
+        {/* <Card className="w-full sm:w-auto">
           <CardContent className="p-4">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
@@ -318,7 +318,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 
           </CardContent>
 
-        </Card>
+        </Card> */}
       </div>
 
       <div className="flex flex-wrap gap-2 justify-between items-center">
