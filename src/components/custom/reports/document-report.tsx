@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, MouseEvent } from "react"
+import { useState, useEffect } from "react"
 import useSWR from "swr"
 import {
     Select,
@@ -56,7 +56,7 @@ export type GroupByOption = "daily" | "weekly" | "monthly" | "quarterly" | "year
 export type DisplayMode = "all" | "hasDocuments"
 export type ClassificationFilter = "all" | "marriage" | "birth" | "death"
 
-const defaultGroupBy: GroupByOption = "quarterly"
+const defaultGroupBy: GroupByOption = "yearly"
 const defaultYearFilter: string = "All"
 const defaultMonthFilter: string = "All"
 const defaultDisplayMode: DisplayMode = "all"
@@ -112,6 +112,14 @@ export const DocumentReport = () => {
         }
     }, [data?.meta?.availableYears, yearFilter])
 
+    // Compute a flag to check if any filter is different from its default.
+    const filtersChanged =
+        groupBy !== defaultGroupBy ||
+        yearFilter !== defaultYearFilter ||
+        monthFilter !== defaultMonthFilter ||
+        displayMode !== defaultDisplayMode ||
+        classification !== defaultClassification
+
     const resetFilters = () => {
         setGroupBy(defaultGroupBy)
         setYearFilter(defaultYearFilter)
@@ -131,7 +139,16 @@ export const DocumentReport = () => {
 
     console.log('Raw API Response:', data)
     const reportData: ReportDataItem[] = Array.isArray(data?.data) ? data.data : []
-    const classificationSummary = data.meta?.classification
+
+    // Calculate the classification summary based on the current filter.
+    let classificationSummary = data.meta?.classification
+    if (classification !== "all") {
+        classificationSummary = {
+            marriage: classification === "marriage" ? classificationSummary.marriage : 0,
+            birth: classification === "birth" ? classificationSummary.birth : 0,
+            death: classification === "death" ? classificationSummary.death : 0,
+        }
+    }
 
     const exportData = reportData.map((item: ReportDataItem) => ({
         ...item,
@@ -143,11 +160,6 @@ export const DocumentReport = () => {
         () => { },
         "Document Request Report"
     )
-
-    const handleExport = (exportFn: () => void) => (e: MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault()
-        exportFn()
-    }
 
     return (
         <Card className="p-4">
@@ -166,35 +178,47 @@ export const DocumentReport = () => {
                         </div>
                     )}
                 </div>
-                {/* Help dialog trigger */}
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                            Help
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Average Processing Time Formula</DialogTitle>
-                            <DialogDescription>
-                                The average processing time is calculated by taking the difference (in days)
-                                between the <strong>Base Registry Form's</strong> creation date (which marks
-                                the registration time) and the <strong>Document's</strong> creation date
-                                (which marks when the document was processed). For each document, we use the
-                                earliest Base Registry Form date if multiple forms exist.
-                                <br />
-                                <br />
-                                The formula is:
-                                <br />
-                                <code>
-                                    Average Time = Σ (Document.createdAt - EarliestBaseForm.createdAt) / N
-                                </code>
-                                <br />
-                                where N is the number of documents.
-                            </DialogDescription>
-                        </DialogHeader>
-                    </DialogContent>
-                </Dialog>
+                <div className="flex items-center gap-2">
+                    {/* Export buttons are always visible and aligned with Help */}
+                    <Button onClick={() => exportToCSV()} variant="outline" size="sm">
+                        Export CSV
+                    </Button>
+                    <Button onClick={() => exportToExcel()} variant="outline" size="sm">
+                        Export Excel
+                    </Button>
+                    <Button onClick={() => exportToPDF()} variant="outline" size="sm">
+                        Export PDF
+                    </Button>
+                    {/* Help */}
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                                Help
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Average Processing Time Formula</DialogTitle>
+                                <DialogDescription>
+                                    The average processing time is calculated as the difference (in days)
+                                    between the <strong>earliest Base Registry Form's</strong> creation date
+                                    (the registration time) and the <strong>Document's</strong> creation date
+                                    (the processing time). For documents with multiple forms, the earliest
+                                    Base Registry Form date is used.
+                                    <br />
+                                    <br />
+                                    The formula is:
+                                    <br />
+                                    <code>
+                                        Average Time = Σ (Document.createdAt - EarliestBaseForm.createdAt) / N
+                                    </code>
+                                    <br />
+                                    where N is the number of documents.
+                                </DialogDescription>
+                            </DialogHeader>
+                        </DialogContent>
+                    </Dialog>
+                </div>
             </CardHeader>
             <CardContent>
                 <div className="mb-4 flex flex-wrap gap-4">
@@ -279,15 +303,13 @@ export const DocumentReport = () => {
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Button onClick={resetFilters} variant="outline">Reset Filters</Button>
-                    </div>
-                </div>
-
-                <div className="mb-4 flex flex-wrap gap-2">
-                    <Button onClick={handleExport(exportToCSV)} variant="outline">Export CSV</Button>
-                    <Button onClick={handleExport(exportToExcel)} variant="outline">Export Excel</Button>
-                    <Button onClick={handleExport(exportToPDF)} variant="outline">Export PDF</Button>
+                    {filtersChanged && (
+                        <div className="flex items-center gap-2">
+                            <Button onClick={resetFilters} variant="outline">
+                                Reset Filters
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
                 {reportData.length === 0 ? (
@@ -329,11 +351,4 @@ export const DocumentReport = () => {
             </CardContent>
         </Card>
     )
-}
-
-function handleExport(exportFn: () => void) {
-    return (e: MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault()
-        exportFn()
-    }
 }
