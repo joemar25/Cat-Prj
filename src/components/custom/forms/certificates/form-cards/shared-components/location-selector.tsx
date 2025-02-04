@@ -42,7 +42,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   selectContentClassName = '',
   selectItemClassName = '',
 }) => {
-  const { control, setValue } = useFormContext();
+  const { control, setValue, trigger } = useFormContext();
 
   const {
     selectedProvince,
@@ -64,6 +64,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     onProvinceChange,
     onMunicipalityChange,
     onBarangayChange,
+    trigger,
   });
   return (
     <>
@@ -200,7 +201,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                   ))}
                 </SelectContent>
               </Select>
-              <FormMessage />
             </FormItem>
           )}
         />

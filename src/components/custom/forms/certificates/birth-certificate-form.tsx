@@ -26,17 +26,6 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { FormType } from '@prisma/client';
-import AffidavitFormsCard from './form-cards/birth-cards/affidavit-form-card';
-import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
-import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
-import ChildInformationCard from './form-cards/birth-cards/child-information-card';
-import FatherInformationCard from './form-cards/birth-cards/father-information-card';
-import MarriageOfParentsCard from './form-cards/birth-cards/marriage-parents-card';
-import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
-import PreparedByCard from './form-cards/birth-cards/prepared-by-card';
-import ReceivedByCard from './form-cards/birth-cards/received-by';
-import RegisteredAtOfficeCard from './form-cards/birth-cards/registered-at-office-card';
-import RemarksCard from './form-cards/birth-cards/remarks';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
 
@@ -123,23 +112,46 @@ export default function BirthCertificateForm({
 
   const handleError = () => {
     const errors = form.formState.errors;
-    if (errors.registryNumber) {
-      toast.error(errors.registryNumber.message);
-      return;
-    }
-    if (errors.childInfo) {
-      toast.error("Please check the child's information section for errors");
-      return;
-    }
-    if (errors.motherInfo) {
-      toast.error("Please check the mother's information section for errors");
-      return;
-    }
-    if (errors.fatherInfo) {
-      toast.error("Please check the father's information section for errors");
-      return;
-    }
-    toast.error('Please check all required fields and try again');
+
+    // Trigger validation for registry fields first
+    form
+      .trigger(['registryNumber', 'province', 'cityMunicipality'])
+      .then(() => {
+        // Now check for registry section errors
+        if (
+          form.getFieldState('registryNumber').error ||
+          form.getFieldState('province').error ||
+          form.getFieldState('cityMunicipality').error
+        ) {
+          toast.error('Birth Registry Information', {
+            description:
+              'Please complete registry number, province, and city/municipality fields',
+          });
+          return;
+        }
+
+        // Keep existing error checks
+        if (errors.childInfo) {
+          toast.error(
+            "Please check the child's information section for errors"
+          );
+          return;
+        }
+        if (errors.motherInfo) {
+          toast.error(
+            "Please check the mother's information section for errors"
+          );
+          return;
+        }
+        if (errors.fatherInfo) {
+          toast.error(
+            "Please check the father's information section for errors"
+          );
+          return;
+        }
+
+        toast.error('Please check all required fields and try again');
+      });
   };
 
   return (
@@ -166,8 +178,8 @@ export default function BirthCertificateForm({
                         formType={FormType.BIRTH}
                         title='Birth Registry Information'
                       />
-                      <ChildInformationCard />
-                      <MotherInformationCard />
+                      {/* <ChildInformationCard /> */}
+                      {/* <MotherInformationCard />
                       <FatherInformationCard />
                       <MarriageOfParentsCard />
                       <AttendantInformationCard />
@@ -176,7 +188,7 @@ export default function BirthCertificateForm({
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard />
                       <RemarksCard />
-                      <AffidavitFormsCard />
+                      <AffidavitFormsCard /> */}
 
                       <DialogFooter>
                         <Button

@@ -107,8 +107,8 @@ export const timeSchema = z
 export const registryNumberSchema = z
   .string()
   .regex(
-    /^\d{4}-\d+$/, // Enforces YYYY- followed by one or more digits
-    'Registry number must be in the format: YYYY-numbers (e.g., 2025-123456).'
+    /^\d{4}-\d+$/, // Simply enforces YYYY- followed by any digits
+    'Registry number must be in format: YYYY-numbers'
   )
   .refine(
     (value) => {
@@ -118,15 +118,6 @@ export const registryNumberSchema = z
     },
     {
       message: 'The year must be between 1945 and the current year.',
-    }
-  )
-  .refine(
-    (value) => {
-      const sequenceNumber = parseInt(value.split('-')[1]);
-      return sequenceNumber > 0; // Enforce positive numbers only
-    },
-    {
-      message: 'The sequence number must be a positive number.',
     }
   );
 

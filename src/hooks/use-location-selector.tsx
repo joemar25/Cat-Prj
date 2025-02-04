@@ -16,6 +16,7 @@ interface UseLocationSelectorProps {
   onProvinceChange?: (province: string) => void;
   onMunicipalityChange?: (municipality: string) => void;
   onBarangayChange?: (barangay: string) => void;
+  trigger?: (name: string | string[]) => Promise<boolean>;
 }
 
 interface UseLocationSelectorReturn {
@@ -29,9 +30,9 @@ interface UseLocationSelectorReturn {
     subMunicipalities?: Array<{ name: string }>;
   }>;
   barangays: string[];
-  handleProvinceChange: (value: string) => void;
-  handleMunicipalityChange: (value: string) => void;
-  handleBarangayChange: (value: string) => void;
+  handleProvinceChange: (value: string) => Promise<void>;
+  handleMunicipalityChange: (value: string) => Promise<void>;
+  handleBarangayChange: (value: string) => Promise<void>;
   setHoveredCity: (city: string | null) => void;
 }
 export const useLocationSelector = ({
@@ -44,6 +45,7 @@ export const useLocationSelector = ({
   onProvinceChange,
   onMunicipalityChange,
   onBarangayChange,
+  trigger,
 }: UseLocationSelectorProps): UseLocationSelectorReturn => {
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedMunicipality, setSelectedMunicipality] = useState('');
@@ -104,7 +106,7 @@ export const useLocationSelector = ({
     setValue,
   ]);
 
-  const handleProvinceChange = (value: string) => {
+  const handleProvinceChange = async (value: string) => {
     setSelectedProvince(value);
     setSelectedMunicipality('');
     setSelectedBarangay('');
@@ -115,20 +117,34 @@ export const useLocationSelector = ({
     setValue(municipalityFieldName, '');
     if (barangayFieldName) setValue(barangayFieldName, '');
 
+    if (trigger) {
+      await trigger(provinceFieldName);
+      await trigger(municipalityFieldName);
+    }
+
     onProvinceChange?.(selectedProvinceName);
   };
-
-  const handleMunicipalityChange = (value: string) => {
+  const handleMunicipalityChange = async (value: string) => {
     setSelectedMunicipality(value);
     setSelectedBarangay('');
     setValue(municipalityFieldName, value);
     if (barangayFieldName) setValue(barangayFieldName, '');
+
+    if (trigger) {
+      await trigger(municipalityFieldName);
+    }
+
     onMunicipalityChange?.(value);
   };
 
-  const handleBarangayChange = (value: string) => {
+  const handleBarangayChange = async (value: string) => {
     setSelectedBarangay(value);
     if (barangayFieldName) setValue(barangayFieldName, value);
+
+    if (trigger && barangayFieldName) {
+      await trigger(barangayFieldName);
+    }
+
     onBarangayChange?.(value);
   };
 

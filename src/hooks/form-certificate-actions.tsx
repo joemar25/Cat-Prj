@@ -414,10 +414,10 @@ export async function createBirthCertificate(
 ) {
   try {
     // Validate registry number format (expects YYYY-#####)
-    if (!/\d{4}-\d{5}/.test(data.registryNumber)) {
+    if (!/\d{4}-\d+/.test(data.registryNumber)) {
       return {
         success: false,
-        error: 'Registry number must be in the format YYYY-#####',
+        error: 'Registry number must be in format: YYYY-numbers',
       };
     }
 

@@ -8,7 +8,7 @@ export function getAllProvinces(): Province[] {
 
   REGIONS.forEach((region) => {
     if (region.provinces) {
-      // Process regions that have provinces
+      // Process only regions that have provinces
       region.provinces.forEach((province) => {
         provinces.push({
           id: `${region.id}-${province.id}`,
@@ -18,16 +18,8 @@ export function getAllProvinces(): Province[] {
           citiesMunicipalities: province.citiesMunicipalities,
         });
       });
-    } else if (region.id === 'region-1') {
-      // Special handling for NCR (region-1)
-      provinces.push({
-        id: region.id,
-        name: region.name,
-        regionId: region.id,
-        regionName: region.name,
-        citiesMunicipalities: region.citiesMunicipalities,
-      });
     }
+    // Remove the else if block that was handling NCR separately
   });
 
   return provinces.sort((a, b) => a.name.localeCompare(b.name));

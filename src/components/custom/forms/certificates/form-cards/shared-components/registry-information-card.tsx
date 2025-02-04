@@ -42,27 +42,18 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     (value: string): string => {
       if (!value) return '';
 
-      const formatRegex =
-        formType === FormType.MARRIAGE ? /^\d{4}-\d{5}$/ : /^\d{4}-\d+$/;
+      // Simple regex for all form types
+      const formatRegex = /^\d{4}-\d+$/;
 
       if (!value.match(formatRegex)) {
-        if (value.length < (formType === FormType.MARRIAGE ? 10 : 6)) return '';
-        return `Registry number must be in format: ${
-          formType === FormType.MARRIAGE ? 'YYYY-#####' : 'YYYY-numbers'
-        }`;
+        if (value.length < 6) return ''; // Minimum YYYY-#
+        return 'Registry number must be in format: YYYY-numbers (e.g., 2024-1)';
       }
 
       const year = parseInt(value.split('-')[0]);
       const currentYear = new Date().getFullYear();
       if (year < 1945 || year > currentYear) {
         return 'Registration year must be between 1945 and current year';
-      }
-
-      if (formType === FormType.MARRIAGE) {
-        const sequence = parseInt(value.split('-')[1]);
-        if (sequence <= 0 || sequence > 99999) {
-          return 'Sequence number must be between 1 and 99999';
-        }
       }
 
       return '';

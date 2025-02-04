@@ -167,9 +167,9 @@ export type BirthCertificateFormValues = WithNullableDates<
 
 export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
   // Registry Information
-  registryNumber: '2024-12321',
-  province: 'Albay',
-  cityMunicipality: 'Bacacay',
+  registryNumber: '',
+  province: '',
+  cityMunicipality: '',
 
   // Child Information
   childInfo: {
