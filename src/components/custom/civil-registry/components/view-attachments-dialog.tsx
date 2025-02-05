@@ -1,5 +1,7 @@
+// src/components/custom/civil-registry/components/view-attachments-dialog.tsx
 'use client'
 
+import React from 'react'
 import { Attachment } from '@prisma/client'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,6 +12,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
+import { AttachmentsTable, AttachmentWithCertifiedCopies } from './attachment-table'
 
 interface ViewAttachmentsDialogProps {
     open: boolean
@@ -29,34 +32,23 @@ export function ViewAttachmentsDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChangeAction}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Attachments</DialogTitle>
-                    <DialogDescription>
+            <DialogContent className="w-full max-w-3xl sm:max-w-[90vw] h-[90vh] p-4 overflow-auto">
+                <DialogHeader className="items-start">
+                    <DialogTitle className="text-left">Attachments</DialogTitle>
+                    <DialogDescription className="text-left">
                         Here is a list of attachments associated with the document.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="py-4">
+                <div className="py-4 overflow-x-auto">
                     {sortedAttachments.length > 0 ? (
-                        <ul className="space-y-2">
-                            {sortedAttachments.map((attachment) => (
-                                <li key={attachment.id} className="flex flex-col">
-                                    <a
-                                        href={attachment.fileUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-600 hover:underline"
-                                    >
-                                        {attachment.fileName}
-                                    </a>
-                                    <span className="text-xs text-muted-foreground">
-                                        Uploaded: {new Date(attachment.uploadedAt).toLocaleDateString()}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
+                        <AttachmentsTable
+                            attachments={sortedAttachments as AttachmentWithCertifiedCopies[]}
+                        // Optionally, pass callbacks for delete or adding certified copies here.
+                        />
                     ) : (
-                        <p>No attachments available.</p>
+                        <p className="text-center text-sm text-muted-foreground">
+                            No attachments available.
+                        </p>
                     )}
                 </div>
                 <DialogFooter>

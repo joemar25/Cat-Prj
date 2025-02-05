@@ -9,13 +9,11 @@ import { Icons } from '@/components/ui/icons'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { useUser } from '@/context/user-context'
-import { FormType, Permission, Attachment } from '@prisma/client'
+import { Permission, Attachment } from '@prisma/client'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { useDeleteFormAction } from '@/components/custom/civil-registry/actions/delete-form-action'
-import { ViewDetailsDialog } from '@/components/custom/civil-registry/components/view-details-dialog'
 import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
-import { ViewAttachmentsDialog } from '@/components/custom/civil-registry/components/view-attachments-dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +25,7 @@ import {
 import { DeleteConfirmationDialog } from '@/components/custom/civil-registry/components/delete-confirmation-dialog'
 import { Attachment as AttachmentType } from '@prisma/client'
 import { FormSelection } from '../certified-true-copies/components/form-selection'
-// Import the updated FormSelection
+import Link from 'next/link'
 
 interface DataTableRowActionsProps {
   row: Row<BaseRegistryFormWithRelations>
@@ -39,11 +37,9 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   const { permissions } = useUser()
   const form = row.original
 
-  // State variables for dialogs
+  // State variables for dialogs (only for actions that remain dialogs)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
-  const [attachmentsDialogOpen, setAttachmentsDialogOpen] = useState(false)
   const [deletionAlertOpen, setDeletionAlertOpen] = useState(false)
   // NEW: state for the FormSelection dialog (for issuing certificate)
   const [formSelectionOpen, setFormSelectionOpen] = useState(false)
@@ -68,9 +64,11 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {canView && (
-            <DropdownMenuItem onClick={() => setViewDetailsOpen(true)}>
-              <Icons.eye className="mr-2 h-4 w-4" />
-              {t('viewDetails')}
+            <DropdownMenuItem asChild>
+              <Link href={`/civil-registry/details?formId=${form.id}`}>
+                <Icons.eye className="mr-2 h-4 w-4" />
+                {t('viewDetails')}
+              </Link>
             </DropdownMenuItem>
           )}
           {canUpload && (
@@ -80,9 +78,11 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             </DropdownMenuItem>
           )}
           {form.document?.attachments && form.document.attachments.length > 0 && (
-            <DropdownMenuItem onClick={() => setAttachmentsDialogOpen(true)}>
-              <Icons.fileText className="mr-2 h-4 w-4" />
-              {t('viewAttachments')}
+            <DropdownMenuItem asChild>
+              <Link href={`/civil-registry/attachments?formId=${form.id}`}>
+                <Icons.fileText className="mr-2 h-4 w-4" />
+                {t('viewAttachments')}
+              </Link>
             </DropdownMenuItem>
           )}
           {canEdit && (
@@ -121,22 +121,6 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             onUpdateAction?.(updatedForm)
             setEditDialogOpen(false)
           }}
-        />
-      )}
-
-      {canView && (
-        <ViewDetailsDialog
-          open={viewDetailsOpen}
-          onOpenChangeAction={setViewDetailsOpen}
-          form={form}
-        />
-      )}
-
-      {form.document?.attachments && (
-        <ViewAttachmentsDialog
-          open={attachmentsDialogOpen}
-          onOpenChangeAction={setAttachmentsDialogOpen}
-          attachments={form.document.attachments}
         />
       )}
 

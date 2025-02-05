@@ -57,7 +57,7 @@ export const ViewDetailsDialog: React.FC<ViewDetailsDialogProps> = ({
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 overflow-auto">
-                    <BaseDetailsCard form={form} />
+                    <BaseDetailsCard form={form} />dasdsa
                     {renderSpecificDetails()}
                 </div>
             </DialogContent>

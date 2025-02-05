@@ -4,18 +4,28 @@
 import React, { useState } from 'react'
 import { toast } from 'sonner'
 import { FormType, Permission, Attachment } from '@prisma/client'
-import { Badge } from '@/components/ui/badge'
 import { useTranslation } from 'react-i18next'
-import { formatDate, renderName } from './utils'
-import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+
+import { Badge } from '@/components/ui/badge'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icons } from '@/components/ui/icons'
+
 import { useUser } from '@/context/user-context'
 import { hasPermission } from '@/types/auth'
+import { formatDate, renderName } from './utils'
+
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
 import { useDeleteFormAction } from '@/components/custom/civil-registry/actions/delete-form-action'
+import { AttachmentsTable, AttachmentWithCertifiedCopies } from './attachment-table'
+import { FormSelection } from '../../certified-true-copies/components/form-selection'
+
+interface BaseDetailsCardProps {
+    form: BaseRegistryFormWithRelations
+    onUpdateAction?: (updatedForm: BaseRegistryFormWithRelations) => void
+}
 
 const formTypeLabels: Record<FormType, string> = {
     MARRIAGE: 'Marriage (Form 97)',
@@ -33,9 +43,12 @@ const statusVariants: Record<
     EXPIRED: { label: 'Expired', variant: 'outline' },
 }
 
-interface BaseDetailsCardProps {
-    form: BaseRegistryFormWithRelations
-    onUpdateAction?: (updatedForm: BaseRegistryFormWithRelations) => void
+/**
+ * Helper function to create an Attachment object.
+ */
+const createAttachment = (fileUrl: string): Attachment => {
+    const fileName = fileUrl.split('/').pop() || fileUrl
+    return { fileUrl, fileName, fileSize: 0 } as Attachment
 }
 
 export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdateAction }) => {
@@ -47,23 +60,47 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
     const canDelete = hasPermission(permissions, Permission.DOCUMENT_DELETE)
     const canUpload = hasPermission(permissions, Permission.DOCUMENT_CREATE)
 
-    // State variables for dialogs
+    // Dialog state variables
     const [editDialogOpen, setEditDialogOpen] = useState(false)
     const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
+    const [formSelectionOpen, setFormSelectionOpen] = useState(false)
 
-    // Delete action hook (assumes onUpdateAction is provided)
-    const { handleDelete, isLoading } = useDeleteFormAction({ form, onUpdateAction })
+    // Get the latest attachment if available
+    const attachments = form.document?.attachments || []
+    const latestAttachment = attachments.length
+        ? [...attachments].sort(
+            (a, b) =>
+                new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+        )[0]
+        : null
 
-    // Get the latest attachment (if any) from the form's document attachments.
-    const latestAttachment =
-        form.document &&
-            form.document.attachments &&
-            form.document.attachments.length > 0
-            ? [...form.document.attachments].sort(
-                (a, b) =>
-                    new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
-            )[0]
-            : null
+    /**
+     * Callback for when the attachment has been deleted.
+     * It removes the deleted attachment from the form and calls onUpdateAction.
+     */
+    const handleAttachmentDeleted = () => {
+        if (form.document) {
+            const updatedAttachments = form.document.attachments.filter(
+                (att) => att.id !== latestAttachment?.id
+            )
+            onUpdateAction?.({
+                ...form,
+                document: {
+                    ...form.document,
+                    attachments: updatedAttachments,
+                },
+            })
+        }
+    }
+
+    /**
+     * Callback for adding a certified true copy.
+     * For now, we show a toast; you can modify this to open a dialog.
+     */
+    const handleAddCertifiedCopy = (attachmentId: string) => {
+        toast.info(t('Add Certified True Copy for attachment') + ': ' + attachmentId)
+        // TODO: Implement further actions to add a certified true copy
+    }
 
     return (
         <Card className="border shadow-sm">
@@ -71,6 +108,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                 <CardTitle className="text-xl">{t('Base Details')}</CardTitle>
             </CardHeader>
             <CardContent>
+                {/* Form Details Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <p className="font-medium">{t('Form Number')}</p>
@@ -132,50 +170,37 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                         <h4 className="font-medium text-lg">{t('Actions')}</h4>
                         <div className="flex flex-wrap gap-4 mt-2">
                             {canUpload && (
-                                <>
-                                    {/* <Button onClick={() => setUploadDialogOpen(true)} variant="outline">
-                                        <Icons.add className="mr-2 h-4 w-4" />
-                                        {t('importDocument')}
-                                    </Button> */}
-                                    <Button onClick={() => setUploadDialogOpen(true)} variant="outline">
-                                        <Icons.add className="mr-2 h-4 w-4" />
-                                        {t('scanDocumentUpload')}
-                                    </Button>
-                                </>
+                                <Button onClick={() => setUploadDialogOpen(true)} variant="outline">
+                                    <Icons.add className="mr-2 h-4 w-4" />
+                                    {t('scanDocumentUpload')}
+                                </Button>
                             )}
                             {canEdit && (
-                                <Button onClick={() => setEditDialogOpen(true)} variant="secondary">
-                                    <Icons.file className="mr-2 h-4 w-4" />
-                                    {t('issueCertificate')}
-                                </Button>
+                                <>
+                                    <Button onClick={() => setEditDialogOpen(true)} variant="secondary">
+                                        <Icons.edit className="mr-2 h-4 w-4" />
+                                        {t('editForm.title')}
+                                    </Button>
+                                    <Button onClick={() => setFormSelectionOpen(true)} variant="secondary">
+                                        <Icons.files className="mr-2 h-4 w-4" />
+                                        {t('issueCertificate')}
+                                    </Button>
+                                </>
                             )}
                         </div>
                     </div>
                 )}
 
-                {/* Latest Attachment Section */}
-                <div className="border-t pt-4 mt-4">
-                    <h4 className="font-medium text-lg">{t('latestAttachment')}</h4>
-                    {latestAttachment ? (
-                        <div className="mt-2">
-                            <a
-                                href={latestAttachment.fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline"
-                            >
-                                {latestAttachment.fileName}
-                            </a>
-                            <p className="text-xs text-muted-foreground">
-                                {t('uploadedOn')}{' '}
-                                {new Date(latestAttachment.uploadedAt).toLocaleString()}
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="mt-2">
-                            <p className="text-xs text-muted-foreground">{t('noDocumentFound')}</p>
-                        </div>
-                    )}
+                {/* Latest Attachment Section as Table */}
+                <div className="mt-4">
+                    <h4 className="font-medium text-lg">{t('Latest Attachment')}</h4>
+                    <AttachmentsTable
+                        attachments={
+                            latestAttachment ? [latestAttachment as AttachmentWithCertifiedCopies] : []
+                        }
+                        onAttachmentDeleted={handleAttachmentDeleted}
+                        onAddCertifiedCopy={handleAddCertifiedCopy}
+                    />
                 </div>
             </CardContent>
 
@@ -185,21 +210,13 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                     open={uploadDialogOpen}
                     onOpenChangeAction={setUploadDialogOpen}
                     onUploadSuccess={(fileUrl: string) => {
-                        // Create a minimal attachment object for UI purposes.
-                        const newAttachment = {
-                            fileUrl,
-                            fileName: fileUrl.split('/').pop() || fileUrl,
-                            fileSize: 0,
-                        } as unknown as Attachment
-
+                        const newAttachment = createAttachment(fileUrl)
                         if (form.document) {
                             onUpdateAction?.({
                                 ...form,
                                 document: {
                                     ...form.document,
-                                    attachments: form.document.attachments
-                                        ? [...form.document.attachments, newAttachment]
-                                        : [newAttachment],
+                                    attachments: [...(form.document.attachments || []), newAttachment],
                                 },
                             })
                         }
@@ -209,6 +226,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                     registryNumber={form.registryNumber}
                 />
             )}
+
             {canEdit && (
                 <EditCivilRegistryFormDialog
                     form={form}
@@ -220,6 +238,10 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                         setEditDialogOpen(false)
                     }}
                 />
+            )}
+
+            {canEdit && (
+                <FormSelection open={formSelectionOpen} onOpenChangeAction={setFormSelectionOpen} />
             )}
         </Card>
     )
