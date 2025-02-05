@@ -115,7 +115,7 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/setting" className="cursor-pointer">
+            <Link href="/settings" className="cursor-pointer">
               <Icons.settings className="h-2 w-2" />
               {t('settings')}
             </Link>

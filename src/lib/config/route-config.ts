@@ -103,6 +103,15 @@ export const routeConfigs: RouteConfig[] = [
         requiredPermissions: [], // Typically available to any authenticated user
         hideFromNav: true,
     },
+    {
+        id: "settings",
+        path: "/settings",
+        type: "ui",
+        title: "Settings",
+        iconName: "user",
+        requiredPermissions: [], // Typically available to any authenticated user
+        hideFromNav: true,
+    },
     // These certificate request routes are hidden from navigation:
     {
         id: "requests-birth-cert",

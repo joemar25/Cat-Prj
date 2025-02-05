@@ -1,5 +1,5 @@
+import { SettingsUI } from "./settings-ui"
 import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header"
-import { SettingsUI } from "./settingsUI"
 
 export default async function SettingsPage() {
 
@@ -7,12 +7,13 @@ export default async function SettingsPage() {
     <>
       <DashboardHeader
         breadcrumbs={[
-          { label: 'Settings', href: '/setting', active: true },
+          { label: 'Dashboard', href: '/dashboard', active: false },
+          { label: 'Settings', href: '/settings', active: true },
         ]}
       />
 
       <div className='flex flex-1 flex-col gap-4'>
-        <SettingsUI/>
+        <SettingsUI />
       </div>
     </>
   )

@@ -119,5 +119,12 @@ export const navigationConfig: NavigationConfiguration = {
             url: "notifications",
             iconName: "fileText",
         },
+        {
+            id: "settings",
+            type: "projects",
+            title: "Settings",
+            url: "settings",
+            iconName: "fileText",
+        },
     ],
 }

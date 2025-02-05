@@ -71,6 +71,11 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       url: "notifications",
       icon: (Icons.fileText) as LucideIcon,
     },
+    {
+      title: t("settings"),
+      url: "settings",
+      icon: (Icons.shield) as LucideIcon,
+    },
   ];
 
   if (loading)
