@@ -223,9 +223,9 @@ export const DocumentReport = () => {
                     </p>
                     {classificationSummary && (
                         <div className="mt-1 text-sm">
-                            Classification Summary:&nbsp
-                            <span>Marriage: {classificationSummary.marriage}</span>,&nbsp
-                            <span>Birth: {classificationSummary.birth}</span>,&nbsp
+                            Classification Summary:&nbsp;
+                            <span>Marriage: {classificationSummary.marriage}</span>,&nbsp;
+                            <span>Birth: {classificationSummary.birth}</span>,&nbsp;
                             <span>Death: {classificationSummary.death}</span>
                         </div>
                     )}
