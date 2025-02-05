@@ -1,7 +1,14 @@
-// src\components\custom\users\actions\add-user-dialog.tsx
 'use client'
 
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
+import { Icons } from '@/components/ui/icons'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { handleCreateUser } from '@/hooks/users-action'
 import {
   Dialog,
   DialogContent,
@@ -18,8 +25,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Icons } from '@/components/ui/icons'
-import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -27,26 +32,57 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { handleCreateUser } from '@/hooks/users-action'
-import { registrationForm, RegistrationForm } from '@/lib/validation'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as React from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
+
+// Import your user creation schema
+import { userCreateFormSchema, UserCreateFormValues } from '@/lib/validation/user/user-create-form'
+import { useRoles } from '@/hooks/use-roles'
 
 interface AddUserDialogProps {
   onSuccess?: () => void
 }
 
-export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
-  const [open, setOpen] = React.useState(false)
+// Password generator function
+function generateSecurePassword() {
+  const length = 12
+  const uppercase = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'
+  const lowercase = 'abcdefghijkmnopqrstuvwxyz'
+  const numbers = '0123456789'
+  const symbols = '!@#$%^&*'
 
-  const form = useForm<RegistrationForm>({
-    resolver: zodResolver(registrationForm),
+  const allChars = uppercase + lowercase + numbers + symbols
+  let password = ''
+
+  // Ensure at least one of each type
+  password += uppercase[Math.floor(Math.random() * uppercase.length)]
+  password += lowercase[Math.floor(Math.random() * lowercase.length)]
+  password += numbers[Math.floor(Math.random() * numbers.length)]
+  password += symbols[Math.floor(Math.random() * symbols.length)]
+
+  // Fill the rest randomly
+  for (let i = password.length; i < length; i++) {
+    password += allChars[Math.floor(Math.random() * allChars.length)]
+  }
+
+  // Shuffle the password
+  return password.split('').sort(() => Math.random() - 0.5).join('')
+}
+
+
+export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
+  const [open, setOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const { roles, loading: rolesLoading, error: rolesError } = useRoles()
+
+  const form = useForm<UserCreateFormValues>({
+    resolver: zodResolver(userCreateFormSchema),
     defaultValues: {
+      username: '',
       name: '',
       email: '',
-
+      password: '',
+      confirmPassword: '',
+      roleId: undefined,
       dateOfBirth: '',
       phoneNumber: '',
       address: '',
@@ -54,24 +90,33 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
       state: '',
       country: '',
       postalCode: '',
+      bio: '',
       occupation: '',
       gender: undefined,
       nationality: '',
     },
   })
 
-  async function onSubmit(data: RegistrationForm) {
+  const isValid = form.formState.isValid
+  const isDirty = form.formState.isDirty
+
+  const handleGeneratePassword = () => {
+    const newPassword = generateSecurePassword()
+    form.setValue('password', newPassword)
+    form.setValue('confirmPassword', newPassword)
+  }
+
+  async function onSubmit(data: UserCreateFormValues) {
+    setIsLoading(true)
     try {
       const formData = new FormData()
-      // Add all form fields to formData
       Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined) {
+        if (value !== null && value !== undefined) {
           formData.append(key, value)
         }
       })
 
       const result = await handleCreateUser(formData)
-
       if (result.success) {
         toast.success(result.message)
         form.reset()
@@ -83,248 +128,283 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
     } catch (error) {
       console.error('Error creating user:', error)
       toast.error('An unexpected error occurred')
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className='h-8'>
-          <Icons.plus className='mr-2 h-4 w-4' />
+        <Button className="h-8">
+          <Icons.plus className="mr-2 h-4 w-4" />
           Add User
         </Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-7xl max-h-[90vh] overflow-y-auto'>
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Register New User</DialogTitle>
+          <DialogTitle>Add New User</DialogTitle>
           <DialogDescription>
-            Regsiter new user account with detailed information.
+            Create a new user account with detailed information.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-            {/* Basic Information */}
-            <div className='space-y-4'>
-              <h2 className='text-lg font-medium'>Basic Information</h2>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='name'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder='Enter full name' />
-                      </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Username field */}
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ''} placeholder="Enter username" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name='email'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
+              {/* Name field */}
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ''} placeholder="Enter name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Email field */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ''} type="email" placeholder="Enter email" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Password field */}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <div className="flex space-x-2">
                       <FormControl>
                         <Input
                           {...field}
-                          type='email'
-                          placeholder='Enter email address'
+                          value={field.value ?? ''}
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter password"
                         />
                       </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Personal Details */}
-            <div className='space-y-4'>
-              <h2 className='text-lg font-medium'>Personal Details</h2>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='dateOfBirth'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Date of Birth</FormLabel>
-                      <FormControl>
-                        <Input type='date' {...field} />
-                      </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='phoneNumber'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder='Enter phone number' />
-                      </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='gender'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Gender</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setShowPassword(!showPassword)}
                       >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder='Select gender' />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value='male'>Male</SelectItem>
-                          <SelectItem value='female'>Female</SelectItem>
-                          <SelectItem value='other'>Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
+                        {showPassword ? <Icons.eye className="h-4 w-4" /> : <Icons.eyeOff className="h-4 w-4" />}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleGeneratePassword}
+                      >
+                        Generate
+                      </Button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name='nationality'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nationality</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder='Enter nationality' />
-                      </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
+              {/* Confirm Password field */}
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        value={field.value ?? ''}
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Confirm password"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name='occupation'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Occupation</FormLabel>
+              <FormField
+                control={form.control}
+                name="roleId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || undefined}
+                    >
                       <FormControl>
-                        <Input {...field} placeholder='Enter occupation' />
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                      <SelectContent>
+                        <SelectItem value="none" disabled>Select role</SelectItem>
+                        {!rolesLoading && !rolesError && roles.map((role) => (
+                          <SelectItem key={role.id} value={role.id}>
+                            {role.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Date of Birth field */}
+              <FormField
+                control={form.control}
+                name="dateOfBirth"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date of Birth</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} value={field.value ?? ''} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Phone Number field */}
+              <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ''} placeholder="Enter phone number" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Address field */}
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ''} placeholder="Enter address" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* City field */}
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>City</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ''} placeholder="Enter city" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Gender field */}
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Gender</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || undefined}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {[
+                          { value: 'male', label: 'Male' },
+                          { value: 'female', label: 'Female' },
+                          { value: 'other', label: 'Other' }
+                        ].map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            {/* Address Information */}
-            <div className='space-y-4'>
-              <h2 className='text-lg font-medium'>Address Information</h2>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='address'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder='Enter address' />
-                      </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
+            {/* Bio field */}
+            <FormField
+              control={form.control}
+              name="bio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bio</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} value={field.value ?? ''} placeholder="Enter bio" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <FormField
-                  control={form.control}
-                  name='city'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder='Enter city' />
-                      </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='state'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>State</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder='Enter state' />
-                      </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='country'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder='Enter country' />
-                      </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='postalCode'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Postal Code</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder='Enter postal code' />
-                      </FormControl>
-                      <FormMessage className='text-red-400' />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className='flex justify-end space-x-2'>
+            <div className="flex justify-end space-x-2">
               <Button
-                type='button'
-                variant='outline'
+                type="button"
+                variant="outline"
                 onClick={() => setOpen(false)}
-                disabled={form.formState.isSubmitting}
+                disabled={isLoading}
               >
                 Cancel
               </Button>
-              <Button type='submit' disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? (
+              <Button type="submit" disabled={isLoading || !isValid || !isDirty}>
+                {isLoading ? (
                   <>
-                    <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />
+                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                     Creating...
                   </>
                 ) : (
-                  <>
-                    <Icons.plus className='mr-2 h-4 w-4' />
-                    Create User
-                  </>
+                  'Create User'
                 )}
               </Button>
             </div>
@@ -334,72 +414,3 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
     </Dialog>
   )
 }
-
-// ---------- Marriage Available ----------------//
-// ---------- Form 3A ----------------//
-// Fields
-// Two colums husband and wife
-// Row of the two columns
-/**
- * Name
- * Data of Birth/Age
- * Citizenship
- * Civil Status
- * Mother
- * Father
- * 1 row
- * Registry Number
- * Date of Regsitration
- * Date of Marriage
- * Place of Marriage
- *
- * Prepared by: name and signature of the current staff, position
- * verified by: name and signature of the current staff, position
- * Amount Paid
- * O.R Number
- * Date Paid
- *
- */
-
-// ---------- Birth Available ----------------//
-// ---------- Form 1A ----------------//
-// Fields
-/**
- * Page Number
- * Book Number
- * Registry Number
- * Date of Registration
- * Name of Child
- * Sex
- * Date of Birth
- * Place of Birth
- * Name of Mother
- * Name of Father
- * Cititzenship of Mother
- * Citizenship of Father
- * Date of Marrigae Parents
- * Place of Marrigae Parents
- * Remarks
- * Prepared By
- * Verified By
- *
- */
-// ---------- Death Available ----------------//
-// ---------- Form 1A ----------------//
-// Fields
-/**
- * Registry Number
- * Date of Registration Number
- * Name of Deceased
- * Sex
- * Age
- * Civil Status
- * Citizenship
- * Date of Death
- * Place of Death
- * Cause of Death
- * Prepared By
- * Verified By
- *
- *
- */

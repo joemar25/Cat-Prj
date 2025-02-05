@@ -1,5 +1,5 @@
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import TimePicker from '@/components/custom/time-picker/time-picker';
+import TimePicker from '@/components/custom/time/time-picker';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,

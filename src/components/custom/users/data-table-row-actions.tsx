@@ -24,6 +24,7 @@ import { Permission } from '@prisma/client'
 import { UserWithRoleAndProfile } from '@/types/user'
 import { useUser } from '@/context/user-context'
 import { useRoles } from '@/hooks/use-roles'
+import { EditUserDialog } from './actions/edit-user-dialog'
 
 interface DataTableRowActionsProps {
   row: Row<UserWithRoleAndProfile>
@@ -45,6 +46,7 @@ export function DataTableRowActions({
   const [showRoleDialog, setShowRoleDialog] = useState(false)
   const [showDisableDialog, setShowDisableDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
 
   // Permission checks
   const canUpdateUser = hasPermission(permissions, Permission.USER_UPDATE)
@@ -130,7 +132,13 @@ export function DataTableRowActions({
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
+      setShowDeleteDialog(false)
     }
+  }
+
+  const handleEditUser = (updatedUser: UserWithRoleAndProfile) => {
+    onUpdateUser?.(updatedUser)
+    setShowEditDialog(false)
   }
 
   return (
@@ -145,6 +153,12 @@ export function DataTableRowActions({
         <DropdownMenuContent align="end" className="w-[200px]">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
+
+          {canUpdateUser && (
+            <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
+              <Icons.pencil className="mr-2 h-4 w-4" /> Edit User
+            </DropdownMenuItem>
+          )}
 
           {canActivateUser && isUserDisabled && (
             <DropdownMenuItem onClick={handleEnable} disabled={isLoading}>
@@ -205,6 +219,13 @@ export function DataTableRowActions({
           )}
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <EditUserDialog
+        user={user}
+        open={showEditDialog}
+        onOpenChangeAction={setShowEditDialog}
+        onSave={handleEditUser}
+      />
 
       <FormActionDialog
         open={showRoleDialog}

@@ -1,22 +1,22 @@
 "use client"
 
+import { Fragment } from "react"
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
-import { Calendar as CalendarIcon, Menu } from "lucide-react"
-import { DashboardHeaderProps } from "@/types/dashboard"
-import { Fragment } from "react"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
 import { UserHeaderNav } from "./user-header-nav"
+import { Separator } from "@/components/ui/separator"
 import { NotificationBell } from "./notification-bell"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import { DashboardHeaderProps } from "@/types/dashboard"
+import { ThemeChange } from "@/components/theme/theme-change"
+import { Calendar as CalendarIcon, Menu } from "lucide-react"
 import { LanguageSelector } from "@/components/custom/language/language-selector"
 import { FullscreenToggle } from "@/components/custom/full-screen/fullscreen-toggle"
-import { ThemeChange } from "@/components/theme/theme-change"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 
-const TimeDisplay = dynamic(() => import("@/components/custom/time-display"), { ssr: false })
+const TimeDisplay = dynamic(() => import("@/components/custom/time/time-display"), { ssr: false })
 
 export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeaderProps) {
     const pathname = usePathname()
@@ -99,7 +99,7 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                     </div>
                     {user && <NotificationBell userId={user.id} />}
                     <UserHeaderNav user={user} />
-                 
+
                 </div>
             </div>
         </header>

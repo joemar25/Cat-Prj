@@ -3,28 +3,51 @@ import { prisma } from '@/lib/prisma'
 import { Skeleton } from '@/components/ui/skeleton'
 import { UsersTableClient } from '@/components/custom/users/users-table-client'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { UserWithRoleAndProfile } from '@/types/user'
 
-async function getUsers() {
+async function getUsers(): Promise<UserWithRoleAndProfile[]> {
   try {
     const users = await prisma.user.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
       include: {
         profile: true,
         roles: {
           include: {
             role: {
               include: {
-                permissions: true,
-              },
-            },
-          },
-        },
-      },
+                permissions: {
+                  select: {
+                    permission: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     })
-    return users
+
+    // Filter out roles with null role and transform the data structure
+    return users.map(user => ({
+      ...user,
+      roles: user.roles
+        .filter((userRole): userRole is typeof userRole & { role: NonNullable<typeof userRole.role> } =>
+          userRole.role !== null
+        )
+        .map(userRole => ({
+          role: {
+            ...userRole.role,
+            permissions: userRole.role.permissions
+          }
+        }))
+    })) satisfies UserWithRoleAndProfile[]
   } catch (error) {
     console.error('Error fetching user data:', error)
     return []
@@ -61,7 +84,7 @@ export default async function Users() {
       <DashboardHeader
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard', active: false },
-          { label: 'Users', href: '/manage-staffs', active: true }
+          { label: 'Users', href: '/manage-staffs', active: true },
         ]}
       />
 
