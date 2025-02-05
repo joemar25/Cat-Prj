@@ -127,3 +127,19 @@
 ## Mar Todo
 
 1. [ ] Add predetermined answers for guiding user answer the forms for request
+
+## Updating Version
+
+To update Next.js and its related dependencies using pnpm:
+
+```bash
+pnpm up next@latest react@latest react-dom@latest eslint-config-next@latest
+```
+
+Since you're using TypeScript and next-auth, also update:
+
+```bash
+pnpm up @types/react@latest @types/react-dom@latest next-auth@latest
+```
+
+Remember to check the Next.js upgrade guide for any breaking changes: <https://nextjs.org/docs/pages/building-your-application/upgrading>
