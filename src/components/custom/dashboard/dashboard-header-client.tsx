@@ -40,7 +40,7 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                 </SidebarTrigger>
 
                 {user && isDashboardRoot ? (
-                    <div className="hidden sm:flex items-center gap-2">
+                    <div className="hidden xl:flex items-center gap-2">
                         <span className="text-muted-foreground">{getGreeting()},</span>
                         <span className="font-semibold text-foreground">
                             {user.name || user.username || user.email?.split('@')[0]}
@@ -50,7 +50,7 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                 ) : breadcrumbs.length > 0 ? (
                     <>
                         <Separator orientation="vertical" className="hidden sm:block h-4" />
-                        <Breadcrumb className="hidden sm:flex">
+                        <Breadcrumb className="hidden xl:flex">
                             <BreadcrumbList>
                                 {breadcrumbs.map((breadcrumb, index) => (
                                     <Fragment key={index}>
@@ -79,20 +79,18 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
             {/* Right Section */}
             <div className="ml-auto flex items-center gap-3 sm:gap-4 ">
                 {/* Date & Time */}
-                <div className="hidden sm:flex items-center">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-2 bg-card"
+                <div className="hidden xl:flex items-center">
+                    <div
+                        className="flex items-center gap-2 border border-muted p-[5px] px-3 rounded-md bg-card"
                     >
                         <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                         <TimeDisplay />
-                    </Button>
+                    </div>
                 </div>
 
                 {/* Utilities */}
                 <div className="flex items-center sm:gap-[0.6rem] gap-[1rem]">
-                    <div className="hidden sm:flex gap-4">
+                    <div className="hidden lg:flex gap-4">
                         <LanguageSelector />
                         <FullscreenToggle />
                         <ThemeChange />

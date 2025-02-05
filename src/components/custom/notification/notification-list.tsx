@@ -66,7 +66,7 @@ export function NotificationList({ userId }: { userId: string }) {
       </div>
 
       <Tabs defaultValue="all" className="p-4">
-        <TabsList className="grid w-96 h-10 grid-cols-3 mb-4">
+        <TabsList className="grid w-96 h-9 grid-cols-3 mb-4">
           <TabsTrigger value="all">
             {t('notificationList.all')} ({filteredNotifications.filter(n => !n.status.includes('archive')).length})
           </TabsTrigger>

@@ -77,22 +77,6 @@ export const columns: ColumnDef<FeedbackRow>[] = [
         },
     },
     {
-        accessorKey: 'updatedAt',
-        header: ({ column }) => {
-            const { t } = useTranslation()
-            return <DataTableColumnHeader column={column} title={t('Last Updated')} />
-        },
-        cell: ({ row }) => {
-            const { t } = useTranslation()
-            const updatedAt = row.getValue('updatedAt') as Date  // Keep the field name 'updatedAt' directly
-            return (
-                <div className="text-sm text-muted-foreground">
-                    {t('Updated')}: {format(new Date(updatedAt), 'PPP p')}  {/* Translate the label "Updated" */}
-                </div>
-            )
-        },
-    },
-    {
         id: 'actions',
         header: ({ column }) => {
             const { t } = useTranslation()

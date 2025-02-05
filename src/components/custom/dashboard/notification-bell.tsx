@@ -177,26 +177,28 @@ export function NotificationBell({ userId }: { userId: string }) {
       </DropdownMenu>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className='sm:max-w-[500px] p-6'>
-          <DialogClose className='absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground'>
-            <span className='sr-only'>{t('close')}</span> {/* Translate "Close" */}
-            <X className='h-4 w-4' />
+        <DialogContent className="sm:max-w-[625px] p-6">
+          <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+            <span className="sr-only">{t('close')}</span> {/* Translate "Close" */}
+            <X className="h-4 w-4" />
           </DialogClose>
-          <DialogHeader className='mt-2'>
-            <DialogTitle className='text-xl font-semibold pb-2'>
-              {selectedNotification?.title}
-            </DialogTitle>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">{selectedNotification?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
             {selectedNotification?.createdAt && (
-              <div className='text-sm text-muted-foreground'>
-                {formatDate(selectedNotification.createdAt)}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <span className="text-sm font-medium">{t('date')}:</span>
+                <span className="col-span-3 text-sm">{formatDate(selectedNotification.createdAt)}</span>
               </div>
             )}
-          </DialogHeader>
-          <DialogDescription className='text-foreground mt-2'>
-            {selectedNotification?.message}
-          </DialogDescription>
+            <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+              <pre className="text-sm whitespace-pre-wrap">{selectedNotification?.message}</pre>
+            </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
+
     </>
   );
 }
