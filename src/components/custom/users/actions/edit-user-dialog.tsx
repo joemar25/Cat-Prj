@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Profile } from '@prisma/client'
 import { ProfileSection } from '@/components/custom/users/components/edit-user-dialog/profile-section'
 import { PasswordSection } from '@/components/custom/users/components/edit-user-dialog/password-section'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'

@@ -140,40 +140,42 @@ export async function handleChangePassword(
 // ===================================================
 export async function handleCreateUser(data: FormData) {
   try {
-    const parsedData = createUserSchema.parse({
-      name: data.get('name'),
-      email: data.get('email'),
-      password: data.get('password'),
-      role: data.get('role'),
-    })
+    const roleId = data.get('roleId')
+    const email = data.get('email') as string
 
+    if (!roleId) {
+      return { success: false, message: 'Role is required' }
+    }
+
+    // Check if email exists
     const existingUser = await prisma.user.findUnique({
-      where: { email: parsedData.email },
+      where: { email },
     })
 
     if (existingUser) {
       return { success: false, message: 'Email already exists' }
     }
 
-    // Find the role record
-    const role = await prisma.role.findUnique({
-      where: { name: parsedData.role },
+    // Find the role first
+    const roleData = await prisma.role.findUnique({
+      where: { id: roleId as string },
     })
 
-    if (!role) {
+    if (!roleData) {
       return { success: false, message: 'Invalid role selected' }
     }
 
-    const hashedPassword = await hash(parsedData.password, 10)
+    const hashedPassword = await hash(data.get('password') as string, 10)
     const now = new Date()
 
     const result = await prisma.$transaction(async (tx) => {
       // Create user
       const createdUser = await tx.user.create({
         data: {
-          name: parsedData.name,
-          email: parsedData.email,
-          emailVerified: false,
+          name: data.get('name') as string,
+          email: data.get('email') as string,
+          username: data.get('username') as string || null,
+          emailVerified: true,
           active: true,
           createdAt: now,
           updatedAt: now,
@@ -184,7 +186,9 @@ export async function handleCreateUser(data: FormData) {
       await tx.userRole.create({
         data: {
           userId: createdUser.id,
-          roleId: role.id,
+          roleId: roleId as string,
+          userName: createdUser.name,
+          roleName: roleData.name
         },
       })
 
@@ -193,27 +197,30 @@ export async function handleCreateUser(data: FormData) {
         data: {
           userId: createdUser.id,
           providerId: 'credentials',
-          accountId: parsedData.email,
+          accountId: data.get('email') as string,
           password: hashedPassword,
           createdAt: now,
           updatedAt: now,
         },
       })
 
-      // Create empty profile
+      // Create profile with all fields
       await tx.profile.create({
         data: {
           userId: createdUser.id,
-          phoneNumber: '',
-          address: '',
-          city: '',
-          state: '',
-          country: '',
+          dateOfBirth: data.get('dateOfBirth') ? new Date(data.get('dateOfBirth') as string) : null,
+          phoneNumber: data.get('phoneNumber') as string || null,
+          address: data.get('address') as string || null,
+          city: data.get('city') as string || null,
+          state: data.get('state') as string || null,
+          country: data.get('country') as string || null,
+          postalCode: data.get('postalCode') as string || null,
+          bio: data.get('bio') as string || null,
+          occupation: data.get('occupation') as string || null,
+          gender: data.get('gender') as string || null,
+          nationality: data.get('nationality') as string || null,
         },
       })
-
-      // Notify the new user about account creation (inside the transaction)
-      await notify(createdUser.id, 'Account Created', 'Your account has been created successfully.')
 
       // Return user with roles and profile included
       return await tx.user.findUnique({
@@ -233,25 +240,15 @@ export async function handleCreateUser(data: FormData) {
       })
     })
 
-    // Broadcast notification to all users with the USER_CREATE permission
-    await notifyUsersWithPermission(
-      Permission.USER_CREATE,
-      'New User Created',
-      `User "${result?.email}" was created successfully.`
-    )
-
     revalidatePath('/manage-users')
     return {
       success: true,
       message: 'User created successfully',
-      user: result,
+      data: result,
     }
   } catch (error) {
     console.error('Create user error:', error)
-    if (error instanceof z.ZodError) {
-      return { success: false, message: error.errors[0].message }
-    }
-    return { success: false, message: 'Failed to create user' }
+    return { success: false, message: error instanceof Error ? error.message : 'Failed to create user' }
   }
 }
 

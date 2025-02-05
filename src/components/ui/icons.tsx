@@ -85,6 +85,7 @@ import {
     UploadIcon,
     Camera,
     LogOutIcon,
+    Pencil,
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
 } from 'lucide-react'
@@ -205,6 +206,7 @@ export const Icons = {
     more: MoreHorizontal,
     upload: UploadIcon,
     camera: Camera,
+    pencil: Pencil,
 } as const
 
 export type IconsType = typeof Icons

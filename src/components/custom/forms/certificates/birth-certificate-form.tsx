@@ -26,8 +26,20 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { FormType } from '@prisma/client';
+
+import ChildInformationCard from './form-cards/birth-cards/child-information-card';
+import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
+import FatherInformationCard from './form-cards/birth-cards/father-information-card';
+import MarriageOfParentsCard from './form-cards/birth-cards/marriage-parents-card';
+import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
+import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
+import PreparedByCard from './form-cards/birth-cards/prepared-by-card';
+import ReceivedByCard from './form-cards/birth-cards/received-by';
+import RegisteredAtOfficeCard from './form-cards/birth-cards/registered-at-office-card';
+import RemarksCard from './form-cards/birth-cards/remarks';
+import AffidavitFormsCard from './form-cards/birth-cards/affidavit-form-card';
 
 export default function BirthCertificateForm({
   open,
@@ -178,8 +190,9 @@ export default function BirthCertificateForm({
                         formType={FormType.BIRTH}
                         title='Birth Registry Information'
                       />
-                      {/* <ChildInformationCard /> */}
-                      {/* <MotherInformationCard />
+                      <ChildInformationCard />
+                      <MotherInformationCard />
+
                       <FatherInformationCard />
                       <MarriageOfParentsCard />
                       <AttendantInformationCard />
@@ -188,7 +201,7 @@ export default function BirthCertificateForm({
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard />
                       <RemarksCard />
-                      <AffidavitFormsCard /> */}
+                      <AffidavitFormsCard />
 
                       <DialogFooter>
                         <Button

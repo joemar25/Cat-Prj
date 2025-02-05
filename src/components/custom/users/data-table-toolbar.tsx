@@ -54,7 +54,7 @@ export function DataTableToolbar<TData extends User>({
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-4">
         <div className="relative">
-          <Icons.search className="absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Icons.search className="absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2" />
           <Input
             placeholder={t('dataTableToolbar.searchPlaceholder')}
             value={(nameColumn?.getFilterValue() as string) ?? ''}
@@ -102,7 +102,7 @@ export function DataTableToolbar<TData extends User>({
       </div>
       <div className="flex items-center space-x-4">
         {canExport && (
-          <Button variant="outline" className="h-10" onClick={handleExport}>
+          <Button variant="outline" onClick={handleExport}>
             <Icons.download className="mr-2 h-4 w-4" />
             {t('dataTableToolbar.export')}
           </Button>
