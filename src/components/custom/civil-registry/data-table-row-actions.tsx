@@ -75,7 +75,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           )}
           {canUpload && (
             <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
-              <Icons.add className="mr-2 h-4 w-4" />
+              <Icons.printer className="mr-2 h-4 w-4" />
               {t('scanDocumentUpload')}
             </DropdownMenuItem>
           )}
@@ -88,11 +88,11 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           {canEdit && (
             <>
               <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
-                <Icons.file className="mr-2 h-4 w-4" />
-                {t('editCertificate')}
+                <Icons.folder className="mr-2 h-4 w-4" />
+                {t('editForm.title')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setFormSelectionOpen(true)}>
-                <Icons.plus className="mr-2 h-4 w-4" />
+                <Icons.files className="mr-2 h-4 w-4" />
                 {t('issueCertificate')}
               </DropdownMenuItem>
             </>

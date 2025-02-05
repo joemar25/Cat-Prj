@@ -146,7 +146,7 @@ const CertificationOfDeathCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='certification.address.address'
+            name='certification.address'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Address</FormLabel>
@@ -154,7 +154,9 @@ const CertificationOfDeathCard: React.FC = () => {
                   <Input
                     className='h-10'
                     placeholder='Enter Full Address'
-                    {...field}
+                    value={field.value ? JSON.stringify(field.value) : ''}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
                   />
                 </FormControl>
                 <FormMessage />

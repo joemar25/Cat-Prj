@@ -81,7 +81,7 @@ const CertificationInformantCard: React.FC = () => {
         {/* Address */}
         <FormField
           control={control}
-          name='informant.address.address'
+          name='informant.address'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Address</FormLabel>
@@ -89,7 +89,9 @@ const CertificationInformantCard: React.FC = () => {
                 <Input
                   className='h-10'
                   placeholder='Enter street address'
-                  {...field}
+                  value={field.value ? JSON.stringify(field.value) : ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
                 />
               </FormControl>
               <FormMessage />
