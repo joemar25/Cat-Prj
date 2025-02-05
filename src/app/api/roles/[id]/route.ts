@@ -1,5 +1,3 @@
-// src/app/api/roles/[id]/route.ts
-// src/app/api/roles/[id]/route.ts
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
@@ -7,21 +5,37 @@ import { Permission } from "@prisma/client"
 import { hasPermission } from "@/types/auth"
 import { createRoleSchema } from "@/lib/types/roles"
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+    _request: Request,
+    { params }: { params: { id: string } }
+) {
     try {
         const session = await auth()
         if (!session?.user) {
-            return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+            return NextResponse.json(
+                { success: false, error: "Unauthorized" },
+                { status: 401 }
+            )
         }
 
         const user = await prisma.user.findUnique({
             where: { email: session.user.email! },
-            include: { roles: { include: { role: { include: { permissions: true } } } } }
+            include: {
+                roles: {
+                    include: {
+                        role: {
+                            include: { permissions: true },
+                        },
+                    },
+                },
+            },
         })
 
-        const permissions = user?.roles.flatMap((ur) =>
-            ur.role.permissions.map((rp) => rp.permission)
-        ) || []
+        // Use optional chaining and provide a fallback empty array.
+        const permissions =
+            user?.roles.flatMap((ur) =>
+                ur.role?.permissions.map((rp) => rp.permission) || []
+            ) || []
 
         if (!hasPermission(permissions, Permission.ROLE_DELETE)) {
             return NextResponse.json(
@@ -59,25 +73,37 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
 }
 
 // PUT endpoint for updating a role
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+    request: Request,
+    { params }: { params: { id: string } }
+) {
     try {
         // Authenticate the user
         const session = await auth()
         if (!session?.user) {
-            return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+            return NextResponse.json(
+                { success: false, error: "Unauthorized" },
+                { status: 401 }
+            )
         }
 
-        // Get the user details with roles and permissions
+        // Get the user details with roles and permissions.
         const user = await prisma.user.findUnique({
             where: { email: session.user.email! },
-            include: { roles: { include: { role: { include: { permissions: true } } } } }
+            include: {
+                roles: {
+                    include: {
+                        role: { include: { permissions: true } },
+                    },
+                },
+            },
         })
 
-        const userPermissions = user?.roles.flatMap((ur) =>
-            ur.role.permissions.map((rp) => rp.permission)
-        ) || []
+        const userPermissions =
+            user?.roles.flatMap((ur) =>
+                ur.role?.permissions.map((rp) => rp.permission) || []
+            ) || []
 
-        // Check if the user has permission to update roles
         if (!hasPermission(userPermissions, Permission.ROLE_UPDATE)) {
             return NextResponse.json(
                 { success: false, error: "Insufficient permissions" },
@@ -87,7 +113,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
         const { id } = params
 
-        // Find the existing role
+        // Find the existing role.
         const role = await prisma.role.findUnique({ where: { id } })
         if (!role) {
             return NextResponse.json(
@@ -96,7 +122,6 @@ export async function PUT(request: Request, { params }: { params: { id: string }
             )
         }
 
-        // Prevent updating the Super Admin role if desired
         if (role.name === "Super Admin") {
             return NextResponse.json(
                 { success: false, error: "Cannot update Super Admin role" },
@@ -104,14 +129,14 @@ export async function PUT(request: Request, { params }: { params: { id: string }
             )
         }
 
-        // Parse and validate the request body
         const body = await request.json()
         const validatedData = createRoleSchema.parse(body)
         // validatedData should include: { name, description, permissions }
 
-        // Check if the new name is already in use by another role (if it has changed)
         if (role.name !== validatedData.name) {
-            const existingRole = await prisma.role.findUnique({ where: { name: validatedData.name } })
+            const existingRole = await prisma.role.findUnique({
+                where: { name: validatedData.name },
+            })
             if (existingRole) {
                 return NextResponse.json(
                     { success: false, error: "Role name already exists" },
@@ -120,9 +145,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
             }
         }
 
-        // Update the role and its permissions in a transaction
         const updatedRole = await prisma.$transaction(async (tx) => {
-            // Update the role's name and description
             await tx.role.update({
                 where: { id },
                 data: {
@@ -131,31 +154,32 @@ export async function PUT(request: Request, { params }: { params: { id: string }
                 },
             })
 
-            // Remove all existing permissions for the role
+            // Remove all existing permissions for the role.
             await tx.rolePermission.deleteMany({ where: { roleId: id } })
 
-            // Insert the new set of permissions (if any)
+            // Insert the new set of permissions (if any), providing the roleName.
             if (validatedData.permissions && validatedData.permissions.length > 0) {
                 await tx.rolePermission.createMany({
                     data: validatedData.permissions.map((permission: Permission) => ({
                         roleId: id,
                         permission,
+                        roleName: validatedData.name,
                     })),
                 })
             }
 
-            // Return the updated role with its permissions
             return await tx.role.findUnique({
                 where: { id },
                 include: {
-                    permissions: {
-                        select: { permission: true },
-                    },
+                    permissions: { select: { permission: true } },
                 },
             })
         })
 
-        return NextResponse.json({ success: true, role: updatedRole }, { status: 200 })
+        return NextResponse.json(
+            { success: true, role: updatedRole },
+            { status: 200 }
+        )
     } catch (error: any) {
         console.error("Error updating role:", error)
         return NextResponse.json(

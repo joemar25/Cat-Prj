@@ -1,7 +1,7 @@
-// src/app/api/roles/route.ts
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 import { createRoleSchema } from '@/lib/types/roles'
+import { Permission } from '@prisma/client'
 
 export async function POST(request: Request) {
     try {
@@ -20,9 +20,9 @@ export async function POST(request: Request) {
             )
         }
 
-        // Create role with permissions in a transaction
+        // Create role with permissions in a transaction.
         const newRole = await prisma.$transaction(async (tx) => {
-            // Create the role
+            // Create the role.
             const role = await tx.role.create({
                 data: {
                     name: validatedData.name,
@@ -30,22 +30,21 @@ export async function POST(request: Request) {
                 },
             })
 
-            // Create permissions
+            // Create permissions. We now supply the required roleName.
             await tx.rolePermission.createMany({
-                data: validatedData.permissions.map((permission) => ({
+                data: validatedData.permissions.map((permission: Permission) => ({
                     roleId: role.id,
-                    permission: permission,
+                    permission,
+                    roleName: role.name, // required field
                 })),
             })
 
-            // Return the created role with its permissions
+            // Return the created role with its permissions.
             return await tx.role.findUnique({
                 where: { id: role.id },
                 include: {
                     permissions: {
-                        select: {
-                            permission: true,
-                        },
+                        select: { permission: true },
                     },
                 },
             })
@@ -68,9 +67,7 @@ export async function GET() {
                 id: true,
                 name: true,
                 permissions: {
-                    select: {
-                        permission: true,
-                    },
+                    select: { permission: true },
                 },
             },
         })
@@ -78,7 +75,10 @@ export async function GET() {
         return NextResponse.json({ success: true, roles }, { status: 200 })
     } catch (error) {
         console.error('Error fetching roles:', error)
-        return NextResponse.json({ success: false, error: 'Failed to fetch roles' }, { status: 500 })
+        return NextResponse.json(
+            { success: false, error: 'Failed to fetch roles' },
+            { status: 500 }
+        )
     }
 }
 

@@ -1,4 +1,3 @@
-// src/app/api/profile/route.ts
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
@@ -12,9 +11,8 @@ export async function PUT(request: Request) {
 
         const body = await request.json()
 
-        // Update user and profile in a transaction
+        // Update user and profile in a transaction.
         const [user, profile] = await prisma.$transaction(async (tx) => {
-            // Update user
             const updatedUser = await tx.user.update({
                 where: { id: session.user.id },
                 data: {
@@ -26,16 +24,13 @@ export async function PUT(request: Request) {
                     roles: {
                         include: {
                             role: {
-                                include: {
-                                    permissions: true
-                                }
-                            }
-                        }
-                    }
-                }
+                                include: { permissions: true },
+                            },
+                        },
+                    },
+                },
             })
 
-            // Update or create profile
             const updatedProfile = await tx.profile.upsert({
                 where: { userId: session.user.id },
                 create: {
@@ -64,7 +59,7 @@ export async function PUT(request: Request) {
                     occupation: body.occupation || null,
                     gender: body.gender || null,
                     nationality: body.nationality || null,
-                }
+                },
             })
 
             return [updatedUser, updatedProfile]
@@ -75,20 +70,24 @@ export async function PUT(request: Request) {
             data: {
                 user: {
                     ...user,
-                    roles: user.roles.map(ur => ur.role.name),
-                    permissions: Array.from(new Set(
-                        user.roles.flatMap(ur => ur.role.permissions.map(p => p.permission))
-                    ))
+                    // Map roles while filtering out any null values.
+                    roles: user.roles
+                        .map((ur: any) => ur.role?.name)
+                        .filter((name): name is string => !!name),
+                    permissions: Array.from(
+                        new Set(user.roles.flatMap((ur: any) => ur.role?.permissions.map((p: any) => p.permission) || []))
+                    ),
                 },
-                profile
-            }
+                profile,
+            },
         })
     } catch (error) {
-        return NextResponse.json({
-            success: false,
-            error: error instanceof Error ? error.message : 'Failed to update profile'
-        }, {
-            status: 500
-        })
+        return NextResponse.json(
+            {
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to update profile',
+            },
+            { status: 500 }
+        )
     }
 }

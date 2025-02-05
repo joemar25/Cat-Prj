@@ -1,11 +1,10 @@
+// src/components/custom/certified-true-copies/components/form-selection.tsx
 'use client'
 
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next' // Import useTranslation
-import { Icons } from '@/components/ui/icons'
-import { Button } from '@/components/ui/button'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 import BirthAnnotationForm from '@/components/custom/forms/annotations/birthcert'
 import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation-form'
@@ -14,9 +13,14 @@ import DeathCertificateForm from '@/components/custom/forms/certificates/death-c
 import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form'
 import MarriageCertificateForm from '@/components/custom/forms/certificates/marriage-certificate-form'
 
-export function FormSelection() {
-    const { t } = useTranslation() // Access translation function
-    const [open, setOpen] = useState(false)
+interface FormSelectionProps {
+    open: boolean
+    onOpenChangeAction: (open: boolean) => void
+}
+
+export function FormSelection({ open, onOpenChangeAction }: FormSelectionProps) {
+    const { t } = useTranslation()
+    // Local states for the various certificate/annotation forms:
     const [birthFormOpen, setBirthFormOpen] = useState(false)
     const [deathFormOpen, setDeathFormOpen] = useState(false)
     const [marriageFormOpen, setMarriageFormOpen] = useState(false)
@@ -25,7 +29,9 @@ export function FormSelection() {
     const [deathCertificateOpen, setDeathCertificateOpen] = useState(false)
 
     const handleFormSelect = (formType: string) => {
-        setOpen(false)
+        // Close the selection dialog...
+        onOpenChangeAction(false)
+        // ... and then open the corresponding form
         switch (formType) {
             case 'birth-annotation':
                 setBirthFormOpen(true)
@@ -43,53 +49,94 @@ export function FormSelection() {
 
     return (
         <>
-            <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>
-                    <Button variant={"default"}>
-                        <Icons.plus className="mr-2 h-4 w-4" />
-                        {t('formSelection.issueCertificate')}
-                    </Button>
-                </DialogTrigger>
+            <Dialog open={open} onOpenChange={onOpenChangeAction}>
                 <DialogContent className="sm:max-w-4xl">
                     <DialogHeader>
-                        <DialogTitle className="text-center text-xl font-semibold">{t('formSelection.selectFormType')}</DialogTitle>
+                        <DialogTitle className="text-center text-xl font-semibold">
+                            {t('formSelection.selectFormType')}
+                        </DialogTitle>
                     </DialogHeader>
 
                     <div className="flex gap-4">
-                        <Card className="flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border" onClick={() => handleFormSelect('birth-annotation')}>
+                        <Card
+                            className="flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border"
+                            onClick={() => handleFormSelect('birth-annotation')}
+                        >
                             <CardHeader>
-                                <CardTitle className="text-center text-base">{t('formSelection.birthForm')}</CardTitle>
+                                <CardTitle className="text-center text-base">
+                                    {t('formSelection.birthForm')}
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="text-center">
-                                <p className="text-sm text-muted-foreground">{t('formSelection.birthAvailable')}</p>
+                                <p className="text-sm text-muted-foreground">
+                                    {t('formSelection.birthAvailable')}
+                                </p>
                             </CardContent>
                         </Card>
-                        <Card className="flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border" onClick={() => handleFormSelect('death-annotation')}>
+                        <Card
+                            className="flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border"
+                            onClick={() => handleFormSelect('death-annotation')}
+                        >
                             <CardHeader>
-                                <CardTitle className="text-center text-base">{t('formSelection.deathForm')}</CardTitle>
+                                <CardTitle className="text-center text-base">
+                                    {t('formSelection.deathForm')}
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="text-center">
-                                <p className="text-sm text-muted-foreground">{t('formSelection.deathAvailable')}</p>
+                                <p className="text-sm text-muted-foreground">
+                                    {t('formSelection.deathAvailable')}
+                                </p>
                             </CardContent>
                         </Card>
-                        <Card className="flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border" onClick={() => handleFormSelect('marriage-annotation')}>
+                        <Card
+                            className="flex-1 cursor-pointer hover:bg-accent transition-colors border dark:border-border"
+                            onClick={() => handleFormSelect('marriage-annotation')}
+                        >
                             <CardHeader>
-                                <CardTitle className="text-center text-base">{t('formSelection.marriageForm')}</CardTitle>
+                                <CardTitle className="text-center text-base">
+                                    {t('formSelection.marriageForm')}
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="text-center">
-                                <p className="text-sm text-muted-foreground">{t('formSelection.marriageAvailable')}</p>
+                                <p className="text-sm text-muted-foreground">
+                                    {t('formSelection.marriageAvailable')}
+                                </p>
                             </CardContent>
                         </Card>
                     </div>
                 </DialogContent>
             </Dialog>
 
-            <BirthAnnotationForm open={birthFormOpen} onOpenChange={setBirthFormOpen} onCancel={() => setBirthFormOpen(false)} />
-            <DeathAnnotationForm open={deathFormOpen} onOpenChange={setDeathFormOpen} onCancel={() => setDeathFormOpen(false)} />
-            <MarriageAnnotationForm open={marriageFormOpen} onOpenChange={setMarriageFormOpen} onCancel={() => setMarriageFormOpen(false)} />
-            <BirthCertificateForm open={birthCertificateFormOpen} onOpenChange={setBirthCertificateFormOpen} onCancel={() => setBirthCertificateFormOpen(false)} />
-            <DeathCertificateForm open={deathCertificateOpen} onOpenChange={setDeathCertificateOpen} onCancel={() => setDeathCertificateOpen(false)} />
-            <MarriageCertificateForm open={marriageCertificateOpen} onOpenChange={setMarriageCertificateOpen} onCancel={() => setMarriageCertificateOpen(false)} />
+            <BirthAnnotationForm
+                open={birthFormOpen}
+                onOpenChange={setBirthFormOpen}
+                onCancel={() => setBirthFormOpen(false)}
+            />
+            <DeathAnnotationForm
+                open={deathFormOpen}
+                onOpenChange={setDeathFormOpen}
+                onCancel={() => setDeathFormOpen(false)}
+            />
+            <MarriageAnnotationForm
+                open={marriageFormOpen}
+                onOpenChange={setMarriageFormOpen}
+                onCancel={() => setMarriageFormOpen(false)}
+            />
+            <BirthCertificateForm
+                open={birthCertificateFormOpen}
+                onOpenChange={setBirthCertificateFormOpen}
+                onCancel={() => setBirthCertificateFormOpen(false)}
+            />
+            <DeathCertificateForm
+                open={deathCertificateOpen}
+                onOpenChange={setDeathCertificateOpen}
+                onCancel={() => setDeathCertificateOpen(false)}
+            />
+            <MarriageCertificateForm
+                open={marriageCertificateOpen}
+                onOpenChange={setMarriageCertificateOpen}
+                onCancel={() => setMarriageCertificateOpen(false)}
+            />
         </>
     )
 }

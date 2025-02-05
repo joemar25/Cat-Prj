@@ -26,6 +26,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { DeleteConfirmationDialog } from '@/components/custom/civil-registry/components/delete-confirmation-dialog'
 import { Attachment as AttachmentType } from '@prisma/client'
+import { FormSelection } from '../certified-true-copies/components/form-selection'
+// Import the updated FormSelection
 
 interface DataTableRowActionsProps {
   row: Row<BaseRegistryFormWithRelations>
@@ -43,6 +45,8 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [attachmentsDialogOpen, setAttachmentsDialogOpen] = useState(false)
   const [deletionAlertOpen, setDeletionAlertOpen] = useState(false)
+  // NEW: state for the FormSelection dialog (for issuing certificate)
+  const [formSelectionOpen, setFormSelectionOpen] = useState(false)
 
   const { handleDelete, isLoading } = useDeleteFormAction({ form, onUpdateAction })
 
@@ -69,12 +73,6 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
               {t('viewDetails')}
             </DropdownMenuItem>
           )}
-          {/* {canUpload && (
-            <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
-              <Icons.add className="mr-2 h-4 w-4" />
-              {t('uploadDocument')}
-            </DropdownMenuItem>
-          )} */}
           {canUpload && (
             <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
               <Icons.add className="mr-2 h-4 w-4" />
@@ -88,10 +86,16 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             </DropdownMenuItem>
           )}
           {canEdit && (
-            <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
-              <Icons.file className="mr-2 h-4 w-4" />
-              {t('issueCertificate')}
-            </DropdownMenuItem>
+            <>
+              <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+                <Icons.file className="mr-2 h-4 w-4" />
+                {t('editCertificate')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFormSelectionOpen(true)}>
+                <Icons.plus className="mr-2 h-4 w-4" />
+                {t('issueCertificate')}
+              </DropdownMenuItem>
+            </>
           )}
           {canDelete && (
             <DropdownMenuItem
@@ -136,7 +140,6 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
         />
       )}
 
-      {/* Deletion Confirmation Dialog */}
       {canDelete && (
         <DeleteConfirmationDialog
           open={deletionAlertOpen}
@@ -176,6 +179,13 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           formId={form.id}
           formType={form.formType}
           registryNumber={form.registryNumber}
+        />
+      )}
+
+      {canEdit && (
+        <FormSelection
+          open={formSelectionOpen}
+          onOpenChangeAction={setFormSelectionOpen}
         />
       )}
     </>

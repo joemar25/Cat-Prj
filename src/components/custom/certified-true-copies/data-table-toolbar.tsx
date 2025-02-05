@@ -1,16 +1,18 @@
 // src/components/custom/requests/data-table-toolbar.tsx
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Table } from '@tanstack/react-table'
 import { Icons } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { CertifiedCopy } from '@prisma/client'
+import { CertifiedCopy, Permission } from '@prisma/client'
 import { Button } from '@/components/ui/button'
 import { Cross2Icon } from '@radix-ui/react-icons'
 import { FormSelection } from './components/form-selection'
 import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
 import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
+import { hasPermission } from '@/types/auth'
+import { useUser } from '@/context/user-context'
 
 interface DataTableToolbarProps<TData extends CertifiedCopy> {
   table: Table<TData>
@@ -30,6 +32,10 @@ export function DataTableToolbar<TData extends CertifiedCopy>({
 
   const requesterColumn = table.getColumn('requesterName')
   const statusColumn = table.getColumn('status')
+  const { permissions } = useUser()
+  const [formSelectionOpen, setFormSelectionOpen] = useState(false)
+
+  const canEdit = hasPermission(permissions, Permission.DOCUMENT_UPDATE)
 
   const handleSearch = useCallback(
     (value: string) => {
@@ -79,7 +85,12 @@ export function DataTableToolbar<TData extends CertifiedCopy>({
           <Icons.download className='mr-2 h-4 w-4' />
           Export
         </Button>
-        <FormSelection />
+        {canEdit && (
+          <FormSelection
+            open={formSelectionOpen}
+            onOpenChangeAction={setFormSelectionOpen}
+          />
+        )}
         <DataTableViewOptions table={table} />
       </div>
     </div>

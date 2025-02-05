@@ -1,3 +1,6 @@
+// ------------------------------
+// Generator & Datasource
+// ------------------------------
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,80 +10,17 @@ datasource db {
   url      = env("PG_DATABASE_URL")
 }
 
-/// *
-/// * User Model
-/// * @model
-/// * Central user entity for authentication and system access
-/// * Relationships:
-/// * - One-to-many with Sessions, Accounts, Queues
-/// * - One-to-one with Profile
-/// * - Many-to-many with Permissions
+/**
+ * MODELS
+ * This schema defines the data model for a civil registry/document management system.
+ * In order to preserve historical data, many relations have been set to onDelete: SetNull
+ * (and the FK fields made optional) so that if a parent record (for example, a User or a Form)
+ * is deleted the related record remains with a backup copy (for example, the name).
+ */
 
-/// *
-/// * Defines granular system permissions
-/// * @enum {string}
-/// * Each permission controls access to specific system functionality
-enum Permission {
-  // User Management
-  USER_CREATE
-  USER_READ
-  USER_UPDATE
-  USER_DELETE
-  USER_ACTIVATE
-  USER_DEACTIVATE
-  USER_EXPORT
-
-  // Role Management
-  ROLE_CREATE
-  ROLE_READ
-  ROLE_UPDATE
-  ROLE_DELETE
-  ROLE_ASSIGN
-  ROLE_EXPORT
-
-  // Queue Management
-  // QUEUE_CREATE
-  // QUEUE_READ
-  // QUEUE_UPDATE
-  // QUEUE_DELETE
-  // QUEUE_PROCESS
-  // QUEUE_ADD_NOTES
-
-  // Document Management
-  DOCUMENT_CREATE
-  DOCUMENT_READ
-  DOCUMENT_UPDATE
-  DOCUMENT_DELETE
-  DOCUMENT_VERIFY
-  DOCUMENT_EXPORT
-
-  // Workflow Management
-  // WORKFLOW_CREATE
-  // WORKFLOW_READ
-  // WORKFLOW_UPDATE
-  // WORKFLOW_DELETE
-
-  // Report Management
-  REPORT_CREATE
-  REPORT_READ
-  REPORT_EXPORT
-
-  // System Settings
-  SYSTEM_SETTINGS_READ
-  // SYSTEM_SETTINGS_UPDATE
-
-  // Audit Logs
-  AUDIT_LOG_READ
-
-  // API Access
-  // API_ACCESS
-
-  // Notifications
-  FEEDBACK_DELETE
-  FEEDBACK_READ
-  FEEDBACK_EXPORT
-}
-
+// ------------------------------
+// Role
+// ------------------------------
 model Role {
   id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String           @unique
@@ -93,29 +33,43 @@ model Role {
   @@map("role")
 }
 
+// ------------------------------
+// RolePermission
+// ------------------------------
 model RolePermission {
   id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  roleId     String     @db.Uuid
+  roleId     String?    @db.Uuid
+  roleName   String
   permission Permission
   createdAt  DateTime   @default(now())
-  role       Role       @relation("RoleToPermission", fields: [roleId], references: [id], onDelete: Cascade)
+  role       Role?      @relation("RoleToPermission", fields: [roleId], references: [id], onDelete: SetNull)
 
   @@unique([roleId, permission])
   @@map("role_permission")
 }
 
+// ------------------------------
+// UserRole
+// ------------------------------
 model UserRole {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String   @db.Uuid
-  roleId    String   @db.Uuid
+  userId    String?  @db.Uuid
+  roleId    String?  @db.Uuid
+  userName  String?
+  roleName  String?
   createdAt DateTime @default(now())
-  user      User     @relation("UserToRole", fields: [userId], references: [id], onDelete: Cascade)
-  role      Role     @relation("RoleToUser", fields: [roleId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, roleId])
+  // Specify unique foreign key names using the `map` argument.
+  user User? @relation("UserToRole", fields: [userId], references: [id], onDelete: SetNull, map: "fk_userrole_user")
+  role Role? @relation("RoleToUser", fields: [roleId], references: [id], onDelete: SetNull, map: "fk_userrole_role")
+
+  @@unique([userId, roleId], map: "uk_userrole_user_role")
   @@map("user_role")
 }
 
+// ------------------------------
+// User
+// ------------------------------
 model User {
   id                         String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email                      String                  @unique
@@ -146,15 +100,9 @@ model User {
   @@map("user")
 }
 
-/// *
-/// * BaseRegistryForm Model
-/// * @model
-/// * Central model for all municipal forms that stores common data and relationships
-/// * Common model for Form 97 (Marriage), Form 102 (Birth), and Form 103 (Death)
-/// * Features:
-/// * - Common fields across all civil registry forms
-/// * - Document tracking and management
-/// * - Administrative processing details
+// ------------------------------
+// BaseRegistryForm
+// ------------------------------
 model BaseRegistryForm {
   id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   formNumber              String                   @db.VarChar(3)
@@ -180,9 +128,9 @@ model BaseRegistryForm {
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   documentId              String?                  @db.Uuid
-  document                Document?                @relation(fields: [documentId], references: [id])
   preparedByName          String?
   verifiedByName          String?
+  document                Document?                @relation(fields: [documentId], references: [id], onDelete: SetNull)
   preparedBy              User?                    @relation("PreparedBy", fields: [preparedById], references: [id], onDelete: SetNull)
   verifiedBy              User?                    @relation("VerifiedBy", fields: [verifiedById], references: [id], onDelete: SetNull)
   birthCertificateForm    BirthCertificateForm?
@@ -195,12 +143,13 @@ model BaseRegistryForm {
   @@map("base_registry_form")
 }
 
-/// *
-/// * MarriageCertificateForm Model (Form 97)
-/// * @model
+// ------------------------------
+// MarriageCertificateForm (Form 97)
+// ------------------------------
 model MarriageCertificateForm {
-  id                          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseFormId                  String           @unique @db.Uuid
+  id                          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  // Backup relation: if the parent BaseRegistryForm is later deleted, keep this record.
+  baseFormId                  String?           @unique @db.Uuid
   husbandFirstName            String
   husbandMiddleName           String?
   husbandLastName             String
@@ -235,17 +184,17 @@ model MarriageCertificateForm {
   wifeConsentPerson           Json?
   placeOfMarriage             Json
   dateOfMarriage              DateTime
-  timeOfMarriage              String           @db.VarChar(8)
-  marriageSettlement          Boolean          @default(false)
+  timeOfMarriage              String            @db.VarChar(8)
+  marriageSettlement          Boolean           @default(false)
   contractingPartiesSignature Json?
   marriageLicenseDetails      Json?
-  noMarriageLicense           Boolean          @default(false)
-  executiveOrderApplied       Boolean          @default(false)
-  presidentialDecreeApplied   Boolean          @default(false)
+  noMarriageLicense           Boolean           @default(false)
+  executiveOrderApplied       Boolean           @default(false)
+  presidentialDecreeApplied   Boolean           @default(false)
   solemnizingOfficer          Json
   solemnizingOfficerSignature String?
   witnesses                   Json[]
-  baseForm                    BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
+  baseForm                    BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: SetNull)
 
   @@index([husbandLastName, husbandFirstName])
   @@index([wifeLastName, wifeFirstName])
@@ -253,12 +202,12 @@ model MarriageCertificateForm {
   @@map("marriage_certificate_form")
 }
 
-/// *
-/// * BirthCertificateForm Model (Form 102)
-/// * @model
+// ------------------------------
+// BirthCertificateForm (Form 102)
+// ------------------------------
 model BirthCertificateForm {
-  id                             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseFormId                     String           @unique @db.Uuid
+  id                             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId                     String?           @unique @db.Uuid
   childName                      Json
   sex                            String
   dateOfBirth                    DateTime
@@ -286,23 +235,23 @@ model BirthCertificateForm {
   attendant                      Json
   informant                      Json
   preparer                       Json
-  hasAffidavitOfPaternity        Boolean          @default(false)
-  affidavitOfPaternityDetails    Json? // For the first affidavit
-  affidavitOfDelayedRegistration Json? // For the second affidavit
-  isDelayedRegistration          Boolean          @default(false)
+  hasAffidavitOfPaternity        Boolean           @default(false)
+  affidavitOfPaternityDetails    Json?
+  affidavitOfDelayedRegistration Json?
+  isDelayedRegistration          Boolean           @default(false)
   reasonForDelay                 String?
-  baseForm                       BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
+  baseForm                       BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: SetNull)
 
   @@index([dateOfBirth])
   @@map("birth_certificate_form")
 }
 
-/// *
-/// * DeathCertificateForm Model (Form 103)
-/// * @model
+// ------------------------------
+// DeathCertificateForm (Form 103)
+// ------------------------------
 model DeathCertificateForm {
-  id                  String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseFormId          String           @unique @db.Uuid
+  id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId          String?           @unique @db.Uuid
   deceasedName        Json
   sex                 String
   dateOfDeath         DateTime
@@ -330,36 +279,33 @@ model DeathCertificateForm {
   informant           Json
   preparer            Json
   burialPermit        Json?
-  baseForm            BaseRegistryForm @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
+  baseForm            BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: SetNull)
 
   @@index([dateOfDeath])
   @@map("death_certificate_form")
 }
 
-/// *
-/// * CertifiedCopy Model
-/// * @model 
-/// * Represents an application for a certified true copy of an attachment
-/// * Features:
-/// * - Applicant information
-/// * - Application metadata
-/// * - Relationship to the original attachment
+// ------------------------------
+// CertifiedCopy
+// ------------------------------
 model CertifiedCopy {
-  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  formId              String                @db.Uuid // mar --> Links to CivilRegistryFormBase
-  status              CertifiedCopyStatus   @default(PENDING)
+  id                  String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  // If the associated civil registry form is later deleted, keep this record.
+  formId              String?                @db.Uuid
+  status              CertifiedCopyStatus    @default(PENDING)
   lcrNo               String?
   bookNo              String?
   pageNo              String?
   searchedBy          String?
   contactNo           String?
   date                DateTime?
-  attachmentId        String                @db.Uuid
+  // Make attachmentId optional so that onDelete: SetNull can be applied.
+  attachmentId        String?                @db.Uuid
   address             String
   amountPaid          Float?
-  createdAt           DateTime              @default(now())
+  createdAt           DateTime               @default(now())
   datePaid            DateTime?
-  isRegistered        Boolean               @default(false)
+  isRegistered        Boolean                @default(false)
   orNumber            String?
   purpose             String
   registeredDate      DateTime?
@@ -367,21 +313,16 @@ model CertifiedCopy {
   remarks             String?
   requesterName       String
   signature           String?
-  updatedAt           DateTime              @updatedAt
-  form                CivilRegistryFormBase @relation(fields: [formId], references: [id], onDelete: Cascade)
-  attachment          Attachment            @relation(fields: [attachmentId], references: [id])
+  updatedAt           DateTime               @updatedAt
+  form                CivilRegistryFormBase? @relation(fields: [formId], references: [id], onDelete: SetNull)
+  attachment          Attachment?            @relation(fields: [attachmentId], references: [id], onDelete: SetNull)
 
   @@map("certified_copy")
 }
 
-/// *
-/// * Session Model
-/// * @model
-/// * Manages active user sessions
-/// * Features:
-/// * - Secure token management
-/// * - Device tracking
-/// * - Automatic cleanup
+// ------------------------------
+// Session
+// ------------------------------
 model Session {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   expiresAt DateTime
@@ -390,25 +331,22 @@ model Session {
   updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
-  userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Make userId optional so that if a User is removed the session remains (with only the token metadata).
+  userId    String?  @db.Uuid
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("session")
 }
 
-/// *
-/// * Account Model
-/// * @model
-/// * Handles external authentication providers
-/// * Features:
-/// * - OAuth token management
-/// * - Multiple provider support
-/// * - Automatic token refresh
+// ------------------------------
+// Account
+// ------------------------------
 model Account {
   id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   accountId             String
   providerId            String
-  userId                String    @db.Uuid
+  // Make userId optional so that if a User is removed the account record remains.
+  userId                String?   @db.Uuid
   password              String?
   accessToken           String?
   refreshToken          String?
@@ -418,19 +356,14 @@ model Account {
   scope                 String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                  User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("account")
 }
 
-/// *
-/// * Verification Model
-/// * @model
-/// * Handles time-sensitive verification tokens
-/// * Used for:
-/// * - Email verification
-/// * - Password reset
-/// * - Account confirmation
+// ------------------------------
+// Verification
+// ------------------------------
 model Verification {
   id         String    @id
   identifier String
@@ -442,14 +375,9 @@ model Verification {
   @@map("verification")
 }
 
-/// *
-/// * Queue Model
-/// * @model
-/// * Manages document service requests
-/// * Features:
-/// * - Automatic ticket numbering
-/// * - Status tracking
-/// * - Processing notes
+// ------------------------------
+// Queue
+// ------------------------------
 model Queue {
   id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   ticketNumber    Int         @unique @default(autoincrement())
@@ -469,17 +397,13 @@ model Queue {
   @@map("queue")
 }
 
-/// *
-/// * Profile Model
-/// * @model
-/// * Extended user information
-/// * Stores:
-/// * - Personal details
-/// * - Contact information
-/// * - Demographic data
+// ------------------------------
+// Profile
+// ------------------------------
 model Profile {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String    @unique @db.Uuid
+  // Make userId optional so that the profile remains even if the User is deleted.
+  userId      String?   @unique @db.Uuid
   dateOfBirth DateTime?
   phoneNumber String?
   address     String?
@@ -493,19 +417,14 @@ model Profile {
   nationality String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("profile")
 }
 
-/// *
-/// * Document Model
-/// * @model
-/// * Central document repository
-/// * Features:
-/// * - Version control
-/// * - Metadata storage
-/// * - Workflow integration
+// ------------------------------
+// Document
+// ------------------------------
 model Document {
   id                 String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   type               AttachmentType
@@ -526,18 +445,14 @@ model Document {
   @@map("document")
 }
 
-/// *
-/// * Attachment Model
-/// * @model
-/// * Handles physical document files
-/// * Features:
-/// * - File metadata
-/// * - Document verification
-/// * - Processing status
+// ------------------------------
+// Attachment
+// ------------------------------
 model Attachment {
   id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId          String          @db.Uuid
-  documentId      String          @db.Uuid
+  // Make userId and documentId optional so that the file record remains even if the related User or Document is deleted.
+  userId          String?         @db.Uuid
+  documentId      String?         @db.Uuid
   type            AttachmentType
   fileUrl         String
   fileName        String
@@ -550,21 +465,16 @@ model Attachment {
   notes           String?
   metadata        Json?
   hash            String?
-  document        Document        @relation(fields: [documentId], references: [id])
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document        Document?       @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  user            User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
   certifiedCopies CertifiedCopy[]
 
   @@map("attachment")
 }
 
-/// *
-/// * Workflow Model
-/// * @model
-/// * Defines document processing workflows
-/// * Features:
-/// * - Customizable steps
-/// * - Active status tracking
-/// * - Creator attribution
+// ------------------------------
+// Workflow
+// ------------------------------
 model Workflow {
   id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name          String
@@ -580,18 +490,14 @@ model Workflow {
   @@map("workflow")
 }
 
-/// *
-/// * WorkflowStep Model
-/// * @model
-/// * Individual workflow process steps
-/// * Features:
-/// * - Order management
-/// * - Deadline tracking
-/// * - Requirement flags
+// ------------------------------
+// WorkflowStep
+// ------------------------------
 model WorkflowStep {
   id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  workflowId String    @db.Uuid
-  documentId String    @db.Uuid
+  // Make both workflowId and documentId optional.
+  workflowId String?   @db.Uuid
+  documentId String?   @db.Uuid
   name       String
   order      Int
   isRequired Boolean   @default(true)
@@ -599,25 +505,15 @@ model WorkflowStep {
   status     String
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-  document   Document  @relation(fields: [documentId], references: [id])
-  workflow   Workflow  @relation(fields: [workflowId], references: [id])
+  document   Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  workflow   Workflow? @relation(fields: [workflowId], references: [id], onDelete: SetNull)
 
   @@map("workflow_step")
 }
 
-/// *
-/// * Notification Model
-/// * @model
-/// * System notification management
-/// * Features:
-/// * - Multiple notification types
-/// * - Read status tracking
-/// * - Timestamp logging
-enum NotificationStatus {
-  favorite
-  archive
-}
-
+// ------------------------------
+// Notification
+// ------------------------------
 model Notification {
   id        String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String?              @db.Uuid
@@ -628,44 +524,39 @@ model Notification {
   read      Boolean              @default(false)
   createdAt DateTime             @default(now())
   readAt    DateTime?
-  status    NotificationStatus[] @default([]) // Default to an empty array
+  status    NotificationStatus[] @default([])
   user      User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("notification")
 }
 
-/// *
-/// * AuditLog Model
-/// * @model
-/// * System activity tracking
-/// * Features:
-/// * - Detailed action logging
-/// * - Entity tracking
-/// * - User attribution
+// ------------------------------
+// AuditLog
+// ------------------------------
 model AuditLog {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId     String?  @db.Uuid
-  userName   String
-  action     String
-  entityType String
-  entityId   String   @db.Uuid
-  details    Json?
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
-  document   Document @relation(fields: [entityId], references: [id])
-  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-
+  id                  String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  // If the user is deleted, keep the log with the backup “userName.”
+  userId              String?                @db.Uuid
+  userName            String
+  action              String
+  entityType          String
+  // Instead of a generic “entityId” field we now use specific backup relations.
+  documentId          String?                @db.Uuid
   civilRegistryFormId String?                @db.Uuid
-  civilRegistryForm   CivilRegistryFormBase? @relation(fields: [civilRegistryFormId], references: [id])
+  details             Json?
+  ipAddress           String?
+  userAgent           String?
+  createdAt           DateTime               @default(now())
+  document            Document?              @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  civilRegistryForm   CivilRegistryFormBase? @relation(fields: [civilRegistryFormId], references: [id], onDelete: SetNull)
+  user                User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("audit_log")
 }
 
-/// *
-/// * Feedback Model
-/// * @model
-/// * Allows for user-submitted feedback
+// ------------------------------
+// Feedback
+// ------------------------------
 model Feedback {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   feedback      String
@@ -676,6 +567,171 @@ model Feedback {
   user          User?    @relation(fields: [submittedBy], references: [id], onDelete: SetNull)
 
   @@map("feedback")
+}
+
+// ------------------------------
+// CivilRegistryFormBase
+// ------------------------------
+model CivilRegistryFormBase {
+  id                     String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  formType               CivilRegistryFormType
+  pageNumber             String?
+  bookNumber             String?
+  registryNumber         String?
+  issuedTo               String?
+  purpose                String
+  remarks                String?
+  isRegisteredLate       Boolean               @default(false)
+  dateOfRegistration     DateTime?
+  copies                 Int?                  @default(0)
+  preparedByName         String?
+  preparedByPosition     String?
+  verifiedByName         String?
+  verifiedByPosition     String?
+  civilRegistrar         String?
+  civilRegistrarPosition String?
+  amountPaid             Float?
+  orNumber               String?
+  datePaid               DateTime?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  birthForm              CivilRegistryForm1A?
+  deathForm              CivilRegistryForm2A?
+  marriageForm           CivilRegistryForm3A?
+  preparedByUserId       String?               @db.Uuid
+  verifiedByUserId       String?               @db.Uuid
+  preparedByUserName     String?
+  verifiedByUserName     String?
+  preparedByUser         User?                 @relation("PreparedCivilRegistryForms", fields: [preparedByUserId], references: [id], onDelete: SetNull)
+  verifiedByUser         User?                 @relation("VerifiedCivilRegistryForms", fields: [verifiedByUserId], references: [id], onDelete: SetNull)
+  documentId             String?               @db.Uuid
+  document               Document?             @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  auditLogs              AuditLog[]
+  CertifiedCopy          CertifiedCopy[]
+
+  @@index([registryNumber])
+  @@index([bookNumber, pageNumber])
+  @@map("civil_registry_form_base")
+}
+
+// ------------------------------
+// CivilRegistryForm1A (Birth)
+// ------------------------------
+model CivilRegistryForm1A {
+  id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId           String?                @unique @db.Uuid
+  nameOfChild          String
+  sex                  String?
+  dateOfBirth          DateTime
+  placeOfBirth         String
+  nameOfMother         String
+  citizenshipMother    String?
+  nameOfFather         String
+  citizenshipFather    String?
+  dateMarriageParents  DateTime?
+  placeMarriageParents String?
+  baseForm             CivilRegistryFormBase? @relation(fields: [baseFormId], references: [id], onDelete: SetNull)
+
+  @@index([nameOfChild])
+  @@map("civil_registry_form_1a")
+}
+
+// ------------------------------
+// CivilRegistryForm2A (Death)
+// ------------------------------
+model CivilRegistryForm2A {
+  id             String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId     String?                @unique @db.Uuid
+  nameOfDeceased String
+  sex            String?
+  age            Int?
+  civilStatus    String?
+  citizenship    String?
+  dateOfDeath    DateTime
+  placeOfDeath   String
+  causeOfDeath   String?
+  baseForm       CivilRegistryFormBase? @relation(fields: [baseFormId], references: [id], onDelete: SetNull)
+
+  @@index([nameOfDeceased])
+  @@map("civil_registry_form_2a")
+}
+
+// ------------------------------
+// CivilRegistryForm3A (Marriage)
+// ------------------------------
+model CivilRegistryForm3A {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseFormId String? @unique @db.Uuid
+
+  husbandName           String
+  husbandDateOfBirthAge String?
+  husbandCitizenship    String?
+  husbandCivilStatus    String?
+  husbandMother         String?
+  husbandFather         String?
+
+  wifeName           String
+  wifeDateOfBirthAge String?
+  wifeCitizenship    String?
+  wifeCivilStatus    String?
+  wifeMother         String?
+  wifeFather         String?
+
+  dateOfMarriage  DateTime
+  placeOfMarriage String
+
+  baseForm CivilRegistryFormBase? @relation(fields: [baseFormId], references: [id], onDelete: SetNull)
+
+  @@index([husbandName, wifeName])
+  @@map("civil_registry_form_3a")
+}
+
+/**
+ * ENUMS
+ * Below are all the enums used in the models.
+ */
+
+enum Permission {
+  // User Management
+  USER_CREATE
+  USER_READ
+  USER_UPDATE
+  USER_DELETE
+  USER_ACTIVATE
+  USER_DEACTIVATE
+  USER_EXPORT
+
+  // Role Management
+  ROLE_CREATE
+  ROLE_READ
+  ROLE_UPDATE
+  ROLE_DELETE
+  ROLE_ASSIGN
+  ROLE_EXPORT
+
+  // Document Management
+  DOCUMENT_CREATE
+  DOCUMENT_READ
+  DOCUMENT_UPDATE
+  DOCUMENT_DELETE
+  DOCUMENT_VERIFY
+  DOCUMENT_EXPORT
+
+  // Report Management
+  REPORT_CREATE
+  REPORT_READ
+  REPORT_EXPORT
+
+  // System Settings
+  SYSTEM_SETTINGS_READ
+
+  // Audit Logs
+  AUDIT_LOG_READ
+
+  // Notifications
+  FEEDBACK_DELETE
+  FEEDBACK_READ
+  FEEDBACK_EXPORT
 }
 
 enum AttendantType {
@@ -708,22 +764,12 @@ enum CertifiedCopyStatus {
   CANCELLED
 }
 
-/// *
-/// * Defines the types of civil registry forms
-/// * @enum {string}
 enum FormType {
   MARRIAGE
   BIRTH
   DEATH
 }
 
-/// *
-/// * Defines the possible states of a queue item
-/// * @enum {string}
-/// * - WAITING: Initial state when request is created
-/// * - PROCESSING: Request is being handled by staff
-/// * - COMPLETED: Request has been successfully processed
-/// * - CANCELLED: Request was terminated before completion
 enum QueueStatus {
   WAITING
   PROCESSING
@@ -731,13 +777,6 @@ enum QueueStatus {
   CANCELLED
 }
 
-/// *
-/// * Defines the types of services available
-/// * @enum {string}
-/// * - TRUE_COPY: Request for certified true copies
-/// * - VERIFY: Document verification service
-/// * - CERTIFICATION: New certificate issuance
-/// * - AUTHENTICATION: Document authentication service
 enum ServiceType {
   TRUE_COPY
   VERIFY
@@ -745,171 +784,33 @@ enum ServiceType {
   AUTHENTICATION
 }
 
-/// *
-/// * Defines document processing states
-/// * @enum {string}
-/// * Tracks the verification status of documents
 enum DocumentStatus {
-  PENDING // Request received; document is awaiting processing or verification by the civil registrar (within the first 30 days)
-  VERIFIED // Document request is approved, but no attachment (soft copy) is available yet
-  LATE_REGISTRATION // Request is for a late registration (after 30 days) and is still pending verification
-  READY_FOR_RELEASE // The soft copy has been generated and is ready for export, but not yet given to the requester
-  RELEASED // The document copy has been officially handed over to the requester - Cannot Happen (Only for Certified XROX Copy)
+  PENDING
+  VERIFIED
+  LATE_REGISTRATION
+  READY_FOR_RELEASE
+  RELEASED
 }
 
-/// *
-/// * Defines notification delivery channels
-/// * @enum {string}
-/// * Supports multiple communication methods
 enum NotificationType {
   SYSTEM
-  // EMAIL
-  // SMS
 }
 
-/// *
-/// * Defines types of civil registry documents
-/// * @enum {string}
-/// * Categories for different certificate types
 enum AttachmentType {
   BIRTH_CERTIFICATE
   DEATH_CERTIFICATE
   MARRIAGE_CERTIFICATE
 }
 
-/// *
-/// * Civil Registry Form Base Model
-model CivilRegistryFormBase {
-  id                 String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  formType           CivilRegistryFormType
-  pageNumber         String?
-  bookNumber         String?
-  registryNumber     String?
-  issuedTo           String?
-  purpose            String
-  remarks            String?
-  isRegisteredLate   Boolean               @default(false)
-  dateOfRegistration DateTime?
-  copies             Int?                  @default(0)
-
-  // Officials
-  preparedByName         String?
-  preparedByPosition     String?
-  verifiedByName         String?
-  verifiedByPosition     String?
-  civilRegistrar         String?
-  civilRegistrarPosition String?
-
-  // Payment
-  amountPaid Float?
-  orNumber   String?
-  datePaid   DateTime?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  birthForm    CivilRegistryForm1A?
-  deathForm    CivilRegistryForm2A?
-  marriageForm CivilRegistryForm3A?
-
-  preparedByUserId   String? @db.Uuid
-  verifiedByUserId   String? @db.Uuid
-  preparedByUserName String?
-  verifiedByUserName String?
-  preparedByUser     User?   @relation("PreparedCivilRegistryForms", fields: [preparedByUserId], references: [id], onDelete: SetNull)
-  verifiedByUser     User?   @relation("VerifiedCivilRegistryForms", fields: [verifiedByUserId], references: [id], onDelete: SetNull)
-
-  documentId String?   @db.Uuid
-  document   Document? @relation(fields: [documentId], references: [id])
-
-  auditLogs     AuditLog[]
-  CertifiedCopy CertifiedCopy[]
-
-  @@index([registryNumber])
-  @@index([bookNumber, pageNumber])
-  @@map("civil_registry_form_base")
-}
-
-/// *
-/// * Civil Registry Form No. 1A (Birth)
-model CivilRegistryForm1A {
-  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseFormId           String    @unique @db.Uuid
-  nameOfChild          String
-  sex                  String?
-  dateOfBirth          DateTime
-  placeOfBirth         String
-  nameOfMother         String
-  citizenshipMother    String?
-  nameOfFather         String
-  citizenshipFather    String?
-  dateMarriageParents  DateTime?
-  placeMarriageParents String?
-
-  baseForm CivilRegistryFormBase @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
-
-  @@index([nameOfChild])
-  @@map("civil_registry_form_1a")
-}
-
-/// *
-/// * Civil Registry Form No. 2A (Death)
-model CivilRegistryForm2A {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseFormId     String   @unique @db.Uuid
-  nameOfDeceased String
-  sex            String?
-  age            Int?
-  civilStatus    String?
-  citizenship    String?
-  dateOfDeath    DateTime
-  placeOfDeath   String
-  causeOfDeath   String?
-
-  baseForm CivilRegistryFormBase @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
-
-  @@index([nameOfDeceased])
-  @@map("civil_registry_form_2a")
-}
-
-/// *
-/// * Civil Registry Form No. 3A (Marriage)
-model CivilRegistryForm3A {
-  id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  baseFormId String @unique @db.Uuid
-
-  husbandName           String
-  husbandDateOfBirthAge String?
-  husbandCitizenship    String?
-  husbandCivilStatus    String?
-  husbandMother         String?
-  husbandFather         String?
-
-  wifeName           String
-  wifeDateOfBirthAge String?
-  wifeCitizenship    String?
-  wifeCivilStatus    String?
-  wifeMother         String?
-  wifeFather         String?
-
-  dateOfMarriage  DateTime
-  placeOfMarriage String
-
-  baseForm CivilRegistryFormBase @relation(fields: [baseFormId], references: [id], onDelete: Cascade)
-
-  @@index([husbandName, wifeName])
-  @@map("civil_registry_form_3a")
-}
-
-/// *
-/// * Defines the types of civil registry forms
-/// * @enum {string}
 enum CivilRegistryFormType {
-  FORM_1A // Civil Registry Form No. 1A (Birth)
-  FORM_2A // Civil Registry Form No. 2A (Death)
-  FORM_3A // Civil Registry Form No. 3A (Marriage)
+  FORM_1A
+  FORM_2A
+  FORM_3A
+}
+
+enum NotificationStatus {
+  favorite
+  archive
 }
 
 // pnpm prisma db push --force-reset

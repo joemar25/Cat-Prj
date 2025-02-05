@@ -11,7 +11,8 @@ async function checkUserPermission() {
         return { allowed: false, error: "Unauthorized" }
     }
 
-    if (!hasPermission(session.user.permissions as Permission[], Permission.QUEUE_VIEW)) {
+    if (!hasPermission(session.user.permissions as Permission[], Permission.SYSTEM_SETTINGS_READ)) {
+        // from .QUEUE_VIEW to Permission.QUEUE_VIEW - not permanent
         return { allowed: false, error: "Insufficient permissions" }
     }
 

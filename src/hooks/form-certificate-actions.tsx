@@ -355,9 +355,9 @@ export async function createDeathCertificate(
               },
               transferPermit: data.disposal.transferPermit.number
                 ? {
-                    number: data.disposal.transferPermit.number,
-                    dateIssued: data.disposal.transferPermit.dateIssued || null,
-                  }
+                  number: data.disposal.transferPermit.number,
+                  dateIssued: data.disposal.transferPermit.dateIssued || null,
+                }
                 : null,
               cemeteryAddress: data.disposal.cemeteryAddress,
             },
@@ -600,55 +600,55 @@ export async function createBirthCertificate(
             hasAffidavitOfPaternity: data.hasAffidavitOfPaternity,
             affidavitOfPaternityDetails: data.hasAffidavitOfPaternity
               ? {
-                  father: {
-                    signature:
-                      data.affidavitOfPaternityDetails?.father.signature || '',
-                    name:
-                      data.affidavitOfPaternityDetails?.father.name.trim() ||
-                      '',
-                    title:
-                      data.affidavitOfPaternityDetails?.father.title.trim() ||
-                      '',
-                  },
-                  mother: {
-                    signature:
-                      data.affidavitOfPaternityDetails?.mother.signature || '',
-                    name:
-                      data.affidavitOfPaternityDetails?.mother.name.trim() ||
-                      '',
-                    title:
-                      data.affidavitOfPaternityDetails?.mother.title.trim() ||
-                      '',
-                  },
-                  dateSworn:
-                    data.affidavitOfPaternityDetails?.dateSworn || new Date(),
-                  adminOfficer: {
-                    signature:
-                      data.affidavitOfPaternityDetails?.adminOfficer
-                        .signature || '',
-                    name:
-                      data.affidavitOfPaternityDetails?.adminOfficer.name.trim() ||
-                      '',
-                    position:
-                      data.affidavitOfPaternityDetails?.adminOfficer.position.trim() ||
-                      '',
-                    address:
-                      data.affidavitOfPaternityDetails?.adminOfficer.address ||
-                      {},
-                  },
-                  ctcInfo: {
-                    // FIX: Removed duplicate "number:" key.
-                    number:
-                      data.affidavitOfPaternityDetails?.ctcInfo.number.trim() ||
-                      '',
-                    dateIssued:
-                      data.affidavitOfPaternityDetails?.ctcInfo.dateIssued ||
-                      new Date(),
-                    placeIssued:
-                      data.affidavitOfPaternityDetails?.ctcInfo.placeIssued.trim() ||
-                      '',
-                  },
-                }
+                father: {
+                  signature:
+                    data.affidavitOfPaternityDetails?.father.signature || '',
+                  name:
+                    data.affidavitOfPaternityDetails?.father.name.trim() ||
+                    '',
+                  title:
+                    data.affidavitOfPaternityDetails?.father.title.trim() ||
+                    '',
+                },
+                mother: {
+                  signature:
+                    data.affidavitOfPaternityDetails?.mother.signature || '',
+                  name:
+                    data.affidavitOfPaternityDetails?.mother.name.trim() ||
+                    '',
+                  title:
+                    data.affidavitOfPaternityDetails?.mother.title.trim() ||
+                    '',
+                },
+                dateSworn:
+                  data.affidavitOfPaternityDetails?.dateSworn || new Date(),
+                adminOfficer: {
+                  signature:
+                    data.affidavitOfPaternityDetails?.adminOfficer
+                      .signature || '',
+                  name:
+                    data.affidavitOfPaternityDetails?.adminOfficer.name.trim() ||
+                    '',
+                  position:
+                    data.affidavitOfPaternityDetails?.adminOfficer.position.trim() ||
+                    '',
+                  address:
+                    data.affidavitOfPaternityDetails?.adminOfficer.address ||
+                    {},
+                },
+                ctcInfo: {
+                  // FIX: Removed duplicate "number:" key.
+                  number:
+                    data.affidavitOfPaternityDetails?.ctcInfo.number.trim() ||
+                    '',
+                  dateIssued:
+                    data.affidavitOfPaternityDetails?.ctcInfo.dateIssued ||
+                    new Date(),
+                  placeIssued:
+                    data.affidavitOfPaternityDetails?.ctcInfo.placeIssued.trim() ||
+                    '',
+                },
+              }
               : undefined,
 
             // Delayed Registration:
@@ -659,56 +659,56 @@ export async function createBirthCertificate(
               : undefined,
             affidavitOfDelayedRegistration: data.isDelayedRegistration
               ? {
-                  affiant: {
-                    name:
-                      data.affidavitOfDelayedRegistration?.affiant.name.trim() ||
-                      '',
-                    address:
-                      data.affidavitOfDelayedRegistration?.affiant.address ||
-                      {},
-                    civilStatus:
-                      data.affidavitOfDelayedRegistration?.affiant
-                        .civilStatus || '',
-                    citizenship:
-                      data.affidavitOfDelayedRegistration?.affiant
-                        .citizenship || '',
-                  },
-                  registrationType:
-                    data.affidavitOfDelayedRegistration?.registrationType ||
-                    'SELF',
-                  parentMaritalStatus:
-                    data.affidavitOfDelayedRegistration?.parentMaritalStatus ||
-                    'MARRIED',
-                  dateSworn:
-                    data.affidavitOfDelayedRegistration?.dateSworn ||
+                affiant: {
+                  name:
+                    data.affidavitOfDelayedRegistration?.affiant.name.trim() ||
+                    '',
+                  address:
+                    data.affidavitOfDelayedRegistration?.affiant.address ||
+                    {},
+                  civilStatus:
+                    data.affidavitOfDelayedRegistration?.affiant
+                      .civilStatus || '',
+                  citizenship:
+                    data.affidavitOfDelayedRegistration?.affiant
+                      .citizenship || '',
+                },
+                registrationType:
+                  data.affidavitOfDelayedRegistration?.registrationType ||
+                  'SELF',
+                parentMaritalStatus:
+                  data.affidavitOfDelayedRegistration?.parentMaritalStatus ||
+                  'MARRIED',
+                dateSworn:
+                  data.affidavitOfDelayedRegistration?.dateSworn ||
+                  new Date(),
+                adminOfficer: {
+                  signature:
+                    data.affidavitOfDelayedRegistration?.adminOfficer
+                      .signature || '',
+                  name:
+                    data.affidavitOfDelayedRegistration?.adminOfficer.name.trim() ||
+                    '',
+                  position:
+                    data.affidavitOfDelayedRegistration?.adminOfficer.position.trim() ||
+                    '',
+                },
+                ctcInfo: {
+                  number:
+                    data.affidavitOfDelayedRegistration?.ctcInfo.number.trim() ||
+                    '',
+                  dateIssued:
+                    data.affidavitOfDelayedRegistration?.ctcInfo.dateIssued ||
                     new Date(),
-                  adminOfficer: {
-                    signature:
-                      data.affidavitOfDelayedRegistration?.adminOfficer
-                        .signature || '',
-                    name:
-                      data.affidavitOfDelayedRegistration?.adminOfficer.name.trim() ||
-                      '',
-                    position:
-                      data.affidavitOfDelayedRegistration?.adminOfficer.position.trim() ||
-                      '',
-                  },
-                  ctcInfo: {
-                    number:
-                      data.affidavitOfDelayedRegistration?.ctcInfo.number.trim() ||
-                      '',
-                    dateIssued:
-                      data.affidavitOfDelayedRegistration?.ctcInfo.dateIssued ||
-                      new Date(),
-                    placeIssued:
-                      data.affidavitOfDelayedRegistration?.ctcInfo.placeIssued.trim() ||
-                      '',
-                  },
-                  spouseName:
-                    data.affidavitOfDelayedRegistration?.spouseName?.trim(),
-                  applicantRelationship:
-                    data.affidavitOfDelayedRegistration?.applicantRelationship?.trim(),
-                }
+                  placeIssued:
+                    data.affidavitOfDelayedRegistration?.ctcInfo.placeIssued.trim() ||
+                    '',
+                },
+                spouseName:
+                  data.affidavitOfDelayedRegistration?.spouseName?.trim(),
+                applicantRelationship:
+                  data.affidavitOfDelayedRegistration?.applicantRelationship?.trim(),
+              }
               : undefined,
 
             // Preparer Information

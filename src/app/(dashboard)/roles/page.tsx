@@ -5,26 +5,14 @@ import { DataTable } from '@/components/custom/roles/data-table'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-async function getRoles() {
+export async function getRoles() {
   const roles = await prisma.role.findMany({
-    orderBy: {
-      createdAt: 'desc',
-    },
+    orderBy: { createdAt: 'desc' },
     include: {
-      permissions: {
-        select: {
-          permission: true,
-        },
-      },
+      permissions: { select: { permission: true } },
       users: {
         select: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
+          user: { select: { id: true, name: true, email: true } },
         },
       },
     },
@@ -35,7 +23,9 @@ async function getRoles() {
     createdAt: new Date(item.createdAt),
     updatedAt: new Date(item.updatedAt),
     permissions: item.permissions.map((p) => p.permission),
-    users: item.users.map((u) => u.user),
+    users: item.users
+      .map((u) => u.user)
+      .filter((user): user is { id: string; name: string; email: string } => !!user),
   }))
 }
 

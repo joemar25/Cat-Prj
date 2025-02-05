@@ -1,10 +1,10 @@
-// src/lib/auth.config.ts
 import { prisma } from '@/lib/prisma'
 import { signInSchema } from '@/lib/validation'
-import { Permission } from '@prisma/client'
+import type { Permission, Account } from '@prisma/client'
 import { compare } from 'bcryptjs'
-import { NextAuthConfig } from 'next-auth'
+import { NextAuthConfig, Session } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import type { UserWithRoleAndProfile } from '@/types/user'
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -15,31 +15,37 @@ export const authConfig: NextAuthConfig = {
           if (!parsedCredentials.success) return null
 
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
+            where: { email: credentials.email as string },
             include: {
-              accounts: {
-                where: { providerId: 'credentials' },
-                select: { password: true },
-              },
+              accounts: true,
+              profile: true,
               roles: {
                 include: {
-                  role: { include: { permissions: true } },
-                },
-              },
-            },
-          })
+                  role: {
+                    include: {
+                      permissions: { select: { permission: true } }
+                    }
+                  }
+                }
+              }
+            }
+          }) as (UserWithRoleAndProfile & { accounts: Account[] }) | null
 
-          if (!user?.accounts[0]?.password || !user.emailVerified) return null
+          if (!user?.accounts?.[0]?.password || !user.emailVerified) {
+            return null
+          }
 
           const isPasswordValid = await compare(
-            credentials.password,
+            credentials.password as string,
             user.accounts[0].password
           )
           if (!isPasswordValid) return null
 
           const permissions = new Set<Permission>()
           user.roles.forEach((userRole) => {
-            userRole.role.permissions.forEach((p) => permissions.add(p.permission))
+            if (userRole.role?.permissions) {
+              userRole.role.permissions.forEach((p) => permissions.add(p.permission))
+            }
           })
 
           return {
@@ -48,8 +54,14 @@ export const authConfig: NextAuthConfig = {
             email: user.email,
             emailVerified: user.emailVerified,
             image: user.image,
+            username: user.username,
+            active: user.active,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            lastLoginAt: user.lastLoginAt,
+            language: user.language,
             roles: user.roles.map((ur) => ur.role.name),
-            permissions: Array.from(permissions),
+            permissions: Array.from(permissions)
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -65,7 +77,6 @@ export const authConfig: NextAuthConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
       const isAuthPage = nextUrl.pathname.startsWith('/auth')
-
       if (isAuthPage) {
         return isLoggedIn ? Response.redirect(new URL('/', nextUrl)) : true
       }
@@ -82,16 +93,24 @@ export const authConfig: NextAuthConfig = {
       }
       return token
     },
-    session({ session, token }) {
-      return {
+    async session({ session, token }): Promise<Session> {
+      const updatedSession: Session = {
         ...session,
         user: {
           ...session.user,
-          id: token.id,
-          roles: token.roles,
-          permissions: token.permissions,
+          id: token.id as string,
+          roles: token.roles as string[],
+          permissions: token.permissions as Permission[],
+          emailVerified: session.user.emailVerified,
+          username: session.user.username ?? null,
+          active: session.user.active ?? true,
+          createdAt: session.user.createdAt ?? new Date(),
+          updatedAt: session.user.updatedAt ?? new Date(),
+          lastLoginAt: session.user.lastLoginAt ?? null,
+          language: session.user.language ?? null,
         },
       }
+      return updatedSession
     },
   },
 }
