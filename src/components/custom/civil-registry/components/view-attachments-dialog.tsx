@@ -2,7 +2,7 @@
 'use client'
 
 import React from 'react'
-import { Attachment } from '@prisma/client'
+import { Attachment, FormType } from '@prisma/client'
 import { Button } from '@/components/ui/button'
 import {
     Dialog,
@@ -13,17 +13,21 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog'
 import { AttachmentsTable, AttachmentWithCertifiedCopies } from './attachment-table'
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 
 interface ViewAttachmentsDialogProps {
     open: boolean
     onOpenChangeAction: (open: boolean) => void
     attachments: Attachment[]
+    // Now required: the form data for displaying details and pre-filling annotation forms.
+    formData: BaseRegistryFormWithRelations
 }
 
 export function ViewAttachmentsDialog({
     open,
     onOpenChangeAction,
     attachments,
+    formData,
 }: ViewAttachmentsDialogProps) {
     // Sort attachments by uploadedAt descending (latest first)
     const sortedAttachments = [...attachments].sort((a, b) => {
@@ -36,14 +40,16 @@ export function ViewAttachmentsDialog({
                 <DialogHeader className="items-start">
                     <DialogTitle className="text-left">Attachments</DialogTitle>
                     <DialogDescription className="text-left">
-                        Here is a list of attachments associated with the document.
+                        {`Attachments for Registry No. ${formData.registryNumber} (Form ${formData.formNumber})`}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 overflow-x-auto">
                     {sortedAttachments.length > 0 ? (
                         <AttachmentsTable
                             attachments={sortedAttachments as AttachmentWithCertifiedCopies[]}
-                        // Optionally, pass callbacks for delete or adding certified copies here.
+                            // Pass formType and formData from the required formData prop.
+                            formType={formData.formType}
+                            formData={formData}
                         />
                     ) : (
                         <p className="text-center text-sm text-muted-foreground">

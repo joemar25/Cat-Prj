@@ -27,10 +27,11 @@ import {
 } from '@/components/ui/table'
 import { Icons } from '@/components/ui/icons'
 
-// Import the annotation forms
-import BirthAnnotationForm from '@/components/custom/forms/annotations/birthcert'
-import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation-form'
+// Import the annotation forms (make sure they accept a prop named formData)
+import BirthAnnotationForm from '@/components/custom/forms/annotations/birth-cert-annotation'
+import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation'
 import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form'
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 
 export interface AttachmentWithCertifiedCopies extends Attachment {
     certifiedCopies?: CertifiedCopy[]
@@ -50,6 +51,10 @@ interface AttachmentsTableProps {
      * The form type for which the annotation dialog should be rendered.
      */
     formType: FormType
+    /**
+     * The form data for pre-filling annotation forms.
+     */
+    formData: BaseRegistryFormWithRelations
 }
 
 export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
@@ -57,6 +62,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
     onAttachmentDeleted,
     canDelete = true,
     formType,
+    formData,
 }) => {
     const { t } = useTranslation()
 
@@ -134,7 +140,6 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                             {attachments.map((attachment) => {
                                 const hasCTC =
                                     Array.isArray(attachment.certifiedCopies) && attachment.certifiedCopies.length > 0
-                                // In production, disable export if no certified true copy exists.
                                 const disableExport =
                                     process.env.NODE_ENV === 'production' && !hasCTC
 
@@ -206,6 +211,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                             open={annotationFormOpen}
                             onOpenChange={setAnnotationFormOpen}
                             onCancel={() => setAnnotationFormOpen(false)}
+                        // formData={formData}
                         />
                     )}
                     {formType === 'DEATH' && (
@@ -213,6 +219,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                             open={annotationFormOpen}
                             onOpenChange={setAnnotationFormOpen}
                             onCancel={() => setAnnotationFormOpen(false)}
+                            formData={formData}
                         />
                     )}
                     {formType === 'MARRIAGE' && (
@@ -220,6 +227,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                             open={annotationFormOpen}
                             onOpenChange={setAnnotationFormOpen}
                             onCancel={() => setAnnotationFormOpen(false)}
+                        // formData={formData}
                         />
                     )}
                 </>
