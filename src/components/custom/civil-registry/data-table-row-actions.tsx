@@ -125,10 +125,10 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             )}
             {canEdit && (
               <>
-                <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+                {/* <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
                   <Icons.folder className="mr-2 h-4 w-4" />
                   {t('editForm.title')}
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 {hasAttachments && (
                   <DropdownMenuItem onClick={() => setAnnotationFormOpen(true)}>
                     <Icons.files className="mr-2 h-4 w-4" />
