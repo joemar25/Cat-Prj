@@ -12,7 +12,7 @@ import { createDeathAnnotation } from '@/hooks/form-annotations-actions'
 import { DeathAnnotationFormFields } from '@/lib/constants/form-annotations-dynamic-fields'
 import { PlaceStructure } from '@/lib/types/zod-form-annotations/form-annotation-shared-interfaces'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DeathAnnotationFormValues, deathAnnotationSchema, ExtendedDeathAnnotationFormProps } from '@/lib/types/zod-form-annotations/death-annotation-form-schema'
+import { DeathAnnotationFormValues, DeathAnnotationFormSchema, ExtendedDeathAnnotationFormProps } from '@/lib/types/zod-form-annotations/death-annotation-form-schema'
 
 const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
   open,
@@ -54,7 +54,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<DeathAnnotationFormValues>({
-    resolver: zodResolver(deathAnnotationSchema),
+    resolver: zodResolver(DeathAnnotationFormSchema),
     defaultValues
   })
 

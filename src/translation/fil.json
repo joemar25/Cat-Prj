@@ -18,6 +18,7 @@
   "editForm": {
     "title": "Edit Form"
   },
+  "downloadAttachment": "I-Download ang attachment",
   "registry_statistics": "Mga Estadistika ng Rehistro",
   "monthly_registration_trends": "Buwanang mga trend ng rehistro sa nakaraang 6 na buwan",
   "trending_up": "Tumaas ng {{percentage}}% ngayong buwan",
@@ -371,7 +372,7 @@
   "summary_view_civil": "Pangkalahatang-ideya ng Talaan ng Sibil",
   "dashboard_description_civil": "Dito maaari mong makita ang detalyadong impormasyon tungkol sa mga birth certificate, death certificate, at marriage certificate sa talaan ng sibil. Maaaring ma-access ang mga indibidwal na rekord, suriin ang mga detalye, at pamahalaan ang talaan nang maayos.",
   "reports_section_civil": "Seksyon ng Ulat ng Talaan ng Sibil",
-   "summary_view_feedback": "Pangkalahatang-ideya ng Feedback",
+  "summary_view_feedback": "Pangkalahatang-ideya ng Feedback",
   "dashboard_description_feedback": "Dito maaari mong makita ang mga feedback at suhestiyon mula sa mga gumagamit. Magbigay ng mabilis na tugon at pamahalaan ang mga ito nang maayos upang mapabuti ang karanasan ng gumagamit.",
   "summary_view_role": "Pangkalahatang-ideya ng Mga Papel at Pahintulot",
   "dashboard_description_role": "Pamahalaan ang mga papel at pahintulot para sa iba't ibang mga gumagamit. Lumikha, mag-edit, at magtakda ng mga papel upang kontrolin ang access at mga pahintulot sa loob ng sistema.",

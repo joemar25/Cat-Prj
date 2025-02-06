@@ -4,28 +4,70 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { CertifiedCopyStatus } from '@prisma/client'
-import { deathAnnotationSchema, DeathAnnotationFormValues } from '@/lib/types/zod-form-annotations/death-annotation-form-schema'
+import { DeathAnnotationFormValues } from '@/lib/types/zod-form-annotations/death-annotation-form-schema'
 import { BirthAnnotationFormValues } from '@/lib/types/zod-form-annotations/birth-annotation-form-schema'
 import { MarriageAnnotationFormValues } from '@/lib/types/zod-form-annotations/marriage-annotation-form-schema'
 import { auth } from '@/lib/auth'
 
-// Dummy attachment values
-const dummyAttachment = {
-  fileUrl: '/assets/default/issued-ctc/dummy.pdf',
-  fileName: 'dummy.pdf',
-  fileSize: 0,
-  mimeType: 'application/pdf',
-}
-
-// Helper function to get the current user data from auth
+// Helper function to get the current user data from auth.
 async function getUserData() {
   const session = await auth()
   return { userId: session?.user?.id, userName: session?.user?.name }
 }
 
+/**
+ * Helper function to update the Document bound to a BaseRegistryForm.
+ * It looks up the BaseRegistryForm by its unique registryNumber.
+ * If a document exists, it updates that Document (for example, increments its version,
+ * marks it as latest, etc.).
+ */
+async function updateDocumentLatest(registryNumber: string): Promise<void> {
+  const baseForm = await prisma.baseRegistryForm.findUnique({
+    where: { registryNumber }
+  })
+  if (baseForm?.documentId) {
+    await prisma.document.update({
+      where: { id: baseForm.documentId },
+      data: {
+        isLatest: true,
+        version: { increment: 1 }
+      }
+    })
+  }
+}
+
+/**
+ * Helper function to fetch the latest Attachment ID for the Document that is bound
+ * to the BaseRegistryForm identified by registryNumber.
+ */
+async function getLatestAttachmentId(registryNumber: string): Promise<string | null> {
+  const baseForm = await prisma.baseRegistryForm.findUnique({
+    where: { registryNumber }
+  })
+  if (baseForm?.documentId) {
+    const document = await prisma.document.findUnique({
+      where: { id: baseForm.documentId },
+      include: {
+        attachments: {
+          orderBy: { updatedAt: 'desc' },
+          take: 1
+        }
+      }
+    })
+    return document?.attachments[0]?.id || null
+  }
+  return null
+}
+
 export async function createDeathAnnotation(data: DeathAnnotationFormValues) {
   try {
-    const { userId, userName } = await getUserData()
+    const { userName } = await getUserData()
+
+    // Update the Document bound to the BaseRegistryForm.
+    await updateDocumentLatest(data.registryNumber)
+    // Retrieve the latest attachment from that Document.
+    const latestAttachmentId = await getLatestAttachmentId(data.registryNumber)
+
     const certifiedCopy = await prisma.certifiedCopy.create({
       data: {
         pageNo: data.pageNumber,
@@ -43,13 +85,8 @@ export async function createDeathAnnotation(data: DeathAnnotationFormValues) {
         relationshipToOwner: 'N/A',
         address: 'N/A',
         status: CertifiedCopyStatus.PENDING,
-        attachment: {
-          create: {
-            type: 'DEATH_CERTIFICATE',
-            ...dummyAttachment,
-            userId,
-          },
-        },
+        // Use the latest attachment via a relation connect if available.
+        attachment: latestAttachmentId ? { connect: { id: latestAttachmentId } } : undefined,
         form: {
           create: {
             formType: 'FORM_2A',
@@ -91,7 +128,10 @@ export async function createDeathAnnotation(data: DeathAnnotationFormValues) {
 
 export async function createMarriageAnnotation(data: MarriageAnnotationFormValues) {
   try {
-    const { userId, userName } = await getUserData()
+    const { userName } = await getUserData()
+    await updateDocumentLatest(data.registryNumber)
+    const latestAttachmentId = await getLatestAttachmentId(data.registryNumber)
+
     const certifiedCopy = await prisma.certifiedCopy.create({
       data: {
         pageNo: data.pageNumber,
@@ -99,7 +139,7 @@ export async function createMarriageAnnotation(data: MarriageAnnotationFormValue
         lcrNo: data.registryNumber,
         date: new Date(data.dateOfRegistration),
         purpose: data.purpose,
-        remarks: null,
+        remarks: null, // adjust if needed
         requesterName: userName || data.issuedTo,
         amountPaid: data.amountPaid ? data.amountPaid : 0.0,
         orNumber: data.orNumber,
@@ -109,13 +149,7 @@ export async function createMarriageAnnotation(data: MarriageAnnotationFormValue
         relationshipToOwner: 'N/A',
         address: 'N/A',
         status: CertifiedCopyStatus.PENDING,
-        attachment: {
-          create: {
-            type: 'MARRIAGE_CERTIFICATE',
-            ...dummyAttachment,
-            userId,
-          },
-        },
+        attachment: latestAttachmentId ? { connect: { id: latestAttachmentId } } : undefined,
         form: {
           create: {
             formType: 'FORM_3A',
@@ -163,7 +197,10 @@ export async function createMarriageAnnotation(data: MarriageAnnotationFormValue
 
 export async function createBirthAnnotation(data: BirthAnnotationFormValues) {
   try {
-    const { userId, userName } = await getUserData()
+    const { userName } = await getUserData()
+    await updateDocumentLatest(data.registryNumber)
+    const latestAttachmentId = await getLatestAttachmentId(data.registryNumber)
+
     const certifiedCopy = await prisma.certifiedCopy.create({
       data: {
         pageNo: data.pageNumber,
@@ -181,13 +218,7 @@ export async function createBirthAnnotation(data: BirthAnnotationFormValues) {
         relationshipToOwner: 'N/A',
         address: 'N/A',
         status: CertifiedCopyStatus.PENDING,
-        attachment: {
-          create: {
-            type: 'BIRTH_CERTIFICATE',
-            ...dummyAttachment,
-            userId,
-          },
-        },
+        attachment: latestAttachmentId ? { connect: { id: latestAttachmentId } } : undefined,
         form: {
           create: {
             formType: 'FORM_1A',

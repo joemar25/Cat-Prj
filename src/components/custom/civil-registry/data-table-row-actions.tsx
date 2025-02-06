@@ -31,6 +31,10 @@ import BirthAnnotationForm from '@/components/custom/forms/annotations/birth-cer
 import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation'
 import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form'
 
+// Extend the type locally so we can check for certified copies.
+import { CertifiedCopy } from '@prisma/client'
+type FormWithCTC = BaseRegistryFormWithRelations & { certifiedCopies?: CertifiedCopy[] }
+
 interface DataTableRowActionsProps {
   row: Row<BaseRegistryFormWithRelations>
   onUpdateAction?: (updatedForm: BaseRegistryFormWithRelations) => void
@@ -41,7 +45,12 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   const { permissions } = useUser()
   const form = row.original
 
-  // State variables for dialogs (only for actions that remain dialogs)
+  // Typecast the form to include certifiedCopies.
+  const formWithCTC = form as FormWithCTC
+  const hasCertifiedCopy = formWithCTC.certifiedCopies && formWithCTC.certifiedCopies.length > 0
+  const hasAttachments = form.document?.attachments && form.document.attachments.length > 0
+
+  // State variables for dialogs (only for actions that use dialogs)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [deletionAlertOpen, setDeletionAlertOpen] = useState(false)
@@ -55,70 +64,93 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   const canDelete = hasPermission(permissions, Permission.DOCUMENT_DELETE)
   const canUpload = hasPermission(permissions, Permission.DOCUMENT_CREATE)
 
-  // Check if there is at least one attachment available.
-  const hasAttachments = form.document?.attachments && form.document.attachments.length > 0
-
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <Icons.moreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {canView && (
-            <DropdownMenuItem asChild>
-              <Link href={`/civil-registry/details?formId=${form.id}`}>
-                <Icons.eye className="mr-2 h-4 w-4" />
-                {t('viewDetails')}
-              </Link>
-            </DropdownMenuItem>
-          )}
-          {canUpload && (
-            <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
-              <Icons.printer className="mr-2 h-4 w-4" />
-              {t('scanDocumentUpload')}
-            </DropdownMenuItem>
-          )}
-          {hasAttachments && (
-            <DropdownMenuItem asChild>
-              <Link href={`/civil-registry/attachments?formId=${form.id}`}>
-                <Icons.fileText className="mr-2 h-4 w-4" />
-                {t('viewAttachments')}
-              </Link>
-            </DropdownMenuItem>
-          )}
-          {canEdit && (
-            <>
-              <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
-                <Icons.folder className="mr-2 h-4 w-4" />
-                {t('editForm.title')}
+      <div className="flex items-center space-x-2">
+        {/* If a certified copy exists, display a badge */}
+        {hasCertifiedCopy && (
+          <span className="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded">
+            {t('ctcIssued')}
+          </span>
+        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <Icons.moreHorizontal className="h-4 w-4" />
+              <span className="sr-only">{t('openMenu')}</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[160px]">
+            <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {canView && (
+              <DropdownMenuItem asChild>
+                <Link href={`/civil-registry/details?formId=${form.id}`}>
+                  <Icons.eye className="mr-2 h-4 w-4" />
+                  {t('viewDetails')}
+                </Link>
               </DropdownMenuItem>
-              {hasAttachments && (
-                <DropdownMenuItem onClick={() => setAnnotationFormOpen(true)}>
-                  <Icons.files className="mr-2 h-4 w-4" />
-                  {t('issueCertificate')}
+            )}
+            {canUpload && (
+              <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
+                <Icons.printer className="mr-2 h-4 w-4" />
+                {t('scanDocumentUpload')}
+              </DropdownMenuItem>
+            )}
+            {hasAttachments && (
+              <DropdownMenuItem asChild>
+                <Link href={`/civil-registry/attachments?formId=${form.id}`}>
+                  <Icons.fileText className="mr-2 h-4 w-4" />
+                  {t('viewAttachments')}
+                </Link>
+              </DropdownMenuItem>
+            )}
+            {canEdit && (
+              <>
+                {/* <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+                  <Icons.folder className="mr-2 h-4 w-4" />
+                  {t('editForm.title')}
+                </DropdownMenuItem> */}
+                {hasAttachments && (
+                  <DropdownMenuItem onClick={() => setAnnotationFormOpen(true)}>
+                    <Icons.files className="mr-2 h-4 w-4" />
+                    {t('issueCertificate')}
+                  </DropdownMenuItem>
+                )}
+              </>
+            )}
+            {/* Export options: if a certified copy exists, export as zip; otherwise, allow solo download */}
+            {hasCertifiedCopy ? (
+              <DropdownMenuItem asChild>
+                <Link href={`/civil-registry/export?formId=${form.id}&format=zip`}>
+                  <Icons.archive className="mr-2 h-4 w-4" />
+                  {t('exportZip')}
+                </Link>
+              </DropdownMenuItem>
+            ) : (
+              hasAttachments && (
+                <DropdownMenuItem asChild>
+                  <Link href={`/civil-registry/download?formId=${form.id}`}>
+                    <Icons.download className="mr-2 h-4 w-4" />
+                    {t('downloadAttachment')}
+                  </Link>
                 </DropdownMenuItem>
-              )}
-            </>
-          )}
-          {canDelete && (
-            <DropdownMenuItem
-              onSelect={(e) => e.preventDefault()}
-              onClick={() => setDeletionAlertOpen(true)}
-              disabled={isLoading}
-              className="text-destructive focus:text-destructive"
-            >
-              <Icons.trash className="mr-2 h-4 w-4" />
-              {isLoading ? t('deleting') : t('delete')}
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+              )
+            )}
+            {canDelete && (
+              <DropdownMenuItem
+                onSelect={(e) => e.preventDefault()}
+                onClick={() => setDeletionAlertOpen(true)}
+                disabled={isLoading}
+                className="text-destructive focus:text-destructive"
+              >
+                <Icons.trash className="mr-2 h-4 w-4" />
+                {isLoading ? t('deleting') : t('delete')}
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       {canEdit && (
         <EditCivilRegistryFormDialog
@@ -126,7 +158,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           open={editDialogOpen}
           onOpenChangeAction={setEditDialogOpen}
           onSave={(updatedForm) => {
-            toast.success(`Form ${updatedForm.id} has been updated successfully!`)
+            toast.success(`${t('formUpdated')} ${updatedForm.id}!`)
             onUpdateAction?.(updatedForm)
             setEditDialogOpen(false)
           }}

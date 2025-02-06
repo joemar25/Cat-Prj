@@ -11,14 +11,20 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import React, { useState } from 'react';
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
-const CertificationOfInformantCard: React.FC = () => {
+interface CertificationOfInformantCardProps {
+  informantAddressNcrMode: boolean;
+  setInformantAddressNcrMode: (value: boolean) => void;
+}
+
+const CertificationOfInformantCard: React.FC<
+  CertificationOfInformantCardProps
+> = ({ informantAddressNcrMode, setInformantAddressNcrMode }) => {
   const { control } = useFormContext<BirthCertificateFormValues>();
-  const [isNCRMode, setIsNCRMode] = useState(false);
 
   return (
     <Card>
@@ -26,7 +32,10 @@ const CertificationOfInformantCard: React.FC = () => {
         <CardTitle>Certification of Informant</CardTitle>
       </CardHeader>
       <CardContent>
-        <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
+        <NCRModeSwitch
+          isNCRMode={informantAddressNcrMode}
+          setIsNCRMode={setInformantAddressNcrMode}
+        />
         <div className='space-y-4'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             {/* Signature and Date */}
@@ -152,7 +161,7 @@ const CertificationOfInformantCard: React.FC = () => {
               provincePlaceholder='Select province'
               municipalityPlaceholder='Select city/municipality'
               className='col-span-2 grid grid-cols-2 gap-4'
-              isNCRMode={isNCRMode}
+              isNCRMode={informantAddressNcrMode}
               showBarangay={true}
               barangayLabel='Barangay'
               barangayPlaceholder='Select barangay'

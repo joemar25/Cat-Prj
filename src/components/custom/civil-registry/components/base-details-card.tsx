@@ -17,7 +17,7 @@ import { hasPermission } from '@/types/auth'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
-import { AttachmentsTable, AttachmentWithCertifiedCopies } from '../../civil-registry/components/attachment-table'
+import { AttachmentsTable, AttachmentWithCertifiedCopies } from '@/components/custom/civil-registry/components/attachment-table'
 
 interface BaseDetailsCardProps {
     form: BaseRegistryFormWithRelations
@@ -41,7 +41,8 @@ const statusVariants: Record<
 }
 
 /**
- * Helper function to create an Attachment object.
+ * Helper function to create a minimal Attachment object from a fileUrl.
+ * (This is used only for UI purposes when uploading an attachment.)
  */
 const createAttachment = (fileUrl: string): Attachment => {
     const fileName = fileUrl.split('/').pop() || fileUrl
@@ -61,17 +62,26 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
     const [editDialogOpen, setEditDialogOpen] = useState(false)
     const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
 
-    // Get the latest attachment if available
-    const attachments = form.document?.attachments || []
-    const latestAttachment = attachments.length
-        ? [...attachments].sort(
+    // Explicitly cast attachments to include certifiedCopies.
+    const attachments: AttachmentWithCertifiedCopies[] =
+        (form.document?.attachments as AttachmentWithCertifiedCopies[]) ?? []
+
+    // Ensure every attachment has a certifiedCopies array (default to empty if missing).
+    const attachmentsWithCTC = attachments.map((att) => ({
+        ...att,
+        certifiedCopies: att.certifiedCopies ?? [],
+    }))
+
+    // Get the latest attachment by sorting by uploadedAt descending.
+    const latestAttachment = attachmentsWithCTC.length
+        ? [...attachmentsWithCTC].sort(
             (a, b) =>
                 new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
         )[0]
         : null
 
     /**
-     * Callback for when the attachment has been deleted.
+     * Callback for when an attachment has been deleted.
      */
     const handleAttachmentDeleted = () => {
         if (form.document) {
@@ -116,7 +126,6 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                             </Badge>
                         </div>
                     </div>
-                    {/* … other details … */}
                 </div>
 
                 {/* Actions Section */}
@@ -144,7 +153,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                 <div className="mt-4">
                     <h4 className="font-medium text-lg">{t('Latest Attachment')}</h4>
                     <AttachmentsTable
-                        attachments={latestAttachment ? [latestAttachment as AttachmentWithCertifiedCopies] : []}
+                        attachments={latestAttachment ? [latestAttachment] : []}
                         onAttachmentDeleted={handleAttachmentDeleted}
                         formType={form.formType}
                         formData={form}
@@ -181,7 +190,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                     open={editDialogOpen}
                     onOpenChangeAction={setEditDialogOpen}
                     onSave={(updatedForm) => {
-                        toast.success(`Form ${updatedForm.id} has been updated successfully!`)
+                        toast.success(`${t('Form updated successfully')} ${updatedForm.id}!`)
                         onUpdateAction?.(updatedForm)
                         setEditDialogOpen(false)
                     }}

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
+import { formatAddress } from '@/lib/utils/location-helpers';
 import { isValidDate } from '@/utils/certificate-helper-functions';
 import { FormType } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
@@ -355,9 +356,9 @@ export async function createDeathCertificate(
               },
               transferPermit: data.disposal.transferPermit.number
                 ? {
-                  number: data.disposal.transferPermit.number,
-                  dateIssued: data.disposal.transferPermit.dateIssued || null,
-                }
+                    number: data.disposal.transferPermit.number,
+                    dateIssued: data.disposal.transferPermit.dateIssued || null,
+                  }
                 : null,
               cemeteryAddress: data.disposal.cemeteryAddress,
             },
@@ -425,7 +426,7 @@ export async function createBirthCertificate(
     const existingRegistry = await prisma.baseRegistryForm.findFirst({
       where: {
         registryNumber: data.registryNumber,
-        formType: 'BIRTH',
+        formType: FormType.BIRTH,
       },
     });
 
@@ -453,9 +454,7 @@ export async function createBirthCertificate(
                 string_contains: data.childInfo.lastName.trim(),
               },
             },
-            {
-              dateOfBirth: data.childInfo.dateOfBirth,
-            },
+            { dateOfBirth: data.childInfo.dateOfBirth },
             {
               placeOfBirth: {
                 path: ['hospital'],
@@ -500,11 +499,226 @@ export async function createBirthCertificate(
       return { success: false, error: 'Preparer not found' };
     }
 
-    // Create the base registry form and nested birth certificate record
+    // Build the nested data for the birth certificate record.
+    // For each address field, call formatAddress() so that the address is saved in a consistent format.
+    const birthCertificateData: any = {
+      // Child Information
+      childName: {
+        firstName: data.childInfo.firstName.trim(),
+        middleName: data.childInfo.middleName?.trim() || '',
+        lastName: data.childInfo.lastName.trim(),
+      },
+      sex: data.childInfo.sex,
+      dateOfBirth: data.childInfo.dateOfBirth || new Date(),
+      placeOfBirth: {
+        hospital: data.childInfo.placeOfBirth.hospital.trim(),
+        // Format the place-of-birth address using the submitted province and city.
+        province: data.childInfo.placeOfBirth.province.trim(),
+        cityMunicipality: data.childInfo.placeOfBirth.cityMunicipality.trim(),
+      },
+      typeOfBirth: data.childInfo.typeOfBirth,
+      ...(data.childInfo.multipleBirthOrder
+        ? { multipleBirthOrder: data.childInfo.multipleBirthOrder }
+        : {}),
+      ...(data.childInfo.birthOrder
+        ? { birthOrder: data.childInfo.birthOrder }
+        : {}),
+      weightAtBirth: parseFloat(data.childInfo.weightAtBirth),
+
+      // Mother Information
+      motherMaidenName: {
+        firstName: data.motherInfo.firstName.trim(),
+        middleName: data.motherInfo.middleName?.trim() || '',
+        lastName: data.motherInfo.lastName.trim(),
+      },
+      motherCitizenship: data.motherInfo.citizenship.trim(),
+      ...(data.motherInfo.religion
+        ? { motherReligion: data.motherInfo.religion.trim() }
+        : {}),
+      ...(data.motherInfo.occupation
+        ? { motherOccupation: data.motherInfo.occupation.trim() }
+        : {}),
+      motherAge: parseInt(data.motherInfo.age),
+      // Format the mother's residence using formatAddress
+      motherResidence: formatAddress(data.motherInfo.residence),
+      totalChildrenBornAlive: parseInt(data.motherInfo.totalChildrenBornAlive),
+      childrenStillLiving: parseInt(data.motherInfo.childrenStillLiving),
+      childrenNowDead: parseInt(data.motherInfo.childrenNowDead),
+
+      // Father Information
+      fatherName: {
+        firstName: data.fatherInfo.firstName.trim(),
+        middleName: data.fatherInfo.middleName?.trim() || '',
+        lastName: data.fatherInfo.lastName.trim(),
+      },
+      fatherCitizenship: data.fatherInfo.citizenship.trim(),
+      ...(data.fatherInfo.religion
+        ? { fatherReligion: data.fatherInfo.religion.trim() }
+        : {}),
+      ...(data.fatherInfo.occupation
+        ? { fatherOccupation: data.fatherInfo.occupation.trim() }
+        : {}),
+      fatherAge: parseInt(data.fatherInfo.age),
+      // Format the father's residence using formatAddress
+      fatherResidence: formatAddress(data.fatherInfo.residence),
+
+      // Marriage Information
+      parentMarriage: {
+        date: data.parentMarriage.date || new Date(),
+        // For marriage place, we assume the submitted address is already in the desired format.
+        // If not, you can use formatAddress on data.parentMarriage.place as well.
+        place: data.parentMarriage.place,
+      },
+
+      // Attendant Information
+      attendant: {
+        type: data.attendant.type,
+        certification: {
+          time: data.attendant.certification.time || new Date(),
+          signature: data.attendant.certification.signature || '',
+          name: data.attendant.certification.name.trim(),
+          title: data.attendant.certification.title.trim(),
+          // Format the attendant's address using formatAddress
+          address: formatAddress(data.attendant.certification.address),
+          date: data.attendant.certification.date || new Date(),
+        },
+      },
+
+      // Informant Information
+      informant: {
+        signature: data.informant.signature || '',
+        name: data.informant.name.trim(),
+        relationship: data.informant.relationship.trim(),
+        // Format the informant's address using formatAddress
+        address: formatAddress(data.informant.address),
+        date: data.informant.date || new Date(),
+      },
+
+      // Affidavit of Paternity (if applicable)
+      hasAffidavitOfPaternity: data.hasAffidavitOfPaternity,
+      ...(data.hasAffidavitOfPaternity && data.affidavitOfPaternityDetails
+        ? {
+            affidavitOfPaternityDetails: {
+              father: {
+                signature:
+                  data.affidavitOfPaternityDetails.father.signature || '',
+                name: data.affidavitOfPaternityDetails.father.name.trim() || '',
+                title:
+                  data.affidavitOfPaternityDetails.father.title.trim() || '',
+              },
+              mother: {
+                signature:
+                  data.affidavitOfPaternityDetails.mother.signature || '',
+                name: data.affidavitOfPaternityDetails.mother.name.trim() || '',
+                title:
+                  data.affidavitOfPaternityDetails.mother.title.trim() || '',
+              },
+              dateSworn:
+                data.affidavitOfPaternityDetails.dateSworn || new Date(),
+              adminOfficer: {
+                signature:
+                  data.affidavitOfPaternityDetails.adminOfficer.signature || '',
+                name:
+                  data.affidavitOfPaternityDetails.adminOfficer.name.trim() ||
+                  '',
+                position:
+                  data.affidavitOfPaternityDetails.adminOfficer.position.trim() ||
+                  '',
+                // Format the admin officer's address using formatAddress
+                address: formatAddress(
+                  data.affidavitOfPaternityDetails.adminOfficer.address
+                ),
+              },
+              ctcInfo: {
+                number:
+                  data.affidavitOfPaternityDetails.ctcInfo.number.trim() || '',
+                dateIssued:
+                  data.affidavitOfPaternityDetails.ctcInfo.dateIssued ||
+                  new Date(),
+                placeIssued:
+                  data.affidavitOfPaternityDetails.ctcInfo.placeIssued.trim() ||
+                  '',
+              },
+            },
+          }
+        : {}),
+
+      // Delayed Registration (if applicable)
+      isDelayedRegistration: data.isDelayedRegistration,
+      ...(data.isDelayedRegistration && data.affidavitOfDelayedRegistration
+        ? {
+            reasonForDelay:
+              data.affidavitOfDelayedRegistration.reasonForDelay.trim(),
+            affidavitOfDelayedRegistration: {
+              affiant: {
+                name: data.affidavitOfDelayedRegistration.affiant.name.trim(),
+                // Format the affiant's address using formatAddress
+                address: formatAddress(
+                  data.affidavitOfDelayedRegistration.affiant.address
+                ),
+                civilStatus:
+                  data.affidavitOfDelayedRegistration.affiant.civilStatus,
+                citizenship:
+                  data.affidavitOfDelayedRegistration.affiant.citizenship,
+              },
+              registrationType:
+                data.affidavitOfDelayedRegistration.registrationType,
+              parentMaritalStatus:
+                data.affidavitOfDelayedRegistration.parentMaritalStatus,
+              dateSworn:
+                data.affidavitOfDelayedRegistration.dateSworn || new Date(),
+              adminOfficer: {
+                signature:
+                  data.affidavitOfDelayedRegistration.adminOfficer.signature ||
+                  '',
+                name:
+                  data.affidavitOfDelayedRegistration.adminOfficer.name.trim() ||
+                  '',
+                position:
+                  data.affidavitOfDelayedRegistration.adminOfficer.position.trim() ||
+                  '',
+              },
+              ctcInfo: {
+                number:
+                  data.affidavitOfDelayedRegistration.ctcInfo.number.trim() ||
+                  '',
+                dateIssued:
+                  data.affidavitOfDelayedRegistration.ctcInfo.dateIssued ||
+                  new Date(),
+                placeIssued:
+                  data.affidavitOfDelayedRegistration.ctcInfo.placeIssued.trim() ||
+                  '',
+              },
+              ...(data.affidavitOfDelayedRegistration.spouseName
+                ? {
+                    spouseName:
+                      data.affidavitOfDelayedRegistration.spouseName.trim(),
+                  }
+                : {}),
+              ...(data.affidavitOfDelayedRegistration.applicantRelationship
+                ? {
+                    applicantRelationship:
+                      data.affidavitOfDelayedRegistration.applicantRelationship.trim(),
+                  }
+                : {}),
+            },
+          }
+        : {}),
+
+      // Preparer Information
+      preparer: {
+        signature: data.preparedBy.signature || '',
+        name: data.preparedBy.name.trim(),
+        title: data.preparedBy.title.trim(),
+        date: data.preparedBy.date || new Date(),
+      },
+    };
+
+    // Create the base registry form (with nested birth certificate creation)
     const baseForm = await prisma.baseRegistryForm.create({
       data: {
         formNumber: '102',
-        formType: 'BIRTH',
+        formType: FormType.BIRTH,
         registryNumber: data.registryNumber,
         province: data.province,
         cityMunicipality: data.cityMunicipality,
@@ -513,211 +727,12 @@ export async function createBirthCertificate(
         dateOfRegistration: new Date(),
         status: 'PENDING',
         preparedBy: {
-          connect: {
-            id: user.id,
-          },
+          connect: { id: user.id },
         },
-        // Nested birth certificate form creation
+        // Nested creation for birth certificate form:
         birthCertificateForm: {
           create: {
-            // Child Information
-            childName: {
-              firstName: data.childInfo.firstName.trim(),
-              middleName: data.childInfo.middleName?.trim() || '',
-              lastName: data.childInfo.lastName.trim(),
-            },
-            sex: data.childInfo.sex,
-            dateOfBirth: data.childInfo.dateOfBirth || new Date(),
-            placeOfBirth: {
-              hospital: data.childInfo.placeOfBirth.hospital.trim(),
-              province: data.childInfo.placeOfBirth.province.trim(),
-              cityMunicipality:
-                data.childInfo.placeOfBirth.cityMunicipality.trim(),
-            },
-            typeOfBirth: data.childInfo.typeOfBirth,
-            multipleBirthOrder: data.childInfo.multipleBirthOrder || null,
-            birthOrder: data.childInfo.birthOrder || null,
-            weightAtBirth: parseFloat(data.childInfo.weightAtBirth),
-
-            // Mother Information
-            motherMaidenName: {
-              firstName: data.motherInfo.firstName.trim(),
-              middleName: data.motherInfo.middleName?.trim() || '',
-              lastName: data.motherInfo.lastName.trim(),
-            },
-            motherCitizenship: data.motherInfo.citizenship.trim(),
-            motherReligion: data.motherInfo.religion?.trim(),
-            motherOccupation: data.motherInfo.occupation?.trim(),
-            motherAge: parseInt(data.motherInfo.age),
-            motherResidence: data.motherInfo.residence,
-            totalChildrenBornAlive: parseInt(
-              data.motherInfo.totalChildrenBornAlive
-            ),
-            childrenStillLiving: parseInt(data.motherInfo.childrenStillLiving),
-            childrenNowDead: parseInt(data.motherInfo.childrenNowDead),
-
-            // Father Information
-            fatherName: {
-              firstName: data.fatherInfo.firstName.trim(),
-              middleName: data.fatherInfo.middleName?.trim() || '',
-              lastName: data.fatherInfo.lastName.trim(),
-            },
-            fatherCitizenship: data.fatherInfo.citizenship.trim(),
-            fatherReligion: data.fatherInfo.religion?.trim(),
-            fatherOccupation: data.fatherInfo.occupation?.trim(),
-            fatherAge: parseInt(data.fatherInfo.age),
-            fatherResidence: data.fatherInfo.residence,
-
-            // Marriage Information
-            parentMarriage: {
-              date: data.parentMarriage.date || new Date(),
-              place: data.parentMarriage.place,
-            },
-
-            // Attendant Information
-            attendant: {
-              type: data.attendant.type,
-              certification: {
-                time: data.attendant.certification.time || new Date(),
-                signature: data.attendant.certification.signature || '',
-                name: data.attendant.certification.name.trim(),
-                title: data.attendant.certification.title.trim(),
-                address: data.attendant.certification.address,
-                date: data.attendant.certification.date || new Date(),
-              },
-            },
-
-            // Informant Information
-            informant: {
-              signature: data.informant.signature || '',
-              name: data.informant.name.trim(),
-              relationship: data.informant.relationship.trim(),
-              address: data.informant.address,
-              date: data.informant.date || new Date(),
-            },
-
-            // Affidavit of Paternity (if applicable)
-            hasAffidavitOfPaternity: data.hasAffidavitOfPaternity,
-            affidavitOfPaternityDetails: data.hasAffidavitOfPaternity
-              ? {
-                father: {
-                  signature:
-                    data.affidavitOfPaternityDetails?.father.signature || '',
-                  name:
-                    data.affidavitOfPaternityDetails?.father.name.trim() ||
-                    '',
-                  title:
-                    data.affidavitOfPaternityDetails?.father.title.trim() ||
-                    '',
-                },
-                mother: {
-                  signature:
-                    data.affidavitOfPaternityDetails?.mother.signature || '',
-                  name:
-                    data.affidavitOfPaternityDetails?.mother.name.trim() ||
-                    '',
-                  title:
-                    data.affidavitOfPaternityDetails?.mother.title.trim() ||
-                    '',
-                },
-                dateSworn:
-                  data.affidavitOfPaternityDetails?.dateSworn || new Date(),
-                adminOfficer: {
-                  signature:
-                    data.affidavitOfPaternityDetails?.adminOfficer
-                      .signature || '',
-                  name:
-                    data.affidavitOfPaternityDetails?.adminOfficer.name.trim() ||
-                    '',
-                  position:
-                    data.affidavitOfPaternityDetails?.adminOfficer.position.trim() ||
-                    '',
-                  address:
-                    data.affidavitOfPaternityDetails?.adminOfficer.address ||
-                    {},
-                },
-                ctcInfo: {
-                  // FIX: Removed duplicate "number:" key.
-                  number:
-                    data.affidavitOfPaternityDetails?.ctcInfo.number.trim() ||
-                    '',
-                  dateIssued:
-                    data.affidavitOfPaternityDetails?.ctcInfo.dateIssued ||
-                    new Date(),
-                  placeIssued:
-                    data.affidavitOfPaternityDetails?.ctcInfo.placeIssued.trim() ||
-                    '',
-                },
-              }
-              : undefined,
-
-            // Delayed Registration:
-            isDelayedRegistration: data.isDelayedRegistration,
-            // Map the reason for delay as a top-level field (per your Prisma model)
-            reasonForDelay: data.isDelayedRegistration
-              ? data.affidavitOfDelayedRegistration?.reasonForDelay.trim() || ''
-              : undefined,
-            affidavitOfDelayedRegistration: data.isDelayedRegistration
-              ? {
-                affiant: {
-                  name:
-                    data.affidavitOfDelayedRegistration?.affiant.name.trim() ||
-                    '',
-                  address:
-                    data.affidavitOfDelayedRegistration?.affiant.address ||
-                    {},
-                  civilStatus:
-                    data.affidavitOfDelayedRegistration?.affiant
-                      .civilStatus || '',
-                  citizenship:
-                    data.affidavitOfDelayedRegistration?.affiant
-                      .citizenship || '',
-                },
-                registrationType:
-                  data.affidavitOfDelayedRegistration?.registrationType ||
-                  'SELF',
-                parentMaritalStatus:
-                  data.affidavitOfDelayedRegistration?.parentMaritalStatus ||
-                  'MARRIED',
-                dateSworn:
-                  data.affidavitOfDelayedRegistration?.dateSworn ||
-                  new Date(),
-                adminOfficer: {
-                  signature:
-                    data.affidavitOfDelayedRegistration?.adminOfficer
-                      .signature || '',
-                  name:
-                    data.affidavitOfDelayedRegistration?.adminOfficer.name.trim() ||
-                    '',
-                  position:
-                    data.affidavitOfDelayedRegistration?.adminOfficer.position.trim() ||
-                    '',
-                },
-                ctcInfo: {
-                  number:
-                    data.affidavitOfDelayedRegistration?.ctcInfo.number.trim() ||
-                    '',
-                  dateIssued:
-                    data.affidavitOfDelayedRegistration?.ctcInfo.dateIssued ||
-                    new Date(),
-                  placeIssued:
-                    data.affidavitOfDelayedRegistration?.ctcInfo.placeIssued.trim() ||
-                    '',
-                },
-                spouseName:
-                  data.affidavitOfDelayedRegistration?.spouseName?.trim(),
-                applicantRelationship:
-                  data.affidavitOfDelayedRegistration?.applicantRelationship?.trim(),
-              }
-              : undefined,
-
-            // Preparer Information
-            preparer: {
-              signature: data.preparedBy.signature || '',
-              name: data.preparedBy.name.trim(),
-              title: data.preparedBy.title.trim(),
-              date: data.preparedBy.date || new Date(),
-            },
+            ...birthCertificateData,
           },
         },
         // Additional BaseRegistryForm fields
@@ -727,7 +742,7 @@ export async function createBirthCertificate(
         registeredBy: data.registeredByOffice.name.trim(),
         registeredByPosition: data.registeredByOffice.title.trim(),
         registrationDate: data.registeredByOffice.date || new Date(),
-        remarks: data.remarks?.trim(),
+        remarks: data.remarks?.trim() || null,
       },
     });
 
@@ -777,31 +792,3 @@ export async function checkRegistryNumberExists(
     };
   }
 }
-
-// export async function checkRegistryNumberExists(
-//   registryNumber: string,
-//   formType: FormType
-// ) {
-//   try {
-//     if (!registryNumber || !formType) {
-//       throw new Error(
-//         'Invalid input. Registry number and form type are required.'
-//       );
-//     }
-
-//     // Check if the registry number exists
-//     const existingRegistry = await prisma.baseRegistryForm.findFirst({
-//       where: {
-//         registryNumber,
-//         formType,
-//       },
-//     });
-
-//     return { exists: !!existingRegistry };
-//   } catch (error) {
-//     console.error('Error checking registry number:', error);
-//     return {
-//       error: 'Failed to check registry number. Please try again later.',
-//     };
-//   }
-// }

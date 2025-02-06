@@ -1,6 +1,5 @@
-// src\app\(dashboard)\civil-registry\details\page.tsx
+// src/app/(dashboard)/civil-registry/details/page.tsx
 import Link from 'next/link'
-
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -18,7 +17,15 @@ async function getFormDetails(formId: string) {
         include: {
             preparedBy: true,
             verifiedBy: true,
-            document: { include: { attachments: true } },
+            // Include the document along with its attachments and each attachment's certifiedCopies.
+            document: {
+                include: {
+                    attachments: {
+                        include: { certifiedCopies: true },
+                        orderBy: { updatedAt: 'desc' },
+                    },
+                },
+            },
             marriageCertificateForm: true,
             birthCertificateForm: true,
             deathCertificateForm: true,
@@ -50,14 +57,15 @@ export default async function ViewDetailsPage({ searchParams }: DetailsPageProps
             />
             <div className="flex flex-1 flex-col gap-4 p-4">
                 <Link href="/civil-registry">
-                    <Button variant={'default'} size={'sm'}>Back to Civil Registry</Button>
+                    <Button variant="default" size="sm">
+                        Back to Civil Registry
+                    </Button>
                 </Link>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <BaseDetailsCard form={form} />
                     <CertificateDetails form={form} />
                 </div>
             </div>
-
         </>
     )
 }

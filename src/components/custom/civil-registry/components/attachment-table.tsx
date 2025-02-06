@@ -1,9 +1,16 @@
-// src/components/custom/civil-registry/components/attachment-table.tsx
 'use client'
 
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Attachment, CertifiedCopy, FormType } from '@prisma/client'
+import {
+    Attachment,
+    BirthCertificateForm,
+    CertifiedCopy,
+    DeathCertificateForm,
+    FormType,
+    MarriageCertificateForm,
+    Permission,
+} from '@prisma/client'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import {
@@ -26,50 +33,63 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { Icons } from '@/components/ui/icons'
+import {
+    Popover,
+    PopoverTrigger,
+    PopoverContent,
+} from '@/components/ui/popover'
 
-// Import the annotation forms (make sure they accept a prop named formData)
 import BirthAnnotationForm from '@/components/custom/forms/annotations/birth-cert-annotation'
 import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation'
 import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+import { useUser } from '@/context/user-context'
+import { hasPermission } from '@/types/auth'
 
+// Extend Attachment to include certifiedCopies.
 export interface AttachmentWithCertifiedCopies extends Attachment {
     certifiedCopies?: CertifiedCopy[]
 }
 
 interface AttachmentsTableProps {
     attachments: AttachmentWithCertifiedCopies[]
-    /**
-     * Callback to trigger when an attachment has been deleted.
-     */
     onAttachmentDeleted?: (deletedId: string) => void
-    /**
-     * Controls whether the delete action is available.
-     */
     canDelete?: boolean
-    /**
-     * The form type for which the annotation dialog should be rendered.
-     */
     formType: FormType
-    /**
-     * The form data for pre-filling annotation forms.
-     */
-    formData?: BaseRegistryFormWithRelations
+    formData?: BaseRegistryFormWithRelations & {
+        birthCertificateForm?: BirthCertificateForm | null
+        deathCertificateForm?: DeathCertificateForm | null
+        marriageCertificateForm?: MarriageCertificateForm | null
+    }
 }
 
 export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
     attachments,
     onAttachmentDeleted,
-    canDelete = true,
+    canDelete = false,
     formType,
     formData,
 }) => {
     const { t } = useTranslation()
+    const { permissions } = useUser()
 
-    // State to control opening the annotation form dialog
+    // Global export permission: allow if in development or if user has DOCUMENT_EXPORT permission.
+    const exportAllowed =
+        process.env.NEXT_PUBLIC_NODE_ENV === 'development' ||
+        hasPermission(permissions, Permission.DOCUMENT_EXPORT)
+
+    // Create a combined check for delete permission.
+    const deleteAllowed =
+        canDelete && hasPermission(permissions, Permission.DOCUMENT_DELETE)
+
+    // State for annotation form dialog.
     const [annotationFormOpen, setAnnotationFormOpen] = useState(false)
 
-    // Delete action for a single attachment.
+    // Handler to open the annotation dialog.
+    const handleIssueCertificate = (attachment: AttachmentWithCertifiedCopies) => {
+        setAnnotationFormOpen(true)
+    }
+
     const handleDelete = async (attachmentId: string) => {
         try {
             const res = await fetch(`/api/attachments/${attachmentId}`, {
@@ -89,27 +109,47 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
         }
     }
 
-    // Export action for a single attachment.
     const handleExport = async (attachment: AttachmentWithCertifiedCopies) => {
         try {
-            const hasCTC =
-                Array.isArray(attachment.certifiedCopies) && attachment.certifiedCopies.length > 0
+            // Check if a certified true copy (CTC) exists.
+            const hasCTC = (attachment.certifiedCopies?.length ?? 0) > 0
 
-            const exportUrl = hasCTC
-                ? `/api/attachments/export?attachmentId=${attachment.id}&zip=true`
-                : `/api/attachments/export?attachmentId=${attachment.id}`
+            if (!hasCTC) {
+                toast.error(t('You need to issue a certified true copy (CTC) for export'))
+                return
+            }
+            if (!exportAllowed) {
+                toast.error(t('You do not have credentials to export this document'))
+                return
+            }
 
+            const exportUrl = `/api/attachments/export?attachmentId=${attachment.id}&zip=true`
             const res = await fetch(exportUrl)
             if (!res.ok) {
                 throw new Error(t('Failed to export attachment'))
             }
             const blob = await res.blob()
+
+            // Extract the filename from the Content-Disposition header set by the API.
+            const disposition = res.headers.get('Content-Disposition')
+            let filename = ''
+            if (disposition && disposition.indexOf('filename=') !== -1) {
+                const match = disposition.match(/filename="([^"]+)"/)
+                if (match && match[1]) {
+                    filename = match[1]
+                }
+            }
+
+            // Fallback: use the attachment filename if the header is not present.
+            if (!filename) {
+                filename = attachment.fileName.replace(/\.[^/.]+$/, '') + '.zip'
+            }
+
             const url = window.URL.createObjectURL(blob)
             const a = document.createElement('a')
             a.href = url
-            a.download = hasCTC
-                ? attachment.fileName.replace(/\.[^/.]+$/, '') + '.zip'
-                : attachment.fileName
+            // Use the filename extracted from the response header.
+            a.download = filename
             a.click()
             window.URL.revokeObjectURL(url)
         } catch (error: unknown) {
@@ -133,15 +173,14 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                             <TableRow>
                                 <TableHead className="px-4 py-2 text-left">{t('File Name')}</TableHead>
                                 <TableHead className="px-4 py-2 text-left">{t('Uploaded On')}</TableHead>
+                                <TableHead className="px-4 py-2 text-left">{t('CTC Issued')}</TableHead>
                                 <TableHead className="px-4 py-2 text-left">{t('Actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {attachments.map((attachment) => {
-                                const hasCTC =
-                                    Array.isArray(attachment.certifiedCopies) && attachment.certifiedCopies.length > 0
-                                const disableExport =
-                                    process.env.NODE_ENV === 'production' && !hasCTC
+                                const hasCTC = (attachment.certifiedCopies?.length ?? 0) > 0
+                                const disableExport = !exportAllowed || !hasCTC
 
                                 return (
                                     <TableRow key={attachment.id} className="border-b">
@@ -154,8 +193,15 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                             {new Date(attachment.uploadedAt).toLocaleString()}
                                         </TableCell>
                                         <TableCell className="px-4 py-2">
+                                            {hasCTC ? (
+                                                <span className="text-green-600 font-semibold">{t('Yes')}</span>
+                                            ) : (
+                                                <span className="text-gray-500">{t('No')}</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="px-4 py-2">
                                             <div className="flex items-center gap-2">
-                                                {canDelete && (
+                                                {deleteAllowed && (
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>
                                                             <Button variant="destructive" size="sm">
@@ -164,13 +210,19 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                         </AlertDialogTrigger>
                                                         <AlertDialogContent>
                                                             <AlertDialogHeader>
-                                                                <AlertDialogTitle>{t('Are you absolutely sure?')}</AlertDialogTitle>
+                                                                <AlertDialogTitle>
+                                                                    {t('Are you absolutely sure?')}
+                                                                </AlertDialogTitle>
                                                                 <AlertDialogDescription>
-                                                                    {t('This action cannot be undone. This will permanently delete the attachment.')}
+                                                                    {t(
+                                                                        'This action cannot be undone. This will permanently delete the attachment.'
+                                                                    )}
                                                                 </AlertDialogDescription>
                                                             </AlertDialogHeader>
                                                             <AlertDialogFooter>
-                                                                <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
+                                                                <AlertDialogCancel>
+                                                                    {t('Cancel')}
+                                                                </AlertDialogCancel>
                                                                 <AlertDialogAction onClick={() => handleDelete(attachment.id)}>
                                                                     {t('Delete')}
                                                                 </AlertDialogAction>
@@ -179,20 +231,40 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                     </AlertDialog>
                                                 )}
 
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleExport(attachment)}
-                                                    disabled={disableExport}
-                                                >
-                                                    {hasCTC ? t('Export (ZIP)') : t('Export')}
-                                                </Button>
+                                                {disableExport ? (
+                                                    <div className="flex items-center gap-1">
+                                                        <Button variant="outline" size="sm" disabled>
+                                                            {t('Export')}
+                                                        </Button>
+                                                        <Popover>
+                                                            <PopoverTrigger asChild>
+                                                                <Button variant="ghost" size="sm">
+                                                                    <Icons.infoCircledIcon className="h-4 w-4" />
+                                                                </Button>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-64">
+                                                                <p>
+                                                                    {t(
+                                                                        'You need to issue a certified true copy (CTC) before you can export this document.'
+                                                                    )}
+                                                                </p>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    </div>
+                                                ) : (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => handleExport(attachment)}
+                                                    >
+                                                        {t('Export (ZIP)')}
+                                                    </Button>
+                                                )}
 
-                                                {/* Issue Certificate Button opens the annotation dialog */}
                                                 <Button
+                                                    onClick={() => handleIssueCertificate(attachment)}
                                                     variant="secondary"
                                                     size="sm"
-                                                    onClick={() => setAnnotationFormOpen(true)}
                                                 >
                                                     <Icons.files className="mr-2 h-4 w-4" />
                                                     {t('issueCertificate')}
@@ -205,7 +277,6 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                         </TableBody>
                     </Table>
 
-                    {/* Annotation Form Dialogs based on form type */}
                     {formType === 'BIRTH' && (
                         <BirthAnnotationForm
                             open={annotationFormOpen}
