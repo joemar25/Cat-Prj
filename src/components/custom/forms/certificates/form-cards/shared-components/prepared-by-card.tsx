@@ -18,42 +18,65 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import React, { useEffect } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useEffect } from 'react';
+import { FieldValues, Path, useFormContext } from 'react-hook-form';
 
-const PreparedByCard: React.FC = () => {
+export interface PreparedByCardProps<T extends FieldValues = FieldValues> {
+  /**
+   * The field name prefix for this section.
+   * For example, if your form schema uses a key like "preparedBy", then
+   * all fields will be named "preparedBy.name", "preparedBy.title", "preparedBy.date", etc.
+   * Defaults to "preparedBy".
+   */
+  fieldPrefix?: string;
+  /**
+   * The title to display on the card header.
+   * Defaults to "Prepared By".
+   */
+  cardTitle?: string;
+}
+
+function PreparedByCard<T extends FieldValues = FieldValues>(
+  props: PreparedByCardProps<T>
+): JSX.Element {
+  const { fieldPrefix = 'preparedBy', cardTitle = 'Prepared By' } = props;
   const {
     control,
     watch,
     setValue,
     formState: { isSubmitted },
-  } = useFormContext<BirthCertificateFormValues>();
-  const selectedName = watch('preparedBy.name');
+  } = useFormContext<T>();
 
-  // Auto-fill title when name is selected
+  // Watch the staff name (e.g., "preparedBy.name")
+  const selectedName = watch(`${fieldPrefix}.name` as Path<T>);
+
+  // Create a constant for the title field name.
+  const titleFieldName = `${fieldPrefix}.title` as Path<T>;
+
+  // Auto-fill title when a staff name is selected.
   useEffect(() => {
     const staff = CIVIL_REGISTRAR_STAFF.find(
       (staff) => staff.name === selectedName
     );
     if (staff) {
-      setValue('preparedBy.title', staff.title, {
+      // Cast staff.title to any to satisfy setValue signature.
+      setValue(titleFieldName, staff.title as any, {
         shouldValidate: isSubmitted,
         shouldDirty: true,
       });
     }
-  }, [selectedName, setValue, isSubmitted]);
+  }, [selectedName, setValue, isSubmitted, titleFieldName]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Prepared By</CardTitle>
+        <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
-        {/* Signature */}
+        {/* Signature Field */}
         <FormField
           control={control}
-          name='preparedBy.signature'
+          name={`${fieldPrefix}.signature` as Path<T>}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Signature</FormLabel>
@@ -65,11 +88,11 @@ const PreparedByCard: React.FC = () => {
           )}
         />
 
-        {/* Name and Title */}
+        {/* Name and Title Fields */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <FormField
             control={control}
-            name='preparedBy.name'
+            name={`${fieldPrefix}.name` as Path<T>}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
@@ -93,7 +116,7 @@ const PreparedByCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='preparedBy.title'
+            name={titleFieldName}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title or Position</FormLabel>
@@ -114,7 +137,7 @@ const PreparedByCard: React.FC = () => {
         {/* Prepared By Date */}
         <FormField
           control={control}
-          name='preparedBy.date'
+          name={`${fieldPrefix}.date` as Path<T>}
           render={({ field }) => (
             <DatePickerField
               field={{
@@ -129,6 +152,6 @@ const PreparedByCard: React.FC = () => {
       </CardContent>
     </Card>
   );
-};
+}
 
 export default PreparedByCard;

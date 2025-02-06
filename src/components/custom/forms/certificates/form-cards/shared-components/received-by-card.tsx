@@ -18,42 +18,65 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import React, { useEffect } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useEffect } from 'react';
+import { FieldValues, Path, useFormContext } from 'react-hook-form';
 
-const ReceivedByCard: React.FC = () => {
+export interface ReceivedByCardProps<T extends FieldValues = FieldValues> {
+  /**
+   * The field name prefix for this section.
+   * For example, if your form schema uses a key like "receivedBy", then
+   * all fields will be named "receivedBy.name", "receivedBy.title", and "receivedBy.date".
+   * Defaults to "receivedBy".
+   */
+  fieldPrefix?: string;
+  /**
+   * The title to display on the card header.
+   * Defaults to "Received By".
+   */
+  cardTitle?: string;
+}
+
+const ReceivedByCard = <T extends FieldValues = FieldValues>({
+  fieldPrefix = 'receivedBy',
+  cardTitle = 'Received By',
+}: ReceivedByCardProps<T>) => {
   const {
     control,
     watch,
     setValue,
     formState: { isSubmitted },
-  } = useFormContext<BirthCertificateFormValues>();
-  const selectedName = watch('receivedBy.name');
+  } = useFormContext<T>();
 
-  // Auto-fill title when name is selected
+  // Watch the staff name (e.g., "receivedBy.name")
+  const selectedName = watch(`${fieldPrefix}.name` as Path<T>);
+
+  // Create a constant for the title field name.
+  const titleFieldName = `${fieldPrefix}.title` as Path<T>;
+
+  // Auto-fill the title when a staff name is selected.
   useEffect(() => {
     const staff = CIVIL_REGISTRAR_STAFF.find(
       (staff) => staff.name === selectedName
     );
     if (staff) {
-      setValue('receivedBy.title', staff.title, {
+      // Cast staff.title to any to satisfy the setValue signature.
+      setValue(titleFieldName, staff.title as any, {
         shouldValidate: isSubmitted,
         shouldDirty: true,
       });
     }
-  }, [selectedName, setValue, isSubmitted]);
+  }, [selectedName, setValue, isSubmitted, titleFieldName]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Received By</CardTitle>
+        <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
-        {/* Signature */}
+        {/* Signature Field */}
         <FormField
           control={control}
-          name='receivedBy.signature'
+          name={`${fieldPrefix}.signature` as Path<T>}
           render={({ field }) => (
             <FormItem>
               <FormLabel>Signature</FormLabel>
@@ -65,11 +88,11 @@ const ReceivedByCard: React.FC = () => {
           )}
         />
 
-        {/* Name and Title */}
+        {/* Name and Title Fields */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <FormField
             control={control}
-            name='receivedBy.name'
+            name={`${fieldPrefix}.name` as Path<T>}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
@@ -91,9 +114,10 @@ const ReceivedByCard: React.FC = () => {
               </FormItem>
             )}
           />
+
           <FormField
             control={control}
-            name='receivedBy.title'
+            name={titleFieldName}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title or Position</FormLabel>
@@ -114,7 +138,7 @@ const ReceivedByCard: React.FC = () => {
         {/* Received By Date */}
         <FormField
           control={control}
-          name='receivedBy.date'
+          name={`${fieldPrefix}.date` as Path<T>}
           render={({ field }) => (
             <DatePickerField
               field={{

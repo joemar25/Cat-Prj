@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { createDeathCertificate } from '@/hooks/form-certificate-actions';
 import {
@@ -19,17 +18,22 @@ import {
   defaultDeathCertificateFormValues,
 } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FormType } from '@prisma/client';
 import { PDFViewer } from '@react-pdf/renderer';
 import { Loader2, Save } from 'lucide-react';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-// Import all the card components
-import RemarksCard from '@/components/custom/forms/certificates/form-cards/death-cards/remarks-card';
-
-import { FormType } from '@prisma/client';
+// Reusable shared components (same for Birth, Death, and Marriage)
+import PreparedByCard from './form-cards/shared-components/prepared-by-card';
+import ReceivedByCard from './form-cards/shared-components/received-by-card';
+import RegisteredAtOfficeCard from './form-cards/shared-components/registered-at-office-card';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
+import RemarksCard from './form-cards/shared-components/remarks-card';
+
+// Death-specific components
+
 import DeathCertificatePDF from './preview/death-certificate/death-certificate-preview';
 
 export default function DeathCertificateForm({
@@ -42,6 +46,9 @@ export default function DeathCertificateForm({
   const [pendingSubmission, setPendingSubmission] =
     useState<DeathCertificateFormValues | null>(null);
 
+  // State for the RegistryInformationCard (e.g. special mode flag)
+  const [isNCRMode, setIsNCRMode] = useState(false);
+
   const form = useForm<DeathCertificateFormValues>({
     resolver: zodResolver(deathCertificateSchema),
     defaultValues: defaultDeathCertificateFormValues,
@@ -51,7 +58,6 @@ export default function DeathCertificateForm({
     try {
       setIsSubmitting(true);
       const result = await createDeathCertificate(values);
-
       if (result.success) {
         toast.success('Death Certificate Registration', {
           description: 'Death certificate has been registered successfully',
@@ -71,9 +77,7 @@ export default function DeathCertificateForm({
         error instanceof Error
           ? error.message
           : 'An unexpected error occurred. Please try again.';
-      toast.error('Registration Error', {
-        description: errorMessage,
-      });
+      toast.error('Registration Error', { description: errorMessage });
     } finally {
       setIsSubmitting(false);
     }
@@ -84,7 +88,6 @@ export default function DeathCertificateForm({
       try {
         setIsSubmitting(true);
         const result = await createDeathCertificate(pendingSubmission, true);
-
         if (result.success) {
           toast.success('Death Certificate Registration', {
             description: 'Death certificate has been registered successfully',
@@ -101,9 +104,7 @@ export default function DeathCertificateForm({
           error instanceof Error
             ? error.message
             : 'An unexpected error occurred. Please try again.';
-        toast.error('Registration Error', {
-          description: errorMessage,
-        });
+        toast.error('Registration Error', { description: errorMessage });
       } finally {
         setIsSubmitting(false);
         setShowAlert(false);
@@ -114,24 +115,32 @@ export default function DeathCertificateForm({
 
   const handleError = () => {
     const errors = form.formState.errors;
-
-    if (errors.registryNumber) {
-      toast.error(errors.registryNumber.message);
-      return;
-    }
-
-    if (errors.personalInfo) {
-      toast.error('Please check the personal information section for errors');
-      return;
-    }
-
-    if (errors.familyInfo) {
-      toast.error('Please check the family information section for errors');
-      return;
-    }
-
-    // Default error message
-    toast.error('Please check all required fields and try again');
+    form
+      .trigger(['registryNumber', 'province', 'cityMunicipality'])
+      .then(() => {
+        if (
+          form.getFieldState('registryNumber').error ||
+          form.getFieldState('province').error ||
+          form.getFieldState('cityMunicipality').error
+        ) {
+          toast.error('Birth Registry Information', {
+            description:
+              'Please complete registry number, province, and city/municipality fields',
+          });
+          return;
+        }
+        if (errors.personalInfo) {
+          toast.error(
+            'Please check the personal information section for errors'
+          );
+          return;
+        }
+        if (errors.familyInfo) {
+          toast.error('Please check the family information section for errors');
+          return;
+        }
+        toast.error('Please check all required fields and try again');
+      });
   };
 
   return (
@@ -143,20 +152,22 @@ export default function DeathCertificateForm({
               Certificate of Death
             </DialogTitle>
           </DialogHeader>
-
           <div className='flex flex-1 overflow-hidden'>
             {/* Left Side - Form */}
             <div className='w-1/2 border-r'>
               <ScrollArea className='h-[calc(95vh-120px)]'>
                 <div className='p-6'>
-                  <Form {...form}>
+                  <FormProvider {...form}>
                     <form
                       onSubmit={form.handleSubmit(onSubmit, handleError)}
                       className='space-y-6'
                     >
-                      <RegistryInformationCard formType={FormType.DEATH} />
                       {/* Registry Information */}
-                      {/* <RegistryInformationCard /> */}
+                      <RegistryInformationCard
+                        formType={FormType.DEATH}
+                        isNCRMode={isNCRMode}
+                        setIsNCRMode={setIsNCRMode}
+                      />
 
                       {/* Personal Information */}
                       {/* <PersonalInformationCard /> */}
@@ -185,17 +196,31 @@ export default function DeathCertificateForm({
                       {/* Informant Information */}
                       {/* <CertificationInformantCard /> */}
 
-                      {/* Prepared By */}
-                      {/* <PreparedByCard /> */}
+                      {/* Prepared By (reusable shared component) */}
+                      <PreparedByCard<DeathCertificateFormValues>
+                        fieldPrefix='preparedBy'
+                        cardTitle='Prepared By'
+                      />
 
-                      {/* Received By */}
-                      {/* <ReceivedByCard /> */}
+                      {/* Received By (reusable shared component) */}
+                      <ReceivedByCard<DeathCertificateFormValues>
+                        fieldPrefix='receivedBy'
+                        cardTitle='Received By'
+                      />
 
-                      {/* Registered at Civil Registrar */}
-                      {/* <RegisteredAtOfficeCard /> */}
+                      {/* Registered At Office (reusable shared component) */}
+                      <RegisteredAtOfficeCard<DeathCertificateFormValues>
+                        fieldPrefix='registeredByOffice'
+                        cardTitle='Registered at the Office of Civil Registrar'
+                      />
 
-                      {/* Remarks */}
-                      <RemarksCard />
+                      {/* Remarks (reusable shared component) */}
+                      <RemarksCard<DeathCertificateFormValues>
+                        fieldName='remarks'
+                        cardTitle='Death Certificate Remarks'
+                        label='Additional Remarks'
+                        placeholder='Enter any additional remarks or annotations'
+                      />
 
                       <DialogFooter>
                         <Button
@@ -226,8 +251,7 @@ export default function DeathCertificateForm({
                         </Button>
                       </DialogFooter>
                     </form>
-                  </Form>
-
+                  </FormProvider>
                   <ConfirmationDialog
                     open={showAlert}
                     onOpenChange={setShowAlert}
@@ -242,7 +266,6 @@ export default function DeathCertificateForm({
                 </div>
               </ScrollArea>
             </div>
-
             {/* Right Side - Preview */}
             <div className='w-1/2'>
               <div className='h-[calc(95vh-120px)] p-6'>

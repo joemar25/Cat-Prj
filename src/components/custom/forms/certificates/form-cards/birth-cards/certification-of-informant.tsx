@@ -177,7 +177,6 @@ const CertificationOfInformantCard: React.FC<
                   <FormControl>
                     <Input
                       placeholder='Enter country'
-                      disabled
                       {...field}
                       className='h-10'
                     />

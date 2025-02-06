@@ -33,11 +33,12 @@ import ChildInformationCard from './form-cards/birth-cards/child-information-car
 import FatherInformationCard from './form-cards/birth-cards/father-information-card';
 import MarriageOfParentsCard from './form-cards/birth-cards/marriage-parents-card';
 import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
-import PreparedByCard from './form-cards/birth-cards/prepared-by-card';
-import ReceivedByCard from './form-cards/birth-cards/received-by';
-import RegisteredAtOfficeCard from './form-cards/birth-cards/registered-at-office-card';
-import RemarksCard from './form-cards/birth-cards/remarks';
+
+import PreparedByCard from './form-cards/shared-components/prepared-by-card';
+import ReceivedByCard from './form-cards/shared-components/received-by-card';
+import RegisteredAtOfficeCard from './form-cards/shared-components/registered-at-office-card';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
+import RemarksCard from './form-cards/shared-components/remarks-card';
 import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
 
 export default function BirthCertificateForm({
@@ -258,10 +259,27 @@ export default function BirthCertificateForm({
                         informantAddressNcrMode={informantAddressNcrMode}
                         setInformantAddressNcrMode={setInformantAddressNcrMode}
                       />
-                      <PreparedByCard />
-                      <ReceivedByCard />
-                      <RegisteredAtOfficeCard />
-                      <RemarksCard />
+                      <PreparedByCard<BirthCertificateFormValues>
+                        fieldPrefix='preparedBy'
+                        cardTitle='Prepared By'
+                      />
+                      <ReceivedByCard<BirthCertificateFormValues>
+                        fieldPrefix='receivedBy'
+                        cardTitle='Received By'
+                      />
+
+                      <RegisteredAtOfficeCard<BirthCertificateFormValues>
+                        fieldPrefix='registeredByOffice'
+                        cardTitle='Registered at the Office of Civil Registrar'
+                      />
+
+                      <RemarksCard<BirthCertificateFormValues>
+                        fieldName='remarks'
+                        cardTitle='Birth Certificate Remarks'
+                        label='Additional Remarks'
+                        placeholder='Enter any additional remarks or annotations'
+                      />
+
                       <AffidavitFormsCard
                         adminOfficerAddressNcrMode={adminOfficerAddressNcrMode}
                         setAdminOfficerAddressNcrMode={

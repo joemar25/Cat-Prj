@@ -35,21 +35,23 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   const [registryNumber, setRegistryNumber] = useState('');
   const [debouncedRegistryNumber] = useDebounce(registryNumber, 500);
   const [isChecking, setIsChecking] = useState(false);
-
   const [validationResult, setValidationResult] = useState<{
     exists: boolean | null;
     error: string | null;
   }>({ exists: null, error: null });
 
+  // Set same min and max lengths for all form types.
+  const minLength = 6;
+  const maxLength = 20;
+
   const validateRegistryNumber = useCallback(
     (value: string): string => {
       if (!value) return '';
 
-      // Simple regex for all form types
+      // Apply the same regex for all form types.
       const formatRegex = /^\d{4}-\d+$/;
-
       if (!value.match(formatRegex)) {
-        if (value.length < 6) return ''; // Minimum YYYY-#
+        if (value.length < minLength) return ''; // Wait for more characters
         return 'Registry number must be in format: YYYY-numbers (e.g., 2024-1)';
       }
 
@@ -61,7 +63,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
 
       return '';
     },
-    [formType]
+    [minLength]
   );
 
   const checkRegistryNumber = useCallback(
@@ -72,6 +74,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         const response = await fetch('/api/check-registry-number', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          // Pass the formType for server logic if needed
           body: JSON.stringify({ registryNumber: value, formType }),
         });
 
@@ -105,10 +108,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   );
 
   useEffect(() => {
-    if (
-      debouncedRegistryNumber.length >=
-      (formType === FormType.MARRIAGE ? 10 : 6)
-    ) {
+    if (debouncedRegistryNumber.length >= minLength) {
       const error = validateRegistryNumber(debouncedRegistryNumber);
       if (!error) {
         checkRegistryNumber(debouncedRegistryNumber);
@@ -122,7 +122,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     checkRegistryNumber,
     clearErrors,
     validateRegistryNumber,
-    formType,
+    minLength,
   ]);
 
   const handleRegistryNumberChange = (
@@ -130,6 +130,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   ) => {
     let value = event.target.value.replace(/[^\d-]/g, '');
 
+    // Automatically insert hyphen if not present.
     if (value.length >= 4 && !value.includes('-')) {
       value = value.slice(0, 4) + '-' + value.slice(4);
     }
@@ -164,6 +165,10 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     return null;
   };
 
+  // Use the same placeholder and description for all form types.
+  const placeholder = 'YYYY-numbers';
+  const description = 'Format: YYYY-numbers (e.g., 2025-123456)';
+
   return (
     <Card>
       <CardHeader>
@@ -183,15 +188,11 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                   <FormControl>
                     <Input
                       className='h-10 pr-8'
-                      placeholder={
-                        formType === FormType.MARRIAGE
-                          ? 'YYYY-#####'
-                          : 'YYYY-numbers'
-                      }
+                      placeholder={placeholder}
                       {...field}
                       onChange={handleRegistryNumberChange}
                       value={field.value || ''}
-                      maxLength={formType === FormType.MARRIAGE ? 10 : 20}
+                      maxLength={maxLength}
                       inputMode='numeric'
                     />
                   </FormControl>
@@ -199,12 +200,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
                     {getValidationIcon()}
                   </div>
                 </div>
-                <FormDescription>
-                  Format:{' '}
-                  {formType === FormType.MARRIAGE
-                    ? 'YYYY-##### (e.g., 2025-00001)'
-                    : 'YYYY-numbers (e.g., 2025-123456)'}
-                </FormDescription>
+                <FormDescription>{description}</FormDescription>
                 {fieldState.error && (
                   <FormMessage>{fieldState.error.message}</FormMessage>
                 )}

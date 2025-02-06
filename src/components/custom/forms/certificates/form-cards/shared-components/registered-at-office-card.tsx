@@ -18,43 +18,72 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import React, { useEffect } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useEffect } from 'react';
+import { FieldValues, Path, useFormContext } from 'react-hook-form';
 
-const RegisteredAtOfficeCard: React.FC = () => {
+export interface RegisteredAtOfficeCardProps<
+  T extends FieldValues = FieldValues
+> {
+  /**
+   * The field name prefix for this section.
+   * For example, if your form schema uses a key like "registeredByOffice", then
+   * all fields will be named "registeredByOffice.name", "registeredByOffice.title", etc.
+   * Defaults to "registeredByOffice".
+   */
+  fieldPrefix?: string;
+  /**
+   * The title to display on the card header.
+   * Defaults to "Registered at the Office of Civil Registrar".
+   */
+  cardTitle?: string;
+  /**
+   * The list of staff options to display in the select.
+   * Defaults to CIVIL_REGISTRAR_STAFF.
+   */
+  staffOptions?: { id: string; name: string; title: string }[];
+}
+
+const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
+  fieldPrefix = 'registeredByOffice',
+  cardTitle = 'Registered at the Office of Civil Registrar',
+  staffOptions = CIVIL_REGISTRAR_STAFF,
+}: RegisteredAtOfficeCardProps<T>) => {
   const {
     control,
     watch,
     setValue,
     formState: { isSubmitted },
-  } = useFormContext<BirthCertificateFormValues>();
-  const selectedName = watch('registeredByOffice.name');
+  } = useFormContext<T>();
 
-  // Auto-fill title when name is selected
+  // Watch the staff name (e.g., "registeredByOffice.name")
+  const selectedName = watch(`${fieldPrefix}.name` as Path<T>);
+
+  // Create a constant for the title field name.
+  const titleFieldName = `${fieldPrefix}.title` as Path<T>;
+
+  // Auto-fill the title when a staff name is selected.
   useEffect(() => {
-    const staff = CIVIL_REGISTRAR_STAFF.find(
-      (staff) => staff.name === selectedName
-    );
+    const staff = staffOptions.find((staff) => staff.name === selectedName);
     if (staff) {
-      setValue('registeredByOffice.title', staff.title, {
+      // Cast staff.title to any to satisfy the setValue signature.
+      setValue(titleFieldName, staff.title as any, {
         shouldValidate: isSubmitted,
         shouldDirty: true,
       });
     }
-  }, [selectedName, setValue, isSubmitted]);
+  }, [selectedName, setValue, isSubmitted, staffOptions, titleFieldName]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Registered at the Office of Civil Registrar</CardTitle>
+        <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-          {/* Name */}
+          {/* Name Field */}
           <FormField
             control={control}
-            name='registeredByOffice.name'
+            name={`${fieldPrefix}.name` as Path<T>}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
@@ -65,7 +94,7 @@ const RegisteredAtOfficeCard: React.FC = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {CIVIL_REGISTRAR_STAFF.map((staff) => (
+                    {staffOptions.map((staff) => (
                       <SelectItem key={staff.id} value={staff.name}>
                         {staff.name}
                       </SelectItem>
@@ -77,10 +106,10 @@ const RegisteredAtOfficeCard: React.FC = () => {
             )}
           />
 
-          {/* Title or Position */}
+          {/* Title/Position Field */}
           <FormField
             control={control}
-            name='registeredByOffice.title'
+            name={titleFieldName}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title or Position</FormLabel>
@@ -97,10 +126,10 @@ const RegisteredAtOfficeCard: React.FC = () => {
             )}
           />
 
-          {/* Registered By Office Date */}
+          {/* Date Field */}
           <FormField
             control={control}
-            name='registeredByOffice.date'
+            name={`${fieldPrefix}.date` as Path<T>}
             render={({ field }) => (
               <DatePickerField
                 field={{

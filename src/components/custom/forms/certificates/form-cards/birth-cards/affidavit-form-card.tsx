@@ -209,7 +209,7 @@ const AffidavitFormsCard: React.FC<AffidavitFormsCardProps> = ({
                           <FormItem>
                             <FormLabel>Country</FormLabel>
                             <FormControl>
-                              <Input {...field} disabled className='h-10' />
+                              <Input {...field} className='h-10' />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -367,7 +367,7 @@ const AffidavitFormsCard: React.FC<AffidavitFormsCardProps> = ({
                         <FormItem>
                           <FormLabel>Country</FormLabel>
                           <FormControl>
-                            <Input {...field} disabled className='h-10' />
+                            <Input {...field} className='h-10' />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -521,7 +521,7 @@ const AffidavitFormsCard: React.FC<AffidavitFormsCardProps> = ({
                         <FormItem>
                           <FormLabel>Country</FormLabel>
                           <FormControl>
-                            <Input {...field} disabled className='h-10' />
+                            <Input {...field} className='h-10' />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

@@ -175,7 +175,6 @@ export async function createDeathCertificate(
     if (!data.personalInfo.dateOfDeath) {
       return { success: false, error: 'Date of death is required' };
     }
-
     if (!data.personalInfo.dateOfBirth) {
       return { success: false, error: 'Date of birth is required' };
     }
@@ -195,7 +194,6 @@ export async function createDeathCertificate(
         formType: 'DEATH',
       },
     });
-
     if (existingRegistry) {
       return {
         success: false,
@@ -220,9 +218,7 @@ export async function createDeathCertificate(
                 string_contains: data.personalInfo.lastName.trim(),
               },
             },
-            {
-              dateOfDeath: data.personalInfo.dateOfDeath, // Now directly use the Date object
-            },
+            { dateOfDeath: data.personalInfo.dateOfDeath },
             {
               placeOfDeath: {
                 path: ['cityMunicipality'],
@@ -233,7 +229,6 @@ export async function createDeathCertificate(
           ],
         },
       });
-
       if (existingDeceased) {
         return {
           success: false,
@@ -246,11 +241,8 @@ export async function createDeathCertificate(
 
     // Validate preparer exists
     const user = await prisma.user.findFirst({
-      where: {
-        name: data.preparedBy.name,
-      },
+      where: { name: data.preparedBy.name },
     });
-
     if (!user) {
       return { success: false, error: 'Preparer not found' };
     }
@@ -268,9 +260,7 @@ export async function createDeathCertificate(
         dateOfRegistration: new Date(),
         status: 'PENDING',
         preparedBy: {
-          connect: {
-            id: user.id,
-          },
+          connect: { id: user.id },
         },
         deathCertificateForm: {
           create: {
@@ -283,25 +273,31 @@ export async function createDeathCertificate(
             sex: data.personalInfo.sex,
             dateOfDeath: data.personalInfo.dateOfDeath,
             dateOfBirth: data.personalInfo.dateOfBirth,
+            // Map the new address object for placeOfDeath:
             placeOfDeath: {
-              province: data.personalInfo.placeOfDeath.province.trim(),
-              cityMunicipality:
-                data.personalInfo.placeOfDeath.cityMunicipality.trim(),
-              specificAddress:
-                data.personalInfo.placeOfDeath.specificAddress?.trim() || '',
+              houseNumber: data.personalInfo.placeOfDeath.houseNumber,
+              street: data.personalInfo.placeOfDeath.street,
+              barangay: data.personalInfo.placeOfDeath.barangay,
+              cityMunicipality: data.personalInfo.placeOfDeath.cityMunicipality,
+              province: data.personalInfo.placeOfDeath.province,
+              country: data.personalInfo.placeOfDeath.country,
             },
+            // For backward compatibility, if you need placeOfBirth:
             placeOfBirth: {
-              province: data.personalInfo.placeOfDeath.province.trim(),
-              cityMunicipality:
-                data.personalInfo.placeOfDeath.cityMunicipality.trim(),
-              specificAddress:
-                data.personalInfo.placeOfDeath.specificAddress?.trim() || '',
+              houseNumber: data.personalInfo.placeOfDeath.houseNumber,
+              street: data.personalInfo.placeOfDeath.street,
+              barangay: data.personalInfo.placeOfDeath.barangay,
+              cityMunicipality: data.personalInfo.placeOfDeath.cityMunicipality,
+              province: data.personalInfo.placeOfDeath.province,
+              country: data.personalInfo.placeOfDeath.country,
             },
             civilStatus: data.personalInfo.civilStatus,
             religion: data.personalInfo.religion,
             citizenship: data.personalInfo.citizenship,
             residence: {
-              address: data.personalInfo.residence.address,
+              houseNumber: data.personalInfo.residence.houseNumber,
+              street: data.personalInfo.residence.street,
+              barangay: data.personalInfo.residence.barangay,
               cityMunicipality: data.personalInfo.residence.cityMunicipality,
               province: data.personalInfo.residence.province,
               country: data.personalInfo.residence.country,
@@ -343,7 +339,14 @@ export async function createDeathCertificate(
             certifier: {
               name: data.certification.name,
               title: data.certification.title,
-              address: data.certification.address,
+              address: {
+                houseNumber: data.certification.address.houseNumber,
+                street: data.certification.address.street,
+                barangay: data.certification.address.barangay,
+                cityMunicipality: data.certification.address.cityMunicipality,
+                province: data.certification.address.province,
+                country: data.certification.address.country,
+              },
               date: data.certification.date,
             },
 
@@ -367,7 +370,14 @@ export async function createDeathCertificate(
             informant: {
               name: data.informant.name,
               relationship: data.informant.relationship,
-              address: data.informant.address,
+              address: {
+                houseNumber: data.informant.address.houseNumber,
+                street: data.informant.address.street,
+                barangay: data.informant.address.barangay,
+                cityMunicipality: data.informant.address.cityMunicipality,
+                province: data.informant.address.province,
+                country: data.informant.address.country,
+              },
               date: data.informant.date,
             },
 

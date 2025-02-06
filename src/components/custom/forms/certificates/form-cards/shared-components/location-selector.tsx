@@ -107,13 +107,13 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       .slice(0, 5);
   };
 
-  // Debounced suggestion display functions.
+  // Debounced suggestion display functions with reduced delay (100ms).
   const debouncedShowProvinceSuggestions = useCallback(
     debounce((value: string) => {
       setShowProvinceSuggestions(
         !!value && getMatchingItems(value, provinces).length > 0
       );
-    }, 500),
+    }, 100),
     [provinces]
   );
 
@@ -130,7 +130,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             getMatchingMunicipalityItems(value, municipalities).length > 0
         );
       }
-    }, 500),
+    }, 100),
     [municipalities, isNCRMode]
   );
 
@@ -139,7 +139,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       setShowBarangaySuggestions(
         !!value && getMatchingItems(value, barangays).length > 0
       );
-    }, 500),
+    }, 100),
     [barangays]
   );
 

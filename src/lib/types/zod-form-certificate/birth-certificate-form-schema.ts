@@ -148,7 +148,7 @@ export const createBirthCertificateSchema = (
           placeIssued: z.string().min(1, 'Place issued is required'),
         }),
       })
-      .optional(),
+      .nullable(),
 
     isDelayedRegistration: z.boolean().default(false),
     affidavitOfDelayedRegistration: z
@@ -177,7 +177,7 @@ export const createBirthCertificateSchema = (
         spouseName: z.string().optional(),
         applicantRelationship: z.string().optional(),
       })
-      .optional(),
+      .nullable(),
 
     remarks: z.string().optional(),
   });
@@ -186,49 +186,49 @@ export type BirthCertificateFormValues = WithNullableDates<
   z.infer<ReturnType<typeof createBirthCertificateSchema>>
 >;
 
-// For testing purposes, we export default values (using the non-NCR mode defaults)
+// Production default values with real data and affidavit sections turned off.
 export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
   // Registry Information
-  registryNumber: '2024-0001',
-  province: '',
-  cityMunicipality: '',
+  registryNumber: '2024-6969',
+  province: 'Metro Manila',
+  cityMunicipality: 'Quezon City',
 
   // Child Information
   childInfo: {
     firstName: 'Juan',
     middleName: 'Santos',
-    lastName: 'Reyes',
+    lastName: 'Dela Cruz',
     sex: 'Male',
-    dateOfBirth: new Date('2024-01-01T00:00:00'),
+    dateOfBirth: new Date('2024-01-01T08:30:00'),
     placeOfBirth: {
       hospital: 'St. Luke Hospital',
-      cityMunicipality: 'Santa Rosa',
-      province: 'Laguna',
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
     },
     typeOfBirth: 'Single',
     multipleBirthOrder: '',
     birthOrder: '1',
-    weightAtBirth: '3.2 kg',
+    weightAtBirth: '3.2',
   },
 
   // Mother Information
   motherInfo: {
     firstName: 'Maria',
-    middleName: 'Luz',
+    middleName: 'Luisa',
     lastName: 'Santos',
     citizenship: 'Filipino',
     religion: 'Roman Catholic',
     occupation: 'Teacher',
     age: '28',
-    totalChildrenBornAlive: '1',
-    childrenStillLiving: '1',
+    totalChildrenBornAlive: '2',
+    childrenStillLiving: '2',
     childrenNowDead: '0',
     residence: {
-      houseNumber: '456',
-      street: 'Mabini Street',
-      barangay: 'Barangay Uno',
-      cityMunicipality: 'Santa Rosa',
-      province: 'Laguna',
+      houseNumber: '45B',
+      street: 'C. Raymundo Ave',
+      barangay: 'Pinyahan',
+      cityMunicipality: 'Quezon City',
+      province: 'Metro Manila',
       country: 'Philippines',
     },
   },
@@ -236,16 +236,16 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
   // Father Information
   fatherInfo: {
     firstName: 'Jose',
-    middleName: 'Martinez',
+    middleName: 'Ramon',
     lastName: 'Dela Cruz',
     citizenship: 'Filipino',
     religion: 'Roman Catholic',
-    occupation: 'Software Engineer',
-    age: '30',
+    occupation: 'Engineer',
+    age: '32',
     residence: {
-      houseNumber: '123',
-      street: 'Maginhawa Street',
-      barangay: 'Teachers Village',
+      houseNumber: '78A',
+      street: 'Ortigas Avenue',
+      barangay: 'Camp 4',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -254,11 +254,11 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
 
   // Marriage of Parents
   parentMarriage: {
-    date: new Date('2023-12-25T00:00:00'),
+    date: new Date('2023-10-15T00:00:00'),
     place: {
-      houseNumber: '123',
-      street: 'Maginhawa Street',
-      barangay: 'Teachers Village',
+      houseNumber: '78A',
+      street: 'Ortigas Avenue',
+      barangay: 'Camp 4',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -269,19 +269,19 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
   attendant: {
     type: 'Physician',
     certification: {
-      time: parseTimeStringToDate('14:30'),
-      signature: 'DrSantos',
-      name: 'Dr. Ana Santos',
-      title: 'OB-GYN',
+      time: parseTimeStringToDate('08:30'),
+      signature: 'Dr. Reyes',
+      name: 'Dr. Carla Reyes',
+      title: 'Pediatrician',
       address: {
-        houseNumber: '279',
-        street: 'E Rodriguez Sr. Avenue',
-        barangay: 'Kalusugan',
-        cityMunicipality: 'Quezon City',
+        houseNumber: '12',
+        street: 'Legarda St',
+        barangay: 'Escolta',
+        cityMunicipality: 'Manila',
         province: 'Metro Manila',
         country: 'Philippines',
       },
-      date: new Date('2024-01-02T14:30:00'),
+      date: new Date('2024-01-01T08:30:00'),
     },
   },
 
@@ -291,9 +291,9 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     name: 'Jose Dela Cruz',
     relationship: 'Father',
     address: {
-      houseNumber: '279',
-      street: 'E Rodriguez Sr. Avenue',
-      barangay: 'Kalusugan',
+      houseNumber: '78A',
+      street: 'Ortigas Avenue',
+      barangay: 'Camp 4',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -325,74 +325,224 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     date: new Date('2024-01-06T12:00:00'),
   },
 
-  // Affidavit of Paternity
-  hasAffidavitOfPaternity: true,
-  affidavitOfPaternityDetails: {
-    father: {
-      signature: 'FatherSignature',
-      name: 'Jose Dela Cruz',
-      title: 'Father',
-    },
-    mother: {
-      signature: 'MotherSignature',
-      name: 'Maria Santos',
-      title: 'Mother',
-    },
-    dateSworn: new Date('2024-01-07T08:00:00'),
-    adminOfficer: {
-      signature: 'AdminOfficerSignature',
-      name: 'Officer Name',
-      position: 'Registrar',
-      address: {
-        houseNumber: '456',
-        street: 'Main Street',
-        barangay: 'Central',
-        cityMunicipality: 'Quezon City',
-        province: 'Metro Manila',
-        country: 'Philippines',
-      },
-    },
-    ctcInfo: {
-      number: 'CTC123456',
-      dateIssued: new Date('2024-01-07T09:00:00'),
-      placeIssued: 'Quezon City',
-    },
-  },
+  // Affidavit of Paternity: set flag to false and omit details
+  hasAffidavitOfPaternity: false,
+  affidavitOfPaternityDetails: null,
 
-  // Delayed Registration
-  isDelayedRegistration: true,
-  affidavitOfDelayedRegistration: {
-    affiant: {
-      name: 'Jose Dela Cruz',
-      address: {
-        houseNumber: '279',
-        street: 'E Rodriguez Sr. Avenue',
-        barangay: 'Kalusugan',
-        cityMunicipality: 'Quezon City',
-        province: 'Metro Manila',
-        country: 'Philippines',
-      },
-      civilStatus: 'Married',
-      citizenship: 'Filipino',
-    },
-    registrationType: 'SELF',
-    parentMaritalStatus: 'NOT_MARRIED',
-    reasonForDelay: 'Documentation processing delay',
-    dateSworn: new Date('2024-01-08T10:00:00'),
-    adminOfficer: {
-      signature: 'AdminSign',
-      name: 'Administrator Name',
-      position: 'Notary Public',
-    },
-    ctcInfo: {
-      number: '12345-2024',
-      dateIssued: new Date('2024-01-08T11:00:00'),
-      placeIssued: 'Quezon City',
-    },
-    spouseName: 'Maria Santos Dela Cruz',
-    applicantRelationship: 'Self',
-  },
+  // Delayed Registration: set flag to false and omit details
+  isDelayedRegistration: false,
+  affidavitOfDelayedRegistration: null,
 
   // Remarks
-  remarks: 'No special remarks',
+  remarks: '',
 };
+
+// export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
+//   // Registry Information
+//   registryNumber: '',
+//   province: '',
+//   cityMunicipality: '',
+
+//   // Child Information
+//   childInfo: {
+//     firstName: '',
+//     middleName: '',
+//     lastName: '',
+//     sex: '',
+//     dateOfBirth: null,
+//     placeOfBirth: {
+//       hospital: '',
+//       cityMunicipality: '',
+//       province: '',
+//     },
+//     typeOfBirth: '',
+//     multipleBirthOrder: '',
+//     birthOrder: '',
+//     weightAtBirth: '',
+//   },
+
+//   // Mother Information
+//   motherInfo: {
+//     firstName: '',
+//     middleName: '',
+//     lastName: '',
+//     citizenship: '',
+//     religion: '',
+//     occupation: '',
+//     age: '',
+//     totalChildrenBornAlive: '',
+//     childrenStillLiving: '',
+//     childrenNowDead: '',
+//     residence: {
+//       houseNumber: '',
+//       street: '',
+//       barangay: '',
+//       cityMunicipality: '',
+//       province: '',
+//       country: '',
+//     },
+//   },
+
+//   // Father Information
+//   fatherInfo: {
+//     firstName: '',
+//     middleName: '',
+//     lastName: '',
+//     citizenship: '',
+//     religion: '',
+//     occupation: '',
+//     age: '',
+//     residence: {
+//       houseNumber: '',
+//       street: '',
+//       barangay: '',
+//       cityMunicipality: '',
+//       province: '',
+//       country: '',
+//     },
+//   },
+
+//   // Marriage of Parents
+//   parentMarriage: {
+//     date: null,
+//     place: {
+//       houseNumber: '',
+//       street: '',
+//       barangay: '',
+//       cityMunicipality: '',
+//       province: '',
+//       country: '',
+//     },
+//   },
+
+//   // Certification of Birth Attendant
+//   attendant: {
+//     type: '',
+//     certification: {
+//       time: null,
+//       signature: '',
+//       name: '',
+//       title: '',
+//       address: {
+//         houseNumber: '',
+//         street: '',
+//         barangay: '',
+//         cityMunicipality: '',
+//         province: '',
+//         country: '',
+//       },
+//       date: null,
+//     },
+//   },
+
+//   // Informant
+//   informant: {
+//     signature: '',
+//     name: '',
+//     relationship: '',
+//     address: {
+//       houseNumber: '',
+//       street: '',
+//       barangay: '',
+//       cityMunicipality: '',
+//       province: '',
+//       country: '',
+//     },
+//     date: null,
+//   },
+
+//   // Prepared By
+//   preparedBy: {
+//     signature: '',
+//     name: '',
+//     title: '',
+//     date: null,
+//   },
+
+//   // Received By
+//   receivedBy: {
+//     signature: '',
+//     name: '',
+//     title: '',
+//     date: null,
+//   },
+
+//   // Registered By Civil Registry
+//   registeredByOffice: {
+//     signature: '',
+//     name: '',
+//     title: '',
+//     date: null,
+//   },
+
+//   // Affidavit of Paternity
+//   hasAffidavitOfPaternity: false,
+//   affidavitOfPaternityDetails: {
+//     father: {
+//       signature: '',
+//       name: '',
+//       title: '',
+//     },
+//     mother: {
+//       signature: '',
+//       name: '',
+//       title: '',
+//     },
+//     dateSworn: new Date(),
+//     adminOfficer: {
+//       signature: '',
+//       name: '',
+//       position: '',
+//       address: {
+//         houseNumber: '',
+//         street: '',
+//         barangay: '',
+//         cityMunicipality: '',
+//         province: '',
+//         country: '',
+//       },
+//     },
+//     ctcInfo: {
+//       number: '',
+//       dateIssued: new Date(),
+//       placeIssued: '',
+//     },
+//   },
+
+//   // Delayed Registration
+//   isDelayedRegistration: false,
+//   affidavitOfDelayedRegistration: {
+//     affiant: {
+//       name: '',
+//       address: {
+//         houseNumber: '',
+//         street: '',
+//         barangay: '',
+//         cityMunicipality: '',
+//         province: '',
+//         country: '',
+//       },
+//       civilStatus: '',
+//       citizenship: '',
+//     },
+//     registrationType: 'SELF', // or you can set to an empty string if preferred
+//     parentMaritalStatus: 'MARRIED', // or an empty string if preferred
+//     reasonForDelay: '',
+//     dateSworn: new Date(),
+//     adminOfficer: {
+//       signature: '',
+//       name: '',
+//       position: '',
+//     },
+//     ctcInfo: {
+//       number: '',
+//       dateIssued: new Date(),
+//       placeIssued: '',
+//     },
+//     spouseName: '',
+//     applicantRelationship: '',
+//   },
+
+//   // Remarks
+//   remarks: '',
+// };

@@ -238,7 +238,7 @@ const AttendantInformationCard: React.FC<AttendantInformationCardProps> = ({
                     <FormItem>
                       <FormLabel>Country</FormLabel>
                       <FormControl>
-                        <Input {...field} disabled className='h-10' />
+                        <Input {...field} className='h-10' />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

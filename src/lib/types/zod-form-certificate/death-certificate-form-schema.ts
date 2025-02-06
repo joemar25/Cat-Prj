@@ -1,3 +1,4 @@
+// death-certificate-form-schema.ts
 import { z } from 'zod';
 import {
   addressSchema,
@@ -19,10 +20,15 @@ export interface DeathCertificateFormProps {
   onSubmit?: (data: DeathCertificateFormValues) => void;
 }
 
+/**
+ * The death certificate schema has been restructured so that address fields
+ * (such as residence, placeOfDeath, certification.address, and informant.address)
+ * use the shared `addressSchema` rather than custom objects.
+ */
 export const deathCertificateSchema = z.object({
   // Registry Information
   registryNumber: registryNumberSchema,
-  province: provinceSchema,
+  province: provinceSchema(false),
   cityMunicipality: cityMunicipalitySchema,
 
   // Death Information
@@ -69,18 +75,12 @@ export const deathCertificateSchema = z.object({
           'Hours must be a non-negative number.'
         ),
     }),
-    placeOfDeath: z.object({
-      province: provinceSchema,
-      cityMunicipality: cityMunicipalitySchema,
-      specificAddress: z
-        .string()
-        .max(200, 'Specific address must not exceed 200 characters')
-        .optional(),
-    }),
+    // Replace the custom placeOfDeath object with addressSchema
+    placeOfDeath: addressSchema(false),
     civilStatus: z.string().min(1, 'Please select civil status'),
     religion: z.string().min(1, 'Religion is required'),
     citizenship: z.string().min(1, 'Citizenship is required'),
-    residence: addressSchema,
+    residence: addressSchema(false),
     occupation: z.string().min(1, 'Occupation is required'),
   }),
 
@@ -120,7 +120,8 @@ export const deathCertificateSchema = z.object({
     signature: signatureSchema.shape.signature,
     name: signatureSchema.shape.name,
     title: signatureSchema.shape.title,
-    address: addressSchema,
+    // Use addressSchema for the certifier's address:
+    address: addressSchema(false),
     date: dateSchema,
     reviewedBy: z.object({
       name: signatureSchema.shape.name,
@@ -130,7 +131,7 @@ export const deathCertificateSchema = z.object({
     }),
   }),
 
-  // In the schema, change the transferPermit definition:
+  // Disposal Information
   disposal: z.object({
     method: z.string().min(1, 'Disposal method is required'),
     burialPermit: z.object({
@@ -139,7 +140,7 @@ export const deathCertificateSchema = z.object({
     }),
     transferPermit: z.object({
       number: z.string().optional(),
-      dateIssued: dateSchema.optional().nullable(), // Add nullable() here
+      dateIssued: dateSchema.optional().nullable(),
     }),
     cemeteryAddress: z.string().min(1, 'Cemetery address is required'),
   }),
@@ -149,7 +150,8 @@ export const deathCertificateSchema = z.object({
     signature: signatureSchema.shape.signature,
     name: signatureSchema.shape.name,
     relationship: z.string().min(1, 'Relationship to deceased is required'),
-    address: addressSchema,
+    // Use addressSchema for the informant's address:
+    address: addressSchema(false),
     date: dateSchema,
   }),
 
@@ -160,6 +162,7 @@ export const deathCertificateSchema = z.object({
 
   remarks: z.string().optional(),
 });
+
 export type DeathCertificateFormValues = WithNullableDates<
   z.infer<typeof deathCertificateSchema>
 >;
@@ -187,16 +190,23 @@ export const defaultDeathCertificateFormValues: DeathCertificateFormValues = {
       days: '5',
       hours: '3',
     },
+    // Update placeOfDeath to use addressSchema fields:
     placeOfDeath: {
-      province: 'Metro Manila',
+      houseNumber: '',
+      street: "St. Luke's Medical Center, E Rodriguez Sr. Ave",
+      barangay: '',
       cityMunicipality: 'Quezon City',
-      specificAddress: "St. Luke's Medical Center, E Rodriguez Sr. Ave",
+      province: 'Metro Manila',
+      country: 'Philippines',
     },
     civilStatus: 'Married',
     religion: 'Roman Catholic',
     citizenship: 'Filipino',
+    // Update residence to follow addressSchema:
     residence: {
-      address: '123 Maginhawa Street, Teachers Village',
+      houseNumber: '123',
+      street: 'Maginhawa Street, Teachers Village',
+      barangay: '',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -249,7 +259,9 @@ export const defaultDeathCertificateFormValues: DeathCertificateFormValues = {
     name: 'Dr. Ana Santos',
     title: 'Attending Physician',
     address: {
-      address: "St. Luke's Medical Center, E Rodriguez Sr. Ave",
+      houseNumber: '',
+      street: "St. Luke's Medical Center, E Rodriguez Sr. Ave",
+      barangay: '',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -283,7 +295,9 @@ export const defaultDeathCertificateFormValues: DeathCertificateFormValues = {
     name: 'Maria Cruz',
     relationship: 'Spouse',
     address: {
-      address: '123 Maginhawa Street, Teachers Village',
+      houseNumber: '',
+      street: '123 Maginhawa Street, Teachers Village',
+      barangay: '',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
