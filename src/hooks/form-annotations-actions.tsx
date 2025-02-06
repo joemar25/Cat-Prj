@@ -1,54 +1,69 @@
 // src\hooks\form-annotations-actions.tsx
-'use server';
+'use server'
 
-import { prisma } from '@/lib/prisma';
-import { BirthAnnotationFormValues } from '@/lib/types/zod-form-annotations/birth-annotation-form-schema';
-import { DeathAnnotationFormValues } from '@/lib/types/zod-form-annotations/death-annotation-form-schema';
-import { MarriageAnnotationFormValues } from '@/lib/types/zod-form-annotations/marriage-annotation-form-schema';
+import { prisma } from '@/lib/prisma'
+import { revalidatePath } from 'next/cache'
+import { CertifiedCopyStatus } from '@prisma/client'
+import { DeathAnnotationFormValues } from '@/lib/types/zod-form-annotations/death-annotation-form-schema'
+import { BirthAnnotationFormValues } from '@/lib/types/zod-form-annotations/birth-annotation-form-schema'
+import { MarriageAnnotationFormValues } from '@/lib/types/zod-form-annotations/marriage-annotation-form-schema'
 
-import { revalidatePath } from 'next/cache';
 export async function createDeathAnnotation(data: DeathAnnotationFormValues) {
   try {
-    const baseForm = await prisma.civilRegistryFormBase.create({
+    const certifiedCopy = await prisma.certifiedCopy.create({
       data: {
-        formType: 'FORM_2A',
-        pageNumber: data.pageNumber,
-        bookNumber: data.bookNumber,
-        registryNumber: data.registryNumber,
-        dateOfRegistration: new Date(data.dateOfRegistration),
-        issuedTo: data.issuedTo,
+        pageNo: data.pageNumber,
+        bookNo: data.bookNumber,
+        lcrNo: data.registryNumber,
+        date: new Date(data.dateOfRegistration),
         purpose: data.purpose,
         remarks: data.remarks,
-        preparedByName: data.preparedByName,
-        preparedByPosition: data.preparedByPosition,
-        verifiedByName: data.verifiedByName,
-        verifiedByPosition: data.verifiedByPosition,
-        civilRegistrar: data.civilRegistrar,
-        civilRegistrarPosition: data.civilRegistrarPosition,
-        amountPaid: data.amountPaid,
+        requesterName: data.issuedTo,
+        amountPaid: data.amountPaid ? (data.amountPaid) : 0.0,
         orNumber: data.orNumber,
         datePaid: data.datePaid ? new Date(data.datePaid) : null,
+        isRegistered: true,
+        registeredDate: new Date(),
+        relationshipToOwner: 'N/A',
+        address: 'N/A',
+        status: CertifiedCopyStatus.PENDING,
 
-        deathForm: {
+        form: {
           create: {
-            nameOfDeceased: data.nameOfDeceased,
-            sex: data.sex,
-            age: data.age,
-            civilStatus: data.civilStatus,
-            citizenship: data.citizenship,
-            dateOfDeath: new Date(data.dateOfDeath),
-            placeOfDeath: data.placeOfDeath,
-            causeOfDeath: data.causeOfDeath,
+            formType: 'FORM_2A',
+            pageNumber: data.pageNumber,
+            bookNumber: data.bookNumber,
+            registryNumber: data.registryNumber,
+            dateOfRegistration: new Date(data.dateOfRegistration),
+            preparedByName: data.preparedByName,
+            preparedByPosition: data.preparedByPosition,
+            verifiedByName: data.verifiedByName,
+            verifiedByPosition: data.verifiedByPosition,
+            civilRegistrar: data.civilRegistrar,
+            civilRegistrarPosition: data.civilRegistrarPosition,
+            purpose: data.purpose,
+            deathForm: {
+              create: {
+                nameOfDeceased: data.nameOfDeceased,
+                sex: data.sex,
+                age: data.age,
+                civilStatus: data.civilStatus,
+                citizenship: data.citizenship,
+                dateOfDeath: new Date(data.dateOfDeath),
+                placeOfDeath: data.placeOfDeath,
+                causeOfDeath: data.causeOfDeath,
+              },
+            },
           },
         },
       },
-    });
+    })
 
-    revalidatePath('/civil-registry');
-    return { success: true, data: baseForm };
+    revalidatePath('/civil-registry')
+    return { success: true, data: certifiedCopy }
   } catch (error) {
-    console.error('Error creating death annotation:', error);
-    return { success: false, error: 'Failed to create death annotation' };
+    console.error('Error creating death annotation:', error)
+    return { success: false, error: 'Failed to create death annotation' }
   }
 }
 
@@ -95,15 +110,16 @@ export async function createMarriageAnnotation(
           },
         },
       },
-    });
+    })
 
-    revalidatePath('/civil-registry');
-    return { success: true, data: baseForm };
+    revalidatePath('/civil-registry')
+    return { success: true, data: baseForm }
   } catch (error) {
-    console.error('Error creating marriage annotation:', error);
-    return { success: false, error: 'Failed to create marriage annotation' };
+    console.error('Error creating marriage annotation:', error)
+    return { success: false, error: 'Failed to create marriage annotation' }
   }
 }
+
 export async function createBirthAnnotation(data: BirthAnnotationFormValues) {
   try {
     const baseForm = await prisma.civilRegistryFormBase.create({
@@ -125,9 +141,8 @@ export async function createBirthAnnotation(data: BirthAnnotationFormValues) {
 
         birthForm: {
           create: {
-            nameOfChild: `${data.childFirstName} ${
-              data.childMiddleName || ''
-            } ${data.childLastName}`.trim(),
+            nameOfChild: `${data.childFirstName} ${data.childMiddleName || ''
+              } ${data.childLastName}`.trim(),
             sex: data.sex,
             dateOfBirth: new Date(data.dateOfBirth),
             placeOfBirth: data.placeOfBirth,
@@ -142,13 +157,13 @@ export async function createBirthAnnotation(data: BirthAnnotationFormValues) {
           },
         },
       },
-    });
+    })
 
     // Revalidate any paths that depend on this data
-    revalidatePath('/civil-registry');
-    return { success: true, data: baseForm };
+    revalidatePath('/civil-registry')
+    return { success: true, data: baseForm }
   } catch (error) {
-    console.error('Error creating birth annotation:', error);
-    return { success: false, error: 'Failed to create birth annotation' };
+    console.error('Error creating birth annotation:', error)
+    return { success: false, error: 'Failed to create birth annotation' }
   }
 }

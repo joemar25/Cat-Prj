@@ -27,8 +27,8 @@ import { Attachment as AttachmentType } from '@prisma/client'
 import Link from 'next/link'
 
 // Import the annotation forms directly
-import BirthAnnotationForm from '@/components/custom/forms/annotations/birthcert'
-import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation-form'
+import BirthAnnotationForm from '@/components/custom/forms/annotations/birth-cert-annotation'
+import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation'
 import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form'
 
 interface DataTableRowActionsProps {
@@ -170,12 +170,14 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
         />
       )}
 
-      {/* Annotation Form Dialogs based on form type */}
+      {/* Annotation Form Dialogs based on form type.
+          Here we pass the typed form data (via the prop "formData") instead of the generic "row". */}
       {form.formType === 'BIRTH' && (
         <BirthAnnotationForm
           open={annotationFormOpen}
           onOpenChange={setAnnotationFormOpen}
           onCancel={() => setAnnotationFormOpen(false)}
+        // formData={form}
         />
       )}
       {form.formType === 'DEATH' && (
@@ -183,6 +185,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           open={annotationFormOpen}
           onOpenChange={setAnnotationFormOpen}
           onCancel={() => setAnnotationFormOpen(false)}
+          formData={form}
         />
       )}
       {form.formType === 'MARRIAGE' && (
@@ -190,6 +193,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           open={annotationFormOpen}
           onOpenChange={setAnnotationFormOpen}
           onCancel={() => setAnnotationFormOpen(false)}
+        // formData={form} 
         />
       )}
     </>

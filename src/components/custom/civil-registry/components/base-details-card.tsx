@@ -88,14 +88,6 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
         }
     }
 
-    /**
-     * Callback for adding a certified true copy.
-     */
-    const handleAddCertifiedCopy = (attachmentId: string) => {
-        toast.info(t('Add Certified True Copy for attachment') + ': ' + attachmentId)
-        // TODO: Implement further actions to add a certified true copy
-    }
-
     return (
         <Card className="border shadow-sm">
             <CardHeader>
@@ -155,6 +147,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                         attachments={latestAttachment ? [latestAttachment as AttachmentWithCertifiedCopies] : []}
                         onAttachmentDeleted={handleAttachmentDeleted}
                         formType={form.formType}
+                        formData={form}
                     />
                 </div>
             </CardContent>
