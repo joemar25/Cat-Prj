@@ -355,5 +355,23 @@
   "backupAutoMessage": "Awtomatikong ibe-backup ang iyong data tuwing 24 oras.",
   "backupManualDescription": "Gawin ang isang manual backup ng iyong data.",
   "backupManualButton": "I-backup Ngayon",
-  "backup.manual.initiated": "Nagsimula ang manual backup"
+  "backup.manual.initiated": "Nagsimula ang manual backup",
+
+
+  "Create Role": "Gumawa ng Papel",
+  "Enter the details for the new role.": "Ilagay ang mga detalye para sa bagong papel.",
+  "Name": "Pangalan",
+  "Description": "Paglalarawan",
+  "Permissions": "Mga Pahintulot",
+  "Cancel": "I-cancel",
+  "Create": "Gumawa",
+  "Creating...": "Ginagawa...",
+  "At least one permission is required": "Kailangan ng hindi bababa sa isang pahintulot",
+  "Failed to create role": "Nabigong gumawa ng papel",
+  "Role created successfully": "Matagumpay na ginawa ang papel",
+  "Enter role name": "Ilagay ang pangalan ng papel",
+  "Enter role description": "Ilagay ang paglalarawan ng papel",
+  "A role with this name already exists.": "May papel nang may ganitong pangalan.",
+  "admin_edit_user": "I-edit ang User",
+  "admin_delete_user": "I-delete ang User"
 }

@@ -352,5 +352,20 @@
   "backupAutoMessage": "Your data will be automatically backed up every 24 hours.",
   "backupManualDescription": "Perform a manual backup of your data.",
   "backupManualButton": "Backup Now",
-  "backup.manual.initiated": "Manual backup initiated"
+  "backup.manual.initiated": "Manual backup initiated",
+
+  "Create Role": "Create Role",
+  "Enter the details for the new role.": "Enter the details for the new role.",
+  "Name": "Name",
+  "Description": "Description",
+  "Permissions": "Permissions",
+  "Cancel": "Cancel",
+  "Create": "Create",
+  "Creating...": "Creating...",
+  "At least one permission is required": "At least one permission is required",
+  "Failed to create role": "Failed to create role",
+  "Role created successfully": "Role created successfully",
+  "Enter role name": "Enter role name",
+  "Enter role description": "Enter role description",
+  "A role with this name already exists.": "A role with this name already exists."
 }
