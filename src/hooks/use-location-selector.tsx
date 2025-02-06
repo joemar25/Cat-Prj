@@ -1,9 +1,13 @@
-// hooks/useLocationSelector.ts
+// src/hooks/use-location-selector.ts
 import {
   getAllProvinces,
-  getCitiesAndMunicipalitiesByProvinceId,
+  getBarangaysByLocation,
+  getBarangaysBySubMunicipality,
+  getCombinedCitySuggestions,
+  LocationSuggestion,
+  Province,
 } from '@/lib/utils/location-helpers';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { UseFormSetValue } from 'react-hook-form';
 
 interface UseLocationSelectorProps {
@@ -19,22 +23,6 @@ interface UseLocationSelectorProps {
   trigger?: (name: string | string[]) => Promise<boolean>;
 }
 
-interface UseLocationSelectorReturn {
-  selectedProvince: string;
-  selectedMunicipality: string;
-  selectedBarangay: string;
-  hoveredCity: string | null;
-  provinces: Array<{ id: string; name: string }>;
-  municipalities: Array<{
-    name: string;
-    subMunicipalities?: Array<{ name: string }>;
-  }>;
-  barangays: string[];
-  handleProvinceChange: (value: string) => Promise<void>;
-  handleMunicipalityChange: (value: string) => Promise<void>;
-  handleBarangayChange: (value: string) => Promise<void>;
-  setHoveredCity: (city: string | null) => void;
-}
 export const useLocationSelector = ({
   provinceFieldName,
   municipalityFieldName,
@@ -46,51 +34,54 @@ export const useLocationSelector = ({
   onMunicipalityChange,
   onBarangayChange,
   trigger,
-}: UseLocationSelectorProps): UseLocationSelectorReturn => {
+}: UseLocationSelectorProps) => {
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedMunicipality, setSelectedMunicipality] = useState('');
   const [selectedBarangay, setSelectedBarangay] = useState('');
   const [hoveredCity, setHoveredCity] = useState<string | null>(null);
 
-  const provinces = getAllProvinces();
-  const municipalities = selectedProvince
-    ? getCitiesAndMunicipalitiesByProvinceId(selectedProvince)
-    : [];
+  // Memoize provinces so they remain stable.
+  const provinces: Province[] = useMemo(() => getAllProvinces(), []);
 
-  const getBarangays = () => {
-    // For cities with sub-municipalities (like Manila)
+  // Instead of separate "municipalities", we now compute combined suggestions.
+  const municipalities: LocationSuggestion[] = useMemo(() => {
+    if (!selectedProvince) return [];
+    return getCombinedCitySuggestions(selectedProvince, isNCRMode);
+  }, [selectedProvince, isNCRMode]);
+
+  // Memoize barangays based on selected municipality.
+  const barangays = useMemo(() => {
+    if (!selectedMunicipality) return [];
     if (selectedMunicipality.includes(', ')) {
-      const [subMunicipalityName, cityName] = selectedMunicipality.split(', ');
-      const municipality = municipalities.find((m) => m.name === cityName);
-      if (!municipality) return [];
-
-      const subMunicipality = municipality.subMunicipalities?.find(
-        (sm) => sm.name === subMunicipalityName
-      );
-      return subMunicipality?.barangays || [];
+      const [subMun, locationName] = selectedMunicipality.split(', ');
+      return getBarangaysBySubMunicipality(
+        `${selectedProvince}-${locationName}`.toLowerCase(),
+        subMun
+      ).map((barangay) => ({ name: barangay.name }));
     }
+    return getBarangaysByLocation(
+      `${selectedProvince}-${selectedMunicipality}`.toLowerCase()
+    ).map((barangay) => ({ name: barangay.name }));
+  }, [selectedProvince, selectedMunicipality]);
 
-    // For cities with direct barangays (like Las Piñas)
-    const municipality = municipalities.find(
-      (m) => m.name === selectedMunicipality
-    );
-    if (!municipality) return [];
-
-    return municipality.barangays || [];
-  };
-
-  const barangays = selectedMunicipality ? getBarangays() : [];
-
+  // Reset effect for NCR mode.
+  // This effect is now keyed only on isNCRMode (and static props) so that it does not run when selectedProvince changes.
   useEffect(() => {
     if (isNCRMode) {
-      const ncrProvinceId = 'region-1';
-      setSelectedProvince(ncrProvinceId);
-      setValue(provinceFieldName, 'Metro Manila');
-      setValue(municipalityFieldName, '');
-      if (barangayFieldName) setValue(barangayFieldName, '');
-      setSelectedMunicipality('');
-      setSelectedBarangay('');
+      const ncrProvince = provinces.find(
+        (p) => p.regionName === 'NATIONAL CAPITAL REGION (NCR)'
+      );
+      if (ncrProvince && selectedProvince !== ncrProvince.id) {
+        setSelectedProvince(ncrProvince.id);
+        setValue(provinceFieldName, ncrProvince.name);
+        // Reset municipality and barangay when province changes.
+        setSelectedMunicipality('');
+        setSelectedBarangay('');
+        setValue(municipalityFieldName, '');
+        if (barangayFieldName) setValue(barangayFieldName, '');
+      }
     } else {
+      // When switching from NCR to non-NCR, clear the selections.
       setSelectedProvince('');
       setSelectedMunicipality('');
       setSelectedBarangay('');
@@ -106,45 +97,45 @@ export const useLocationSelector = ({
     setValue,
   ]);
 
+  // Handler for province changes.
+  // When the province changes, we clear the municipality (and barangay) values.
   const handleProvinceChange = async (value: string) => {
+    if (value === selectedProvince) return;
     setSelectedProvince(value);
+    // Reset municipality and barangay upon province change.
     setSelectedMunicipality('');
     setSelectedBarangay('');
-
     const selectedProvinceName =
       provinces.find((p) => p.id === value)?.name || '';
     setValue(provinceFieldName, selectedProvinceName);
     setValue(municipalityFieldName, '');
     if (barangayFieldName) setValue(barangayFieldName, '');
-
     if (trigger) {
       await trigger(provinceFieldName);
       await trigger(municipalityFieldName);
     }
-
     onProvinceChange?.(selectedProvinceName);
   };
+
   const handleMunicipalityChange = async (value: string) => {
+    if (value === selectedMunicipality) return;
     setSelectedMunicipality(value);
     setSelectedBarangay('');
     setValue(municipalityFieldName, value);
     if (barangayFieldName) setValue(barangayFieldName, '');
-
     if (trigger) {
       await trigger(municipalityFieldName);
     }
-
     onMunicipalityChange?.(value);
   };
 
   const handleBarangayChange = async (value: string) => {
+    if (value === selectedBarangay) return;
     setSelectedBarangay(value);
     if (barangayFieldName) setValue(barangayFieldName, value);
-
     if (trigger && barangayFieldName) {
       await trigger(barangayFieldName);
     }
-
     onBarangayChange?.(value);
   };
 

@@ -49,3 +49,6 @@ next-env.d.ts
 !public/assets/avatar-profile/.gitkeep
 /public/assets/pdf/*
 !public/assets/pdf/.gitkeep
+
+
+/docker-data
