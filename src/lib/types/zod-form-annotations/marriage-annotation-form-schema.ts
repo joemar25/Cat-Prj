@@ -8,15 +8,15 @@ import {
   PlaceStructure,
 } from './form-annotation-shared-interfaces';
 
+
 export interface MarriageAnnotationFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onCancel: () => void
 }
 
-export interface ExtendedMarriageAnnotationFormProps
-  extends MarriageAnnotationFormProps {
-  row?: Row<BaseRegistryFormWithRelations>;
+export interface ExtendedMarriageAnnotationFormProps extends MarriageAnnotationFormProps {
+  formData: BaseRegistryFormWithRelations
 }
 
 export interface MarriageCertificateForm {

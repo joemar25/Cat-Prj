@@ -17,7 +17,7 @@ import { BirthAnnotationFormFields } from '@/lib/constants/form-annotations-dyna
 import {
   BirthAnnotationFormSchema,
   BirthAnnotationFormValues,
-  ExtendedBirthAnnotationFormProps,
+  BirthAnnotationFormProps,
 } from '@/lib/types/zod-form-annotations/birth-annotation-form-schema';
 import {
   MarriagePlaceStructure,
@@ -33,11 +33,15 @@ import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+interface ExtendedBirthAnnotationFormProps extends BirthAnnotationFormProps {
+  formData?: BaseRegistryFormWithRelations;
+}
+
 const BirthAnnotationForm = ({
   open,
   onOpenChange,
   onCancel,
-  row,
+  formData,
 }: ExtendedBirthAnnotationFormProps) => {
   const isCanceling = useRef(false);
 
@@ -49,25 +53,48 @@ const BirthAnnotationForm = ({
     formState: { errors, isSubmitting },
   } = useForm<BirthAnnotationFormValues>({
     resolver: zodResolver(BirthAnnotationFormSchema),
+    defaultValues: {
+      pageNumber: '',
+      bookNumber: '',
+      registryNumber: '',
+      dateOfRegistration: '',
+      childFirstName: '',
+      childMiddleName: '',
+      childLastName: '',
+      sex: '',
+      dateOfBirth: '',
+      placeOfBirth: '',
+      motherName: '',
+      fatherName: '',
+      motherCitizenship: '',
+      fatherCitizenship: '',
+      parentsMarriageDate: '',
+      parentsMarriagePlace: '',
+      remarks: '',
+      preparedBy: '',
+      preparedByPosition: '',
+      verifiedBy: '',
+      verifiedByPosition: '',
+    },
   });
 
-  // Populate form with row data if available
+  // Populate form with formData if available
   useEffect(() => {
-    if (row?.original) {
+    if (formData) {
       try {
-        const form = row.original as BaseRegistryFormWithRelations;
-        const birthForm = form.birthCertificateForm;
+        // Access the nested birth form data via "birthForm"
+        const birthForm = formData.birthCertificateForm;
 
-        if (birthForm && form) {
+        if (birthForm) {
           // Basic registration info
-          setValue('pageNumber', form.pageNumber);
-          setValue('bookNumber', form.bookNumber);
-          setValue('registryNumber', form.registryNumber);
+          setValue('pageNumber', formData.pageNumber);
+          setValue('bookNumber', formData.bookNumber);
+          setValue('registryNumber', formData.registryNumber);
 
-          // Handle dates properly
-          if (form.dateOfRegistration) {
+          // Format and set registration date
+          if (formData.dateOfRegistration) {
             const formattedRegistrationDate = formatDateTime(
-              form.dateOfRegistration,
+              formData.dateOfRegistration,
               {
                 monthFormat: 'numeric',
                 dayFormat: 'numeric',
@@ -176,25 +203,25 @@ const BirthAnnotationForm = ({
           }
 
           // Form processing information and remarks
-          if (form.remarks !== null && form.remarks !== undefined) {
-            setValue('remarks', form.remarks);
+          if (formData.remarks !== null && formData.remarks !== undefined) {
+            setValue('remarks', formData.remarks);
           }
 
-          if (form.preparedBy) {
-            setValue('preparedBy', form.preparedBy.name || '');
-            setValue('preparedByPosition', form.receivedByPosition || '');
+          if (formData.preparedBy) {
+            setValue('preparedBy', formData.preparedBy.name || '');
+            setValue('preparedByPosition', formData.receivedByPosition || '');
           }
 
-          if (form.verifiedBy) {
-            setValue('verifiedBy', form.verifiedBy.name || '');
-            setValue('verifiedByPosition', form.registeredByPosition || '');
+          if (formData.verifiedBy) {
+            setValue('verifiedBy', formData.verifiedBy.name || '');
+            setValue('verifiedByPosition', formData.registeredByPosition || '');
           }
         }
       } catch (error) {
         console.error('Error populating form:', error);
       }
     }
-  }, [row, setValue]);
+  }, [formData, setValue]);
 
   const onSubmit = async (data: BirthAnnotationFormValues) => {
     if (isCanceling.current) {
@@ -224,42 +251,42 @@ const BirthAnnotationForm = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[900px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[90vh] overflow-y-auto'>
+      <DialogContent className="sm:max-w-[900px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className='text-2xl font-bold text-center'>
+          <DialogTitle className="text-2xl font-bold text-center">
             Birth Annotation Form
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className='container mx-auto p-4'>
-            <Card className='w-full max-w-3xl mx-auto bg-background text-foreground border dark:border-border'>
-              <CardContent className='p-6 space-y-6'>
-                <div className='relative'>
-                  <h2 className='text-lg font-medium'>
+          <div className="container mx-auto p-4">
+            <Card className="w-full max-w-3xl mx-auto bg-background text-foreground border dark:border-border">
+              <CardContent className="p-6 space-y-6">
+                <div className="relative">
+                  <h2 className="text-lg font-medium">
                     TO WHOM IT MAY CONCERN:
                   </h2>
-                  <p className='absolute top-0 right-0'>
+                  <p className="absolute top-0 right-0">
                     {formatDateTime(new Date())}
                   </p>
-                  <p className='mt-2'>
+                  <p className="mt-2">
                     We certify that, among others, the following facts of birth
                     appear in our Register of Birth on
                   </p>
-                  <div className='grid grid-cols-2 gap-4 mt-2'>
-                    <div className='space-y-1'>
+                  <div className="grid grid-cols-2 gap-4 mt-2">
+                    <div className="space-y-1">
                       <Label>Page number</Label>
                       <Input {...register('pageNumber')} />
                       {errors.pageNumber && (
-                        <span className='text-red-500'>
+                        <span className="text-red-500">
                           {errors.pageNumber.message}
                         </span>
                       )}
                     </div>
-                    <div className='space-y-1'>
+                    <div className="space-y-1">
                       <Label>Book number</Label>
                       <Input {...register('bookNumber')} />
                       {errors.bookNumber && (
-                        <span className='text-red-500'>
+                        <span className="text-red-500">
                           {errors.bookNumber.message}
                         </span>
                       )}
@@ -267,14 +294,14 @@ const BirthAnnotationForm = ({
                   </div>
                 </div>
 
-                {/* Form fields remain the same */}
-                <div className='space-y-4'>
+                {/* Render additional dynamic form fields */}
+                <div className="space-y-4">
                   {BirthAnnotationFormFields.map((field, index) => (
                     <div
                       key={index}
-                      className='grid grid-cols-[150px_1fr] gap-4 items-center'
+                      className="grid grid-cols-[150px_1fr] gap-4 items-center"
                     >
-                      <Label className='font-medium'>{field.label}</Label>
+                      <Label className="font-medium">{field.label}</Label>
                       <Input
                         type={field.type}
                         {...register(
@@ -282,56 +309,60 @@ const BirthAnnotationForm = ({
                         )}
                       />
                       {errors[field.name as keyof typeof errors] && (
-                        <span className='text-red-500'>
-                          {errors[field.name as keyof typeof errors]?.message}
+                        <span className="text-red-500">
+                          {
+                            errors[
+                              field.name as keyof typeof errors
+                            ]?.message
+                          }
                         </span>
                       )}
                     </div>
                   ))}
                 </div>
 
-                <div className='space-y-2 pt-4'>
+                <div className="space-y-2 pt-4">
                   <Label>Remarks</Label>
                   <textarea
                     {...register('remarks')}
-                    className='w-full p-2 border rounded mt-2 h-24'
+                    className="w-full p-2 border rounded mt-2 h-24"
                   />
                 </div>
 
-                <div className='grid grid-cols-2 gap-8 pt-8'>
-                  <div className='space-y-8'>
-                    <div className='space-y-4'>
-                      <p className='font-medium'>Prepared By</p>
+                <div className="grid grid-cols-2 gap-8 pt-8">
+                  <div className="space-y-8">
+                    <div className="space-y-4">
+                      <p className="font-medium">Prepared By</p>
                       <Input
-                        className='text-center'
-                        placeholder='Name and Signature'
+                        className="text-center"
+                        placeholder="Name and Signature"
                         {...register('preparedBy')}
                       />
                       <Input
-                        className='text-center'
-                        placeholder='Position'
+                        className="text-center"
+                        placeholder="Position"
                         {...register('preparedByPosition')}
                       />
                     </div>
-                    <div className='space-y-4'>
-                      <p className='font-medium'>Verified By</p>
+                    <div className="space-y-4">
+                      <p className="font-medium">Verified By</p>
                       <Input
-                        className='text-center'
-                        placeholder='Name and Signature'
+                        className="text-center"
+                        placeholder="Name and Signature"
                         {...register('verifiedBy')}
                       />
                       <Input
-                        className='text-center'
-                        placeholder='Position'
+                        className="text-center"
+                        placeholder="Position"
                         {...register('verifiedByPosition')}
                       />
                     </div>
                   </div>
-                  <div className='flex flex-col items-center justify-end'>
-                    <p className='font-medium text-center'>
+                  <div className="flex flex-col items-center justify-end">
+                    <p className="font-medium text-center">
                       PRISCILLA L. GALICIA
                     </p>
-                    <p className='text-sm text-center'>
+                    <p className="text-sm text-center">
                       OIC - City Civil Registrar
                     </p>
                   </div>
@@ -341,21 +372,21 @@ const BirthAnnotationForm = ({
           </div>
           <DialogFooter>
             <Button
-              variant='outline'
+              variant="outline"
               onClick={handleCancel}
               disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button type='submit' disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Submitting...
                 </>
               ) : (
                 <>
-                  <Save className='mr-2 h-4 w-4' />
+                  <Save className="mr-2 h-4 w-4" />
                   Submit
                 </>
               )}
@@ -368,5 +399,3 @@ const BirthAnnotationForm = ({
 };
 
 export default BirthAnnotationForm;
-
-// NOTE - I DON'T KNOW IF THIS DATA CAN BE IMMUTABLE OR NOT.

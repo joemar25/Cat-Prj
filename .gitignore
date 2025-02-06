@@ -50,5 +50,10 @@ next-env.d.ts
 /public/assets/pdf/*
 !public/assets/pdf/.gitkeep
 
-
 /docker-data
+
+# Ignore all pdf files
+*.pdf
+
+# Except dummy.pdf in public/assets/pdf
+!public/assets/default/issued-ctc/dummy.pdf

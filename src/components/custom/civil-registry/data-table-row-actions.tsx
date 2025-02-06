@@ -55,6 +55,9 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   const canDelete = hasPermission(permissions, Permission.DOCUMENT_DELETE)
   const canUpload = hasPermission(permissions, Permission.DOCUMENT_CREATE)
 
+  // Check if there is at least one attachment available.
+  const hasAttachments = form.document?.attachments && form.document.attachments.length > 0
+
   return (
     <>
       <DropdownMenu>
@@ -81,7 +84,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
               {t('scanDocumentUpload')}
             </DropdownMenuItem>
           )}
-          {form.document?.attachments && form.document.attachments.length > 0 && (
+          {hasAttachments && (
             <DropdownMenuItem asChild>
               <Link href={`/civil-registry/attachments?formId=${form.id}`}>
                 <Icons.fileText className="mr-2 h-4 w-4" />
@@ -95,10 +98,12 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
                 <Icons.folder className="mr-2 h-4 w-4" />
                 {t('editForm.title')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setAnnotationFormOpen(true)}>
-                <Icons.files className="mr-2 h-4 w-4" />
-                {t('issueCertificate')}
-              </DropdownMenuItem>
+              {hasAttachments && (
+                <DropdownMenuItem onClick={() => setAnnotationFormOpen(true)}>
+                  <Icons.files className="mr-2 h-4 w-4" />
+                  {t('issueCertificate')}
+                </DropdownMenuItem>
+              )}
             </>
           )}
           {canDelete && (
@@ -177,7 +182,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           open={annotationFormOpen}
           onOpenChange={setAnnotationFormOpen}
           onCancel={() => setAnnotationFormOpen(false)}
-        // formData={form}
+          formData={form}
         />
       )}
       {form.formType === 'DEATH' && (
@@ -193,7 +198,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           open={annotationFormOpen}
           onOpenChange={setAnnotationFormOpen}
           onCancel={() => setAnnotationFormOpen(false)}
-        // formData={form} 
+          formData={form}
         />
       )}
     </>
