@@ -18,6 +18,7 @@
   "editForm": {
     "title": "Edit Form"
   },
+  "downloadAttachment": "Download Attachment",
   "registry_statistics": "Registry Statistics",
   "monthly_registration_trends": "Monthly registration trends for the past 6 months",
   "trending_up": "Trending up by {{percentage}}% this month",
@@ -369,6 +370,5 @@
   "summary_view_role": "Roles & Permissions Overview",
   "dashboard_description_role": "Manage roles and permissions for different users. Create, edit, and assign roles to control access and permissions within the system.",
   "summary_view_user": "User Management Overview",
-"dashboard_description_user": "Manage users, including account information such as location, contact info, and other details. Add, edit, and update information to ensure proper management and communication."
-
+  "dashboard_description_user": "Manage users, including account information such as location, contact info, and other details. Add, edit, and update information to ensure proper management and communication."
 }

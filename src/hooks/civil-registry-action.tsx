@@ -15,13 +15,13 @@ import { revalidatePath } from "next/cache"
 
 
 export type BaseRegistryFormWithRelations = BaseRegistryForm & {
-  preparedBy: { name: string } | null;
-  verifiedBy: { name: string } | null;
-  marriageCertificateForm?: MarriageCertificateForm | null;
-  birthCertificateForm?: BirthCertificateForm | null;
-  deathCertificateForm?: DeathCertificateForm | null;
-  document?: (Document & { attachments: Attachment[] }) | null;
-};
+  preparedBy: { name: string } | null
+  verifiedBy: { name: string } | null
+  marriageCertificateForm?: MarriageCertificateForm | null
+  birthCertificateForm?: BirthCertificateForm | null
+  deathCertificateForm?: DeathCertificateForm | null
+  document?: (Document & { attachments: Attachment[] }) | null
+}
 
 export async function getBaseRegistryForms(): Promise<
   BaseRegistryFormWithRelations[]

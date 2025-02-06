@@ -20,9 +20,13 @@ async function getFormData(formId: string) {
         const form = await prisma.baseRegistryForm.findUnique({
             where: { id: formId },
             include: {
+                // Include the document with attachments and their certified copies.
                 document: {
                     include: {
-                        attachments: true,
+                        attachments: {
+                            include: { certifiedCopies: true },
+                            orderBy: { updatedAt: 'desc' },
+                        },
                     },
                 },
                 preparedBy: true,
@@ -34,9 +38,10 @@ async function getFormData(formId: string) {
         })
 
         return {
-            attachments: form?.document?.attachments as AttachmentWithCertifiedCopies[] ?? [],
+            attachments:
+                (form?.document?.attachments as AttachmentWithCertifiedCopies[]) ?? [],
             formType: form?.formType ?? null,
-            form
+            form,
         }
     } catch (error) {
         console.error('Error:', error)
@@ -48,8 +53,12 @@ function AttachmentsPageSkeleton() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-xl font-semibold">Loading Attachments</CardTitle>
-                <CardDescription>Please wait while we fetch the attachments...</CardDescription>
+                <CardTitle className="text-xl font-semibold">
+                    Loading Attachments
+                </CardTitle>
+                <CardDescription>
+                    Please wait while we fetch the attachments...
+                </CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
@@ -66,8 +75,10 @@ interface AttachmentsPageProps {
     searchParams: { formId?: string }
 }
 
-export default async function AttachmentsPage({ searchParams }: AttachmentsPageProps) {
-    // Await the searchParams before destructuring
+export default async function AttachmentsPage({
+    searchParams,
+}: AttachmentsPageProps) {
+    // Resolve the searchParams before destructuring
     const sp = await Promise.resolve(searchParams)
     const formId = sp.formId
     if (!formId) notFound()
@@ -81,7 +92,11 @@ export default async function AttachmentsPage({ searchParams }: AttachmentsPageP
                 breadcrumbs={[
                     { label: 'Dashboard', href: '/dashboard', active: false },
                     { label: 'Civil Registry', href: '/civil-registry', active: false },
-                    { label: 'Attachments', href: `/civil-registry/attachments?formId=${formId}`, active: true },
+                    {
+                        label: 'Attachments',
+                        href: `/civil-registry/attachments?formId=${formId}`,
+                        active: true,
+                    },
                 ]}
             />
             <div className="flex flex-1 flex-col gap-4 p-4">
@@ -94,7 +109,9 @@ export default async function AttachmentsPage({ searchParams }: AttachmentsPageP
                 <Suspense fallback={<AttachmentsPageSkeleton />}>
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-xl font-semibold">Attachments</CardTitle>
+                            <CardTitle className="text-xl font-semibold">
+                                Attachments
+                            </CardTitle>
                             <CardDescription>
                                 List of attachments for Form <strong>{formId}</strong>.
                             </CardDescription>
