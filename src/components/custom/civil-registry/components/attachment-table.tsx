@@ -3,7 +3,14 @@
 
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Attachment, CertifiedCopy, FormType } from '@prisma/client'
+import {
+    Attachment,
+    BirthCertificateForm,
+    CertifiedCopy,
+    DeathCertificateForm,
+    FormType,
+    MarriageCertificateForm,
+} from '@prisma/client'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import {
@@ -26,13 +33,15 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { Icons } from '@/components/ui/icons'
+import Link from 'next/link'
 
-// Import the annotation forms (make sure they accept a prop named formData)
+// Import the annotation forms (they must accept a "formData" prop)
 import BirthAnnotationForm from '@/components/custom/forms/annotations/birth-cert-annotation'
 import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation'
 import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 
+// Extend Attachment to include certifiedCopies (which determines if a certified true copy has been issued)
 export interface AttachmentWithCertifiedCopies extends Attachment {
     certifiedCopies?: CertifiedCopy[]
 }
@@ -54,7 +63,11 @@ interface AttachmentsTableProps {
     /**
      * The form data for pre-filling annotation forms.
      */
-    formData?: BaseRegistryFormWithRelations
+    formData?: BaseRegistryFormWithRelations & {
+        birthCertificateForm?: BirthCertificateForm | null
+        deathCertificateForm?: DeathCertificateForm | null
+        marriageCertificateForm?: MarriageCertificateForm | null
+    }
 }
 
 export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
@@ -66,10 +79,30 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
 }) => {
     const { t } = useTranslation()
 
-    // State to control opening the annotation form dialog
+    // State to control the annotation form dialog (for issuing certificate)
     const [annotationFormOpen, setAnnotationFormOpen] = useState(false)
 
-    // Delete action for a single attachment.
+    // Helper: Get the form id for the annotation form based on form type.
+    const getFormId = (): string | null => {
+        switch (formType) {
+            case 'BIRTH':
+                return formData?.birthCertificateForm?.id ?? null
+            case 'DEATH':
+                return formData?.deathCertificateForm?.id ?? null
+            case 'MARRIAGE':
+                return formData?.marriageCertificateForm?.id ?? null
+            default:
+                return null
+        }
+    }
+
+    // Handler to open the annotation dialog.
+    // (No redundant API call here; the annotation form itself can handle linking if needed.)
+    const handleIssueCertificate = (attachment: AttachmentWithCertifiedCopies) => {
+        setAnnotationFormOpen(true)
+    }
+
+    // Handler for deleting an attachment.
     const handleDelete = async (attachmentId: string) => {
         try {
             const res = await fetch(`/api/attachments/${attachmentId}`, {
@@ -89,12 +122,13 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
         }
     }
 
-    // Export action for a single attachment.
+    // Handler for exporting an attachment.
     const handleExport = async (attachment: AttachmentWithCertifiedCopies) => {
         try {
-            const hasCTC =
-                Array.isArray(attachment.certifiedCopies) && attachment.certifiedCopies.length > 0
+            // Use optional chaining to check if certified copies exist.
+            const hasCTC = (attachment.certifiedCopies?.length ?? 0) > 0
 
+            // Build the export URL: if certified, add a parameter for zip export.
             const exportUrl = hasCTC
                 ? `/api/attachments/export?attachmentId=${attachment.id}&zip=true`
                 : `/api/attachments/export?attachmentId=${attachment.id}`
@@ -133,13 +167,14 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                             <TableRow>
                                 <TableHead className="px-4 py-2 text-left">{t('File Name')}</TableHead>
                                 <TableHead className="px-4 py-2 text-left">{t('Uploaded On')}</TableHead>
+                                <TableHead className="px-4 py-2 text-left">{t('CTC Issued')}</TableHead>
                                 <TableHead className="px-4 py-2 text-left">{t('Actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {attachments.map((attachment) => {
-                                const hasCTC =
-                                    Array.isArray(attachment.certifiedCopies) && attachment.certifiedCopies.length > 0
+                                const hasCTC = (attachment.certifiedCopies?.length ?? 0) > 0
+                                // In production you might disable export if no CTC is issued.
                                 const disableExport =
                                     process.env.NODE_ENV === 'production' && !hasCTC
 
@@ -152,6 +187,13 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                         </TableCell>
                                         <TableCell className="px-4 py-2">
                                             {new Date(attachment.uploadedAt).toLocaleString()}
+                                        </TableCell>
+                                        <TableCell className="px-4 py-2">
+                                            {hasCTC ? (
+                                                <span className="text-green-600 font-semibold">{t('Yes')}</span>
+                                            ) : (
+                                                <span className="text-gray-500">{t('No')}</span>
+                                            )}
                                         </TableCell>
                                         <TableCell className="px-4 py-2">
                                             <div className="flex items-center gap-2">
@@ -189,11 +231,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                 </Button>
 
                                                 {/* Issue Certificate Button opens the annotation dialog */}
-                                                <Button
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    onClick={() => setAnnotationFormOpen(true)}
-                                                >
+                                                <Button onClick={() => handleIssueCertificate(attachment)} variant="secondary" size="sm">
                                                     <Icons.files className="mr-2 h-4 w-4" />
                                                     {t('issueCertificate')}
                                                 </Button>

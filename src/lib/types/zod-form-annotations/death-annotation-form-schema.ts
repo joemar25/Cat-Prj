@@ -1,3 +1,4 @@
+// src\lib\types\zod-form-annotations\death-annotation-form-schema.ts
 import { z } from 'zod'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 
@@ -11,7 +12,7 @@ export interface ExtendedDeathAnnotationFormProps extends DeathAnnotationFormPro
   formData: BaseRegistryFormWithRelations
 }
 
-export const deathAnnotationSchema = z.object({
+export const DeathAnnotationFormSchema = z.object({
   pageNumber: z.string().min(1, 'Page number is required'),
   bookNumber: z.string().min(1, 'Book number is required'),
   registryNumber: z.string().min(1, 'Registry number is required'),
@@ -42,4 +43,4 @@ export const deathAnnotationSchema = z.object({
   datePaid: z.string().optional().transform(val => val ? new Date(val) : undefined),
 })
 
-export type DeathAnnotationFormValues = z.infer<typeof deathAnnotationSchema>
+export type DeathAnnotationFormValues = z.infer<typeof DeathAnnotationFormSchema>

@@ -25,7 +25,14 @@ async function getCivilRegistryForms() {
         birthCertificateForm: true,
         deathCertificateForm: true,
         marriageCertificateForm: true,
-        document: { include: { attachments: true } },
+        document: {
+          include: {
+            attachments: {
+              include: { certifiedCopies: true },
+              orderBy: { updatedAt: 'desc' },
+            },
+          },
+        },
       },
     })
     return forms
@@ -70,6 +77,7 @@ export default async function CivilRegistryPage() {
       />
 
       <div className='flex flex-1 flex-col gap-4 p-4'>
+        {/* Back button or other UI components can be added here */}
         <Suspense fallback={<CivilRegistryFormsTableSkeleton />}>
           <DataTable data={forms} columns={columns} selection={false} />
         </Suspense>

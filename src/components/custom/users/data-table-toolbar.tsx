@@ -14,6 +14,7 @@ import { AddUserDialog } from './actions/add-user-dialog'
 import { useUser } from '@/context/user-context'
 import { hasPermission } from '@/types/auth'
 import { Permission } from '@prisma/client'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 
 interface DataTableToolbarProps<TData extends User> {
   table: Table<TData>
@@ -51,18 +52,27 @@ export function DataTableToolbar<TData extends User>({
   }
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex flex-1 items-center space-x-4">
-        <div className="relative">
-          <Icons.search className="absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2" />
-          <Input
-            placeholder={t('dataTableToolbar.searchPlaceholder')}
-            value={(nameColumn?.getFilterValue() as string) ?? ''}
-            onChange={(event) => handleSearch(event.target.value)}
-            className="h-10 w-[200px] lg:w-[300px] pl-10"
-          />
-        </div>
-        {/* 
+    <div>
+      <Alert>
+        <Icons.infoCircledIcon className="h-4 w-4" />
+        <AlertTitle>{t('summary_view_user')}</AlertTitle> {/* Translated title */}
+        <AlertDescription>
+          {t('dashboard_description_user')} {/* Translated description */}
+        </AlertDescription>
+      </Alert>
+
+      <div className="flex items-center justify-between mt-4">
+        <div className="flex flex-1 items-center space-x-4">
+          <div className="relative">
+            <Icons.search className="absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2" />
+            <Input
+              placeholder={t('dataTableToolbar.searchPlaceholder')}
+              value={(nameColumn?.getFilterValue() as string) ?? ''}
+              onChange={(event) => handleSearch(event.target.value)}
+              className="h-10 w-[200px] lg:w-[300px] pl-10"
+            />
+          </div>
+          {/* 
         mar-note: Do not remove this comment, as this role column can be used for future purposes.
         {roleColumn && (
           <DataTableFacetedFilter
@@ -81,43 +91,44 @@ export function DataTableToolbar<TData extends User>({
           />
         )} */}
 
-        {statusColumn && (
-          <DataTableFacetedFilter
-            column={statusColumn}
-            title={t('dataTableToolbar.status')}
-            options={verificationStatus}
-          />
-        )}
+          {statusColumn && (
+            <DataTableFacetedFilter
+              column={statusColumn}
+              title={t('dataTableToolbar.status')}
+              options={verificationStatus}
+            />
+          )}
 
-        {isFiltered && (
-          <Button
-            variant="ghost"
-            onClick={() => table.resetColumnFilters()}
-            className="h-10 px-3"
-          >
-            {t('dataTableToolbar.resetFilters')}
-            <Cross2Icon className="ml-2 h-5 w-5" />
-          </Button>
-        )}
-      </div>
-      <div className="flex items-center space-x-4">
-        {canExport && (
-          <Button variant="outline" onClick={handleExport}>
-            <Icons.download className="mr-2 h-4 w-4" />
-            {t('dataTableToolbar.export')}
-          </Button>
-        )}
+          {isFiltered && (
+            <Button
+              variant="ghost"
+              onClick={() => table.resetColumnFilters()}
+              className="h-10 px-3"
+            >
+              {t('dataTableToolbar.resetFilters')}
+              <Cross2Icon className="ml-2 h-5 w-5" />
+            </Button>
+          )}
+        </div>
+        <div className="flex items-center space-x-4">
+          {canExport && (
+            <Button variant="outline" onClick={handleExport}>
+              <Icons.download className="mr-2 h-4 w-4" />
+              {t('dataTableToolbar.export')}
+            </Button>
+          )}
 
-        {canAddUser && (
-          <AddUserDialog
-            onSuccess={() => {
-              table.resetColumnFilters()
-              table.resetSorting()
-            }}
-          />
-        )}
+          {canAddUser && (
+            <AddUserDialog
+              onSuccess={() => {
+                table.resetColumnFilters()
+                table.resetSorting()
+              }}
+            />
+          )}
 
-        <DataTableViewOptions table={table} />
+          <DataTableViewOptions table={table} />
+        </div>
       </div>
     </div>
   )
