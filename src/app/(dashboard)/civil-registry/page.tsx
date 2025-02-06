@@ -70,6 +70,7 @@ export default async function CivilRegistryPage() {
       />
 
       <div className='flex flex-1 flex-col gap-4 p-4'>
+        
         <Suspense fallback={<CivilRegistryFormsTableSkeleton />}>
           <DataTable data={forms} columns={columns} selection={false} />
         </Suspense>

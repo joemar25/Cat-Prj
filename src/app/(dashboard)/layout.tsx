@@ -8,6 +8,7 @@ import { Permission } from "@prisma/client"
 
 import TranslationProvider from "@/components/custom/provider/translation-provider"
 
+
 type ChildrenProps = {
   children: React.ReactNode
 }

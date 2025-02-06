@@ -11,6 +11,8 @@ import { CreateRoleDialog } from "./components/create-role-dialog"
 import { DataTableViewOptions } from "@/components/custom/table/data-table-view-options"
 import { useUser } from "@/context/user-context"
 import { hasPermission } from "@/types/auth"
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
+import { Link } from "lucide-react"
 
 interface DataTableToolbarProps<TData extends Role> {
     table: Table<TData>
@@ -82,47 +84,56 @@ export function DataTableToolbar<TData extends Role>({ table }: DataTableToolbar
     }, [])
 
     return (
-        <div className="flex items-center justify-between">
-            {/* Left side: Search input */}
-            <div className="flex flex-1 items-center space-x-4">
-                <div className="relative">
-                    <Icons.search className="absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    <Input
-                        placeholder={t("Search roles...")}
-                        value={(nameColumn?.getFilterValue() as string) ?? ""}
-                        onChange={(event) => handleSearch(event.target.value)}
-                        className="h-10 w-[200px] lg:w-[300px] pl-10"
-                    />
+        <div>
+            <Alert>
+                <Icons.infoCircledIcon className="h-4 w-4" />
+                <AlertTitle>{t("summary_view_role")}</AlertTitle>
+                <AlertDescription>
+                    {t("dashboard_description_role")}.
+                </AlertDescription>
+            </Alert>
+            <div className="flex items-center justify-between mt-4">
+                {/* Left side: Search input */}
+                <div className="flex flex-1 items-center space-x-4">
+                    <div className="relative">
+                        <Icons.search className="absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <Input
+                            placeholder={t("Search roles...")}
+                            value={(nameColumn?.getFilterValue() as string) ?? ""}
+                            onChange={(event) => handleSearch(event.target.value)}
+                            className="h-10 w-[200px] lg:w-[300px] pl-10"
+                        />
+                    </div>
                 </div>
-            </div>
 
-            {/* Right side: Action buttons */}
-            <div className="flex items-center space-x-4">
-                {canCreate && (
-                    <Button
-                        variant="default"
-                        className="h-10"
-                        onClick={() => setIsCreateDialogOpen(true)}
-                    >
-                        <Icons.plus className="mr-2 h-4 w-4" />
-                        {t("Create Role")}
-                    </Button>
-                )}
-                {canExport && (
-                    <Button variant="outline" className="h-10" onClick={handleExport}>
-                        <Icons.download className="mr-2 h-4 w-4" />
-                        {t("Export")}
-                    </Button>
-                )}
-                <DataTableViewOptions table={table} />
-            </div>
+                {/* Right side: Action buttons */}
+                <div className="flex items-center space-x-4">
+                    {canCreate && (
+                        <Button
+                            variant="default"
+                            className="h-10"
+                            onClick={() => setIsCreateDialogOpen(true)}
+                        >
+                            <Icons.plus className="mr-2 h-4 w-4" />
+                            {t("Create Role")}
+                        </Button>
+                    )}
+                    {canExport && (
+                        <Button variant="outline" className="h-10" onClick={handleExport}>
+                            <Icons.download className="mr-2 h-4 w-4" />
+                            {t("Export")}
+                        </Button>
+                    )}
+                    <DataTableViewOptions table={table} />
+                </div>
 
-            {/* Create Role Dialog */}
-            <CreateRoleDialog
-                isOpen={isCreateDialogOpen}
-                onOpenChangeAction={async (open) => setIsCreateDialogOpen(open)}
-                createRoleAction={handleCreateRole}
-            />
+                {/* Create Role Dialog */}
+                <CreateRoleDialog
+                    isOpen={isCreateDialogOpen}
+                    onOpenChangeAction={async (open) => setIsCreateDialogOpen(open)}
+                    createRoleAction={handleCreateRole}
+                />
+            </div>
         </div>
     )
 }

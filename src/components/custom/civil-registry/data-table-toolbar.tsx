@@ -25,6 +25,7 @@ import { AddCivilRegistryFormDialog } from "@/components/custom/civil-registry/a
 import { useTranslation } from "react-i18next"
 import { useUser } from "@/context/user-context"
 import { hasPermission } from "@/types/auth"
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>
@@ -210,6 +211,13 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 
   return (
     <div className="space-y-4">
+      <Alert>
+        <Icons.infoCircledIcon className="h-4 w-4" />
+        <AlertTitle>{t('summary_view_civil')}</AlertTitle> {/* Translated title */}
+        <AlertDescription>
+          {t('dashboard_description_civil')} {/* Translated description */}
+        </AlertDescription>
+      </Alert>
       <div className="flex flex-col sm:flex-row gap-4">
         <Card className="flex-1">
           <CardContent className="p-2.5">
@@ -258,7 +266,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                         ])
                       }
                     }}
-                     className="w-full h-7"
+                    className="w-full h-7"
                   />
                   <Input
                     placeholder={t("Middle name")}
@@ -273,7 +281,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                         ])
                       }
                     }}
-                     className="w-full h-7"
+                    className="w-full h-7"
                   />
                   <Input
                     placeholder={t("Last name")}
@@ -288,7 +296,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                         ])
                       }
                     }}
-                     className="w-full h-7"
+                    className="w-full h-7"
                   />
                 </div>
               </TabsContent>

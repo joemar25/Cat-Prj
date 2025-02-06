@@ -267,7 +267,6 @@
   "Profile": "Profile",
   "Users": "Users",
   "Reports": "Reports",
-
   "notifications": "Notifications",
   "unread": "unread",
   "loading": "Loading",
@@ -277,7 +276,6 @@
   "minutes_ago": "minutes ago",
   "hours_ago": "hours ago",
   "days_ago": "days ago",
-
   "success_logout": "Successfully logged out",
   "guest_user": "Guest User",
   "guest_role": "Guest",
@@ -314,7 +312,6 @@
     "submitting": "Submitting...",
     "submit": "Submit Feedback"
   },
-
   "baseRegistryForm_distribution": "Registry Distribution",
   "birthCertificateForm_distribution": "Birth Certificate Distribution",
   "deathCertificateForm_distribution": "Death Certificate Distribution",
@@ -335,16 +332,13 @@
   "monthly_breakdown_birthCertificateForm": "Monthly breakdown of birth registrations.",
   "monthly_breakdown_deathCertificateForm": "Monthly breakdown of death registrations.",
   "monthly_breakdown_marriageCertificateForm": "Monthly breakdown of marriage registrations.",
-
   "settingsTitle": "Settings",
   "settingsDescription": "Manage your account settings and preferences.",
-
   "interfaceTitle": "Interface",
   "themeTitle": "Theme",
   "themeDescription": "Choose between light and dark mode.",
   "languageTitle": "Language",
   "languageDescription": "Select your preferred language.",
-
   "backupTitle": "Backup",
   "backupDescription": "Enable automatic backup of Civil Registry Documents data.",
   "backupEnabled": "Automatic backup enabled",
@@ -353,7 +347,6 @@
   "backupManualDescription": "Perform a manual backup of your data.",
   "backupManualButton": "Backup Now",
   "backup.manual.initiated": "Manual backup initiated",
-
   "Create Role": "Create Role",
   "Enter the details for the new role.": "Enter the details for the new role.",
   "Name": "Name",
@@ -367,5 +360,15 @@
   "Role created successfully": "Role created successfully",
   "Enter role name": "Enter role name",
   "Enter role description": "Enter role description",
-  "A role with this name already exists.": "A role with this name already exists."
+  "A role with this name already exists.": "A role with this name already exists.",
+  "summary_view_civil": "Civil Registry Overview",
+  "dashboard_description_civil": "Here you can view detailed information about birth certificates, death certificates, and marriage certificates in the civil registry. Access individual records, verify details, and manage the registry efficiently.",
+  "reports_section_civil": "Civil Registry Reports Section",
+  "summary_view_feedback": "Feedback Overview",
+  "dashboard_description_feedback": "Here you can view feedback and suggestions from users. Provide quick responses and manage them effectively to improve the user experience.",
+  "summary_view_role": "Roles & Permissions Overview",
+  "dashboard_description_role": "Manage roles and permissions for different users. Create, edit, and assign roles to control access and permissions within the system.",
+  "summary_view_user": "User Management Overview",
+"dashboard_description_user": "Manage users, including account information such as location, contact info, and other details. Add, edit, and update information to ensure proper management and communication."
+
 }
