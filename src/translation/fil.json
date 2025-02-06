@@ -375,5 +375,16 @@
   "dashboard_description_feedback": "Dito maaari mong makita ang mga feedback at suhestiyon mula sa mga gumagamit. Magbigay ng mabilis na tugon at pamahalaan ang mga ito nang maayos upang mapabuti ang karanasan ng gumagamit.",
   "summary_view_role": "Pangkalahatang-ideya ng Mga Papel at Pahintulot",
   "dashboard_description_role": "Pamahalaan ang mga papel at pahintulot para sa iba't ibang mga gumagamit. Lumikha, mag-edit, at magtakda ng mga papel upang kontrolin ang access at mga pahintulot sa loob ng sistema.",
-  "dashboard_description_user": "Pamahalaan ang mga gumagamit, kasama na ang impormasyon ng account tulad ng lokasyon, contact info, at iba pang detalye. Magdagdag, mag-edit, at mag-update ng impormasyon upang matiyak ang wastong pamamahala at komunikasyon."
+  "dashboard_description_user": "Pamahalaan ang mga gumagamit, kasama na ang impormasyon ng account tulad ng lokasyon, contact info, at iba pang detalye. Magdagdag, mag-edit, at mag-update ng impormasyon upang matiyak ang wastong pamamahala at komunikasyon.",
+  
+  "birth_gender_distribution": "Pagkakatawang Kasarian sa Kapanganakan",
+  "death_gender_distribution": "Pagkakatawang Kasarian sa Pagkamatay",
+  "death_registrations_by_gender": "Mga Rehistro ng Pagkamatay ayon sa Kasarian",
+  "conclusion": "Konklusyon",
+
+  "birth_conclusion_more_female": "Mas Maraming Babae sa Kapanganakan",
+  "birth_conclusion_equal": "Pantay na Lalaki at Babae sa Kapanganakan",
+  "death_conclusion_more_male": "Mas Maraming Lalaki sa Pagkamatay",
+  "death_conclusion_more_female": "Mas Maraming Babae sa Pagkamatay",
+  "death_conclusion_equal": "Pantay na Lalaki at Babae sa Pagkamatay"
 }

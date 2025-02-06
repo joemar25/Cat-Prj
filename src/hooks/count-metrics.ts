@@ -183,37 +183,53 @@ export async function getPreviousMonthRegistrations(model: PrismaModels): Promis
   })
 }
 
-export async function getBirthGenderCount(): Promise<GenderData[]> {
-  const results = await prisma.birthCertificateForm.findMany({
-    select: {
-      sex: true,
-      baseForm: { select: { createdAt: true } }
-    },
+export async function getBirthAndDeathGenderCount(type: "birth" | "death"): Promise<GenderData[]> {
+  const birthResults = await prisma.birthCertificateForm.findMany({
+      select: {
+          sex: true,
+          baseForm: { select: { createdAt: true } }
+      },
+  })
+
+  const deathResults = await prisma.deathCertificateForm.findMany({
+      select: {
+          sex: true,
+          baseForm: { select: { createdAt: true } }
+      },
   })
 
   const groupedData = new Map<string, GenderCount>()
 
-  results.forEach(record => {
-    if (!record.baseForm?.createdAt) return
+  const processResults = (results: typeof birthResults) => {
+      results.forEach(record => {
+          if (!record.baseForm?.createdAt) return
 
-    const date = record.baseForm.createdAt.toISOString().split('T')[0]
-    const gender = record.sex.toLowerCase()
+          const date = record.baseForm.createdAt.toISOString().split('T')[0]
+          const gender = record.sex.toLowerCase()
 
-    if (!groupedData.has(date)) {
-      groupedData.set(date, { male: 0, female: 0 })
-    }
+          if (!groupedData.has(date)) {
+              groupedData.set(date, { male: 0, female: 0 })
+          }
 
-    const count = groupedData.get(date)!
-    if (gender === 'male' || gender === 'female') {
-      count[gender]++
-    }
-  })
+          const count = groupedData.get(date)!
+          if (gender === 'male' || gender === 'female') {
+              count[gender]++
+          }
+      })
+  }
+
+  // Fetch only birth or death gender counts based on selection
+  if (type === "birth") {
+      processResults(birthResults)
+  } else {
+      processResults(deathResults)
+  }
 
   return Array.from(groupedData.entries())
-    .map(([date, counts]): GenderData => ({
-      name: date,
-      male: counts.male,
-      female: counts.female
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name))
+      .map(([date, counts]): GenderData => ({
+          name: date,
+          male: counts.male,
+          female: counts.female
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name))
 }

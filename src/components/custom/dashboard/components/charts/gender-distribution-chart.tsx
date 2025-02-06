@@ -9,6 +9,7 @@ interface GenderDistributionChartProps {
     totalMale: number
     totalFemale: number
     totalRegistrations: number
+    name: string;
 }
 
 const MALE_COLOR = "hsl(var(--chart-1))"
@@ -18,6 +19,7 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
     totalMale,
     totalFemale,
     totalRegistrations,
+    name
 }) => {
     const { t } = useTranslation()
 
@@ -46,20 +48,29 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
     const malePercentage = ((totalMale / totalRegistrations) * 100).toFixed(1)
     const femalePercentage = ((totalFemale / totalRegistrations) * 100).toFixed(1)
 
-    // Determine the conclusion
-    const conclusion =
-        totalMale > totalFemale
-            ? t('conclusion_more_male')
-            : totalFemale > totalMale
-                ? t('conclusion_more_female')
-                : t('conclusion_equal')
+    // Determine the conclusion based on the name
+    const conclusion = 
+        name === "Birth"
+            ? totalMale > totalFemale
+                ? t('birth_conclusion_more_male')
+                : totalFemale > totalMale
+                    ? t('birth_conclusion_more_female')
+                    : t('birth_conclusion_equal')
+            : totalMale > totalFemale
+                ? t('death_conclusion_more_male')
+                : totalFemale > totalMale
+                    ? t('death_conclusion_more_female')
+                    : t('death_conclusion_equal')
 
     return (
         <Card className="lg:col-span-3 flex flex-col min-h-[400px]">
             <CardHeader className="flex items-center justify-between">
-                <CardTitle className="text-lg">{t('gender_distribution')}</CardTitle>
+                {/* Dynamic title and description based on the name */}
+                <CardTitle className="text-lg">
+                    {name === "Birth" ? t('birth_gender_distribution') : t('death_gender_distribution')}
+                </CardTitle>
                 <CardDescription className="text-sm">
-                    {t('birth_registrations_by_gender')}
+                    {name === "Birth" ? t('birth_registrations_by_gender') : t('death_registrations_by_gender')}
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col justify-center">

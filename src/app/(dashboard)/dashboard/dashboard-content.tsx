@@ -41,7 +41,7 @@ export default function DashboardContent() {
 
       <StatisticsDashboard selectedMetric={selectedMetric} />
 
-      <ChartsDashboard />
+      <ChartsDashboard selectedMetric={selectedMetric} />
     </div>
   )
 }
