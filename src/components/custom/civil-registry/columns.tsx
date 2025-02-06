@@ -8,6 +8,7 @@ import { format } from 'date-fns'
 import { DataTableRowActions } from './data-table-row-actions'
 import { DateRange } from 'react-day-picker'
 import { useTranslation } from 'react-i18next'
+import StatusDropdown from '@/components/custom/civil-registry/components/status-dropdown'
 
 export interface ExtendedBaseRegistryForm extends BaseRegistryForm {
   preparedBy: User | null
@@ -398,13 +399,14 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     ),
     cell: ({ row }) => {
       const status = row.getValue('status') as DocumentStatus
-      const statusInfo = statusVariants[status]
-      const translationKey = statusInfo.label.replace(/ /g, ' ')
-
       return (
-        <Badge variant={statusInfo.variant} className='font-medium'>
-          {translationKey}
-        </Badge>
+        <StatusDropdown
+          formId={row.original.id}
+          currentStatus={status}
+          onStatusChange={(newStatus) => {
+            row.original.status = newStatus
+          }}
+        />
       )
     },
     filterFn: (row, id, value) => {

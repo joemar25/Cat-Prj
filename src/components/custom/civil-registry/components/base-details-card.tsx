@@ -3,10 +3,9 @@
 
 import React, { useState } from 'react'
 import { toast } from 'sonner'
-import { FormType, Permission, Attachment } from '@prisma/client'
+import { FormType, Permission, Attachment, DocumentStatus } from '@prisma/client'
 import { useTranslation } from 'react-i18next'
 
-import { Badge } from '@/components/ui/badge'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Icons } from '@/components/ui/icons'
@@ -18,6 +17,7 @@ import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
 import { AttachmentsTable, AttachmentWithCertifiedCopies } from '@/components/custom/civil-registry/components/attachment-table'
+import StatusSelect from './status-dropdown'
 
 interface BaseDetailsCardProps {
     form: BaseRegistryFormWithRelations
@@ -121,9 +121,14 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                     <div>
                         <p className="font-medium">{t('Status')}</p>
                         <div>
-                            <Badge variant={statusVariants[form.status]?.variant || 'default'}>
-                                {statusVariants[form.status]?.label || form.status}
-                            </Badge>
+                            {/* Instead of showing a static badge, we display the StatusSelect */}
+                            <StatusSelect
+                                formId={form.id}
+                                currentStatus={form.status as DocumentStatus}
+                                onStatusChange={(newStatus) =>
+                                    onUpdateAction?.({ ...form, status: newStatus })
+                                }
+                            />
                         </div>
                     </div>
                 </div>

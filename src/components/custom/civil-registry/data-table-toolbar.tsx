@@ -75,6 +75,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
       'preparedBy',
       'verifiedBy',
       'registeredBy',
+      'status',
       'createdAt'
     ]
 
