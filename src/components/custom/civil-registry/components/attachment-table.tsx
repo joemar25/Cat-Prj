@@ -1,4 +1,3 @@
-// src/components/custom/civil-registry/components/attachment-table.tsx
 'use client'
 
 import React, { useState } from 'react'
@@ -78,6 +77,10 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
     const exportAllowed =
         process.env.NEXT_PUBLIC_NODE_ENV === 'development' ||
         hasPermission(permissions, Permission.DOCUMENT_EXPORT)
+
+    // Create a combined check for delete permission.
+    const deleteAllowed =
+        canDelete && hasPermission(permissions, Permission.DOCUMENT_DELETE)
 
     // State for annotation form dialog.
     const [annotationFormOpen, setAnnotationFormOpen] = useState(false)
@@ -198,7 +201,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                         </TableCell>
                                         <TableCell className="px-4 py-2">
                                             <div className="flex items-center gap-2">
-                                                {canDelete && (
+                                                {deleteAllowed && (
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>
                                                             <Button variant="destructive" size="sm">
@@ -207,13 +210,19 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                         </AlertDialogTrigger>
                                                         <AlertDialogContent>
                                                             <AlertDialogHeader>
-                                                                <AlertDialogTitle>{t('Are you absolutely sure?')}</AlertDialogTitle>
+                                                                <AlertDialogTitle>
+                                                                    {t('Are you absolutely sure?')}
+                                                                </AlertDialogTitle>
                                                                 <AlertDialogDescription>
-                                                                    {t('This action cannot be undone. This will permanently delete the attachment.')}
+                                                                    {t(
+                                                                        'This action cannot be undone. This will permanently delete the attachment.'
+                                                                    )}
                                                                 </AlertDialogDescription>
                                                             </AlertDialogHeader>
                                                             <AlertDialogFooter>
-                                                                <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
+                                                                <AlertDialogCancel>
+                                                                    {t('Cancel')}
+                                                                </AlertDialogCancel>
                                                                 <AlertDialogAction onClick={() => handleDelete(attachment.id)}>
                                                                     {t('Delete')}
                                                                 </AlertDialogAction>
@@ -234,7 +243,11 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                                 </Button>
                                                             </PopoverTrigger>
                                                             <PopoverContent className="w-64">
-                                                                <p>{t('You need to issue a certified true copy (CTC) before you can export this document.')}</p>
+                                                                <p>
+                                                                    {t(
+                                                                        'You need to issue a certified true copy (CTC) before you can export this document.'
+                                                                    )}
+                                                                </p>
                                                             </PopoverContent>
                                                         </Popover>
                                                     </div>
