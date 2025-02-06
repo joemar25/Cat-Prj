@@ -105,6 +105,20 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
                 </Link>
               </DropdownMenuItem>
             )}
+            {canEdit && (
+              <>
+                {/* <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+                  <Icons.folder className="mr-2 h-4 w-4" />
+                  {t('editForm.title')}
+                </DropdownMenuItem> */}
+                {hasAttachments && (
+                  <DropdownMenuItem onClick={() => setAnnotationFormOpen(true)}>
+                    <Icons.files className="mr-2 h-4 w-4" />
+                    {t('issueCertificate')}
+                  </DropdownMenuItem>
+                )}
+              </>
+            )}
             {/* Export options: if a certified copy exists, export as zip; otherwise, allow solo download */}
             {hasCertifiedCopy ? (
               <DropdownMenuItem asChild>
@@ -122,20 +136,6 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
                   </Link>
                 </DropdownMenuItem>
               )
-            )}
-            {canEdit && (
-              <>
-                {/* <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
-                  <Icons.folder className="mr-2 h-4 w-4" />
-                  {t('editForm.title')}
-                </DropdownMenuItem> */}
-                {hasAttachments && (
-                  <DropdownMenuItem onClick={() => setAnnotationFormOpen(true)}>
-                    <Icons.files className="mr-2 h-4 w-4" />
-                    {t('issueCertificate')}
-                  </DropdownMenuItem>
-                )}
-              </>
             )}
             {canDelete && (
               <DropdownMenuItem
