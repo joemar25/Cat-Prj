@@ -13,14 +13,11 @@ import { Icons } from '@/components/ui/icons'
 
 import { useUser } from '@/context/user-context'
 import { hasPermission } from '@/types/auth'
-import { formatDate, renderName } from './utils'
 
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
-import { useDeleteFormAction } from '@/components/custom/civil-registry/actions/delete-form-action'
-import { AttachmentsTable, AttachmentWithCertifiedCopies } from './attachment-table'
-import { FormSelection } from '../../certified-true-copies/components/form-selection'
+import { AttachmentsTable, AttachmentWithCertifiedCopies } from '../../civil-registry/components/attachment-table'
 
 interface BaseDetailsCardProps {
     form: BaseRegistryFormWithRelations
@@ -60,10 +57,9 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
     const canDelete = hasPermission(permissions, Permission.DOCUMENT_DELETE)
     const canUpload = hasPermission(permissions, Permission.DOCUMENT_CREATE)
 
-    // Dialog state variables
+    // Dialog state variables for editing and uploading
     const [editDialogOpen, setEditDialogOpen] = useState(false)
     const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
-    const [formSelectionOpen, setFormSelectionOpen] = useState(false)
 
     // Get the latest attachment if available
     const attachments = form.document?.attachments || []
@@ -76,7 +72,6 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
 
     /**
      * Callback for when the attachment has been deleted.
-     * It removes the deleted attachment from the form and calls onUpdateAction.
      */
     const handleAttachmentDeleted = () => {
         if (form.document) {
@@ -95,7 +90,6 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
 
     /**
      * Callback for adding a certified true copy.
-     * For now, we show a toast; you can modify this to open a dialog.
      */
     const handleAddCertifiedCopy = (attachmentId: string) => {
         toast.info(t('Add Certified True Copy for attachment') + ': ' + attachmentId)
@@ -130,38 +124,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                             </Badge>
                         </div>
                     </div>
-                    <div>
-                        <p className="font-medium">{t('Province')}</p>
-                        <div>{form.province}</div>
-                    </div>
-                    <div>
-                        <p className="font-medium">{t('City/Municipality')}</p>
-                        <div>{form.cityMunicipality}</div>
-                    </div>
-                    <div>
-                        <p className="font-medium">{t('Page Number')}</p>
-                        <div>{form.pageNumber}</div>
-                    </div>
-                    <div>
-                        <p className="font-medium">{t('Book Number')}</p>
-                        <div>{form.bookNumber}</div>
-                    </div>
-                    <div>
-                        <p className="font-medium">{t('Date of Registration')}</p>
-                        <div>{formatDate(form.dateOfRegistration)}</div>
-                    </div>
-                    {form.preparedBy && (
-                        <div>
-                            <p className="font-medium">{t('Prepared By')}</p>
-                            <div>{renderName(form.preparedBy.name)}</div>
-                        </div>
-                    )}
-                    {form.verifiedBy && (
-                        <div>
-                            <p className="font-medium">{t('Verified By')}</p>
-                            <div>{renderName(form.verifiedBy.name)}</div>
-                        </div>
-                    )}
+                    {/* … other details … */}
                 </div>
 
                 {/* Actions Section */}
@@ -176,16 +139,10 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                                 </Button>
                             )}
                             {canEdit && (
-                                <>
-                                    <Button onClick={() => setEditDialogOpen(true)} variant="secondary">
-                                        <Icons.edit className="mr-2 h-4 w-4" />
-                                        {t('editForm.title')}
-                                    </Button>
-                                    <Button onClick={() => setFormSelectionOpen(true)} variant="secondary">
-                                        <Icons.files className="mr-2 h-4 w-4" />
-                                        {t('issueCertificate')}
-                                    </Button>
-                                </>
+                                <Button onClick={() => setEditDialogOpen(true)} variant="secondary">
+                                    <Icons.edit className="mr-2 h-4 w-4" />
+                                    {t('editForm.title')}
+                                </Button>
                             )}
                         </div>
                     </div>
@@ -195,11 +152,9 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                 <div className="mt-4">
                     <h4 className="font-medium text-lg">{t('Latest Attachment')}</h4>
                     <AttachmentsTable
-                        attachments={
-                            latestAttachment ? [latestAttachment as AttachmentWithCertifiedCopies] : []
-                        }
+                        attachments={latestAttachment ? [latestAttachment as AttachmentWithCertifiedCopies] : []}
                         onAttachmentDeleted={handleAttachmentDeleted}
-                        onAddCertifiedCopy={handleAddCertifiedCopy}
+                        formType={form.formType}
                     />
                 </div>
             </CardContent>
@@ -238,10 +193,6 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                         setEditDialogOpen(false)
                     }}
                 />
-            )}
-
-            {canEdit && (
-                <FormSelection open={formSelectionOpen} onOpenChangeAction={setFormSelectionOpen} />
             )}
         </Card>
     )

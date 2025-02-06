@@ -113,13 +113,13 @@ const BirthAnnotationForm = ({
               typeof placeOfBirth === 'string'
                 ? placeOfBirth
                 : [
-                    placeOfBirth?.hospital,
-                    placeOfBirth?.barangay,
-                    placeOfBirth?.cityMunicipality,
-                    placeOfBirth?.province,
-                  ]
-                    .filter(Boolean)
-                    .join(', ');
+                  placeOfBirth?.hospital,
+                  placeOfBirth?.barangay,
+                  placeOfBirth?.cityMunicipality,
+                  placeOfBirth?.province,
+                ]
+                  .filter(Boolean)
+                  .join(', ');
             setValue('placeOfBirth', place);
           }
 
@@ -165,13 +165,13 @@ const BirthAnnotationForm = ({
               typeof parentMarriage.place === 'string'
                 ? parentMarriage.place
                 : [
-                    (parentMarriage.place as MarriagePlaceStructure)?.church,
-                    (parentMarriage.place as MarriagePlaceStructure)
-                      ?.cityMunicipality,
-                    (parentMarriage.place as MarriagePlaceStructure)?.province,
-                  ]
-                    .filter(Boolean)
-                    .join(', ');
+                  (parentMarriage.place as MarriagePlaceStructure)?.church,
+                  (parentMarriage.place as MarriagePlaceStructure)
+                    ?.cityMunicipality,
+                  (parentMarriage.place as MarriagePlaceStructure)?.province,
+                ]
+                  .filter(Boolean)
+                  .join(', ');
             setValue('parentsMarriagePlace', marriagePlace);
           }
 

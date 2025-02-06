@@ -24,8 +24,12 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { DeleteConfirmationDialog } from '@/components/custom/civil-registry/components/delete-confirmation-dialog'
 import { Attachment as AttachmentType } from '@prisma/client'
-import { FormSelection } from '../certified-true-copies/components/form-selection'
 import Link from 'next/link'
+
+// Import the annotation forms directly
+import BirthAnnotationForm from '@/components/custom/forms/annotations/birthcert'
+import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation-form'
+import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form'
 
 interface DataTableRowActionsProps {
   row: Row<BaseRegistryFormWithRelations>
@@ -41,8 +45,8 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [deletionAlertOpen, setDeletionAlertOpen] = useState(false)
-  // NEW: state for the FormSelection dialog (for issuing certificate)
-  const [formSelectionOpen, setFormSelectionOpen] = useState(false)
+  // State for opening the annotation form dialog (for issuing certificate)
+  const [annotationFormOpen, setAnnotationFormOpen] = useState(false)
 
   const { handleDelete, isLoading } = useDeleteFormAction({ form, onUpdateAction })
 
@@ -91,7 +95,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
                 <Icons.folder className="mr-2 h-4 w-4" />
                 {t('editForm.title')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFormSelectionOpen(true)}>
+              <DropdownMenuItem onClick={() => setAnnotationFormOpen(true)}>
                 <Icons.files className="mr-2 h-4 w-4" />
                 {t('issueCertificate')}
               </DropdownMenuItem>
@@ -166,10 +170,26 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
         />
       )}
 
-      {canEdit && (
-        <FormSelection
-          open={formSelectionOpen}
-          onOpenChangeAction={setFormSelectionOpen}
+      {/* Annotation Form Dialogs based on form type */}
+      {form.formType === 'BIRTH' && (
+        <BirthAnnotationForm
+          open={annotationFormOpen}
+          onOpenChange={setAnnotationFormOpen}
+          onCancel={() => setAnnotationFormOpen(false)}
+        />
+      )}
+      {form.formType === 'DEATH' && (
+        <DeathAnnotationForm
+          open={annotationFormOpen}
+          onOpenChange={setAnnotationFormOpen}
+          onCancel={() => setAnnotationFormOpen(false)}
+        />
+      )}
+      {form.formType === 'MARRIAGE' && (
+        <MarriageAnnotationForm
+          open={annotationFormOpen}
+          onOpenChange={setAnnotationFormOpen}
+          onCancel={() => setAnnotationFormOpen(false)}
         />
       )}
     </>

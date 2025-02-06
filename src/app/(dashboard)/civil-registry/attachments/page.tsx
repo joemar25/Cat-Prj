@@ -1,16 +1,26 @@
 // src/app/(dashboard)/civil-registry/attachments/page.tsx
 import Link from 'next/link'
-
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card'
 import { AttachmentsTable, AttachmentWithCertifiedCopies } from '@/components/custom/civil-registry/components/attachment-table'
+import { FormType } from '@prisma/client'
 
-async function getAttachmentsByFormId(formId: string): Promise<AttachmentWithCertifiedCopies[]> {
+// Modified fetch function to also return the formType.
+async function getFormData(formId: string): Promise<{
+    attachments: AttachmentWithCertifiedCopies[]
+    formType: FormType | null
+}> {
     try {
         const form = await prisma.baseRegistryForm.findUnique({
             where: { id: formId },
@@ -24,12 +34,16 @@ async function getAttachmentsByFormId(formId: string): Promise<AttachmentWithCer
         })
 
         if (!form || !form.document) {
-            return []
+            return { attachments: [], formType: null }
         }
-        return form.document.attachments as AttachmentWithCertifiedCopies[]
+
+        return {
+            attachments: form.document.attachments as AttachmentWithCertifiedCopies[],
+            formType: form.formType,
+        }
     } catch (error) {
-        console.error('Error fetching attachments:', error)
-        return []
+        console.error('Error fetching form data:', error)
+        return { attachments: [], formType: null }
     }
 }
 
@@ -56,11 +70,20 @@ interface AttachmentsPageProps {
 }
 
 export default async function AttachmentsPage({ searchParams }: AttachmentsPageProps) {
-    const { formId } = searchParams
+    // Await the searchParams before destructuring
+    const sp = await Promise.resolve(searchParams)
+    const formId = sp.formId
     if (!formId) {
         notFound()
     }
-    const attachments = await getAttachmentsByFormId(formId)
+
+    // Get both attachments and the form type.
+    const { attachments, formType } = await getFormData(formId)
+
+    // If formType is null, we treat this as "not found"
+    if (!formType) {
+        notFound()
+    }
 
     return (
         <>
@@ -74,7 +97,9 @@ export default async function AttachmentsPage({ searchParams }: AttachmentsPageP
             <div className="flex flex-1 flex-col gap-4 p-4">
                 {/* Back button placed at the top for consistency */}
                 <Link href="/civil-registry">
-                    <Button variant={'default'} size={'sm'}>Back to Civil Registry</Button>
+                    <Button variant={'default'} size={'sm'}>
+                        Back to Civil Registry
+                    </Button>
                 </Link>
                 <Suspense fallback={<AttachmentsPageSkeleton />}>
                     <Card>
@@ -86,7 +111,11 @@ export default async function AttachmentsPage({ searchParams }: AttachmentsPageP
                         </CardHeader>
                         <CardContent className="overflow-x-auto">
                             {attachments.length > 0 ? (
-                                <AttachmentsTable attachments={attachments} canDelete={true} />
+                                <AttachmentsTable
+                                    attachments={attachments}
+                                    canDelete={true}
+                                    formType={formType}
+                                />
                             ) : (
                                 <p className="py-4 text-center text-sm text-muted-foreground">
                                     No attachments available.
