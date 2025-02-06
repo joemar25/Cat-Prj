@@ -28,7 +28,9 @@ async function getFormDetails(formId: string) {
 }
 
 export default async function ViewDetailsPage({ searchParams }: DetailsPageProps) {
-    const { formId } = searchParams
+    // Await searchParams before destructuring
+    const sp = await Promise.resolve(searchParams)
+    const formId = sp.formId
     if (!formId) {
         notFound()
     }
@@ -36,6 +38,7 @@ export default async function ViewDetailsPage({ searchParams }: DetailsPageProps
     if (!form) {
         notFound()
     }
+
     return (
         <>
             <DashboardHeader

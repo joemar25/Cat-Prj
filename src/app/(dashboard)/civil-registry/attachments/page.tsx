@@ -14,13 +14,8 @@ import {
     CardTitle,
 } from '@/components/ui/card'
 import { AttachmentsTable, AttachmentWithCertifiedCopies } from '@/components/custom/civil-registry/components/attachment-table'
-import { FormType } from '@prisma/client'
 
-// Modified fetch function to also return the formType.
-async function getFormData(formId: string): Promise<{
-    attachments: AttachmentWithCertifiedCopies[]
-    formType: FormType | null
-}> {
+async function getFormData(formId: string) {
     try {
         const form = await prisma.baseRegistryForm.findUnique({
             where: { id: formId },
@@ -30,20 +25,22 @@ async function getFormData(formId: string): Promise<{
                         attachments: true,
                     },
                 },
+                preparedBy: true,
+                verifiedBy: true,
+                birthCertificateForm: true,
+                marriageCertificateForm: true,
+                deathCertificateForm: true,
             },
         })
 
-        if (!form || !form.document) {
-            return { attachments: [], formType: null }
-        }
-
         return {
-            attachments: form.document.attachments as AttachmentWithCertifiedCopies[],
-            formType: form.formType,
+            attachments: form?.document?.attachments as AttachmentWithCertifiedCopies[] ?? [],
+            formType: form?.formType ?? null,
+            form
         }
     } catch (error) {
-        console.error('Error fetching form data:', error)
-        return { attachments: [], formType: null }
+        console.error('Error:', error)
+        return { attachments: [], formType: null, form: null }
     }
 }
 
@@ -73,17 +70,10 @@ export default async function AttachmentsPage({ searchParams }: AttachmentsPageP
     // Await the searchParams before destructuring
     const sp = await Promise.resolve(searchParams)
     const formId = sp.formId
-    if (!formId) {
-        notFound()
-    }
+    if (!formId) notFound()
 
-    // Get both attachments and the form type.
-    const { attachments, formType } = await getFormData(formId)
-
-    // If formType is null, we treat this as "not found"
-    if (!formType) {
-        notFound()
-    }
+    const { attachments, formType, form } = await getFormData(formId)
+    if (!formType || !form) notFound()
 
     return (
         <>
@@ -115,6 +105,7 @@ export default async function AttachmentsPage({ searchParams }: AttachmentsPageP
                                     attachments={attachments}
                                     canDelete={true}
                                     formType={formType}
+                                    formData={form}
                                 />
                             ) : (
                                 <p className="py-4 text-center text-sm text-muted-foreground">

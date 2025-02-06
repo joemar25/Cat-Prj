@@ -54,7 +54,7 @@ interface AttachmentsTableProps {
     /**
      * The form data for pre-filling annotation forms.
      */
-    formData: BaseRegistryFormWithRelations
+    formData?: BaseRegistryFormWithRelations
 }
 
 export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
@@ -211,7 +211,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                             open={annotationFormOpen}
                             onOpenChange={setAnnotationFormOpen}
                             onCancel={() => setAnnotationFormOpen(false)}
-                        // formData={formData}
+                            formData={formData!}
                         />
                     )}
                     {formType === 'DEATH' && (
@@ -219,7 +219,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                             open={annotationFormOpen}
                             onOpenChange={setAnnotationFormOpen}
                             onCancel={() => setAnnotationFormOpen(false)}
-                            formData={formData}
+                            formData={formData!}
                         />
                     )}
                     {formType === 'MARRIAGE' && (
@@ -227,7 +227,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                             open={annotationFormOpen}
                             onOpenChange={setAnnotationFormOpen}
                             onCancel={() => setAnnotationFormOpen(false)}
-                        // formData={formData}
+                            formData={formData!}
                         />
                     )}
                 </>
