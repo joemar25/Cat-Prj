@@ -9,52 +9,94 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { createBirthCertificate } from '@/hooks/form-certificate-actions';
 import {
   BirthCertificateFormProps,
   BirthCertificateFormValues,
-  birthCertificateSchema,
+  createBirthCertificateSchema,
   defaultBirthCertificateFormValues,
 } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PDFViewer } from '@react-pdf/renderer';
 import { Loader2, Save } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { FormType } from '@prisma/client';
 
-import ChildInformationCard from './form-cards/birth-cards/child-information-card';
-import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
-import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
-import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
-import FatherInformationCard from './form-cards/birth-cards/father-information-card';
-import MarriageOfParentsCard from './form-cards/birth-cards/marriage-parents-card';
+import AffidavitFormsCard from './form-cards/birth-cards/affidavit-form-card';
 import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
 import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
+import ChildInformationCard from './form-cards/birth-cards/child-information-card';
+import FatherInformationCard from './form-cards/birth-cards/father-information-card';
+import MarriageOfParentsCard from './form-cards/birth-cards/marriage-parents-card';
+import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
 import PreparedByCard from './form-cards/birth-cards/prepared-by-card';
 import ReceivedByCard from './form-cards/birth-cards/received-by';
 import RegisteredAtOfficeCard from './form-cards/birth-cards/registered-at-office-card';
 import RemarksCard from './form-cards/birth-cards/remarks';
-import AffidavitFormsCard from './form-cards/birth-cards/affidavit-form-card';
+import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
+import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
 
 export default function BirthCertificateForm({
   open,
   onOpenChange,
   onCancel,
 }: BirthCertificateFormProps) {
+  // Manage NCR mode states for various sections
+  const [registryNCRMode, setRegistryNCRMode] = useState(false);
+  const [childNCRMode, setChildNCRMode] = useState(false);
+
+  // New state for each address property using addressSchema
+  const [motherResidenceNcrMode, setMotherResidenceNcrMode] = useState(false);
+  const [fatherResidenceNcrMode, setFatherResidenceNcrMode] = useState(false);
+  const [parentMarriagePlaceNcrMode, setParentMarriagePlaceNcrMode] =
+    useState(false);
+  const [attendantAddressNcrMode, setAttendantAddressNcrMode] = useState(false);
+  const [informantAddressNcrMode, setInformantAddressNcrMode] = useState(false);
+  const [adminOfficerAddressNcrMode, setAdminOfficerAddressNcrMode] =
+    useState(false);
+  const [affiantAddressNcrMode, setAffiantAddressNcrMode] = useState(false);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [pendingSubmission, setPendingSubmission] =
     useState<BirthCertificateFormValues | null>(null);
 
-  const form = useForm<BirthCertificateFormValues>({
-    resolver: zodResolver(birthCertificateSchema),
+  // Pass all new booleans to the schema creator
+  const schema = createBirthCertificateSchema(
+    registryNCRMode,
+    childNCRMode,
+    motherResidenceNcrMode,
+    fatherResidenceNcrMode,
+    parentMarriagePlaceNcrMode,
+    attendantAddressNcrMode,
+    informantAddressNcrMode,
+    adminOfficerAddressNcrMode,
+    affiantAddressNcrMode
+  );
+
+  const formMethods = useForm<BirthCertificateFormValues>({
+    resolver: zodResolver(schema),
     defaultValues: defaultBirthCertificateFormValues,
   });
+
+  // Reset the form if any of the mode flags change.
+  useEffect(() => {
+    formMethods.reset(defaultBirthCertificateFormValues);
+  }, [
+    registryNCRMode,
+    childNCRMode,
+    motherResidenceNcrMode,
+    fatherResidenceNcrMode,
+    parentMarriagePlaceNcrMode,
+    attendantAddressNcrMode,
+    informantAddressNcrMode,
+    adminOfficerAddressNcrMode,
+    affiantAddressNcrMode,
+  ]);
 
   const onSubmit = async (values: BirthCertificateFormValues) => {
     try {
@@ -66,9 +108,8 @@ export default function BirthCertificateForm({
           description: 'Birth certificate has been registered successfully',
         });
         onOpenChange(false);
-        form.reset();
+        formMethods.reset();
       } else if (result.warning) {
-        // Save the form data and show the confirmation dialog.
         setPendingSubmission(values);
         setShowAlert(true);
       } else {
@@ -100,7 +141,7 @@ export default function BirthCertificateForm({
             description: 'Birth certificate has been registered successfully',
           });
           onOpenChange(false);
-          form.reset();
+          formMethods.reset();
         } else {
           toast.error('Registration Error', {
             description: result.error || 'Failed to register birth certificate',
@@ -123,17 +164,15 @@ export default function BirthCertificateForm({
   };
 
   const handleError = () => {
-    const errors = form.formState.errors;
+    const errors = formMethods.formState.errors;
 
-    // Trigger validation for registry fields first
-    form
+    formMethods
       .trigger(['registryNumber', 'province', 'cityMunicipality'])
       .then(() => {
-        // Now check for registry section errors
         if (
-          form.getFieldState('registryNumber').error ||
-          form.getFieldState('province').error ||
-          form.getFieldState('cityMunicipality').error
+          formMethods.getFieldState('registryNumber').error ||
+          formMethods.getFieldState('province').error ||
+          formMethods.getFieldState('cityMunicipality').error
         ) {
           toast.error('Birth Registry Information', {
             description:
@@ -142,7 +181,6 @@ export default function BirthCertificateForm({
           return;
         }
 
-        // Keep existing error checks
         if (errors.childInfo) {
           toast.error(
             "Please check the child's information section for errors"
@@ -181,28 +219,57 @@ export default function BirthCertificateForm({
             <div className='w-1/2 border-r'>
               <ScrollArea className='h-[calc(95vh-120px)]'>
                 <div className='p-6'>
-                  <Form {...form}>
+                  <FormProvider {...formMethods}>
                     <form
-                      onSubmit={form.handleSubmit(onSubmit, handleError)}
+                      onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
                       className='space-y-6'
                     >
                       <RegistryInformationCard
                         formType={FormType.BIRTH}
                         title='Birth Registry Information'
+                        isNCRMode={registryNCRMode}
+                        setIsNCRMode={setRegistryNCRMode}
                       />
-                      <ChildInformationCard />
-                      <MotherInformationCard />
+                      <ChildInformationCard
+                        isNCRMode={childNCRMode}
+                        setIsNCRMode={setChildNCRMode}
+                      />
 
-                      <FatherInformationCard />
-                      <MarriageOfParentsCard />
-                      <AttendantInformationCard />
-                      <CertificationOfInformantCard />
+                      {/* Pass the new state props to the components that need them */}
+                      <MotherInformationCard
+                        motherResidenceNcrMode={motherResidenceNcrMode}
+                        setMotherResidenceNcrMode={setMotherResidenceNcrMode}
+                      />
+                      <FatherInformationCard
+                        fatherResidenceNcrMode={fatherResidenceNcrMode}
+                        setFatherResidenceNcrMode={setFatherResidenceNcrMode}
+                      />
+                      <MarriageOfParentsCard
+                        parentMarriagePlaceNcrMode={parentMarriagePlaceNcrMode}
+                        setParentMarriagePlaceNcrMode={
+                          setParentMarriagePlaceNcrMode
+                        }
+                      />
+                      <AttendantInformationCard
+                        attendantAddressNcrMode={attendantAddressNcrMode}
+                        setAttendantAddressNcrMode={setAttendantAddressNcrMode}
+                      />
+                      <CertificationOfInformantCard
+                        informantAddressNcrMode={informantAddressNcrMode}
+                        setInformantAddressNcrMode={setInformantAddressNcrMode}
+                      />
                       <PreparedByCard />
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard />
                       <RemarksCard />
-                      <AffidavitFormsCard />
-
+                      <AffidavitFormsCard
+                        adminOfficerAddressNcrMode={adminOfficerAddressNcrMode}
+                        setAdminOfficerAddressNcrMode={
+                          setAdminOfficerAddressNcrMode
+                        }
+                        affiantAddressNcrMode={affiantAddressNcrMode}
+                        setAffiantAddressNcrMode={setAffiantAddressNcrMode}
+                      />
                       <DialogFooter>
                         <Button
                           type='button'
@@ -232,11 +299,7 @@ export default function BirthCertificateForm({
                         </Button>
                       </DialogFooter>
                     </form>
-                  </Form>
-
-                  {/* Always render the ConfirmationDialog.
-                      Its internal logic (based on the "open" prop)
-                      will determine its visibility. */}
+                  </FormProvider>
                   <ConfirmationDialog
                     open={showAlert}
                     onOpenChange={setShowAlert}
@@ -256,7 +319,7 @@ export default function BirthCertificateForm({
             <div className='w-1/2'>
               <div className='h-[calc(95vh-120px)] p-6'>
                 <PDFViewer width='100%' height='100%'>
-                  <BirthCertificatePDF data={form.watch()} />
+                  <BirthCertificatePDF data={formMethods.watch()} />
                 </PDFViewer>
               </div>
             </div>

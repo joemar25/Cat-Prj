@@ -121,14 +121,18 @@ export const registryNumberSchema = z
     }
   );
 
-export const provinceSchema = z
-  .string()
-  .min(1, 'Please select a province.')
-  .max(100, 'Province name is too long.');
+export const provinceSchema = (isOptional: boolean) =>
+  z
+    .string()
+    .min(
+      isOptional ? 0 : 3,
+      isOptional ? undefined : 'Please select a province.'
+    )
+    .max(100, 'Province name is too long.');
 
 export const cityMunicipalitySchema = z
   .string()
-  .min(1, 'Please select a city or municipality.')
+  .min(3, 'Please select a city/municipality.')
   .max(100, 'City/Municipality name is too long.');
 
 export const signatureSchema = z.object({
@@ -138,14 +142,15 @@ export const signatureSchema = z.object({
   date: dateSchema,
 });
 
-export const addressSchema = z.object({
-  houseNumber: z.string().optional(),
-  street: z.string().optional(),
-  barangay: z.string().min(1, 'Barangay is required').optional(),
-  cityMunicipality: z.string().min(1, 'City/Municipality is required'),
-  province: z.string().min(1, 'Province is required'),
-  country: z.string().min(1, 'Country is required').default('Philippines'),
-});
+export const addressSchema = (isProvinceOptional: boolean = false) =>
+  z.object({
+    houseNumber: z.string().optional(),
+    street: z.string().optional(),
+    barangay: z.string().min(1, 'Barangay is required').optional(),
+    cityMunicipality: z.string().min(1, 'City/Municipality is required'),
+    province: provinceSchema(isProvinceOptional),
+    country: z.string().min(1, 'Country is required').default('Philippines'),
+  });
 
 export type WithNullableDates<T> = {
   [P in keyof T]: T[P] extends Date

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   FormControl,
   FormField,
@@ -30,7 +32,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   formItemClassName = '',
   formLabelClassName = '',
 }) => {
-  // Extract isSubmitted so we know when to show errors.
   const {
     control,
     setValue,
@@ -48,7 +49,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 
   const {
     provinces = [],
-    municipalities = [], // Combined suggestions (LocationSuggestion[])
+    municipalities = [],
     barangays = [],
     handleProvinceChange,
     handleMunicipalityChange,
@@ -66,7 +67,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     trigger,
   });
 
-  // Reset local inputs when mode changes.
+  // Reset local inputs when NCR mode changes.
   useEffect(() => {
     setProvinceInput('');
     setMunicipalityInput('');
@@ -85,7 +86,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     setValue,
   ]);
 
-  // Matching function for provinces using the "name" property.
+  // Matching function for province suggestions (unchanged).
   const getMatchingItems = (input: string, items: any[] = []) => {
     if (!input) return [];
     const lowerInput = input.toLowerCase();
@@ -94,9 +95,12 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       .slice(0, 3);
   };
 
-  // For municipalities we match against the suggestion's displayName.
+  // Matching function for municipality suggestions.
+  // If the input is empty and NCR mode is active, return the first 5 suggestions.
   const getMatchingMunicipalityItems = (input: string, items: any[] = []) => {
-    if (!input) return [];
+    if (!input) {
+      return isNCRMode ? items.slice(0, 5) : [];
+    }
     const lowerInput = input.toLowerCase();
     return items
       .filter((item) => item.displayName?.toLowerCase().includes(lowerInput))
@@ -115,12 +119,19 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 
   const debouncedShowMunicipalitySuggestions = useCallback(
     debounce((value: string) => {
-      setShowMunicipalitySuggestions(
-        !!value &&
+      // In NCR mode, always show suggestions even if input is empty.
+      if (isNCRMode) {
+        setShowMunicipalitySuggestions(
           getMatchingMunicipalityItems(value, municipalities).length > 0
-      );
+        );
+      } else {
+        setShowMunicipalitySuggestions(
+          !!value &&
+            getMatchingMunicipalityItems(value, municipalities).length > 0
+        );
+      }
     }, 500),
-    [municipalities]
+    [municipalities, isNCRMode]
   );
 
   const debouncedShowBarangaySuggestions = useCallback(
@@ -160,21 +171,15 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     debouncedShow(value);
   };
 
-  // ---------------------------
-  // New: Auto-match province onBlur
-  // ---------------------------
   const handleProvinceBlur = () => {
     const trimmedInput = provinceInput.trim();
-    // Try to find an exact match (case-insensitive) in the provinces list.
     const match = provinces.find(
       (p: any) => p.name.toLowerCase() === trimmedInput.toLowerCase()
     );
     if (match) {
-      // If a match is found, update the input and trigger the change.
       setProvinceInput(match.name);
       setValue(provinceFieldName, match.name);
       handleProvinceChange(match.id);
-      // Reset municipality and barangay when province is matched.
       setMunicipalityInput('');
       setValue(municipalityFieldName, '');
       if (barangayFieldName) {
@@ -182,7 +187,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         setValue(barangayFieldName, '');
       }
     } else {
-      // If no valid province is found, clear the municipality.
       setMunicipalityInput('');
       setValue(municipalityFieldName, '');
       if (barangayFieldName) {
@@ -190,14 +194,9 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         setValue(barangayFieldName, '');
       }
     }
-    // Hide suggestions after a short delay.
     setTimeout(() => setShowProvinceSuggestions(false), 200);
   };
 
-  // ---------------------------
-  // Update municipality disabled logic:
-  // Disable if not in NCR mode and no valid province is selected.
-  // ---------------------------
   const isProvinceValid =
     isNCRMode ||
     provinces.some(
@@ -241,8 +240,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                         key={prov.id}
                         className={dropdownItemClassName}
                         onClick={() => {
-                          // When a suggestion is clicked, update province
-                          // and reset municipality (and barangay) values.
                           setProvinceInput(prov.name);
                           setValue(provinceFieldName, prov.name);
                           handleProvinceChange(prov.id);
@@ -272,11 +269,9 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         control={control}
         name={municipalityFieldName}
         render={({ field, fieldState }) => {
-          // Only show error styling if the form has been submitted.
           const showError = isSubmitted && fieldState.error;
           return (
             <FormItem className={formItemClassName}>
-              {/* Conditionally add a non-error text color if not showing error */}
               <FormLabel
                 className={`${formLabelClassName} ${
                   !showError ? 'text-neutral-800' : ''
@@ -310,7 +305,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                     }
                   />
                 </FormControl>
-                {showMunicipalitySuggestions && municipalityInput && (
+                {showMunicipalitySuggestions && (
                   <div className={dropdownClassName}>
                     {getMatchingMunicipalityItems(
                       municipalityInput,
@@ -391,7 +386,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                   </div>
                 )}
               </div>
-              {/* Only show error message after submission */}
               {isSubmitted && (
                 <FormMessage>{fieldState.error?.message}</FormMessage>
               )}

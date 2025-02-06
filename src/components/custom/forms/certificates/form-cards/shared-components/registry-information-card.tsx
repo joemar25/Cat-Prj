@@ -21,17 +21,20 @@ import NCRModeSwitch from './ncr-mode-switch';
 interface RegistryInformationCardProps {
   formType: FormType;
   title?: string;
+  isNCRMode: boolean;
+  setIsNCRMode: (checked: boolean) => void;
 }
 
 const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   formType,
   title = 'Registry Information',
+  isNCRMode,
+  setIsNCRMode,
 }) => {
   const { control, setValue, setError, clearErrors } = useFormContext();
   const [registryNumber, setRegistryNumber] = useState('');
   const [debouncedRegistryNumber] = useDebounce(registryNumber, 500);
   const [isChecking, setIsChecking] = useState(false);
-  const [isNCRMode, setIsNCRMode] = useState(false);
 
   const [validationResult, setValidationResult] = useState<{
     exists: boolean | null;
@@ -167,7 +170,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        {/* add here the ncr-mode-swticht */}
+        {/* NCR Mode Switch – controlled via props */}
         <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           <FormField

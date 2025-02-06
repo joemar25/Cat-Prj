@@ -1,5 +1,6 @@
 // src\lib\types\zod-form-certificate\birth-certificate-form-schema.ts
 
+// src/lib/types/zod-form-certificate/birth-certificate-form-schema.ts
 import { z } from 'zod';
 import {
   addressSchema,
@@ -7,207 +8,228 @@ import {
   dateSchema,
   nameSchema,
   parseTimeStringToDate,
-  provinceSchema,
+  provinceSchema, // NOTE: now this is a factory function
   registryNumberSchema,
   signatureSchema,
   timeSchema,
   WithNullableDates,
 } from './form-certificates-shared-schema';
+
 export interface BirthCertificateFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCancel: () => void;
 }
 
-export const birthCertificateSchema = z.object({
-  // Registry Information
-  registryNumber: registryNumberSchema,
-  province: provinceSchema,
-  cityMunicipality: cityMunicipalitySchema,
+/**
+ * Factory function that creates the birth certificate schema.
+ * When isNCRMode is true, province becomes optional (min 0), otherwise required (min 3).
+ */
+export const createBirthCertificateSchema = (
+  registryNCRMode: boolean,
+  childNCRMode: boolean,
+  motherResidenceNcrMode: boolean,
+  fatherResidenceNcrMode: boolean,
+  parentMarriagePlaceNcrMode: boolean,
+  attendantAddressNcrMode: boolean,
+  informantAddressNcrMode: boolean,
+  adminOfficerAddressNcrMode: boolean,
+  affiantAddressNcrMode: boolean
+) =>
+  z.object({
+    // Registry Information
+    registryNumber: registryNumberSchema,
+    province: provinceSchema(registryNCRMode),
+    cityMunicipality: cityMunicipalitySchema,
 
-  // Child Information
-  childInfo: z.object({
-    firstName: nameSchema.shape.firstName,
-    middleName: nameSchema.shape.middleName,
-    lastName: nameSchema.shape.lastName,
-    sex: z.string().min(1, 'Please select a sex'),
-    dateOfBirth: dateSchema,
-    placeOfBirth: z.object({
-      hospital: z.string().min(1, 'Hospital/Clinic name is required'),
-      cityMunicipality: cityMunicipalitySchema,
-      province: provinceSchema,
+    // Child Information
+    childInfo: z.object({
+      firstName: nameSchema.shape.firstName,
+      middleName: nameSchema.shape.middleName,
+      lastName: nameSchema.shape.lastName,
+      sex: z.string().min(1, 'Please select a sex'),
+      dateOfBirth: dateSchema,
+      placeOfBirth: z.object({
+        hospital: z.string().min(1, 'Hospital/Clinic name is required'),
+        cityMunicipality: cityMunicipalitySchema,
+        province: provinceSchema(childNCRMode),
+      }),
+      typeOfBirth: z.string().min(1, 'Please select type of birth'),
+      multipleBirthOrder: z.string().optional(),
+      birthOrder: z.string().min(1, 'Birth order is required'),
+      weightAtBirth: z.string().min(1, 'Weight at birth is required'),
     }),
-    typeOfBirth: z.string().min(1, 'Please select type of birth'),
-    multipleBirthOrder: z.string().optional(),
-    birthOrder: z.string().min(1, 'Birth order is required'),
-    weightAtBirth: z.string().min(1, 'Weight at birth is required'),
-  }),
 
-  // Mother Information
-  motherInfo: z.object({
-    firstName: nameSchema.shape.firstName,
-    middleName: nameSchema.shape.middleName,
-    lastName: nameSchema.shape.lastName,
-    citizenship: z.string().min(1, 'Citizenship is required'),
-    religion: z.string().min(1, 'Religion is required'),
-    occupation: z.string().min(1, 'Occupation is required'),
-    age: z.string().min(1, 'Age is required'),
-    totalChildrenBornAlive: z.string().min(1, 'Required'),
-    childrenStillLiving: z.string().min(1, 'Required'),
-    childrenNowDead: z.string().min(1, 'Required'),
-    residence: addressSchema,
-  }),
+    // Mother Information
+    motherInfo: z.object({
+      firstName: nameSchema.shape.firstName,
+      middleName: nameSchema.shape.middleName,
+      lastName: nameSchema.shape.lastName,
+      citizenship: z.string().min(1, 'Citizenship is required'),
+      religion: z.string().min(1, 'Religion is required'),
+      occupation: z.string().min(1, 'Occupation is required'),
+      age: z.string().min(1, 'Age is required'),
+      totalChildrenBornAlive: z.string().min(1, 'Required'),
+      childrenStillLiving: z.string().min(1, 'Required'),
+      childrenNowDead: z.string().min(1, 'Required'),
+      // Use the provided prop for mother's residence:
+      residence: addressSchema(motherResidenceNcrMode),
+    }),
 
-  // Father Information
-  fatherInfo: z.object({
-    firstName: nameSchema.shape.firstName,
-    middleName: nameSchema.shape.middleName,
-    lastName: nameSchema.shape.lastName,
-    citizenship: z.string().min(1, 'Citizenship is required'),
-    religion: z.string().min(1, 'Religion is required'),
-    occupation: z.string().min(1, 'Occupation is required'),
-    age: z.string().min(1, 'Age is required'),
-    residence: addressSchema,
-  }),
+    // Father Information
+    fatherInfo: z.object({
+      firstName: nameSchema.shape.firstName,
+      middleName: nameSchema.shape.middleName,
+      lastName: nameSchema.shape.lastName,
+      citizenship: z.string().min(1, 'Citizenship is required'),
+      religion: z.string().min(1, 'Religion is required'),
+      occupation: z.string().min(1, 'Occupation is required'),
+      age: z.string().min(1, 'Age is required'),
+      // Use the provided prop for father's residence:
+      residence: addressSchema(fatherResidenceNcrMode),
+    }),
 
-  // Marriage of Parents
-  parentMarriage: z.object({
-    date: dateSchema,
-    place: addressSchema,
-  }),
+    // Marriage of Parents
+    parentMarriage: z.object({
+      date: dateSchema,
+      // Use the provided prop for marriage place:
+      place: addressSchema(parentMarriagePlaceNcrMode),
+    }),
 
-  // Certification of Birth Attendant
-  attendant: z.object({
-    type: z.string().min(1, 'Please select attendant type'),
-    certification: z.object({
-      time: timeSchema,
+    // Certification of Birth Attendant
+    attendant: z.object({
+      type: z.string().min(1, 'Please select attendant type'),
+      certification: z.object({
+        time: timeSchema,
+        signature: signatureSchema.shape.signature,
+        name: signatureSchema.shape.name,
+        title: signatureSchema.shape.title,
+        // Use the provided prop for attendant's address:
+        address: addressSchema(attendantAddressNcrMode),
+        date: dateSchema,
+      }),
+    }),
+
+    // Informant
+    informant: z.object({
       signature: signatureSchema.shape.signature,
       name: signatureSchema.shape.name,
-      title: signatureSchema.shape.title,
-      address: addressSchema,
+      relationship: z.string().min(1, 'Relationship is required'),
+      // Use the provided prop for informant's address:
+      address: addressSchema(informantAddressNcrMode),
       date: dateSchema,
     }),
-  }),
 
-  // Informant
-  informant: z.object({
-    signature: signatureSchema.shape.signature,
-    name: signatureSchema.shape.name,
-    relationship: z.string().min(1, 'Relationship is required'),
-    address: addressSchema,
-    date: dateSchema,
-  }),
+    // Prepared By
+    preparedBy: signatureSchema,
 
-  // Prepared By
-  preparedBy: signatureSchema,
+    // Received By
+    receivedBy: signatureSchema,
 
-  // Received By
-  receivedBy: signatureSchema,
+    // Registered By Civil Registry
+    registeredByOffice: signatureSchema,
 
-  // Registered By Civil Registry
-  registeredByOffice: signatureSchema,
+    hasAffidavitOfPaternity: z.boolean().default(false),
+    affidavitOfPaternityDetails: z
+      .object({
+        father: signatureSchema.omit({ date: true }),
+        mother: signatureSchema.omit({ date: true }),
+        dateSworn: dateSchema,
+        adminOfficer: z.object({
+          signature: z.string(),
+          name: z.string().min(1, 'Officer name is required'),
+          position: z.string().min(1, 'Position is required'),
+          // Use the provided prop for admin officer's address:
+          address: addressSchema(adminOfficerAddressNcrMode),
+        }),
+        ctcInfo: z.object({
+          number: z.string().min(1, 'CTC number is required'),
+          dateIssued: dateSchema,
+          placeIssued: z.string().min(1, 'Place issued is required'),
+        }),
+      })
+      .optional(),
 
-  hasAffidavitOfPaternity: z.boolean().default(false),
-  affidavitOfPaternityDetails: z
-    .object({
-      father: signatureSchema.omit({ date: true }),
-      mother: signatureSchema.omit({ date: true }),
-      dateSworn: dateSchema,
-      adminOfficer: z.object({
-        signature: z.string(),
-        name: z.string().min(1, 'Officer name is required'),
-        position: z.string().min(1, 'Position is required'),
-        address: addressSchema,
-      }),
-      ctcInfo: z.object({
-        number: z.string().min(1, 'CTC number is required'),
-        dateIssued: dateSchema,
-        placeIssued: z.string().min(1, 'Place issued is required'),
-      }),
-    })
-    .optional(),
+    isDelayedRegistration: z.boolean().default(false),
+    affidavitOfDelayedRegistration: z
+      .object({
+        affiant: z.object({
+          name: z.string().min(1, 'Affiant name is required'),
+          // Use the provided prop for affiant's address:
+          address: addressSchema(affiantAddressNcrMode),
+          civilStatus: z.string().min(1, 'Civil status is required'),
+          citizenship: z.string().min(1, 'Citizenship is required'),
+        }),
+        registrationType: z.enum(['SELF', 'OTHER']),
+        parentMaritalStatus: z.enum(['MARRIED', 'NOT_MARRIED']),
+        reasonForDelay: z.string().min(1, 'Reason for delay is required'),
+        dateSworn: dateSchema,
+        adminOfficer: z.object({
+          signature: z.string(),
+          name: z.string().min(1, 'Officer name is required'),
+          position: z.string().min(1, 'Position is required'),
+        }),
+        ctcInfo: z.object({
+          number: z.string().min(1, 'CTC number is required'),
+          dateIssued: dateSchema,
+          placeIssued: z.string().min(1, 'Place issued is required'),
+        }),
+        spouseName: z.string().optional(),
+        applicantRelationship: z.string().optional(),
+      })
+      .optional(),
 
-  // Add this to your birthCertificateSchema
-  isDelayedRegistration: z.boolean().default(false),
-  affidavitOfDelayedRegistration: z
-    .object({
-      affiant: z.object({
-        name: z.string().min(1, 'Affiant name is required'),
-        address: addressSchema,
-        civilStatus: z.string().min(1, 'Civil status is required'),
-        citizenship: z.string().min(1, 'Citizenship is required'),
-      }),
-      registrationType: z.enum(['SELF', 'OTHER']),
-      parentMaritalStatus: z.enum(['MARRIED', 'NOT_MARRIED']),
-      reasonForDelay: z.string().min(1, 'Reason for delay is required'),
-      dateSworn: dateSchema,
-      adminOfficer: z.object({
-        signature: z.string(),
-        name: z.string().min(1, 'Officer name is required'),
-        position: z.string().min(1, 'Position is required'),
-      }),
-      ctcInfo: z.object({
-        number: z.string().min(1, 'CTC number is required'),
-        dateIssued: dateSchema,
-        placeIssued: z.string().min(1, 'Place issued is required'),
-      }),
-      spouseName: z.string().optional(), // Add this line
-      applicantRelationship: z.string().optional(), // Add this line
-    })
-    .optional(),
-
-  remarks: z.string().optional(),
-});
+    remarks: z.string().optional(),
+  });
 
 export type BirthCertificateFormValues = WithNullableDates<
-  z.infer<typeof birthCertificateSchema>
+  z.infer<ReturnType<typeof createBirthCertificateSchema>>
 >;
 
-// For testing purposes
-
+// For testing purposes, we export default values (using the non-NCR mode defaults)
 export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
   // Registry Information
-  registryNumber: '',
+  registryNumber: '2024-0001',
   province: '',
   cityMunicipality: '',
 
   // Child Information
   childInfo: {
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    sex: '',
-    dateOfBirth: null,
+    firstName: 'Juan',
+    middleName: 'Santos',
+    lastName: 'Reyes',
+    sex: 'Male',
+    dateOfBirth: new Date('2024-01-01T00:00:00'),
     placeOfBirth: {
-      hospital: '',
-      cityMunicipality: '',
-      province: '',
+      hospital: 'St. Luke Hospital',
+      cityMunicipality: 'Santa Rosa',
+      province: 'Laguna',
     },
-    typeOfBirth: '',
+    typeOfBirth: 'Single',
     multipleBirthOrder: '',
-    birthOrder: '',
-    weightAtBirth: '',
+    birthOrder: '1',
+    weightAtBirth: '3.2 kg',
   },
 
   // Mother Information
   motherInfo: {
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    citizenship: '',
-    religion: '',
-    occupation: '',
-    age: '',
-    totalChildrenBornAlive: '',
-    childrenStillLiving: '',
-    childrenNowDead: '',
+    firstName: 'Maria',
+    middleName: 'Luz',
+    lastName: 'Santos',
+    citizenship: 'Filipino',
+    religion: 'Roman Catholic',
+    occupation: 'Teacher',
+    age: '28',
+    totalChildrenBornAlive: '1',
+    childrenStillLiving: '1',
+    childrenNowDead: '0',
     residence: {
-      houseNumber: '',
-      street: '',
-      barangay: '',
-      cityMunicipality: '',
-      province: '',
-      country: '',
+      houseNumber: '456',
+      street: 'Mabini Street',
+      barangay: 'Barangay Uno',
+      cityMunicipality: 'Santa Rosa',
+      province: 'Laguna',
+      country: 'Philippines',
     },
   },
 
@@ -303,7 +325,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     date: new Date('2024-01-06T12:00:00'),
   },
 
-  // Affidavit of Paternity (set to true with full data)
+  // Affidavit of Paternity
   hasAffidavitOfPaternity: true,
   affidavitOfPaternityDetails: {
     father: {
@@ -337,7 +359,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     },
   },
 
-  // Delayed Registration (set to true with full data)
+  // Delayed Registration
   isDelayedRegistration: true,
   affidavitOfDelayedRegistration: {
     affiant: {

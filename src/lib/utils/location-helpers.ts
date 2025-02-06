@@ -333,3 +333,35 @@ export function getCombinedCitySuggestions(
   suggestions.sort((a, b) => a.displayName.localeCompare(b.displayName));
   return suggestions;
 }
+
+export function formatAddress(address: {
+  houseNumber?: string;
+  street?: string;
+  barangay?: string;
+  cityMunicipality?: string;
+  province?: string;
+  country?: string;
+  region?: string;
+}) {
+  // Try to get the region by matching the province name.
+  let region = address.region || '';
+  const provinces = getAllProvinces();
+  if (address.province) {
+    const prov = provinces.find(
+      (p) => p.name.toLowerCase() === address.province!.toLowerCase()
+    );
+    if (prov) {
+      // Use 'regionName' if that is the correct property name.
+      region = prov.regionName;
+    }
+  }
+  return {
+    houseNo: address.houseNumber || '',
+    street: address.street || '',
+    barangay: address.barangay || '',
+    cityMunicipality: address.cityMunicipality || '',
+    province: address.province || '',
+    region,
+    country: address.country || '',
+  };
+}

@@ -10,15 +10,21 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-
-import React, { useState } from 'react';
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
-const MotherInformationCard: React.FC = () => {
+interface MotherInformationCardProps {
+  motherResidenceNcrMode: boolean;
+  setMotherResidenceNcrMode: (value: boolean) => void;
+}
+
+const MotherInformationCard: React.FC<MotherInformationCardProps> = ({
+  motherResidenceNcrMode,
+  setMotherResidenceNcrMode,
+}) => {
   const { control } = useFormContext<BirthCertificateFormValues>();
-  const [isNCRMode, setIsNCRMode] = useState(false);
 
   return (
     <Card>
@@ -260,13 +266,18 @@ const MotherInformationCard: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
         {/* Residence Information Card */}
         <Card>
           <CardHeader className='pb-3'>
             <h3 className='text-sm font-semibold'>Residence Information</h3>
           </CardHeader>
           <CardContent>
-            <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
+            {/* Use the passed-in props for controlling the NCR mode */}
+            <NCRModeSwitch
+              isNCRMode={motherResidenceNcrMode}
+              setIsNCRMode={setMotherResidenceNcrMode}
+            />
             <div className='space-y-4'>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 {/* House Number */}
@@ -322,7 +333,7 @@ const MotherInformationCard: React.FC = () => {
                   provincePlaceholder='Select province'
                   municipalityPlaceholder='Select city/municipality'
                   className='col-span-2 grid grid-cols-2 gap-4'
-                  isNCRMode={isNCRMode}
+                  isNCRMode={motherResidenceNcrMode}
                   showBarangay={true}
                   barangayLabel='Barangay'
                   barangayPlaceholder='Select barangay'
