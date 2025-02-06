@@ -54,7 +54,23 @@ export function CreateRoleDialog({
     const handleCreateAction = () => {
         startTransition(async () => {
             try {
-                // Precaution: Check if role already exists (client-side)
+                // Validation
+                if (!name.trim()) {
+                    toast.error(t('Name is required'))
+                    return
+                }
+    
+                if (!description.trim()) {
+                    toast.error(t('Description is required'))
+                    return
+                }
+    
+                if (selectedPermissions.length === 0) {
+                    toast.error(t('At least one permission is required'))
+                    return
+                }
+    
+                // Check if role already exists (client-side)
                 const roleExists = roles.some(
                     (role) => role.name.toLowerCase() === name.trim().toLowerCase()
                 )
@@ -63,25 +79,25 @@ export function CreateRoleDialog({
                     toast.error(msg)
                     return
                 }
-
+    
                 const requestData = { name, description, permissions: selectedPermissions }
                 console.log('Creating role with data:', requestData)
                 const result = await createRoleAction(requestData)
-
+    
                 if (result && typeof result === 'object' && 'error' in result && result.error) {
                     const detailedError = t(`Failed to create role: ${result.error}`)
                     console.error('Error creating role:', result.error)
                     toast.error(detailedError)
                     return
                 }
-
+    
                 toast.success(t('Role created successfully'))
-
+    
                 // Reset form
                 setName('')
                 setDescription('')
                 setSelectedPermissions([])
-
+    
                 // Close dialog
                 await onOpenChangeAction(false)
             } catch (error: any) {
@@ -91,6 +107,7 @@ export function CreateRoleDialog({
             }
         })
     }
+    
 
     const handleOpenChange = (open: boolean) => {
         startTransition(async () => {

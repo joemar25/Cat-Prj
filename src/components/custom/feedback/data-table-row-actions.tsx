@@ -8,8 +8,12 @@ import { Icons } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
 import { useUser } from '@/context/user-context'
 import { Feedback, Permission } from '@prisma/client'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import {
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter
+} from '@/components/ui/dialog'
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 
 type FeedbackRow = Feedback & {
   user: {
@@ -26,15 +30,14 @@ interface DataTableRowActionsProps {
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const feedback = row.original
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const { permissions } = useUser()
 
   const canDelete = hasPermission(permissions, Permission.FEEDBACK_DELETE)
   const canViewDetails = hasPermission(permissions, Permission.FEEDBACK_READ)
 
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault()
-
+  const handleDelete = async () => {
     try {
       setIsDeleting(true)
       const response = await fetch(`/api/feedback/${feedback.id}`, {
@@ -47,6 +50,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
       }
 
       toast.success(`Feedback deleted successfully!`)
+      setConfirmDeleteOpen(false) // Close dialog after successful deletion
     } catch (error) {
       console.error('Error deleting feedback:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to delete feedback')
@@ -75,7 +79,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           )}
           {canDelete && (
             <DropdownMenuItem
-              onClick={handleDelete}
+              onClick={() => setConfirmDeleteOpen(true)}
               className="text-destructive focus:text-destructive"
               disabled={isDeleting}
             >
@@ -90,41 +94,62 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this feedback? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setConfirmDeleteOpen(false)} disabled={isDeleting}>
+              No
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting ? <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> : 'Yes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Details Dialog */}
       {canViewDetails && (
         <Dialog open={viewDetailsOpen} onOpenChange={setViewDetailsOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Feedback Details</DialogTitle>
-              <DialogDescription>
-                Detailed information about the feedback.
+          <DialogContent className="max-w-lg p-6 space-y-6 rounded-lg shadow-xl">
+            <DialogHeader className="text-center">
+              <DialogTitle className="text-xl font-semibold text-primary dark:text-white">Feedback Details</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground dark:text-gray-300">
+                Detailed information about the feedback submission.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium">Feedback</h4>
-                <p className="text-sm text-muted-foreground">{feedback.feedback}</p>
-              </div>
-              <div>
-                <h4 className="font-medium">Submitted By</h4>
-                <p className="text-sm text-muted-foreground">
-                  {feedback.user ? feedback.user.name : 'Anonymous'}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-medium">Email</h4>
-                <p className="text-sm text-muted-foreground">
-                  {feedback.user ? feedback.user.email : 'N/A'}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-medium">Submitted At</h4>
-                <p className="text-sm text-muted-foreground">
-                  {new Date(feedback.createdAt).toLocaleString()}
-                </p>
-              </div>
+
+            <div className="p-6 border rounded-lg shadow-sm">
+              <h4 className="font-medium text-lg dark:text-white">Feedback</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">{feedback.feedback}</p>
+              <hr className="my-3 border-gray-300 dark:border-gray-700" />
+
+              <h4 className="font-medium text-lg dark:text-white">Submitted By</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                {feedback.user ? feedback.user.name : 'Anonymous'}
+              </p>
+              <hr className="my-3 border-gray-300 dark:border-gray-700" />
+
+              <h4 className="font-medium text-lg dark:text-white">Email</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                {feedback.user ? feedback.user.email : 'N/A'}
+              </p>
+              <hr className="my-3 border-gray-300 dark:border-gray-700" />
+
+              <h4 className="font-medium text-lg dark:text-white">Submitted At</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                {new Date(feedback.createdAt).toLocaleString()}
+              </p>
             </div>
           </DialogContent>
         </Dialog>
+
       )}
     </>
   )

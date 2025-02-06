@@ -214,29 +214,31 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
         <Card className="flex-1">
           <CardContent className="p-2.5">
             <Tabs defaultValue="basic" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-3">
+              <TabsList className="grid w-full grid-cols-2 mb-3 h-12">
                 <TabsTrigger value="basic">{t("Basic Search")}</TabsTrigger>
                 <TabsTrigger value="advanced">{t("Name Search")}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="basic" className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-3 ">
                   <Input
                     placeholder={t("Search forms...")}
                     onChange={(event) =>
                       table.setGlobalFilter(event.target.value)
                     }
-                    className="w-full"
+                    className="w-full h-7"
                   />
                   <Input
                     placeholder={t("Page number...")}
                     value={pageSearch}
                     onChange={(event) => handlePageSearch(event.target.value)}
+                    className="w-full h-7"
                   />
                   <Input
                     placeholder={t("Book number...")}
                     value={bookSearch}
                     onChange={(event) => handleBookSearch(event.target.value)}
+                    className="w-full h-7"
                   />
                 </div>
               </TabsContent>
@@ -256,6 +258,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                         ])
                       }
                     }}
+                     className="w-full h-7"
                   />
                   <Input
                     placeholder={t("Middle name")}
@@ -270,6 +273,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                         ])
                       }
                     }}
+                     className="w-full h-7"
                   />
                   <Input
                     placeholder={t("Last name")}
@@ -284,6 +288,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                         ])
                       }
                     }}
+                     className="w-full h-7"
                   />
                 </div>
               </TabsContent>
