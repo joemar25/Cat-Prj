@@ -3,7 +3,7 @@
 
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
-import { SignInFormComponent } from "@/components/custom/auth/sign-in-form"
+import { SignInFormComponent } from "@/components/custom/auth/sign-in-form-v2"
 import { SignUpFormComponent } from "@/components/custom/auth/sign-up-form"
 import { useState, useEffect, useRef } from "react"
 import {
@@ -82,7 +82,7 @@ const Login = () => {
                         Sign in to your account to continue
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="pt-2">
+                    <CardContent>
                       <SignInFormComponent />
                       {isDevelopment && (
                         <div className="text-center text-sm mt-6">
@@ -175,13 +175,13 @@ const RightSide = () => {
   }, [])
 
   return (
-    <div className="w-full hidden lg:flex flex-col items-center justify-center dark:bg-blueColor/15 bg-blueColor/80 relative overflow-hidden">
+    <div className="w-full hidden lg:flex flex-col items-center justify-center dark:bg-blueColor/30 bg-white relative overflow-hidden">
       <span className="z-50 absolute top-2 right-0 ">
         <ThemeChange />
       </span>
 
       <div className="w-full top-6 absolute flex flex-col justify-start items-start px-6">
-        <CardTitle className="text-3xl font-bold font-manrope text-white dark:text-white">
+        <CardTitle className="text-3xl font-bold font-manrope dark:text-white">
           <span
             style={{
               color: currentIndex === 0 ? lottieSet[0].color : "inherit",
@@ -204,11 +204,8 @@ const RightSide = () => {
             Efficient.
           </span>
         </CardTitle>
-        <CardDescription className="max-w-sm text-white dark:text-white">
+        <CardDescription className="max-w-sm text-muted-foreground dark:text-white">
           <span
-            style={{
-              color: currentIndex === 3 ? lottieSet[3].color : "inherit",
-            }}
           >
             Committed to provide high-quality services and ensuring that all the
             data stored is protected.
@@ -222,11 +219,11 @@ const RightSide = () => {
           <div
             key={index}
             className={` rounded-full transition-colors duration-300 ${currentIndex === index
-              ? "bg-transparent bg-yellow-500 dark:bg-blueColor/80 h-3 w-6"
-              : " border-2 border-yellowColor dark:border-blueColor w-3 h-3"
+              ? "bg-transparent bg-muted-foreground dark:bg-white h-3 w-6"
+              : " border-2 border-muted-foreground dark:border-white w-3 h-3"
               }`}
           />
-        ))}
+        ))} 
       </div>
 
       <div
