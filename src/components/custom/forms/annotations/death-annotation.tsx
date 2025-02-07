@@ -144,7 +144,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
       <DialogContent className="sm:max-w-[900px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
-            Death Annotation Form
+            Civil Registry Form 2A
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
