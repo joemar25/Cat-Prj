@@ -28,7 +28,7 @@ export const useExportDialog = <T extends Record<string, unknown>>(
             if (data.length > 0) {
                 if ("totalMarriages" in data[0]) return "Marriage Registrations";
                 if ("totalBirths" in data[0]) return "Birth Registrations";
-                if ("totalDeaths" in data[0]) return "Death Registrations";
+                if ("totalDeaths" in data[0]) return "trations";
             }
             return "Data Export";
         }
