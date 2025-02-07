@@ -210,7 +210,7 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
       <DialogContent className="sm:max-w-[900px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
-            Marriage Annotation Form (Form 3A)
+            Civil Registry Form 3A
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
