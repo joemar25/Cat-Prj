@@ -204,7 +204,7 @@ export function FileUploadDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChangeAction}>
-            <DialogContent className="max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0">
+            <DialogContent className="max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-4">
                 {/* Header Section */}
                 <DialogHeader className="p-4 border-b">
                     <DialogTitle>Upload Document</DialogTitle>
@@ -214,18 +214,13 @@ export function FileUploadDialog({
                 </DialogHeader>
 
                 {/* Responsive Two-Column Layout */}
-                <div className="flex flex-col md:flex-row h-full">
+                <div className="flex flex-col md:flex-row h-[65vh]">
                     {/* Left Column: File Selection & Instructions */}
                     <div className="md:w-1/2 p-6 border-b md:border-b-0 md:border-r overflow-y-auto">
                         <div className="space-y-6">
                             {/* File Selection */}
                             <div className="flex flex-col gap-4">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => document.getElementById("fileInput")?.click()}
-                                >
-                                    Select File
-                                </Button>
+
                                 <Input
                                     id="fileInput"
                                     type="file"
@@ -250,34 +245,47 @@ export function FileUploadDialog({
                                     To change the file, simply click "Select File" again.
                                 </p>
                             </div>
+                            <Button
+                                variant="outline"
+                                onClick={() => document.getElementById("fileInput")?.click()}
+                            >
+                                Select File
+                            </Button>
                         </div>
                     </div>
 
                     {/* Right Column: File Preview */}
-                    <div className="md:w-1/2 p-6 overflow-y-auto flex items-center justify-center bg-gray-50">
-                        {file && previewUrl ? (
-                            file.type.startsWith("application/pdf") ? (
-                                <iframe
-                                    src={previewUrl}
-                                    title="PDF Preview"
-                                    className="w-full h-full border rounded"
-                                ></iframe>
-                            ) : file.type.startsWith("image/") ? (
-                                <img
-                                    src={previewUrl}
-                                    alt="Preview"
-                                    className="max-w-full max-h-full object-contain"
-                                />
+                    <div className="md:w-1/2">
+                        <div
+                            className={`w-full overflow-y-auto flex items-center justify-center bg-muted cursor-pointer h-full 
+                            ${!file ? "border-2 border-dotted border-gray-400" : ""}`}
+                            onClick={() => document.getElementById("fileInput")?.click()} // Trigger file input when preview is clicked
+                        >
+                            {file && previewUrl ? (
+                                file.type.startsWith("application/pdf") ? (
+                                    <iframe
+                                        src={previewUrl}
+                                        title="PDF Preview"
+                                        className="h-full w-full border rounded"
+                                    />
+                                ) : file.type.startsWith("image/") ? (
+                                    <img
+                                        src={previewUrl}
+                                        alt="Preview"
+                                        className="object-contain"
+                                    />
+                                ) : (
+                                    <p className="text-lg text-muted-foreground w-full h-[400px]">
+                                        Preview not available for this file type.
+                                    </p>
+                                )
                             ) : (
-                                <p className="text-lg text-muted-foreground">
-                                    Preview not available for this file type.
+                                <p className="text-lg text-center flex items-center justify-center text-muted-foreground w-full h-[400px]">
+                                    No file selected. The preview will appear here.
                                 </p>
-                            )
-                        ) : (
-                            <p className="text-lg text-muted-foreground">
-                                No file selected. The preview will appear here.
-                            </p>
-                        )}
+
+                            )}
+                        </div>
                     </div>
                 </div>
 
