@@ -14,7 +14,7 @@ import { createDeathCertificate } from '@/hooks/form-certificate-actions';
 import {
   DeathCertificateFormProps,
   DeathCertificateFormValues,
-  deathCertificateSchema,
+  createDeathCertificateSchema,
   defaultDeathCertificateFormValues,
 } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -50,7 +50,12 @@ export default function DeathCertificateForm({
   const [isNCRMode, setIsNCRMode] = useState(false);
 
   const form = useForm<DeathCertificateFormValues>({
-    resolver: zodResolver(deathCertificateSchema),
+    resolver: zodResolver(createDeathCertificateSchema(
+      isNCRMode,
+      isNCRMode,
+      isNCRMode,
+      isNCRMode
+    )),
     defaultValues: defaultDeathCertificateFormValues,
   });
 
@@ -129,7 +134,7 @@ export default function DeathCertificateForm({
           });
           return;
         }
-        if (errors.personalInfo) {
+        if (errors.deceasedInfo) {
           toast.error(
             'Please check the personal information section for errors'
           );

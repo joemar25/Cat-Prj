@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-
 import { toast } from 'sonner'
 import { useState } from 'react'
 import { Row } from '@tanstack/react-table'
@@ -24,11 +23,36 @@ import BirthAnnotationForm from '@/components/custom/forms/annotations/birth-cer
 import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form'
 
 import { Icons } from '@/components/ui/icons'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 
-// Extended types
-interface FormWithCTC extends BaseRegistryFormWithRelations {
+// Extended types that preserve the original structure while adding CTC
+type AttachmentWithCTC = Attachment & {
   certifiedCopies?: CertifiedCopy[]
+}
+
+type DocumentWithCTC = {
+  id: string
+  status: DocumentStatus
+  createdAt: Date
+  updatedAt: Date
+  title: string
+  metadata: any
+  type: AttachmentType
+  version: number
+  description: string | null
+  isLatest: boolean
+  attachments?: AttachmentWithCTC[]
+}
+
+type BaseRegistryFormWithCTC = Omit<BaseRegistryFormWithRelations, 'document'> & {
+  document?: DocumentWithCTC | null
 }
 
 interface DataTableRowActionsProps {
@@ -44,7 +68,7 @@ const createAttachment = (fileData: { url: string; id: string }): Attachment => 
     id: fileData.id,
     userId: null,
     documentId: null,
-    type: 'BIRTH_CERTIFICATE' as AttachmentType, // Will be updated with correct type
+    type: 'BIRTH_CERTIFICATE' as AttachmentType,
     fileUrl: fileData.url,
     fileName: fileData.url.split('/').pop() || fileData.url,
     fileSize: 0,
@@ -62,12 +86,18 @@ const createAttachment = (fileData: { url: string; id: string }): Attachment => 
 export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActionsProps) {
   const { t } = useTranslation()
   const { permissions } = useUser()
-  const form = row.original
+  const form = row.original as BaseRegistryFormWithCTC
 
-  // Cast the form to include certified copies
-  const formWithCTC = form as FormWithCTC
-  const hasCertifiedCopy = formWithCTC.certifiedCopies && formWithCTC.certifiedCopies.length > 0
+  // Check for attachments and get the latest one
   const hasAttachments = form.document?.attachments && form.document.attachments.length > 0
+  const latestAttachment = hasAttachments && form.document?.attachments
+    ? [...(form.document.attachments || [])].sort(
+      (a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+    )[0]
+    : null
+
+  // Check if latest attachment has CTC
+  const hasCTC = latestAttachment?.certifiedCopies && latestAttachment.certifiedCopies.length > 0
 
   // Dialog states
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -76,20 +106,24 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   const [annotationFormOpen, setAnnotationFormOpen] = useState(false)
 
   // Delete action hook
-  const { handleDelete, isLoading } = useDeleteFormAction({ form, onUpdateAction })
+  const { handleDelete, isLoading } = useDeleteFormAction({
+    form: form as BaseRegistryFormWithRelations
+  })
 
   // Permission checks
   const canView = hasPermission(permissions, Permission.DOCUMENT_READ)
   const canEdit = hasPermission(permissions, Permission.DOCUMENT_UPDATE)
   const canDelete = hasPermission(permissions, Permission.DOCUMENT_DELETE)
   const canUpload = hasPermission(permissions, Permission.DOCUMENT_CREATE)
+  const canExport = hasPermission(permissions, Permission.DOCUMENT_EXPORT) ||
+    process.env.NEXT_PUBLIC_NODE_ENV === 'development'
 
   // Handle file upload success
   const handleUploadSuccess = (fileData: { url: string; id: string }) => {
     const newAttachment = createAttachment(fileData)
 
     if (form.document) {
-      onUpdateAction?.({
+      const updatedForm: BaseRegistryFormWithRelations = {
         ...form,
         document: {
           ...form.document,
@@ -105,7 +139,56 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             }
           ],
         },
-      })
+      }
+      onUpdateAction?.(updatedForm)
+    }
+  }
+
+  // Handle export/download
+  const handleExport = async () => {
+    try {
+      if (!canExport) {
+        toast.error(t('You do not have permission to export documents'))
+        return
+      }
+
+      if (!latestAttachment) {
+        toast.error(t('No attachment found'))
+        return
+      }
+
+      if (!hasCTC) {
+        toast.error(t('Latest attachment needs a certified true copy (CTC) before you can export'))
+        return
+      }
+
+      const response = await fetch(`/api/attachments/${latestAttachment.id}/export?zip=true`)
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Export failed')
+      }
+
+      const blob = await response.blob()
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+      const filename = `${form.registryNumber}-${timestamp}-export.zip`
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+
+      // Cleanup
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+
+      toast.success(t('Export completed successfully'))
+    } catch (error) {
+      console.error('Export error:', error)
+      const errorMessage = error instanceof Error ? error.message : t('Failed to export files')
+      toast.error(errorMessage)
     }
   }
 
@@ -113,7 +196,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
     <>
       <div className="flex items-center space-x-2">
         {/* CTC Badge */}
-        {hasCertifiedCopy && (
+        {hasCTC && (
           <span className="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded">
             {t('ctcIssued')}
           </span>
@@ -176,22 +259,20 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             )}
 
             {/* Export Options */}
-            {hasCertifiedCopy ? (
-              <DropdownMenuItem asChild>
-                <Link href={`/civil-registry/export?formId=${form.id}&format=zip`}>
-                  <Icons.archive className="mr-2 h-4 w-4" />
-                  {t('exportZip')}
-                </Link>
+            {hasAttachments && (
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.preventDefault()
+                  if (hasCTC && canExport) {
+                    handleExport()
+                  }
+                }}
+                disabled={!hasCTC || !canExport}
+                className={!hasCTC || !canExport ? "text-muted-foreground" : ""}
+              >
+                <Icons.download className="mr-2 h-4 w-4" />
+                {t('Export')}
               </DropdownMenuItem>
-            ) : (
-              hasAttachments && (
-                <DropdownMenuItem asChild>
-                  <Link href={`/civil-registry/download?formId=${form.id}`}>
-                    <Icons.download className="mr-2 h-4 w-4" />
-                    {t('downloadAttachment')}
-                  </Link>
-                </DropdownMenuItem>
-              )
             )}
 
             {/* Delete Action */}
@@ -213,7 +294,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
       {/* Dialogs */}
       {canEdit && (
         <EditCivilRegistryFormDialog
-          form={form}
+          form={form as BaseRegistryFormWithRelations}
           open={editDialogOpen}
           onOpenChangeAction={setEditDialogOpen}
           onSave={(updatedForm) => {
@@ -253,7 +334,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           open={annotationFormOpen}
           onOpenChange={setAnnotationFormOpen}
           onCancel={() => setAnnotationFormOpen(false)}
-          formData={form}
+          formData={form as BaseRegistryFormWithRelations}
         />
       )}
       {form.formType === 'DEATH' && (
@@ -261,7 +342,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           open={annotationFormOpen}
           onOpenChange={setAnnotationFormOpen}
           onCancel={() => setAnnotationFormOpen(false)}
-          formData={form}
+          formData={form as BaseRegistryFormWithRelations}
         />
       )}
       {form.formType === 'MARRIAGE' && (
@@ -269,7 +350,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           open={annotationFormOpen}
           onOpenChange={setAnnotationFormOpen}
           onCancel={() => setAnnotationFormOpen(false)}
-          formData={form}
+          formData={form as BaseRegistryFormWithRelations}
         />
       )}
     </>

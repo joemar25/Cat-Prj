@@ -304,35 +304,6 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
             </Tabs>
           </CardContent>
         </Card>
-
-        {/* create new form container */}
-        {/* <Card className="w-full sm:w-auto">
-          <CardContent className="p-4">
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                {canExport && (
-                  <Button
-                    variant={"outline"}
-                    className="w-full sm:w-auto"
-                    onClick={handleExport}
-                  >
-                    <Icons.download className="mr-2 h-4 w-4" />
-                    {t("Export")}
-                  </Button>
-                )}
-
-              </div>
-              {canAdd && (
-                <div className="flex items-center gap-2">
-                  <AddCivilRegistryFormDialog />
-                </div>
-              )}
-              <DataTableViewOptions table={table} />
-            </div>
-
-          </CardContent>
-
-        </Card> */}
       </div>
 
       <div className="flex flex-wrap gap-2 justify-between items-center">
