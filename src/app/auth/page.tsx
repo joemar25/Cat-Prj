@@ -1,4 +1,3 @@
-// src\app\auth\sign-in\page.tsx
 "use client"
 
 import Image from "next/image"
@@ -31,11 +30,18 @@ const Login = () => {
   }, [])
 
   return (
-    <div className="w-full h-screen font-manrope">
+    <div className="w-full h-screen font-manrope relative">
+      {/* Development Mode Indicator */}
+      {isDevelopment && (
+        <div className="absolute top-0 left-0 bg-red-600 text-white text-xs px-4 py-1 rounded-br-lg shadow-md z-50">
+          Development Mode
+        </div>
+      )}
+
       <div className="w-full h-full flex justify-end items-center relative bg-white dark:bg-[#19191e]">
         <div className="absolute inset-0 bg-gradient-to-tr from-blueColor/10 via-white via-50% to-blueColor/10 dark:hidden" />
         <div className="w-full z-20 h-full flex justify-center px-4 items-center ">
-          <Card className="w-full max-w-5xl max-h-[90dvh] mx-auto shadow-xl flex flex-row overflow-hidden border border-gray-500/30 dark:border-[#2a2a30]   dark:bg-[#19191e]">
+          <Card className="w-full max-w-5xl max-h-[90dvh] mx-auto shadow-xl flex flex-row overflow-hidden border border-gray-500/30 dark:border-[#2a2a30] dark:bg-[#19191e]">
             {/* Left Section - Welcome Message */}
             <div className="w-full dark:bg-[#19191e] rounded-l-lg">
               <AnimatePresence mode="wait" initial={false}>
@@ -52,16 +58,16 @@ const Login = () => {
                       <Image
                         src="/images/new.png"
                         alt="New Image"
-                        width={96} // Use the actual width of the image
-                        height={96} // Use the actual height of the image
+                        width={96}
+                        height={96}
                         className="w-24 h-24"
                         loading="eager"
                       />
                       <Image
                         src="/images/logo.png"
                         alt="Logo"
-                        width={96} // Use the actual width of the image
-                        height={96} // Use the actual height of the image
+                        width={96}
+                        height={96}
                         className="w-24 h-24 rounded-full"
                         loading="eager"
                       />
@@ -159,24 +165,24 @@ const lottieSet = [
 
 const RightSide = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [isSliding, setIsSliding] = useState(false) // Controls the sliding animation
+  const [isSliding, setIsSliding] = useState(false)
   const lottieRef = useRef<LottieRefCurrentProps>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsSliding(true) // Start the sliding animation
+      setIsSliding(true)
       setTimeout(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % lottieSet.length) // Update the index
-        setIsSliding(false) // Reset sliding state after transition
-      }, 500) // Match the CSS transition duration
-    }, 7000) // Change animation every 7 seconds
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % lottieSet.length)
+        setIsSliding(false)
+      }, 500)
+    }, 7000)
 
-    return () => clearInterval(interval) // Cleanup on unmount
+    return () => clearInterval(interval)
   }, [])
 
   return (
     <div className="w-full hidden lg:flex flex-col items-center justify-center dark:bg-blueColor/30 bg-white relative overflow-hidden">
-      <span className="z-50 absolute top-2 right-0 ">
+      <span className="z-50 absolute top-2 right-0">
         <ThemeChange />
       </span>
 
@@ -205,25 +211,21 @@ const RightSide = () => {
           </span>
         </CardTitle>
         <CardDescription className="max-w-sm text-muted-foreground dark:text-white">
-          <span
-          >
-            Committed to provide high-quality services and ensuring that all the
-            data stored is protected.
-          </span>
+          Committed to provide high-quality services and ensuring that all the
+          data stored is protected.
         </CardDescription>
       </div>
 
-      {/* Indicators */}
       <div className="flex gap-2 mt-4 absolute bottom-6 z-50">
         {lottieSet.map((_, index) => (
           <div
             key={index}
-            className={` rounded-full transition-colors duration-300 ${currentIndex === index
-              ? "bg-transparent bg-muted-foreground dark:bg-white h-3 w-6"
-              : " border-2 border-muted-foreground dark:border-white w-3 h-3"
+            className={`rounded-full transition-colors duration-300 ${currentIndex === index
+              ? "bg-muted-foreground dark:bg-white h-3 w-6"
+              : "border-2 border-muted-foreground dark:border-white w-3 h-3"
               }`}
           />
-        ))} 
+        ))}
       </div>
 
       <div
