@@ -1,30 +1,39 @@
-// src\app\(dashboard)\requests\page.tsx
-
-// import { prisma } from '@/lib/prisma'
+// src/app/(dashboard)/certified-true-copies/page.tsx
+import { prisma } from '@/lib/prisma'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-// import { RequestsTableClient } from '@/components/custom/certified-true-copies/requests-table-client'
-
+import { RequestsTableClient } from '@/components/custom/certified-true-copies/requests-table-client'
 import { Suspense } from 'react'
-// async function getRequests() {
-//   try {
-//     const requests = await prisma.civilRegistryFormBase.findMany({
-//       orderBy: {
-//         createdAt: 'desc',
-//       },
-//       include: {
-//         birthForm: true,
-//         deathForm: true,
-//         marriageForm: true,
-//       },
-//     })
-//     return requests
-//   } catch (error) {
-//     console.error('Error fetching request data:', error)
-//     return []
-//   }
-// }
+
+async function getRequests() {
+  try {
+    const requests = await prisma.certifiedCopy.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        form: {
+          include: {
+            birthForm: true,
+            deathForm: true,
+            marriageForm: true,
+          }
+        },
+        attachment: true
+      }
+    })
+
+    // Ensure attachment always has a fileName or set to null
+    return requests.map(request => ({
+      ...request,
+      attachment: request.attachment ? { fileName: request.attachment.fileName } : null
+    }))
+  } catch (error) {
+    console.error('Error fetching request data:', error)
+    return []
+  }
+}
 
 function RequestsTableSkeleton() {
   return (
@@ -51,7 +60,7 @@ function RequestsTableSkeleton() {
 }
 
 export default async function RequestsPage() {
-  // const requests = await getRequests()
+  const requests = await getRequests()
 
   return (
     <>
@@ -64,7 +73,7 @@ export default async function RequestsPage() {
 
       <div className='flex flex-1 flex-col gap-4 p-4'>
         <Suspense fallback={<RequestsTableSkeleton />}>
-          {/* <RequestsTableClient requests={requests} /> */}
+          <RequestsTableClient requests={requests} />
         </Suspense>
       </div>
     </>

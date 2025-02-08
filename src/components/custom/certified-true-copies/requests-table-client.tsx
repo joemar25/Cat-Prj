@@ -1,4 +1,4 @@
-// src/components/custom/requests/requests-table-client.tsx
+// src/components/custom/certified-true-copies/requests-table-client.tsx
 'use client';
 
 import { useState } from 'react';
@@ -13,8 +13,7 @@ interface RequestsTableClientProps {
 export function RequestsTableClient({
   requests: initialRequests,
 }: RequestsTableClientProps) {
-  const [requests, setRequests] =
-    useState<ExtendedCertifiedCopy[]>(initialRequests);
+  const [requests, setRequests] = useState<ExtendedCertifiedCopy[]>(initialRequests);
 
   const handleRequestUpdate = (updatedRequest: ExtendedCertifiedCopy) => {
     setRequests((prevRequests) =>

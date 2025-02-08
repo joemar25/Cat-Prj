@@ -1,4 +1,4 @@
-// src\components\custom\requests\columns.tsx
+// src/components/custom/certified-true-copies/columns.tsx
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
@@ -86,12 +86,12 @@ export const createColumns = (
                                 <div className="flex items-center gap-1.5">
                                     <Icons.file className="h-4 w-4 text-blue-500" />
                                     <span className="text-sm truncate max-w-[150px]">
-                                        {certifiedCopy.attachment?.fileName || 'No attachment'}
+                                        {certifiedCopy.attachment?.fileName ?? 'No attachment'}
                                     </span>
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p>{certifiedCopy.attachment?.fileName || 'No attachment'}</p>
+                                <p>{certifiedCopy.attachment?.fileName ?? 'No attachment'}</p>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>

@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input'
 import { CertifiedCopy, Permission } from '@prisma/client'
 import { Button } from '@/components/ui/button'
 import { Cross2Icon } from '@radix-ui/react-icons'
-import { FormSelection } from './components/form-selection'
 import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
 import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
 import { hasPermission } from '@/types/auth'
@@ -85,12 +84,6 @@ export function DataTableToolbar<TData extends CertifiedCopy>({
           <Icons.download className='mr-2 h-4 w-4' />
           Export
         </Button>
-        {canEdit && (
-          <FormSelection
-            open={formSelectionOpen}
-            onOpenChangeAction={setFormSelectionOpen}
-          />
-        )}
         <DataTableViewOptions table={table} />
       </div>
     </div>
