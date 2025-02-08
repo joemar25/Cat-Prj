@@ -17,26 +17,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import {
-  getAllProvinces,
-  getCitiesMunicipalities,
-} from '@/lib/utils/location-helpers';
+
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import LocationSelector from '../shared-components/location-selector';
 
-const PersonalInformationCard = () => {
+const DeceasedInformationCard = () => {
   const { control, setValue } = useFormContext<DeathCertificateFormValues>();
-
-  const [selectedProvince, setSelectedProvince] = useState('');
-
-  const allProvinces = getAllProvinces();
-  const citiesMunicipalities = getCitiesMunicipalities(selectedProvince);
 
   return (
     <Card className='w-full'>
       <CardHeader>
         <CardTitle className='text-2xl font-semibold'>
-          Personal Information
+          Deceased Information
         </CardTitle>
       </CardHeader>
       <CardContent className='space-y-6'>
@@ -49,7 +42,7 @@ const PersonalInformationCard = () => {
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <FormField
                 control={control}
-                name='personalInfo.firstName'
+                name='deceasedInfo.firstName'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
@@ -66,7 +59,7 @@ const PersonalInformationCard = () => {
               />
               <FormField
                 control={control}
-                name='personalInfo.middleName'
+                name='deceasedInfo.middleName'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Middle Name</FormLabel>
@@ -83,7 +76,7 @@ const PersonalInformationCard = () => {
               />
               <FormField
                 control={control}
-                name='personalInfo.lastName'
+                name='deceasedInfo.lastName'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
@@ -105,13 +98,15 @@ const PersonalInformationCard = () => {
         {/* Identity Section */}
         <Card>
           <CardHeader className='pb-3'>
-            <h3 className='text-sm font-semibold'>Identity Information</h3>
+            <CardTitle className='text-sm font-semibold'>
+              Identity Information
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <FormField
                 control={control}
-                name='personalInfo.sex'
+                name='deceasedInfo.sex'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Sex</FormLabel>
@@ -135,7 +130,7 @@ const PersonalInformationCard = () => {
               />
               <FormField
                 control={control}
-                name='personalInfo.civilStatus'
+                name='deceasedInfo.civilStatus'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Civil Status</FormLabel>
@@ -176,21 +171,17 @@ const PersonalInformationCard = () => {
                 {/* Date of Death */}
                 <FormField
                   control={control}
-                  name='personalInfo.dateOfDeath'
+                  name='deceasedInfo.dateOfDeath'
                   render={({ field }) => (
                     <FormItem>
                       <DatePickerField
-                        field={{
-                          value: field.value,
-                          onChange: field.onChange,
-                        }}
+                        field={{ value: field.value, onChange: field.onChange }}
                         label='Date of Death'
                         placeholder='Select date of death'
                       />
                     </FormItem>
                   )}
                 />
-
                 {/* Time of Death */}
                 <FormField
                   control={control}
@@ -208,18 +199,14 @@ const PersonalInformationCard = () => {
                   )}
                 />
               </div>
-
               {/* Date of Birth */}
               <FormField
                 control={control}
-                name='personalInfo.dateOfBirth'
+                name='deceasedInfo.dateOfBirth'
                 render={({ field }) => (
                   <FormItem>
                     <DatePickerField
-                      field={{
-                        value: field.value,
-                        onChange: field.onChange,
-                      }}
+                      field={{ value: field.value, onChange: field.onChange }}
                       label='Date of Birth'
                       placeholder='Select date of birth'
                     />
@@ -242,7 +229,7 @@ const PersonalInformationCard = () => {
               {/* Years */}
               <FormField
                 control={control}
-                name='personalInfo.ageAtDeath.years'
+                name='deceasedInfo.ageAtDeath.years'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Years</FormLabel>
@@ -254,10 +241,10 @@ const PersonalInformationCard = () => {
                         className='h-10 pr-8'
                         placeholder='Years'
                         inputMode='numeric'
-                        maxLength={3} // Optional: Prevent excessively long inputs
+                        maxLength={3}
                         onChange={(e) => {
                           const value = e.target.value;
-                          field.onChange(value === '' ? '' : value); // Ensure empty string is handled
+                          field.onChange(value === '' ? '' : value);
                         }}
                         value={field.value || ''}
                       />
@@ -266,11 +253,10 @@ const PersonalInformationCard = () => {
                   </FormItem>
                 )}
               />
-
               {/* Months */}
               <FormField
                 control={control}
-                name='personalInfo.ageAtDeath.months'
+                name='deceasedInfo.ageAtDeath.months'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Months</FormLabel>
@@ -282,10 +268,10 @@ const PersonalInformationCard = () => {
                         className='h-10 pr-8'
                         placeholder='Months'
                         inputMode='numeric'
-                        maxLength={2} // Optional: Prevent excessively long inputs
+                        maxLength={2}
                         onChange={(e) => {
                           const value = e.target.value;
-                          field.onChange(value === '' ? '' : value); // Ensure empty string is handled
+                          field.onChange(value === '' ? '' : value);
                         }}
                         value={field.value || ''}
                       />
@@ -294,11 +280,10 @@ const PersonalInformationCard = () => {
                   </FormItem>
                 )}
               />
-
               {/* Days */}
               <FormField
                 control={control}
-                name='personalInfo.ageAtDeath.days'
+                name='deceasedInfo.ageAtDeath.days'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Days</FormLabel>
@@ -310,10 +295,10 @@ const PersonalInformationCard = () => {
                         className='h-10 pr-8'
                         placeholder='Days'
                         inputMode='numeric'
-                        maxLength={2} // Optional: Prevent excessively long inputs
+                        maxLength={2}
                         onChange={(e) => {
                           const value = e.target.value;
-                          field.onChange(value === '' ? '' : value); // Ensure empty string is handled
+                          field.onChange(value === '' ? '' : value);
                         }}
                         value={field.value || ''}
                       />
@@ -322,11 +307,10 @@ const PersonalInformationCard = () => {
                   </FormItem>
                 )}
               />
-
               {/* Hours */}
               <FormField
                 control={control}
-                name='personalInfo.ageAtDeath.hours'
+                name='deceasedInfo.ageAtDeath.hours'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Hours</FormLabel>
@@ -338,10 +322,10 @@ const PersonalInformationCard = () => {
                         className='h-10 pr-8'
                         placeholder='Hours'
                         inputMode='numeric'
-                        maxLength={2} // Optional: Prevent excessively long inputs
+                        maxLength={2}
                         onChange={(e) => {
                           const value = e.target.value;
-                          field.onChange(value === '' ? '' : value); // Ensure empty string is handled
+                          field.onChange(value === '' ? '' : value);
                         }}
                         value={field.value || ''}
                       />
@@ -362,108 +346,75 @@ const PersonalInformationCard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
-            {/* Province Selection */}
-            <FormField
-              control={control}
-              name='personalInfo.placeOfDeath.province'
-              render={({ field }) => {
-                console.log('Province field value:', field.value); // Debugging
-                return (
-                  <FormItem>
-                    <FormLabel>Province</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        const selected = allProvinces.find(
-                          (province) => province.id === value
-                        );
-                        console.log('Selected province:', selected); // Debugging
-                        field.onChange(selected?.name || ''); // Update form value with province name
-                        setSelectedProvince(value); // Set selected province ID for filtering cities
-                        setValue(
-                          'personalInfo.placeOfDeath.province',
-                          selected?.name || ''
-                        );
-                      }}
-                      value={
-                        allProvinces.find(
-                          (province) => province.name === field.value
-                        )?.id || ''
-                      }
-                    >
-                      <FormControl>
-                        <SelectTrigger className='h-10'>
-                          <SelectValue placeholder='Select a province' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {allProvinces.map((province) => (
-                          <SelectItem key={province.id} value={province.id}>
-                            {province.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
+            {/* New LocationSelector for Place of Death */}
+            <LocationSelector
+              provinceFieldName='deceasedInfo.placeOfDeath.province'
+              municipalityFieldName='deceasedInfo.placeOfDeath.cityMunicipality'
+              barangayFieldName='deceasedInfo.placeOfDeath.barangay'
+              provinceLabel='Province'
+              municipalityLabel='City/Municipality'
+              barangayLabel='Barangay'
+              isNCRMode={false}
+              showBarangay={false}
+              provincePlaceholder='Type province name...'
+              municipalityPlaceholder='Type city/municipality name...'
+              barangayPlaceholder='Type barangay name...'
+              formItemClassName=''
+              formLabelClassName=''
             />
-
-            {/* City/Municipality Selection */}
+            {/* Additional field for street (e.g. hospital/clinic name) */}
             <FormField
               control={control}
-              name='personalInfo.placeOfDeath.cityMunicipality'
-              render={({ field }) => {
-                console.log('City/Municipality field value:', field.value); // Debugging
-                return (
-                  <FormItem>
-                    <FormLabel>City/Municipality</FormLabel>
-                    <Select
-                      onValueChange={field.onChange} // Update form value directly
-                      value={field.value || ''} // Ensure value is a string
-                      disabled={!selectedProvince} // Disable if no province is selected
-                    >
-                      <FormControl>
-                        <SelectTrigger className='h-10'>
-                          <SelectValue placeholder='Select a city/municipality' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {citiesMunicipalities.map((city) => (
-                          <SelectItem key={city} value={city}>
-                            {city}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-
-            {/* Specific Address (Hospital/Clinic/House No., St., Barangay) */}
-            <FormField
-              control={control}
-              name='personalInfo.placeOfDeath.specificAddress'
+              name='deceasedInfo.placeOfDeath.street'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    Specific Address (Hospital/Clinic/Institution/House No.,
-                    St., Barangay)
-                  </FormLabel>
+                  <FormLabel>Street / Institution</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      className='h-10 pr-8'
-                      placeholder='Enter specific address (e.g., Hospital Name, House No., Street, Barangay)'
-                      inputMode='text'
-                      maxLength={200} // Optional: Prevent excessively long inputs
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        field.onChange(value); // Update the field value
-                      }}
-                      value={field.value || ''}
+                      placeholder='Enter street or institution'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Residence Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className='text-sm font-semibold'>Residence</CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-4'>
+            {/* New LocationSelector for Residence */}
+            <LocationSelector
+              provinceFieldName='deceasedInfo.residence.province'
+              municipalityFieldName='deceasedInfo.residence.cityMunicipality'
+              barangayFieldName='deceasedInfo.residence.barangay'
+              provinceLabel='Province'
+              municipalityLabel='City/Municipality'
+              barangayLabel='Barangay'
+              isNCRMode={false}
+              showBarangay={true}
+              provincePlaceholder='Type province name...'
+              municipalityPlaceholder='Type city/municipality name...'
+              barangayPlaceholder='Type barangay name...'
+              formItemClassName=''
+              formLabelClassName=''
+            />
+            {/* Optional: Additional field for street/house number if needed */}
+            <FormField
+              control={control}
+              name='deceasedInfo.residence.street'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Street / House Number</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder='Enter street and house number'
                     />
                   </FormControl>
                   <FormMessage />
@@ -481,9 +432,9 @@ const PersonalInformationCard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-8'>
-            {/* Father's Name Section */}
+            {/* Father's Name */}
             <div className='space-y-4'>
-              <h4 className='text-sm '>Father&apos;s Name</h4>
+              <h4 className='text-sm'>Father's Name</h4>
               <div className='grid grid-cols-3 gap-4'>
                 <FormField
                   control={control}
@@ -535,10 +486,9 @@ const PersonalInformationCard = () => {
                 />
               </div>
             </div>
-
-            {/* Mother's Maiden Name Section */}
+            {/* Mother's Maiden Name */}
             <div className='space-y-4'>
-              <h4 className='text-sm'>Mother&apos;s Maiden Name</h4>
+              <h4 className='text-sm'>Mother's Maiden Name</h4>
               <div className='grid grid-cols-3 gap-4'>
                 <FormField
                   control={control}
@@ -605,7 +555,7 @@ const PersonalInformationCard = () => {
               {/* Religion */}
               <FormField
                 control={control}
-                name='personalInfo.religion'
+                name='deceasedInfo.religion'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Religion</FormLabel>
@@ -616,11 +566,10 @@ const PersonalInformationCard = () => {
                   </FormItem>
                 )}
               />
-
               {/* Citizenship */}
               <FormField
                 control={control}
-                name='personalInfo.citizenship'
+                name='deceasedInfo.citizenship'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Citizenship</FormLabel>
@@ -631,29 +580,10 @@ const PersonalInformationCard = () => {
                   </FormItem>
                 )}
               />
-
-              {/* Residence */}
-              <FormField
-                control={control}
-                name='personalInfo.residence.address'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Residence</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder='Enter complete residence address'
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               {/* Occupation */}
               <FormField
                 control={control}
-                name='personalInfo.occupation'
+                name='deceasedInfo.occupation'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Occupation</FormLabel>
@@ -672,4 +602,4 @@ const PersonalInformationCard = () => {
   );
 };
 
-export default PersonalInformationCard;
+export default DeceasedInformationCard;
