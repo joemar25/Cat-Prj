@@ -123,39 +123,56 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                 return
             }
 
-            const exportUrl = `/api/attachments/export?attachmentId=${attachment.id}&zip=true`
-            const res = await fetch(exportUrl)
+            // Use the new API endpoint structure with the attachment ID in the path
+            const exportUrl = `/api/attachments/${attachment.id}/export?zip=true`
+            const res = await fetch(exportUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/zip'
+                }
+            })
+
             if (!res.ok) {
-                throw new Error(t('Failed to export attachment'))
+                const errorData = await res.json().catch(() => null)
+                throw new Error(errorData?.error || t('Failed to export attachment'))
             }
+
             const blob = await res.blob()
 
-            // Extract the filename from the Content-Disposition header set by the API.
+            // Extract the filename from the Content-Disposition header
             const disposition = res.headers.get('Content-Disposition')
             let filename = ''
-            if (disposition && disposition.indexOf('filename=') !== -1) {
-                const match = disposition.match(/filename="([^"]+)"/)
-                if (match && match[1]) {
-                    filename = match[1]
+            if (disposition) {
+                const filenameMatch = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+                if (filenameMatch && filenameMatch[1]) {
+                    // Remove quotes if present
+                    filename = filenameMatch[1].replace(/['"]/g, '')
                 }
             }
 
-            // Fallback: use the attachment filename if the header is not present.
+            // Fallback filename with timestamp if header is not present
             if (!filename) {
-                filename = attachment.fileName.replace(/\.[^/.]+$/, '') + '.zip'
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+                const baseFileName = attachment.fileName.replace(/\.[^/.]+$/, '')
+                filename = `${baseFileName}-${timestamp}.zip`
             }
 
+            // Create download link and trigger download
             const url = window.URL.createObjectURL(blob)
             const a = document.createElement('a')
             a.href = url
-            // Use the filename extracted from the response header.
             a.download = filename
+            document.body.appendChild(a)
             a.click()
+
+            // Cleanup
+            document.body.removeChild(a)
             window.URL.revokeObjectURL(url)
+
+            toast.success(t('Export completed successfully'))
         } catch (error: unknown) {
             console.error('Export error:', error)
-            const errMsg =
-                error instanceof Error ? error.message : t('Failed to export attachment')
+            const errMsg = error instanceof Error ? error.message : t('Failed to export attachment')
             toast.error(errMsg)
         }
     }

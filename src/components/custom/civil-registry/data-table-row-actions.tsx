@@ -1,43 +1,62 @@
-// src/components/custom/civil-registry/data-table-row-actions.tsx
 'use client'
+
+import Link from 'next/link'
 
 import { toast } from 'sonner'
 import { useState } from 'react'
 import { Row } from '@tanstack/react-table'
-import { hasPermission } from '@/types/auth'
-import { Icons } from '@/components/ui/icons'
 import { useTranslation } from 'react-i18next'
+import { Permission, Attachment, CertifiedCopy, AttachmentType, DocumentStatus } from '@prisma/client'
+
+import { hasPermission } from '@/types/auth'
 import { Button } from '@/components/ui/button'
 import { useUser } from '@/context/user-context'
-import { Permission, Attachment } from '@prisma/client'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
-import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { useDeleteFormAction } from '@/components/custom/civil-registry/actions/delete-form-action'
-import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { DeleteConfirmationDialog } from '@/components/custom/civil-registry/components/delete-confirmation-dialog'
-import { Attachment as AttachmentType } from '@prisma/client'
-import Link from 'next/link'
 
-// Import the annotation forms directly
-import BirthAnnotationForm from '@/components/custom/forms/annotations/birth-cert-annotation'
+import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
+import { DeleteConfirmationDialog } from '@/components/custom/civil-registry/components/delete-confirmation-dialog'
+import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
+
+// Import annotation forms
 import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation'
+import BirthAnnotationForm from '@/components/custom/forms/annotations/birth-cert-annotation'
 import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form'
 
-// Extend the type locally so we can check for certified copies.
-import { CertifiedCopy } from '@prisma/client'
-type FormWithCTC = BaseRegistryFormWithRelations & { certifiedCopies?: CertifiedCopy[] }
+import { Icons } from '@/components/ui/icons'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+
+// Extended types
+interface FormWithCTC extends BaseRegistryFormWithRelations {
+  certifiedCopies?: CertifiedCopy[]
+}
 
 interface DataTableRowActionsProps {
   row: Row<BaseRegistryFormWithRelations>
   onUpdateAction?: (updatedForm: BaseRegistryFormWithRelations) => void
+}
+
+/**
+ * Helper function to create a minimal attachment object
+ */
+const createAttachment = (fileData: { url: string; id: string }): Attachment => {
+  return {
+    id: fileData.id,
+    userId: null,
+    documentId: null,
+    type: 'BIRTH_CERTIFICATE' as AttachmentType, // Will be updated with correct type
+    fileUrl: fileData.url,
+    fileName: fileData.url.split('/').pop() || fileData.url,
+    fileSize: 0,
+    mimeType: 'application/octet-stream',
+    status: 'PENDING' as DocumentStatus,
+    uploadedAt: new Date(),
+    updatedAt: new Date(),
+    verifiedAt: null,
+    notes: null,
+    metadata: null,
+    hash: null,
+  } as Attachment
 }
 
 export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActionsProps) {
@@ -45,34 +64,62 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   const { permissions } = useUser()
   const form = row.original
 
-  // Typecast the form to include certifiedCopies.
+  // Cast the form to include certified copies
   const formWithCTC = form as FormWithCTC
   const hasCertifiedCopy = formWithCTC.certifiedCopies && formWithCTC.certifiedCopies.length > 0
   const hasAttachments = form.document?.attachments && form.document.attachments.length > 0
 
-  // State variables for dialogs (only for actions that use dialogs)
+  // Dialog states
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [deletionAlertOpen, setDeletionAlertOpen] = useState(false)
-  // State for opening the annotation form dialog (for issuing certificate)
   const [annotationFormOpen, setAnnotationFormOpen] = useState(false)
 
+  // Delete action hook
   const { handleDelete, isLoading } = useDeleteFormAction({ form, onUpdateAction })
 
+  // Permission checks
   const canView = hasPermission(permissions, Permission.DOCUMENT_READ)
   const canEdit = hasPermission(permissions, Permission.DOCUMENT_UPDATE)
   const canDelete = hasPermission(permissions, Permission.DOCUMENT_DELETE)
   const canUpload = hasPermission(permissions, Permission.DOCUMENT_CREATE)
 
+  // Handle file upload success
+  const handleUploadSuccess = (fileData: { url: string; id: string }) => {
+    const newAttachment = createAttachment(fileData)
+
+    if (form.document) {
+      onUpdateAction?.({
+        ...form,
+        document: {
+          ...form.document,
+          attachments: [
+            ...(form.document.attachments || []),
+            {
+              ...newAttachment,
+              type: form.formType === 'BIRTH'
+                ? AttachmentType.BIRTH_CERTIFICATE
+                : form.formType === 'DEATH'
+                  ? AttachmentType.DEATH_CERTIFICATE
+                  : AttachmentType.MARRIAGE_CERTIFICATE
+            }
+          ],
+        },
+      })
+    }
+  }
+
   return (
     <>
       <div className="flex items-center space-x-2">
-        {/* If a certified copy exists, display a badge */}
+        {/* CTC Badge */}
         {hasCertifiedCopy && (
           <span className="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded">
             {t('ctcIssued')}
           </span>
         )}
+
+        {/* Dropdown Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
@@ -83,6 +130,8 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           <DropdownMenuContent align="end" className="w-[160px]">
             <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
+
+            {/* View Details */}
             {canView && (
               <DropdownMenuItem asChild>
                 <Link href={`/civil-registry/details?formId=${form.id}`}>
@@ -91,12 +140,16 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
                 </Link>
               </DropdownMenuItem>
             )}
+
+            {/* Upload Document */}
             {canUpload && (
               <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
                 <Icons.printer className="mr-2 h-4 w-4" />
                 {t('scanDocumentUpload')}
               </DropdownMenuItem>
             )}
+
+            {/* View Attachments */}
             {hasAttachments && (
               <DropdownMenuItem asChild>
                 <Link href={`/civil-registry/attachments?formId=${form.id}`}>
@@ -105,12 +158,14 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
                 </Link>
               </DropdownMenuItem>
             )}
+
+            {/* Edit and Issue Certificate */}
             {canEdit && (
               <>
-                {/* <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+                <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
                   <Icons.folder className="mr-2 h-4 w-4" />
                   {t('editForm.title')}
-                </DropdownMenuItem> */}
+                </DropdownMenuItem>
                 {hasAttachments && (
                   <DropdownMenuItem onClick={() => setAnnotationFormOpen(true)}>
                     <Icons.files className="mr-2 h-4 w-4" />
@@ -119,7 +174,8 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
                 )}
               </>
             )}
-            {/* Export options: if a certified copy exists, export as zip; otherwise, allow solo download */}
+
+            {/* Export Options */}
             {hasCertifiedCopy ? (
               <DropdownMenuItem asChild>
                 <Link href={`/civil-registry/export?formId=${form.id}&format=zip`}>
@@ -137,6 +193,8 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
                 </DropdownMenuItem>
               )
             )}
+
+            {/* Delete Action */}
             {canDelete && (
               <DropdownMenuItem
                 onSelect={(e) => e.preventDefault()}
@@ -152,6 +210,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
         </DropdownMenu>
       </div>
 
+      {/* Dialogs */}
       {canEdit && (
         <EditCivilRegistryFormDialog
           form={form}
@@ -181,34 +240,14 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
         <FileUploadDialog
           open={uploadDialogOpen}
           onOpenChangeAction={setUploadDialogOpen}
-          onUploadSuccess={(fileUrl: string) => {
-            // Create a minimal attachment object for UI purposes.
-            const newAttachment = {
-              fileUrl,
-              fileName: fileUrl.split('/').pop() || fileUrl,
-              fileSize: 0,
-            } as unknown as AttachmentType
-
-            if (form.document) {
-              onUpdateAction?.({
-                ...form,
-                document: {
-                  ...form.document,
-                  attachments: form.document.attachments
-                    ? [...form.document.attachments, newAttachment]
-                    : [newAttachment],
-                },
-              })
-            }
-          }}
+          onUploadSuccess={handleUploadSuccess}
           formId={form.id}
           formType={form.formType}
           registryNumber={form.registryNumber}
         />
       )}
 
-      {/* Annotation Form Dialogs based on form type.
-          Here we pass the typed form data (via the prop "formData") instead of the generic "row". */}
+      {/* Form Type Specific Annotation Forms */}
       {form.formType === 'BIRTH' && (
         <BirthAnnotationForm
           open={annotationFormOpen}

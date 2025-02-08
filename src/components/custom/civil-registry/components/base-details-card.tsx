@@ -1,22 +1,22 @@
-// src/components/custom/civil-registry/components/base-details-card.tsx
 'use client'
 
-import React, { useState } from 'react'
 import { toast } from 'sonner'
-import { FormType, Permission, Attachment, DocumentStatus } from '@prisma/client'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FormType, Permission, Attachment, DocumentStatus } from '@prisma/client'
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Icons } from '@/components/ui/icons'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
-import { useUser } from '@/context/user-context'
 import { hasPermission } from '@/types/auth'
+import { useUser } from '@/context/user-context'
 
+import { Icons } from '@/components/ui/icons'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
 import { AttachmentsTable, AttachmentWithCertifiedCopies } from '@/components/custom/civil-registry/components/attachment-table'
+
 import StatusSelect from './status-dropdown'
 
 interface BaseDetailsCardProps {
@@ -41,12 +41,28 @@ const statusVariants: Record<
 }
 
 /**
- * Helper function to create a minimal Attachment object from a fileUrl.
+ * Helper function to create a minimal Attachment object from file data.
  * (This is used only for UI purposes when uploading an attachment.)
  */
 const createAttachment = (fileUrl: string): Attachment => {
     const fileName = fileUrl.split('/').pop() || fileUrl
-    return { fileUrl, fileName, fileSize: 0 } as Attachment
+    return {
+        id: '', // This will be replaced by the actual ID from the server
+        userId: null,
+        documentId: null,
+        type: 'BIRTH_CERTIFICATE' as const, // Default type, will be updated with actual type
+        fileUrl,
+        fileName,
+        fileSize: 0,
+        mimeType: 'application/octet-stream',
+        status: 'PENDING' as const,
+        uploadedAt: new Date(),
+        updatedAt: new Date(),
+        verifiedAt: null,
+        notes: null,
+        metadata: null,
+        hash: null,
+    } as Attachment
 }
 
 export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdateAction }) => {
@@ -121,7 +137,6 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                     <div>
                         <p className="font-medium">{t('Status')}</p>
                         <div>
-                            {/* Instead of showing a static badge, we display the StatusSelect */}
                             <StatusSelect
                                 formId={form.id}
                                 currentStatus={form.status as DocumentStatus}
@@ -171,14 +186,17 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                 <FileUploadDialog
                     open={uploadDialogOpen}
                     onOpenChangeAction={setUploadDialogOpen}
-                    onUploadSuccess={(fileUrl: string) => {
-                        const newAttachment = createAttachment(fileUrl)
+                    onUploadSuccess={(fileData) => {
+                        const newAttachment = createAttachment(fileData.url)
                         if (form.document) {
                             onUpdateAction?.({
                                 ...form,
                                 document: {
                                     ...form.document,
-                                    attachments: [...(form.document.attachments || []), newAttachment],
+                                    attachments: [...(form.document.attachments || []), {
+                                        ...newAttachment,
+                                        id: fileData.id // Use the ID from the server response
+                                    }],
                                 },
                             })
                         }
@@ -204,3 +222,5 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
         </Card>
     )
 }
+
+export default BaseDetailsCard
