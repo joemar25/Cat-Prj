@@ -17,6 +17,11 @@ import { FileUploadDialog } from '@/components/custom/civil-registry/components/
 import { DeleteConfirmationDialog } from '@/components/custom/civil-registry/components/delete-confirmation-dialog'
 import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
 
+// Import annotation forms
+import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation'
+import BirthAnnotationForm from '@/components/custom/forms/annotations/birth-cert-annotation'
+import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form'
+
 import { Icons } from '@/components/ui/icons'
 import {
   DropdownMenu,
@@ -44,9 +49,11 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [deletionAlertOpen, setDeletionAlertOpen] = useState(false)
+  const [annotationFormOpen, setAnnotationFormOpen] = useState(false)
 
   const { handleDelete, isLoading } = useDeleteFormAction({ form })
 
+  // Permission checks
   const canView = hasPermission(permissions, Permission.DOCUMENT_READ)
   const canEdit = hasPermission(permissions, Permission.DOCUMENT_UPDATE)
   const canDelete = hasPermission(permissions, Permission.DOCUMENT_DELETE)
@@ -54,10 +61,13 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   const canExport = hasPermission(permissions, Permission.DOCUMENT_EXPORT) ||
     process.env.NEXT_PUBLIC_NODE_ENV === 'development'
 
-  // Get the latest attachment
-  const latestAttachment = form.document?.attachments?.[0] as AttachmentWithCTC | undefined
-  const hasCTC = latestAttachment?.certifiedCopies?.length && latestAttachment.certifiedCopies.length > 0
+  // Check for attachments and certified copies
+  const attachments = form.document?.attachments || []
+  const hasAttachments = attachments.length > 0
+  const latestAttachment = attachments[0] as AttachmentWithCTC | undefined
+  const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0
 
+  // Handle Export
   const handleExport = async () => {
     if (!canExport) {
       toast.error(t('You do not have permission to export documents'))
@@ -102,6 +112,14 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
     }
   }
 
+  // Handle Annotation (Issue Certificate)
+  const handleAnnotationClick = () => {
+    if (hasCTC) {
+      toast.info(t('A certified true copy (CTC) already exists. You can add another issue certificate if needed.'))
+    }
+    setAnnotationFormOpen(true)
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -111,10 +129,11 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             <span className="sr-only">{t('openMenu')}</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[160px]">
+        <DropdownMenuContent align="end" className="w-[200px]">
           <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
           <DropdownMenuSeparator />
 
+          {/* View Details */}
           {canView && (
             <DropdownMenuItem asChild>
               <Link href={`/civil-registry/details?formId=${form.id}`}>
@@ -124,6 +143,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             </DropdownMenuItem>
           )}
 
+          {/* Upload Document */}
           {canUpload && (
             <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
               <Icons.printer className="mr-2 h-4 w-4" />
@@ -131,6 +151,15 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             </DropdownMenuItem>
           )}
 
+          {/* Issue Certificate with dynamic label */}
+          {canEdit && hasAttachments && (
+            <DropdownMenuItem onClick={handleAnnotationClick}>
+              <Icons.files className="mr-2 h-4 w-4" />
+              {hasCTC ? t('Add Another Issue Certificate') : t('Issue Certificate')}
+            </DropdownMenuItem>
+          )}
+
+          {/* Edit Form */}
           {canEdit && (
             <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
               <Icons.folder className="mr-2 h-4 w-4" />
@@ -138,6 +167,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             </DropdownMenuItem>
           )}
 
+          {/* Export Option */}
           {canExport && (
             <DropdownMenuItem
               onClick={handleExport}
@@ -149,6 +179,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
             </DropdownMenuItem>
           )}
 
+          {/* Delete Action */}
           {canDelete && (
             <DropdownMenuItem
               onSelect={(e) => e.preventDefault()}
@@ -163,6 +194,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
         </DropdownMenuContent>
       </DropdownMenu>
 
+      {/* Dialogs */}
       {canEdit && (
         <EditCivilRegistryFormDialog
           form={form}
@@ -195,6 +227,32 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           formId={form.id}
           formType={form.formType}
           registryNumber={form.registryNumber}
+        />
+      )}
+
+      {/* Conditional Annotation Forms */}
+      {form.formType === 'BIRTH' && (
+        <BirthAnnotationForm
+          open={annotationFormOpen}
+          onOpenChange={setAnnotationFormOpen}
+          onCancel={() => setAnnotationFormOpen(false)}
+          formData={form}
+        />
+      )}
+      {form.formType === 'DEATH' && (
+        <DeathAnnotationForm
+          open={annotationFormOpen}
+          onOpenChange={setAnnotationFormOpen}
+          onCancel={() => setAnnotationFormOpen(false)}
+          formData={form}
+        />
+      )}
+      {form.formType === 'MARRIAGE' && (
+        <MarriageAnnotationForm
+          open={annotationFormOpen}
+          onOpenChange={setAnnotationFormOpen}
+          onCancel={() => setAnnotationFormOpen(false)}
+          formData={form}
         />
       )}
     </>
