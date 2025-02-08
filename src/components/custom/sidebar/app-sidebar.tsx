@@ -69,12 +69,12 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
     {
       title: t("notifications"),
       url: "notifications",
-      icon: (Icons.fileText) as LucideIcon,
+      icon: (Icons.bell) as LucideIcon,
     },
     {
       title: t("settings"),
       url: "settings",
-      icon: (Icons.shield) as LucideIcon,
+      icon: (Icons.gear) as LucideIcon,
     },
   ];
 

@@ -209,6 +209,7 @@ export const Icons = {
     camera: Camera,
     pencil: Pencil,
     archive: Archive,
+    gear: Settings,
 } as const
 
 export type IconsType = typeof Icons
