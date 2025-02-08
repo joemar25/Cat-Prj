@@ -1,4 +1,3 @@
-// src/app/(dashboard)/civil-registry/page.tsx
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { DataTable } from '@/components/custom/civil-registry/data-table'
 import { columns } from '@/components/custom/civil-registry/columns'
@@ -29,13 +28,20 @@ async function getCivilRegistryForms() {
           include: {
             attachments: {
               include: { certifiedCopies: true },
-              orderBy: { updatedAt: 'desc' },
+              orderBy: { updatedAt: 'desc' }, // Ensures latest attachment is first
             },
           },
         },
       },
     })
-    return forms
+
+    // Safely check for certified copies
+    return forms.map(form => {
+      const latestAttachment = form.document?.attachments?.[0]
+      const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0
+
+      return { ...form, hasCTC }
+    })
   } catch (error) {
     console.error('Error fetching civil registry forms:', error)
     return []
@@ -77,7 +83,6 @@ export default async function CivilRegistryPage() {
       />
 
       <div className='flex flex-1 flex-col gap-4 p-4'>
-        {/* Back button or other UI components can be added here */}
         <Suspense fallback={<CivilRegistryFormsTableSkeleton />}>
           <DataTable data={forms} columns={columns} selection={false} />
         </Suspense>

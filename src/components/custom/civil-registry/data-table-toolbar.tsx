@@ -20,7 +20,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { DataTableViewOptions } from "@/components/custom/table/data-table-view-options"
 import { DataTableFacetedFilter } from "@/components/custom/table/data-table-faceted-filter"
 import { AddCivilRegistryFormDialog } from "@/components/custom/civil-registry/actions/add-form-dialog"
-// import { AddCivilRegistryFormDialogPdf } from '@/components/custom/civil-registry/actions/upload-pdf-dialog'
 
 import { useTranslation } from "react-i18next"
 import { useUser } from "@/context/user-context"
@@ -76,7 +75,8 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
       'verifiedBy',
       'registeredBy',
       'status',
-      'createdAt'
+      'createdAt',
+      'hasCTC',
     ]
 
     table.getAllColumns().forEach((column) => {

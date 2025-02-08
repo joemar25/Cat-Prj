@@ -2,7 +2,6 @@
 
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
-import { BaseRegistryForm, DocumentStatus, FormType, User, BirthCertificateForm, DeathCertificateForm, MarriageCertificateForm } from '@prisma/client'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { DataTableRowActions } from './data-table-row-actions'
@@ -10,13 +9,21 @@ import { DateRange } from 'react-day-picker'
 import { useTranslation } from 'react-i18next'
 import StatusDropdown from '@/components/custom/civil-registry/components/status-dropdown'
 
+import { BaseRegistryForm, User, BirthCertificateForm, DeathCertificateForm, MarriageCertificateForm, Document, Attachment, CertifiedCopy, FormType, DocumentStatus } from '@prisma/client'
+
 export interface ExtendedBaseRegistryForm extends BaseRegistryForm {
   preparedBy: User | null
   verifiedBy: User | null
   birthCertificateForm: BirthCertificateForm | null
   deathCertificateForm: DeathCertificateForm | null
   marriageCertificateForm: MarriageCertificateForm | null
+  document: (Document & {
+    attachments: (Attachment & {
+      certifiedCopies: CertifiedCopy[]
+    })[]
+  }) | null
 }
+
 
 const formTypeVariants: Record<
   FormType,
@@ -412,6 +419,36 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
     },
+  },
+  {
+    id: 'hasCTC',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={useTranslation().t('For Release?')} />
+    ),
+    cell: ({ row }) => {
+      const attachments = row.original.document?.attachments || []
+
+      // Safely get the latest attachment
+      const latestAttachment = attachments[0]
+
+      // Ensure TypeScript safety with optional chaining and nullish coalescing
+      const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0
+
+      return (
+        <Badge variant={hasCTC ? 'default' : 'secondary'} className='font-medium'>
+          {hasCTC ? useTranslation().t('Yes') : useTranslation().t('No')}
+        </Badge>
+      )
+    },
+    filterFn: (row, id, value) => {
+      const attachments = row.original.document?.attachments || []
+      const latestAttachment = attachments[0]
+
+      // Apply safe check for certified copies
+      const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0
+
+      return value === 'Yes' ? hasCTC : !hasCTC
+    }
   },
   {
     accessorKey: 'createdAt',
