@@ -1,7 +1,8 @@
+// src\components\custom\feedback\feedback-wordcloud.tsx
 "use client"
 
-import { useEffect, useState } from 'react'
 import { TagCloud } from 'react-tagcloud'
+import { useEffect, useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 interface FeedbackItem {
@@ -121,9 +122,9 @@ const FeedbackWordCloud = ({ feedback }: { feedback: FeedbackItem[] }) => {
         <Card className="w-full">
             <CardHeader className="pb-2">
                 <CardTitle className="text-xl">
-                    Common Feedback Themes
+                    Feedback Wordcloud
                     <span className="text-sm font-normal ml-2">
-                        ({feedback.length} responses)
+                        (From {feedback.length} responses)
                     </span>
                 </CardTitle>
             </CardHeader>

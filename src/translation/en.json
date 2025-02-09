@@ -370,9 +370,9 @@
   "summary_view_role": "Roles & Permissions Overview",
   "dashboard_description_role": "Manage roles and permissions for different users. Create, edit, and assign roles to control access and permissions within the system.",
   "summary_view_user": "User Management Overview",
-"dashboard_description_user": "Manage users, including account information such as location, contact info, and other details. Add, edit, and update information to ensure proper management and communication.",
+  "dashboard_description_user": "Manage users, including account information such as location, contact info, and other details. Add, edit, and update information to ensure proper management and communication.",
 
-"birth_gender_distribution": "Gender Distribution in Birth",
+  "birth_gender_distribution": "Gender Distribution in Birth",
   "death_gender_distribution": "Gender Distribution in Death",
   "death_registrations_by_gender": "Death Registrations by Gender",
   "conclusion": "Conclusion",

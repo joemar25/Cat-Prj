@@ -1,12 +1,10 @@
-// src/app/(dashboard)/feedback/page.tsx
 import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DataTable } from '@/components/custom/feedback/data-table'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
+import FeedbackHeader from '@/components/custom/feedback/feedback-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-
-import FeedbackWordCloud from '@/components/custom/feedback/feedback-wordcloud'
 
 async function getFeedback() {
   try {
@@ -30,6 +28,7 @@ async function getFeedback() {
       content: item.feedback,
       createdAt: new Date(item.createdAt),
       updatedAt: new Date(item.updatedAt),
+      submitterName: item.user ? item.user.name : null
     }))
   } catch (error) {
     console.error('Error fetching feedback:', error)
@@ -70,15 +69,11 @@ export default async function FeedbackPage() {
       />
 
       <div className="flex-1 p-4 space-y-4">
-        <div className="grid grid-cols-1 gap-4">
-          <FeedbackWordCloud feedback={feedback} />
-          <Suspense fallback={<FeedbackTableSkeleton />}>
-            <DataTable
-              data={feedback}
-              selection={false}
-            />
-          </Suspense>
-        </div>
+        <FeedbackHeader feedback={feedback} />
+
+        <Suspense fallback={<FeedbackTableSkeleton />}>
+          <DataTable data={feedback} selection={false} />
+        </Suspense>
       </div>
     </div>
   )

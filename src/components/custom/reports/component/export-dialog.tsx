@@ -53,7 +53,7 @@ export const ExportDialog = <T extends { year: number }>({
 
   const handlePDFExport = async () => {
     if (chartRef.current) {
-      await exportToPDF(chartRef.current)  // Ensure the correct element is passed
+      await exportToPDF(chartRef.current)
     } else {
       console.error("Chart reference is not available for PDF export.")
     }
