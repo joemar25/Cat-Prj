@@ -11,8 +11,15 @@ import { ProfileWithUser } from '@/types/user-profile'
 import { ProfileForm } from './profile-form'
 import { PasswordForm } from './password-form'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 
-export default function Profile({ userId, profile }: { userId: string; profile: ProfileWithUser }) {
+interface ProfileProps {
+    userId: string
+    profile: ProfileWithUser
+    isLoading: boolean  // Accepting isLoading from the page
+}
+
+export default function Profile({ userId, profile, isLoading }: ProfileProps) {
     const [isPasswordMode, setIsPasswordMode] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
     const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false)
@@ -21,6 +28,29 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
     const { update } = useSession()
     const router = useRouter()
+
+    // Display skeleton while data is loading
+    if (isLoading) {
+        return (
+            <div className="space-y-4">
+                <div className="flex items-center space-x-4 mb-8">
+                    <Skeleton className="h-16 w-16 rounded-full" />
+                    <div>
+                        <Skeleton className="h-6 w-40 mb-2" />
+                        <Skeleton className="h-4 w-64" />
+                    </div>
+                </div>
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-96 w-full" />
+            </div>
+        )
+    }
+
+    if (!profile.user) {
+        return <div className="p-6 text-center text-red-500">User profile data is missing or incomplete.</div>
+    }
+
+    const user = profile.user
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -66,8 +96,8 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     image: imageUrl,
-                    name: profile?.user?.name,
-                    username: profile?.user?.username,
+                    name: user.name,
+                    username: user.username,
                 })
             })
 
@@ -78,7 +108,7 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
             const result = await profileResponse.json()
 
             if (result.success) {
-                await update({ ...profile?.user, image: imageUrl })
+                await update({ ...user, image: imageUrl })
 
                 toast.success('Avatar updated successfully')
                 router.refresh()
@@ -100,22 +130,31 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
         <div className="w-full p-6">
             <div className="flex items-center space-x-4 mb-8">
                 <div className="relative group">
-                    <Avatar className="h-16 w-16 cursor-pointer" onClick={() => setIsAvatarModalOpen(true)}>
-                        <AvatarImage src={profile?.user?.image ?? undefined} alt={profile?.user?.name} />
-                        <AvatarFallback>{profile?.user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
-                    </Avatar>
+                    {isUploadingAvatar ? (
+                        <Skeleton className="h-16 w-16 rounded-full" />
+                    ) : (
+                        <Avatar className="h-16 w-16 cursor-pointer" onClick={() => setIsAvatarModalOpen(true)}>
+                            <AvatarImage src={user.image ?? undefined} alt={user.name} />
+                            <AvatarFallback>{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                    )}
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold">{profile?.user?.name}</h1>
-                    <p className="text-sm text-muted-foreground">{profile?.user?.email}</p>
-                    {profile?.user?.username && (
-                        <p className="text-sm text-muted-foreground">@{profile.user.username}</p>
+                    <h1 className="text-2xl font-bold">{user.name}</h1>
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                    {user.username && (
+                        <p className="text-sm text-muted-foreground">@{user.username}</p>
                     )}
                 </div>
             </div>
 
             {!isPasswordMode && (
-                <ProfileForm profile={profile} isEditing={isEditing} onEditingChangeAction={setIsEditing} />
+                <ProfileForm
+                    profile={profile}
+                    isEditing={isEditing}
+                    onEditingChangeAction={setIsEditing}
+                    isLoading={isLoading}
+                />
             )}
 
             {isPasswordMode && (
@@ -157,8 +196,8 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
 
                     <div className="flex flex-col items-center">
                         <Avatar className="h-24 w-24 mb-4">
-                            <AvatarImage src={profile?.user?.image ?? "/default-avatar.png"} />
-                            <AvatarFallback>{profile?.user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
+                            <AvatarImage src={previewUrl ?? user.image ?? "/default-avatar.png"} />
+                            <AvatarFallback>{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
 
                         {!selectedFile ? (
@@ -174,7 +213,14 @@ export default function Profile({ userId, profile }: { userId: string; profile: 
                         </Button>
                         {selectedFile && (
                             <Button onClick={handleConfirmUpload} disabled={isUploadingAvatar}>
-                                {isUploadingAvatar ? 'Uploading...' : 'Confirm'}
+                                {isUploadingAvatar ? (
+                                    <>
+                                        <Icons.spinner className="h-4 w-4 animate-spin mr-2" />
+                                        Uploading...
+                                    </>
+                                ) : (
+                                    'Confirm'
+                                )}
                             </Button>
                         )}
                     </DialogFooter>

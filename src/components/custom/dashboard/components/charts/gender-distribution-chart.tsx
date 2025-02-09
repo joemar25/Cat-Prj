@@ -5,11 +5,14 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTranslation } from 'react-i18next'
 
+import { Skeleton } from "@/components/ui/skeleton"
+
 interface GenderDistributionChartProps {
     totalMale: number
     totalFemale: number
     totalRegistrations: number
-    name: string;
+    name: string
+    isLoading?: boolean  // Add this prop
 }
 
 const MALE_COLOR = "hsl(var(--chart-1))"
@@ -19,9 +22,28 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
     totalMale,
     totalFemale,
     totalRegistrations,
-    name
+    name,
+    isLoading = false
 }) => {
     const { t } = useTranslation()
+
+    if (isLoading) {
+        return (
+            <Card className="lg:col-span-3 flex flex-col min-h-[400px]">
+                <CardHeader>
+                    <Skeleton className="h-6 w-1/3 mb-2" /> {/* Title Skeleton */}
+                    <Skeleton className="h-4 w-1/2" /> {/* Description Skeleton */}
+                </CardHeader>
+                <CardContent className="flex-1 flex justify-center items-center">
+                    <Skeleton className="rounded-full h-[250px] w-[250px]" /> {/* Pie Chart Skeleton */}
+                </CardContent>
+                <CardFooter className="flex justify-around">
+                    <Skeleton className="h-4 w-1/4" /> {/* Male count Skeleton */}
+                    <Skeleton className="h-4 w-1/4" /> {/* Female count Skeleton */}
+                </CardFooter>
+            </Card>
+        )
+    }
 
     // Data for the donut chart
     const chartData = [
@@ -44,12 +66,10 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
         },
     } satisfies ChartConfig
 
-    // Calculate percentages
     const malePercentage = ((totalMale / totalRegistrations) * 100).toFixed(1)
     const femalePercentage = ((totalFemale / totalRegistrations) * 100).toFixed(1)
 
-    // Determine the conclusion based on the name
-    const conclusion = 
+    const conclusion =
         name === "Birth"
             ? totalMale > totalFemale
                 ? t('birth_conclusion_more_male')
@@ -65,7 +85,6 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
     return (
         <Card className="lg:col-span-3 flex flex-col min-h-[400px]">
             <CardHeader className="flex items-center justify-between">
-                {/* Dynamic title and description based on the name */}
                 <CardTitle className="text-lg">
                     {name === "Birth" ? t('birth_gender_distribution') : t('death_gender_distribution')}
                 </CardTitle>
@@ -76,17 +95,8 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
             <CardContent className="flex-1 flex flex-col justify-center">
                 <ChartContainer config={chartConfig}>
                     <PieChart>
-                        <ChartTooltip
-                            cursor={false}
-                            content={<ChartTooltipContent hideLabel />}
-                        />
-                        <Pie
-                            data={chartData}
-                            dataKey="count"
-                            nameKey="gender"
-                            innerRadius={60}
-                            label
-                        >
+                        <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                        <Pie data={chartData} dataKey="count" nameKey="gender" innerRadius={60} label>
                             {chartData.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={entry.fill} />
                             ))}
@@ -94,22 +104,15 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
                     </PieChart>
                 </ChartContainer>
 
-                {/* Percentage Breakdown */}
                 <div className="flex justify-around text-sm mt-4">
                     <div className="flex items-center gap-2">
-                        <div
-                            className="h-3 w-3 rounded-full"
-                            style={{ backgroundColor: MALE_COLOR }}
-                        />
+                        <div className="h-3 w-3 rounded-full" style={{ backgroundColor: MALE_COLOR }} />
                         <span className="text-muted-foreground">
                             {t('male')}: {malePercentage}% ({totalMale.toLocaleString()})
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div
-                            className="h-3 w-3 rounded-full"
-                            style={{ backgroundColor: FEMALE_COLOR }}
-                        />
+                        <div className="h-3 w-3 rounded-full" style={{ backgroundColor: FEMALE_COLOR }} />
                         <span className="text-muted-foreground">
                             {t('female')}: {femalePercentage}% ({totalFemale.toLocaleString()})
                         </span>
@@ -117,10 +120,7 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
                 </div>
             </CardContent>
             <CardFooter className="p-4 pt-0 flex-col gap-1 text-sm">
-                <div className="leading-none text-muted-foreground">
-                    {t('last_6_months')}
-                </div>
-                {/* Conclusion */}
+                <div className="leading-none text-muted-foreground">{t('last_6_months')}</div>
                 <div className="text-center text-sm text-muted-foreground">
                     <strong>{t('conclusion')}:</strong> {conclusion}
                 </div>

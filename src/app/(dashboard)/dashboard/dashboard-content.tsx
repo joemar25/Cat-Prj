@@ -14,8 +14,8 @@ export default function DashboardContent() {
   const [selectedMetric, setSelectedMetric] = useState<{
     model: "baseRegistryForm" | "birthCertificateForm" | "deathCertificateForm" | "marriageCertificateForm" | null
     currentCount: number | null
-  }>( {
-    model: "baseRegistryForm",  // Default to baseRegistryForm
+  }>({
+    model: "baseRegistryForm",
     currentCount: null,
   })
 

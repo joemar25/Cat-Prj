@@ -1,11 +1,9 @@
 "use client"
 
-import { Icons } from "@/components/ui/icons"
 import { useEffect, useMemo, useState } from "react"
 import { getBirthAndDeathGenderCount, getRecentRegistrations } from "@/hooks/count-metrics"
 import { GenderDistributionChart } from "@/components/custom/dashboard/components/charts/gender-distribution-chart"
 import { RecentRegistrationsTable } from "@/components/custom/dashboard/components/charts/recent-registrations-table"
-import { Button } from "@/components/ui/button"
 
 interface GenderCountData {
     name: string
@@ -77,9 +75,6 @@ export default function ChartsDashboard({ selectedMetric }: ChartsDashboardProps
                     getRecentRegistrations()
                 ])
 
-                console.log("Gender Count Data:", genderCountData)
-                console.log("Recent Registrations Data:", recentRegistrationsData)
-
                 setChartData(genderCountData)
                 setRecentRegistrations(filterRecentRegistrations(recentRegistrationsData))
             } catch (error) {
@@ -91,25 +86,22 @@ export default function ChartsDashboard({ selectedMetric }: ChartsDashboardProps
         fetchData()
     }, [selectedMetric]) // Re-fetch data when selectedMetric changes
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-screen">
-                <Icons.spinner className="h-8 w-8 animate-spin" />
-            </div>
-        )
-    }
-
     return (
         <div className="grid gap-6 lg:grid-cols-5">
-            {/* Gender Distribution Chart */}
+            {/* Gender Distribution Chart with Skeleton Loader */}
             <GenderDistributionChart
                 totalMale={totalMale}
                 totalFemale={totalFemale}
                 totalRegistrations={totalRegistrations}
-                name={selectedMetric.model === "birthCertificateForm" ? "Birth" : "Death"} // Pass name based on selectedMetric
+                name={selectedMetric.model === "birthCertificateForm" ? "Birth" : "Death"}
+                isLoading={isLoading}
             />
-            {/* Recent Registrations Table */}
-            <RecentRegistrationsTable recentRegistrations={recentRegistrations} />
+
+            {/* Recent Registrations Table with Skeleton Loader */}
+            <RecentRegistrationsTable
+                recentRegistrations={recentRegistrations}
+                isLoading={isLoading}
+            />
         </div>
     )
 }

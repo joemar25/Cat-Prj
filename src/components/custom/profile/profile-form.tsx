@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { useSession } from 'next-auth/react'
@@ -13,13 +13,16 @@ import { ProfileWithUser } from '@/types/user-profile'
 import { ProfileFormValues, profileFormSchema } from '@/lib/validation/profile/profile-form'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+
 interface ProfileFormProps {
     profile: ProfileWithUser
     isEditing: boolean
+    isLoading: boolean
     onEditingChangeAction: (editing: boolean) => void
 }
 
-export function ProfileForm({ profile, isEditing, onEditingChangeAction }: ProfileFormProps) {
+export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeAction }: ProfileFormProps) {
     const { update } = useSession()
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -75,6 +78,20 @@ export function ProfileForm({ profile, isEditing, onEditingChangeAction }: Profi
         }
     }
 
+    if (isLoading) {
+        return (
+            <div className="space-y-6">
+                {[...Array(5)].map((_, idx) => (
+                    <Skeleton key={idx} className="h-10 w-full" />
+                ))}
+                <div className="flex justify-start gap-2">
+                    <Skeleton className="h-10 w-24" />  {/* Simulated Cancel Button */}
+                    <Skeleton className="h-10 w-32" />  {/* Simulated Save Button */}
+                </div>
+            </div>
+        )
+    }
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -86,7 +103,7 @@ export function ProfileForm({ profile, isEditing, onEditingChangeAction }: Profi
                             <FormItem>
                                 <FormLabel>Username</FormLabel>
                                 <FormControl>
-                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing} />
+                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -100,7 +117,7 @@ export function ProfileForm({ profile, isEditing, onEditingChangeAction }: Profi
                             <FormItem>
                                 <FormLabel>Full Name</FormLabel>
                                 <FormControl>
-                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing} />
+                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -128,7 +145,7 @@ export function ProfileForm({ profile, isEditing, onEditingChangeAction }: Profi
                             <FormItem>
                                 <FormLabel>Date of Birth</FormLabel>
                                 <FormControl>
-                                    <Input {...field} type="date" value={field.value ?? ''} disabled={!isEditing} />
+                                    <Input {...field} type="date" value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -142,7 +159,7 @@ export function ProfileForm({ profile, isEditing, onEditingChangeAction }: Profi
                             <FormItem>
                                 <FormLabel>Phone Number</FormLabel>
                                 <FormControl>
-                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing} />
+                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -156,11 +173,9 @@ export function ProfileForm({ profile, isEditing, onEditingChangeAction }: Profi
                             name={fieldName}
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>
-                                        {fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}
-                                    </FormLabel>
+                                    <FormLabel>{fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}</FormLabel>
                                     <FormControl>
-                                        <Input {...field} value={field.value ?? ''} disabled={!isEditing} />
+                                        <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -177,7 +192,7 @@ export function ProfileForm({ profile, isEditing, onEditingChangeAction }: Profi
                                 <Select
                                     onValueChange={field.onChange}
                                     value={field.value ?? ''}
-                                    disabled={!isEditing}
+                                    disabled={!isEditing || isSubmitting}
                                 >
                                     <FormControl>
                                         <SelectTrigger>
@@ -202,7 +217,7 @@ export function ProfileForm({ profile, isEditing, onEditingChangeAction }: Profi
                             <FormItem>
                                 <FormLabel>Occupation</FormLabel>
                                 <FormControl>
-                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing} />
+                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -216,7 +231,7 @@ export function ProfileForm({ profile, isEditing, onEditingChangeAction }: Profi
                             <FormItem>
                                 <FormLabel>Nationality</FormLabel>
                                 <FormControl>
-                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing} />
+                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -231,7 +246,7 @@ export function ProfileForm({ profile, isEditing, onEditingChangeAction }: Profi
                         <FormItem>
                             <FormLabel>Bio</FormLabel>
                             <FormControl>
-                                <Textarea {...field} value={field.value ?? ''} disabled={!isEditing} />
+                                <Textarea {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

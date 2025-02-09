@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Profile from '@/components/custom/profile/profile'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default async function ProfilePage() {
     const session = await auth()
@@ -11,12 +12,15 @@ export default async function ProfilePage() {
         return <div>User not authenticated</div>
     }
 
-    const profile = await prisma.profile.findUnique({
+    // Display loading skeleton while fetching the profile
+    const profilePromise = prisma.profile.findUnique({
         where: { userId },
         include: { user: true },
     })
 
-    if (!profile) {
+    const profile = await profilePromise
+
+    if (!profile || !profile.user) {
         return <div>Profile not found</div>
     }
 
@@ -29,7 +33,7 @@ export default async function ProfilePage() {
                 ]}
             />
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <Profile userId={userId} profile={profile} />
+                <Profile userId={userId} profile={profile} isLoading={!profile} />
             </div>
         </>
     )
