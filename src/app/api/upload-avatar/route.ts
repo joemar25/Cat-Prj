@@ -1,9 +1,10 @@
 // src/app/api/upload-avatar/route.ts
 import path from 'path'
-import { writeFile, mkdir } from 'fs/promises'
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+
 import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { NextResponse } from 'next/server'
+import { writeFile, mkdir, unlink } from 'fs/promises'
 
 export async function POST(request: Request) {
     try {
@@ -85,5 +86,32 @@ export async function POST(request: Request) {
             error: 'Failed to upload avatar',
             details: error instanceof Error ? error.message : String(error)
         }, { status: 500 })
+    }
+}
+
+export async function DELETE(request: Request) {
+    try {
+        const session = await auth()
+        if (!session?.user?.id) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
+        const user = await prisma.user.findUnique({ where: { id: session.user.id } })
+        if (!user?.image) {
+            return NextResponse.json({ error: 'No avatar to remove.' }, { status: 400 })
+        }
+
+        const avatarPath = path.join(process.cwd(), 'public', user.image)
+        await unlink(avatarPath)
+
+        await prisma.user.update({
+            where: { id: session.user.id },
+            data: { image: null }
+        })
+
+        return NextResponse.json({ success: true, message: 'Avatar removed successfully' })
+    } catch (error) {
+        console.error('Error removing avatar:', error)
+        return NextResponse.json({ error: 'Failed to remove avatar' }, { status: 500 })
     }
 }

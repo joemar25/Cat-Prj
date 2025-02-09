@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { toast } from 'sonner'
 import { Icons } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
@@ -10,14 +10,28 @@ interface AvatarUploadProps {
     currentImage: string | null | undefined
     userName: string
     onUploadCompleteAction: (imageUrl: string) => void
+    isEditingMode?: boolean
 }
 
-export function AvatarUpload({ currentImage, userName, onUploadCompleteAction }: AvatarUploadProps) {
+export function AvatarUpload({ currentImage, userName, onUploadCompleteAction, isEditingMode = false }: AvatarUploadProps) {
     const [isUploading, setIsUploading] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState(0)
+    const [previewImage, setPreviewImage] = useState<string | null>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
-        if (!file) return
+        if (file) {
+            const reader = new FileReader()
+            reader.onload = () => setPreviewImage(reader.result as string)
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const handleFileUpload = async () => {
+        if (!fileInputRef.current?.files?.[0]) return
+
+        const file = fileInputRef.current.files[0]
 
         if (!file.type.startsWith('image/')) {
             toast.error('Please select an image file')
@@ -29,81 +43,159 @@ export function AvatarUpload({ currentImage, userName, onUploadCompleteAction }:
             return
         }
 
-        setIsUploading(true)
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', '/api/upload-avatar')
 
-        try {
-            const formData = new FormData()
-            formData.append('file', file)
-
-            const response = await fetch('/api/upload-avatar', {
-                method: 'POST',
-                body: formData,
-            })
-
-            if (!response.ok) {
-                throw new Error('Failed to upload avatar')
+        xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+                const progress = Math.round((event.loaded / event.total) * 100)
+                setUploadProgress(progress)
             }
+        }
 
-            const data = await response.json()
-            onUploadCompleteAction(data.imageUrl)
-            toast.success('Avatar updated successfully')
-        } catch (error) {
-            console.error('Avatar upload error:', error)
-            toast.error('Failed to upload avatar')
-        } finally {
+        xhr.onload = () => {
+            if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText)
+                onUploadCompleteAction(data.imageUrl)
+                toast.success('Avatar updated successfully')
+                setPreviewImage(null)
+            } else {
+                toast.error('Failed to upload avatar')
+            }
             setIsUploading(false)
+            setUploadProgress(0)
+        }
+
+        xhr.onerror = () => {
+            toast.error('Failed to upload avatar')
+            setIsUploading(false)
+            setUploadProgress(0)
+        }
+
+        const formData = new FormData()
+        formData.append('file', file)
+        setIsUploading(true)
+        xhr.send(formData)
+    }
+
+    const handleRemove = async () => {
+        if (isEditingMode) {
+            onUploadCompleteAction('')
+            setPreviewImage(null)
+            toast.success('Selected picture removed')
+        } else {
+            try {
+                const response = await fetch('/api/upload-avatar', {
+                    method: 'DELETE'
+                })
+
+                if (!response.ok) {
+                    throw new Error('Failed to remove avatar')
+                }
+
+                onUploadCompleteAction('')
+                setPreviewImage(null)
+                toast.success('Avatar removed successfully')
+            } catch (error) {
+                toast.error(error instanceof Error ? error.message : 'Failed to remove avatar')
+            }
         }
     }
 
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click()
+    }
+
+    const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault()
+        const file = event.dataTransfer.files?.[0]
+        if (file) {
+            const reader = new FileReader()
+            reader.onload = () => setPreviewImage(reader.result as string)
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault()
+    }
+
+    const showDeleteButton = (currentImage || previewImage) && !isEditingMode && !isUploading && !previewImage
+
     return (
-        <div className="flex flex-col items-center space-y-4">
-            <Avatar className="h-24 w-24 cursor-pointer relative group">
-                <AvatarImage src={currentImage ?? undefined} alt={userName} />
-                <AvatarFallback className="text-xl">
-                    {userName?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-                <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
-                    <Icons.camera className="h-8 w-8 text-white" />
-                </div>
-            </Avatar>
-            <div className="flex items-center space-x-2">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="relative"
-                    disabled={isUploading}
-                >
-                    {isUploading ? (
-                        <>
-                            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                            Uploading...
-                        </>
-                    ) : (
-                        <>
-                            <Icons.upload className="mr-2 h-4 w-4" />
-                            Upload Photo
-                        </>
-                    )}
-                    <input
-                        type="file"
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        onChange={handleFileSelect}
-                        accept="image/*"
-                        disabled={isUploading}
-                    />
-                </Button>
-                {currentImage && (
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-destructive"
-                        onClick={() => onUploadCompleteAction('')}
-                        disabled={isUploading}
-                    >
-                        <Icons.trash className="mr-2 h-4 w-4" />
-                        Remove
-                    </Button>
+        <div className="w-full max-w-2xl p-8 mx-auto">
+            <div
+                className="p-8 shadow-lg rounded-2xl flex flex-col items-center gap-6 border-4 border-dashed transition cursor-pointer"
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+            >
+                <Avatar className="h-36 w-36 cursor-pointer relative group" onClick={handleAvatarClick}>
+                    <AvatarImage src={previewImage || currentImage || undefined} alt={userName} />
+                    <AvatarFallback className="text-2xl">
+                        {userName?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                    <div className="absolute inset-0 bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
+                        <Icons.camera className="h-10 w-10" />
+                    </div>
+                </Avatar>
+
+                {isUploading && (
+                    <div className="w-full space-y-2">
+                        <div className="w-full rounded-full h-3 bg-gray-200">
+                            <div
+                                className="h-3 rounded-full bg-blue-500 transition-all"
+                                style={{ width: `${uploadProgress}%` }}
+                            ></div>
+                        </div>
+                        <p className="text-center text-sm text-gray-600">
+                            Uploading... {uploadProgress}%
+                        </p>
+                    </div>
                 )}
+
+                <div className="flex flex-wrap gap-4 justify-center items-center">
+                    {previewImage && !isUploading && (
+                        <Button
+                            variant="default"
+                            size="lg"
+                            onClick={handleFileUpload}
+                        >
+                            <Icons.check className="mr-2 h-5 w-5" />
+                            Confirm Upload
+                        </Button>
+                    )}
+
+                    <Button
+                        variant="outline"
+                        size="lg"
+                        className="relative"
+                        disabled={isUploading}
+                        onClick={handleAvatarClick}
+                    >
+                        <Icons.upload className="mr-2 h-5 w-5" />
+                        Select Photo
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            onChange={handleFileSelect}
+                            accept="image/*"
+                            disabled={isUploading}
+                        />
+                    </Button>
+
+                    {showDeleteButton && (
+                        <Button
+                            variant="ghost"
+                            size="lg"
+                            className="text-destructive"
+                            onClick={handleRemove}
+                        >
+                            <Icons.trash className="mr-2 h-5 w-5" />
+                            Remove
+                        </Button>
+                    )}
+                </div>
             </div>
         </div>
     )

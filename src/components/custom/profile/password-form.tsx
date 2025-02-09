@@ -46,10 +46,10 @@ export function PasswordForm({ userId, onCancel, onSuccess }: PasswordFormProps)
     }
 
     return (
-        <div className="mt-8">
+        <div className="p-6 bg-white shadow rounded-2xl mb-8">
             <h2 className="text-xl font-bold mb-4">Change Password</h2>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
                             control={form.control}
@@ -59,10 +59,7 @@ export function PasswordForm({ userId, onCancel, onSuccess }: PasswordFormProps)
                                     <FormLabel>Current Password</FormLabel>
                                     <FormControl>
                                         <div className="relative">
-                                            <Input
-                                                {...field}
-                                                type={showCurrentPassword ? 'text' : 'password'}
-                                            />
+                                            <Input {...field} type={showCurrentPassword ? 'text' : 'password'} />
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -91,10 +88,7 @@ export function PasswordForm({ userId, onCancel, onSuccess }: PasswordFormProps)
                                     <FormLabel>New Password</FormLabel>
                                     <FormControl>
                                         <div className="relative">
-                                            <Input
-                                                {...field}
-                                                type={showNewPassword ? 'text' : 'password'}
-                                            />
+                                            <Input {...field} type={showNewPassword ? 'text' : 'password'} />
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -123,10 +117,7 @@ export function PasswordForm({ userId, onCancel, onSuccess }: PasswordFormProps)
                                     <FormLabel>Confirm New Password</FormLabel>
                                     <FormControl>
                                         <div className="relative">
-                                            <Input
-                                                {...field}
-                                                type={showConfirmPassword ? 'text' : 'password'}
-                                            />
+                                            <Input {...field} type={showConfirmPassword ? 'text' : 'password'} />
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -148,7 +139,7 @@ export function PasswordForm({ userId, onCancel, onSuccess }: PasswordFormProps)
                         />
                     </div>
 
-                    <div className="flex justify-start gap-2">
+                    <div className="flex justify-start gap-4">
                         <Button type="button" variant="outline" onClick={onCancel}>
                             Cancel
                         </Button>

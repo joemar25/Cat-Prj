@@ -94,175 +94,198 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                        control={form.control}
-                        name="username"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Username</FormLabel>
-                                <FormControl>
-                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <div className="grid grid-cols-1 gap-8">
 
-                    <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Full Name</FormLabel>
-                                <FormControl>
-                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                    {/* Personal Information Section */}
+                    <div className="p-6 shadow rounded-2xl">
+                        <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="username"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Username</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                    <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl>
-                                    <Input {...field} value={field.value ?? ''} disabled />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Full Name</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                    <FormField
-                        control={form.control}
-                        name="dateOfBirth"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Date of Birth</FormLabel>
-                                <FormControl>
-                                    <Input {...field} type="date" value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} value={field.value ?? ''} disabled />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                    <FormField
-                        control={form.control}
-                        name="phoneNumber"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Phone Number</FormLabel>
-                                <FormControl>
-                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                            <FormField
+                                control={form.control}
+                                name="dateOfBirth"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Date of Birth</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} type="date" value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                    {(['address', 'city', 'state', 'country', 'postalCode'] as const).map((fieldName) => (
+                            <FormField
+                                control={form.control}
+                                name="phoneNumber"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Phone Number</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="gender"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Gender</FormLabel>
+                                        <Select
+                                            onValueChange={field.onChange}
+                                            value={field.value ?? ''}
+                                            disabled={!isEditing || isSubmitting}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select gender" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="male">Male</SelectItem>
+                                                <SelectItem value="female">Female</SelectItem>
+                                                <SelectItem value="other">Other</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Address Information Section */}
+                    <div className="p-6 shadow rounded-2xl">
+                        <h2 className="text-xl font-semibold mb-4">Address Information</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {(['address', 'city', 'state', 'country', 'postalCode'] as const).map((fieldName) => (
+                                <FormField
+                                    key={fieldName}
+                                    control={form.control}
+                                    name={fieldName}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}</FormLabel>
+                                            <FormControl>
+                                                <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Professional Information Section */}
+                    <div className="p-6 shadow rounded-2xl">
+                        <h2 className="text-xl font-semibold mb-4">Professional Information</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="occupation"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Occupation</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="nationality"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Nationality</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Bio Section */}
+                    <div className="p-6 shadow rounded-2xl">
+                        <h2 className="text-xl font-semibold mb-4">Bio</h2>
                         <FormField
-                            key={fieldName}
                             control={form.control}
-                            name={fieldName}
+                            name="bio"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>{fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}</FormLabel>
                                     <FormControl>
-                                        <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                        <Textarea {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} className="h-32" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                    ))}
-
-                    <FormField
-                        control={form.control}
-                        name="gender"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Gender</FormLabel>
-                                <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value ?? ''}
-                                    disabled={!isEditing || isSubmitting}
-                                >
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select gender" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="male">Male</SelectItem>
-                                        <SelectItem value="female">Female</SelectItem>
-                                        <SelectItem value="other">Other</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="occupation"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Occupation</FormLabel>
-                                <FormControl>
-                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="nationality"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Nationality</FormLabel>
-                                <FormControl>
-                                    <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-
-                <FormField
-                    control={form.control}
-                    name="bio"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Bio</FormLabel>
-                            <FormControl>
-                                <Textarea {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                {isEditing && (
-                    <div className="flex justify-start gap-2">
-                        <Button type="button" variant="outline" onClick={() => onEditingChangeAction(false)} disabled={isSubmitting}>
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Saving...' : 'Save Changes'}
-                        </Button>
                     </div>
-                )}
+
+                    {/* Action Buttons */}
+                    {isEditing && (
+                        <div className="flex justify-start gap-4">
+                            <Button variant={"outline"} onClick={() => onEditingChangeAction(false)} disabled={isSubmitting}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={isSubmitting}>
+                                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                            </Button>
+                        </div>
+                    )}
+                </div>
             </form>
         </Form>
     )

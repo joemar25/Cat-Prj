@@ -1,3 +1,4 @@
+// src\app\(dashboard)\settings\page.tsx
 import { SettingsUI } from "./settings-ui"
 import { DashboardHeader } from "@/components/custom/dashboard/dashboard-header"
 
@@ -12,7 +13,7 @@ export default async function SettingsPage() {
         ]}
       />
 
-      <div className='flex flex-1 flex-col gap-4'>
+      <div className="flex-1 p-4 space-y-4">
         <SettingsUI />
       </div>
     </>

@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import { Icons } from '@/components/ui/icons'
+import { useTranslation } from 'react-i18next'
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-// Import your report components
 import { DocumentReport } from "./document-report"
 import { UserActivityReport } from "./user-activity-report"
 import { MarriageReport } from "./marriage-report"
@@ -42,14 +44,21 @@ export const ReportsDashboard = () => {
 
     return (
         <div className="w-full ml-0 mr-auto">
-            <div className="w-full"> {/* Ensures card takes full width */}
+            <Alert>
+                <Icons.infoCircledIcon className="h-4 w-4" />
+                <AlertTitle>Reports</AlertTitle>
+                <AlertDescription>
+                    Design is not final. But it is functional. Please provide feedback.
+                </AlertDescription>
+            </Alert>
+            <div className="w-full">
                 <CardHeader>
                     <CardTitle>Reports Dashboard</CardTitle>
                 </CardHeader>
                 <CardContent className="w-full">
-                    <Tabs 
-                        value={selectedReport} 
-                        onValueChange={(value) => setSelectedReport(value as ReportKey)} 
+                    <Tabs
+                        value={selectedReport}
+                        onValueChange={(value) => setSelectedReport(value as ReportKey)}
                         className="w-full"
                     >
                         <TabsList className="grid w-full max-w-[700px] p-1 grid-cols-2 lg:grid-cols-5 mb-6 max-h-10">
