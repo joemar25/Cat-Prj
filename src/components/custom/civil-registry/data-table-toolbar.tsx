@@ -62,7 +62,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const yearColumn = table.getColumn("year")
   const registryDetailsColumn = table.getColumn("registryDetails")
   const detailsColumn = table.getColumn("details")
-
+  const [activeTab, setActiveTab] = useState<string | null>(null);
   const canExport = hasPermission(permissions, Permission.REPORT_EXPORT)
   const canAdd = hasPermission(permissions, Permission.DOCUMENT_CREATE)
 
@@ -209,6 +209,9 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
       console.error("Export Error:", error)
     }
   }
+  const handleToggleTab = (tab: string) => {
+    setActiveTab((prev) => (prev === tab ? null : tab)); // Toggle visibility
+  };
 
   return (
     <div className="space-y-4">
@@ -219,91 +222,105 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
           {t('dashboard_description_civil')} {/* Translated description */}
         </AlertDescription>
       </Alert>
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Card className="flex-1">
+      <div className="flex flex-col sm:flex-row">
+        <div className="flex-1">
           <CardContent className="p-2.5">
-            <Tabs defaultValue="basic" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-3 h-12">
-                <TabsTrigger value="basic">{t("Basic Search")}</TabsTrigger>
-                <TabsTrigger value="advanced">{t("Name Search")}</TabsTrigger>
-              </TabsList>
+            <div className="flex items-center justify-center w-full">
+              <div className={`flex gap-6 justify-center w-full max-w-[1000px] ${activeTab === null ? "" : "h-12"}`}>
+                <button
+                  className={`hover:border-chart-2/50 dark:hover:border-chart-3 w-full max-h-9 flex items-center justify-center text-center rounded-lg p-2 transition-all
+        ${activeTab === "basic" ? "rounded-md bg-muted border border-chart-2/50 dark:border-chart-3" : "border"}`}
+                  onClick={() => handleToggleTab("basic")}
+                >
+                  {t("Basic Search")}
+                </button>
+                <button
+                  className={`hover:border-chart-2/50 dark:hover:border-chart-3 w-full max-h-9 flex items-center justify-center text-center rounded-lg p-2 transition-all
+        ${activeTab === "advanced" ? "rounded-md bg-muted border border-chart-2/50 dark:border-chart-3" : "border"}`}
+                  onClick={() => handleToggleTab("advanced")}
+                >
+                  {t("Name Search")}
+                </button>
+              </div>
+            </div>
 
-              <TabsContent value="basic" className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-3 ">
-                  <Input
-                    placeholder={t("Search forms...")}
-                    onChange={(event) =>
-                      table.setGlobalFilter(event.target.value)
+
+
+            {/* Basic Search Input Fields */}
+            {activeTab === "basic" && (
+              <div className="grid gap-4 md:grid-cols-3">
+                <Input
+                  placeholder={t("Search forms...")}
+                  onChange={(event) => table.setGlobalFilter(event.target.value)}
+                  className="w-full h-7"
+                />
+                <Input
+                  placeholder={t("Page number...")}
+                  value={pageSearch}
+                  onChange={(event) => handlePageSearch(event.target.value)}
+                  className="w-full h-7"
+                />
+                <Input
+                  placeholder={t("Book number...")}
+                  value={bookSearch}
+                  onChange={(event) => handleBookSearch(event.target.value)}
+                  className="w-full h-7"
+                />
+              </div>
+            )}
+
+            {/* Advanced Search Input Fields */}
+            {activeTab === "advanced" && (
+              <div className="grid gap-4 md:grid-cols-3">
+                <Input
+                  placeholder={t("First name")}
+                  value={firstNameSearch}
+                  onChange={(event) => {
+                    setFirstNameSearch(event.target.value);
+                    if (detailsColumn) {
+                      detailsColumn.setFilterValue([
+                        event.target.value,
+                        middleNameSearch,
+                        lastNameSearch,
+                      ]);
                     }
-                    className="w-full h-7"
-                  />
-                  <Input
-                    placeholder={t("Page number...")}
-                    value={pageSearch}
-                    onChange={(event) => handlePageSearch(event.target.value)}
-                    className="w-full h-7"
-                  />
-                  <Input
-                    placeholder={t("Book number...")}
-                    value={bookSearch}
-                    onChange={(event) => handleBookSearch(event.target.value)}
-                    className="w-full h-7"
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="advanced">
-                <div className="grid gap-4 md:grid-cols-3">
-                  <Input
-                    placeholder={t("First name")}
-                    value={firstNameSearch}
-                    onChange={(event) => {
-                      setFirstNameSearch(event.target.value)
-                      if (detailsColumn) {
-                        detailsColumn.setFilterValue([
-                          event.target.value,
-                          middleNameSearch,
-                          lastNameSearch,
-                        ])
-                      }
-                    }}
-                    className="w-full h-7"
-                  />
-                  <Input
-                    placeholder={t("Middle name")}
-                    value={middleNameSearch}
-                    onChange={(event) => {
-                      setMiddleNameSearch(event.target.value)
-                      if (detailsColumn) {
-                        detailsColumn.setFilterValue([
-                          firstNameSearch,
-                          event.target.value,
-                          lastNameSearch,
-                        ])
-                      }
-                    }}
-                    className="w-full h-7"
-                  />
-                  <Input
-                    placeholder={t("Last name")}
-                    value={lastNameSearch}
-                    onChange={(event) => {
-                      setLastNameSearch(event.target.value)
-                      if (detailsColumn) {
-                        detailsColumn.setFilterValue([
-                          firstNameSearch,
-                          middleNameSearch,
-                          event.target.value,
-                        ])
-                      }
-                    }}
-                    className="w-full h-7"
-                  />
-                </div>
-              </TabsContent>
-            </Tabs>
+                  }}
+                  className="w-full h-7"
+                />
+                <Input
+                  placeholder={t("Middle name")}
+                  value={middleNameSearch}
+                  onChange={(event) => {
+                    setMiddleNameSearch(event.target.value);
+                    if (detailsColumn) {
+                      detailsColumn.setFilterValue([
+                        firstNameSearch,
+                        event.target.value,
+                        lastNameSearch,
+                      ]);
+                    }
+                  }}
+                  className="w-full h-7"
+                />
+                <Input
+                  placeholder={t("Last name")}
+                  value={lastNameSearch}
+                  onChange={(event) => {
+                    setLastNameSearch(event.target.value);
+                    if (detailsColumn) {
+                      detailsColumn.setFilterValue([
+                        firstNameSearch,
+                        middleNameSearch,
+                        event.target.value,
+                      ]);
+                    }
+                  }}
+                  className="w-full h-7"
+                />
+              </div>
+            )}
           </CardContent>
-        </Card>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2 justify-between items-center">
