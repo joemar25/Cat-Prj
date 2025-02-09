@@ -186,7 +186,7 @@ export const Icons = {
     Barcode: Barcode,
     download: Download,
     plus: Plus,
-    view: View,
+    view: Eye,
     horizontalThreeDots: DotsHorizontalIcon,
     heart: HeartFilledIcon,
     baby: Baby,
