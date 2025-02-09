@@ -37,7 +37,7 @@ export default function DashboardContent() {
         </AlertDescription>
       </Alert>
 
-      <MetricsDashboard onSelectMetric={handleSelectMetric} />
+      <MetricsDashboard onSelectMetricAction={handleSelectMetric} />
 
       <StatisticsDashboard selectedMetric={selectedMetric} />
 
