@@ -24,6 +24,8 @@ export const ExportDialog = <T extends { year: number }>({
   title,
 }: ExportDialogProps<T>) => {
   const { t } = useTranslation()
+
+  // Hooks for export functions
   const {
     isMarriageData,
     handleChartTypeChange,
@@ -31,26 +33,30 @@ export const ExportDialog = <T extends { year: number }>({
     exportToExcel,
     exportToPDF
   } = useExportDialog(data, setChartTypeAction, title)
+
   const { exportChart } = useChartExport()
   const chartRef = useRef<HTMLDivElement>(null)
 
+  // Handle chart export
   const handleExport = async () => {
     if (chartRef.current) {
       const chartTypeIndicator = chartType.toLowerCase().replace(/\s+/g, '_')
       await exportChart(chartRef.current, chartTypeIndicator, title)
+    } else {
+      console.error("Chart reference is not available.")
     }
   }
 
-  const handleCSVExport = () => {
-    exportToCSV(data)
-  }
-
-  const handleExcelExport = () => {
-    exportToExcel(data)
-  }
+  // Export data functions
+  const handleCSVExport = () => exportToCSV()
+  const handleExcelExport = () => exportToExcel()
 
   const handlePDFExport = async () => {
-    await exportToPDF(data, chartRef.current)
+    if (chartRef.current) {
+      await exportToPDF(chartRef.current)  // Ensure the correct element is passed
+    } else {
+      console.error("Chart reference is not available for PDF export.")
+    }
   }
 
   return (
@@ -84,36 +90,27 @@ export const ExportDialog = <T extends { year: number }>({
           </DialogHeader>
 
           <div className="space-y-6">
+            {/* Data Export Section */}
             <div className="space-y-2">
               <h3 className="text-sm font-medium">{t("exportDialog.exportAs")}</h3>
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleCSVExport}
-                >
+                <Button variant="outline" className="flex-1" onClick={handleCSVExport}>
                   CSV
                 </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleExcelExport}
-                >
+                <Button variant="outline" className="flex-1" onClick={handleExcelExport}>
                   Excel
                 </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handlePDFExport}
-                >
+                <Button variant="outline" className="flex-1" onClick={handlePDFExport}>
                   PDF
                 </Button>
               </div>
             </div>
 
+            {/* Chart Export Section */}
             <div className="space-y-4">
               <h3 className="text-sm font-medium">{t("exportDialog.exportChart")}</h3>
 
+              {/* Chart Type Selection */}
               {isMarriageData ? (
                 <div className="space-y-2">
                   <h4 className="text-sm">{t("exportDialog.areaChart")}</h4>
@@ -134,6 +131,7 @@ export const ExportDialog = <T extends { year: number }>({
                 </Select>
               )}
 
+              {/* Chart Display */}
               {data.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex justify-center border rounded-lg p-4">
@@ -148,11 +146,8 @@ export const ExportDialog = <T extends { year: number }>({
                     </div>
                   </div>
 
-                  <Button
-                    className="w-full"
-                    variant="default"
-                    onClick={handleExport}
-                  >
+                  {/* Download Chart Button */}
+                  <Button className="w-full" variant="default" onClick={handleExport}>
                     {t("exportDialog.downloadChart")}
                   </Button>
                 </div>
