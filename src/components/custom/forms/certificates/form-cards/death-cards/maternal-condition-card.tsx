@@ -19,7 +19,7 @@ import { useFormContext } from 'react-hook-form';
 
 const MaternalConditionCard: React.FC = () => {
   const { control, watch } = useFormContext<DeathCertificateFormValues>();
-  const sex = watch('personalInfo.sex'); // Updated path to match schema
+  const sex = watch('deceasedInfo.sex'); // Updated to match the schema
 
   // Only show this card if the deceased is female
   if (sex !== 'Female') {

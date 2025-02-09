@@ -35,6 +35,15 @@ import RemarksCard from './form-cards/shared-components/remarks-card';
 // Death-specific components
 
 import DeathCertificatePDF from './preview/death-certificate/death-certificate-preview';
+import DeceasedInformationCard from './form-cards/death-cards/deceased-information-card';
+import MedicalCertificateCard from './form-cards/death-cards/medical-certificate-card';
+import CausesOfDeathCard from './form-cards/death-cards/causes-of-death';
+import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
+import DeathByExternalCausesCard from './form-cards/death-cards/death-by-external-causes';
+import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
+import CertificationOfDeathCard from './form-cards/death-cards/certification-of-death-card';
+import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
+import CertificationInformantCard from './form-cards/death-cards/certification-of-informant-card';
 
 export default function DeathCertificateForm({
   open,
@@ -50,12 +59,9 @@ export default function DeathCertificateForm({
   const [isNCRMode, setIsNCRMode] = useState(false);
 
   const form = useForm<DeathCertificateFormValues>({
-    resolver: zodResolver(createDeathCertificateSchema(
-      isNCRMode,
-      isNCRMode,
-      isNCRMode,
-      isNCRMode
-    )),
+    resolver: zodResolver(
+      createDeathCertificateSchema(isNCRMode, isNCRMode, isNCRMode, isNCRMode)
+    ),
     defaultValues: defaultDeathCertificateFormValues,
   });
 
@@ -174,32 +180,32 @@ export default function DeathCertificateForm({
                         setIsNCRMode={setIsNCRMode}
                       />
 
-                      {/* Personal Information */}
-                      {/* <PersonalInformationCard /> */}
+                      {/* Deceased Information */}
+                      <DeceasedInformationCard />
 
                       {/* Medical Certificate */}
-                      {/* <MedicalCertificateCard /> */}
+                      <MedicalCertificateCard />
 
                       {/* Causes of Death */}
-                      {/* <CausesOfDeathCard /> */}
+                      <CausesOfDeathCard />
 
                       {/* Maternal Condition */}
-                      {/* <MaternalConditionCard /> */}
+                      <MaternalConditionCard />
 
                       {/* Death by External Causes */}
-                      {/* <DeathByExternalCausesCard /> */}
+                      <DeathByExternalCausesCard />
 
                       {/* Attendant Information */}
-                      {/* <AttendantInformationCard /> */}
+                      <AttendantInformationCard />
 
                       {/* Certification of Death */}
-                      {/* <CertificationOfDeathCard /> */}
+                      <CertificationOfDeathCard />
 
                       {/* Disposal Information */}
-                      {/* <DisposalInformationCard /> */}
+                      <DisposalInformationCard />
 
                       {/* Informant Information */}
-                      {/* <CertificationInformantCard /> */}
+                      <CertificationInformantCard />
 
                       {/* Prepared By (reusable shared component) */}
                       <PreparedByCard<DeathCertificateFormValues>
