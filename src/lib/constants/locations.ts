@@ -1,16 +1,24 @@
+// src\lib\constants\locations.ts
 import citiesData from '@/lib/jsons/cities.json'
 import provincesData from '@/lib/jsons/provinces.json'
 import barangaysData from '@/lib/jsons/barangays.json'
 import municipalitiesData from '@/lib/jsons/municipalities.json'
 
+/**
+ * 
+ * Mar-Note (Do not remove)
+ * Will always follow this order `${houseNo}, ${street}, ${barangay}, ${cityMunicipality}, ${province}, Philippines` as json file submission of addresses
+ * 
+ * */
+
 export const COUNTRY = 'Philippines'
 
-interface Province {
+export interface Province {
   name: string
   region: string
 }
 
-interface City {
+export interface City {
   name: string
   region: string
   province: string | null
@@ -18,7 +26,7 @@ interface City {
   municipalities: string[]
 }
 
-interface Municipality {
+export interface Municipality {
   name: string
   region: string
   province: string | null
@@ -27,7 +35,7 @@ interface Municipality {
   barangays: string[]
 }
 
-interface Barangay {
+export interface Barangay {
   name: string
   region: string
   province: string | null

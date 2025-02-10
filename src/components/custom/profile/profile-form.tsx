@@ -1,19 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { ProfileWithUser } from '@/types/user-profile'
+import { OCCUPATIONS } from '@/lib/constants/occupations'
+import { Province, City, Barangay } from '@/lib/constants/locations'
 import { ProfileFormValues, profileFormSchema } from '@/lib/validation/profile/profile-form'
+import { PROVINCES, CITIES, BARANGAYS, COUNTRY } from '@/lib/constants/locations'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
 
 interface ProfileFormProps {
     profile: ProfileWithUser
@@ -38,7 +41,7 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
             address: profile?.address ?? '',
             city: profile?.city ?? '',
             state: profile?.state ?? '',
-            country: profile?.country ?? '',
+            country: profile?.country ?? COUNTRY,
             postalCode: profile?.postalCode ?? '',
             bio: profile?.bio ?? '',
             occupation: profile?.occupation ?? '',
@@ -46,6 +49,56 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
             nationality: profile?.nationality ?? '',
         },
     })
+
+    const [provinceSuggestions, setProvinceSuggestions] = useState<Province[]>([])
+    const [citySuggestions, setCitySuggestions] = useState<City[]>([])
+    const [barangaySuggestions, setBarangaySuggestions] = useState<Barangay[]>([])
+    const [occupationSuggestions, setOccupationSuggestions] = useState<string[]>([])
+
+    type AddressField = 'state' | 'city' | 'address'
+
+
+    const handleOccupationChange = (value: string) => {
+        const filteredOccupations = OCCUPATIONS.filter(occupation =>
+            occupation.toLowerCase().includes(value.toLowerCase())
+        )
+        setOccupationSuggestions(filteredOccupations)
+    }
+
+    const handleOccupationSuggestionClick = (value: string) => {
+        form.setValue('occupation', value)
+        setOccupationSuggestions([])
+    }
+
+    const handleInputChange = (value: string, type: AddressField) => {
+        if (type === 'state') {
+            const filteredProvinces = PROVINCES.filter(province =>
+                province.name.toLowerCase().includes(value.toLowerCase())
+            )
+            setProvinceSuggestions(filteredProvinces)
+        } else if (type === 'city') {
+            const selectedProvince = form.watch('state')
+            const filteredCities = CITIES.filter(city =>
+                city.name.toLowerCase().includes(value.toLowerCase()) &&
+                (!selectedProvince || city.province === selectedProvince)
+            )
+            setCitySuggestions(filteredCities)
+        } else if (type === 'address') {
+            const selectedCity = form.watch('city')
+            const filteredBarangays = BARANGAYS.filter(barangay =>
+                barangay.name.toLowerCase().includes(value.toLowerCase()) &&
+                (!selectedCity || barangay.city === selectedCity)
+            )
+            setBarangaySuggestions(filteredBarangays)
+        }
+    }
+
+    const handleSuggestionClick = (value: string, type: AddressField) => {
+        form.setValue(type, value)
+        if (type === 'state') setProvinceSuggestions([])
+        if (type === 'city') setCitySuggestions([])
+        if (type === 'address') setBarangaySuggestions([])
+    }
 
     async function onSubmit(data: ProfileFormValues) {
         if (!isEditing) return
@@ -58,7 +111,7 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                 body: JSON.stringify({
                     ...data,
                     image: profile?.user?.image,
-                })
+                }),
             })
 
             const result = await response.json()
@@ -85,8 +138,8 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                     <Skeleton key={idx} className="h-10 w-full" />
                 ))}
                 <div className="flex justify-start gap-2">
-                    <Skeleton className="h-10 w-24" />  {/* Simulated Cancel Button */}
-                    <Skeleton className="h-10 w-32" />  {/* Simulated Save Button */}
+                    <Skeleton className="h-10 w-24" />
+                    <Skeleton className="h-10 w-32" />
                 </div>
             </div>
         )
@@ -101,6 +154,7 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                     <div className="p-6 shadow rounded-2xl">
                         <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Username */}
                             <FormField
                                 control={form.control}
                                 name="username"
@@ -108,13 +162,14 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                     <FormItem>
                                         <FormLabel>Username</FormLabel>
                                         <FormControl>
-                                            <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                            <Input {...field} disabled={!isEditing || isSubmitting} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
+                            {/* Full Name */}
                             <FormField
                                 control={form.control}
                                 name="name"
@@ -122,13 +177,14 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                     <FormItem>
                                         <FormLabel>Full Name</FormLabel>
                                         <FormControl>
-                                            <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                            <Input {...field} disabled={!isEditing || isSubmitting} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
+                            {/* Email (Disabled) */}
                             <FormField
                                 control={form.control}
                                 name="email"
@@ -136,13 +192,14 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                     <FormItem>
                                         <FormLabel>Email</FormLabel>
                                         <FormControl>
-                                            <Input {...field} value={field.value ?? ''} disabled />
+                                            <Input {...field} disabled />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
+                            {/* Date of Birth */}
                             <FormField
                                 control={form.control}
                                 name="dateOfBirth"
@@ -150,13 +207,19 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                     <FormItem>
                                         <FormLabel>Date of Birth</FormLabel>
                                         <FormControl>
-                                            <Input {...field} type="date" value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                            <Input
+                                                type="date"
+                                                {...field}
+                                                value={field.value ?? ''}
+                                                disabled={!isEditing || isSubmitting}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
+                            {/* Phone Number */}
                             <FormField
                                 control={form.control}
                                 name="phoneNumber"
@@ -164,13 +227,18 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                     <FormItem>
                                         <FormLabel>Phone Number</FormLabel>
                                         <FormControl>
-                                            <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                            <Input
+                                                {...field}
+                                                value={field.value ?? ''}
+                                                disabled={!isEditing || isSubmitting}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
+                            {/* Gender */}
                             <FormField
                                 control={form.control}
                                 name="gender"
@@ -204,22 +272,149 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                     <div className="p-6 shadow rounded-2xl">
                         <h2 className="text-xl font-semibold mb-4">Address Information</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {(['address', 'city', 'state', 'country', 'postalCode'] as const).map((fieldName) => (
-                                <FormField
-                                    key={fieldName}
-                                    control={form.control}
-                                    name={fieldName}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}</FormLabel>
-                                            <FormControl>
-                                                <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            ))}
+
+                            {/* Province (Autocomplete) */}
+                            <FormField
+                                control={form.control}
+                                name="state"
+                                render={({ field }) => (
+                                    <FormItem className="relative">
+                                        <FormLabel>Province</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                {...field}
+                                                value={field.value ?? ''}
+                                                disabled={!isEditing || isSubmitting}
+                                                onChange={(e) => {
+                                                    field.onChange(e)
+                                                    handleInputChange(e.target.value, 'state')
+                                                }}
+                                                placeholder="Type your province"
+                                            />
+                                        </FormControl>
+                                        {provinceSuggestions.length > 0 && (
+                                            <div className="absolute z-10 bg-white border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
+                                                {provinceSuggestions.map((province) => (
+                                                    <div
+                                                        key={`${province.name}-${province.region}`}
+                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        onClick={() => handleSuggestionClick(province.name, 'state')}
+                                                    >
+                                                        {province.name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* City/Municipality (Autocomplete) */}
+                            <FormField
+                                control={form.control}
+                                name="city"
+                                render={({ field }) => (
+                                    <FormItem className="relative">
+                                        <FormLabel>City/Municipality</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                {...field}
+                                                value={field.value ?? ''}
+                                                disabled={!isEditing || isSubmitting}
+                                                onChange={(e) => {
+                                                    field.onChange(e)
+                                                    handleInputChange(e.target.value, 'city')
+                                                }}
+                                                placeholder="Type your city or municipality"
+                                            />
+                                        </FormControl>
+                                        {citySuggestions.length > 0 && (
+                                            <div className="absolute z-10 bg-white border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
+                                                {citySuggestions.map((city) => (
+                                                    <div
+                                                        key={`${city.name}-${city.province ?? ''}`}
+                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        onClick={() => handleSuggestionClick(city.name, 'city')}
+                                                    >
+                                                        {city.name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Barangay (Autocomplete) */}
+                            <FormField
+                                control={form.control}
+                                name="address"
+                                render={({ field }) => (
+                                    <FormItem className="relative">
+                                        <FormLabel>Barangay</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                {...field}
+                                                value={field.value ?? ''}
+                                                disabled={!isEditing || isSubmitting}
+                                                onChange={(e) => {
+                                                    field.onChange(e)
+                                                    handleInputChange(e.target.value, 'address')
+                                                }}
+                                                placeholder="Type your barangay"
+                                            />
+                                        </FormControl>
+                                        {barangaySuggestions.length > 0 && (
+                                            <div className="absolute z-10 bg-white border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
+                                                {barangaySuggestions.map((barangay) => (
+                                                    <div
+                                                        key={`${barangay.name}-${barangay.city ?? ''}-${barangay.municipality ?? ''}`}
+                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        onClick={() => handleSuggestionClick(barangay.name, 'address')}
+                                                    >
+                                                        {barangay.name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Postal Code */}
+                            <FormField
+                                control={form.control}
+                                name="postalCode"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Postal Code</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                {...field}
+                                                value={field.value ?? ''}
+                                                disabled={!isEditing || isSubmitting}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Country */}
+                            <FormField
+                                control={form.control}
+                                name="country"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Country</FormLabel>
+                                        <Input {...field} value={COUNTRY} disabled />
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
                     </div>
 
@@ -227,20 +422,44 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                     <div className="p-6 shadow rounded-2xl">
                         <h2 className="text-xl font-semibold mb-4">Professional Information</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Occupation */}
                             <FormField
                                 control={form.control}
                                 name="occupation"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className="relative">
                                         <FormLabel>Occupation</FormLabel>
                                         <FormControl>
-                                            <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                            <Input
+                                                {...field}
+                                                value={field.value ?? ''}
+                                                disabled={!isEditing || isSubmitting}
+                                                onChange={(e) => {
+                                                    field.onChange(e)
+                                                    handleOccupationChange(e.target.value)
+                                                }}
+                                                placeholder="Type your occupation"
+                                            />
                                         </FormControl>
+                                        {occupationSuggestions.length > 0 && (
+                                            <div className="absolute z-10 bg-white border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
+                                                {occupationSuggestions.map((occupation, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        onClick={() => handleOccupationSuggestionClick(occupation)}
+                                                    >
+                                                        {occupation}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
+                            {/* Nationality */}
                             <FormField
                                 control={form.control}
                                 name="nationality"
@@ -248,7 +467,11 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                     <FormItem>
                                         <FormLabel>Nationality</FormLabel>
                                         <FormControl>
-                                            <Input {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} />
+                                            <Input
+                                                {...field}
+                                                value={field.value ?? ''}
+                                                disabled={!isEditing || isSubmitting}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -266,7 +489,12 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Textarea {...field} value={field.value ?? ''} disabled={!isEditing || isSubmitting} className="h-32" />
+                                        <Textarea
+                                            {...field}
+                                            value={field.value ?? ''}
+                                            disabled={!isEditing || isSubmitting}
+                                            className="h-32"
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -274,10 +502,10 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                         />
                     </div>
 
-                    {/* Action Buttons */}
+                    {/* Submit Buttons */}
                     {isEditing && (
                         <div className="flex justify-start gap-4">
-                            <Button variant={"outline"} onClick={() => onEditingChangeAction(false)} disabled={isSubmitting}>
+                            <Button variant="outline" onClick={() => onEditingChangeAction(false)} disabled={isSubmitting}>
                                 Cancel
                             </Button>
                             <Button type="submit" disabled={isSubmitting}>
