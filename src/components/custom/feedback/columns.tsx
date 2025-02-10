@@ -1,13 +1,13 @@
+// src\components\custom\feedback\columns.tsx
 'use client'
 
 import { format } from 'date-fns'
-import { ColumnDef } from '@tanstack/react-table'
 import { Feedback } from '@prisma/client'
+import { useTranslation } from 'react-i18next'
+import { ColumnDef } from '@tanstack/react-table'
+import { DataTableRowActions } from './data-table-row-actions'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
-import { DataTableRowActions } from './data-table-row-actions'
-import { useTranslation } from 'react-i18next'
-import { t } from 'i18next'
 
 type FeedbackRow = Feedback & {
     user: { name: string; email: string; image: string | null } | null
@@ -54,7 +54,7 @@ export const columns: ColumnDef<FeedbackRow>[] = [
         },
         cell: ({ row }) => {
             const { t } = useTranslation()
-            return row.getValue('submittedBy') ? t('Known User') : t('Anonymous') // Fix here
+            return row.getValue('submittedBy') ? t('Known User') : t('Anonymous')
         },
         filterFn: (row, id, value: string[]) => {
             const hasSubmitter = Boolean(row.getValue(id))

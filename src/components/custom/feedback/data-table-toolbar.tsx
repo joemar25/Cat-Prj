@@ -9,8 +9,7 @@ import { Icons } from '@/components/ui/icons'
 import { Feedback } from '@prisma/client'
 import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
 import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
-import { useTranslation } from 'react-i18next' // Import useTranslation
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
+import { useTranslation } from 'react-i18next'
 
 interface DataTableToolbarProps<TData extends Feedback> {
     table: Table<TData>
@@ -63,13 +62,6 @@ export function DataTableToolbar<TData extends Feedback>({
 
     return (
         <div className="items-center justify-between">
-            <Alert>
-                <Icons.infoCircledIcon className="h-4 w-4" />
-                <AlertTitle>{t('summary_view_feedback')}</AlertTitle> {/* Translated title */}
-                <AlertDescription>
-                    {t('dashboard_description_feedback')} {/* Translated description */}
-                </AlertDescription>
-            </Alert>
             <div className='flex items-center justify-between mt-3'>
                 <div className="flex flex-1 items-center space-x-4">
                     <div className="relative">

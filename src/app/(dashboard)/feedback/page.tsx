@@ -3,29 +3,37 @@ import { prisma } from '@/lib/prisma'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DataTable } from '@/components/custom/feedback/data-table'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
+import FeedbackHeader from '@/components/custom/feedback/feedback-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 async function getFeedback() {
-  const feedback = await prisma.feedback.findMany({
-    orderBy: {
-      createdAt: 'desc',
-    },
-    include: {
-      user: {
-        select: {
-          name: true,
-          email: true,
-          image: true,
+  try {
+    const feedback = await prisma.feedback.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+            image: true,
+          },
         },
       },
-    },
-  })
+    })
 
-  return feedback.map((item) => ({
-    ...item,
-    createdAt: new Date(item.createdAt),
-    updatedAt: new Date(item.updatedAt),
-  }))
+    return feedback.map((item) => ({
+      ...item,
+      content: item.feedback,
+      createdAt: new Date(item.createdAt),
+      updatedAt: new Date(item.updatedAt),
+      submitterName: item.user ? item.user.name : null
+    }))
+  } catch (error) {
+    console.error('Error fetching feedback:', error)
+    return []
+  }
 }
 
 function FeedbackTableSkeleton() {
@@ -52,7 +60,7 @@ export default async function FeedbackPage() {
   const feedback = await getFeedback()
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       <DashboardHeader
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard', active: false },
@@ -60,14 +68,13 @@ export default async function FeedbackPage() {
         ]}
       />
 
-      <div className="flex flex-1 flex-col gap-4 p-4">
+      <div className="flex-1 p-4 space-y-4">
+        <FeedbackHeader feedback={feedback} />
+
         <Suspense fallback={<FeedbackTableSkeleton />}>
-          <DataTable
-            data={feedback}
-            selection={false}
-          />
+          <DataTable data={feedback} selection={false} />
         </Suspense>
       </div>
-    </>
+    </div>
   )
 }

@@ -164,12 +164,18 @@ importers:
       react-dropzone:
         specifier: ^14.3.5
         version: 14.3.5(react@18.3.1)
+      react-easy-crop:
+        specifier: ^5.2.0
+        version: 5.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-hook-form:
         specifier: ^7.54.2
         version: 7.54.2(react@18.3.1)
       react-i18next:
         specifier: ^15.4.0
         version: 15.4.0(i18next@24.2.2(typescript@5.7.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-tagcloud:
+        specifier: ^2.3.3
+        version: 2.3.3(react@18.3.1)
       react-use:
         specifier: ^17.6.0
         version: 17.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -228,6 +234,9 @@ importers:
       '@types/react-i18next':
         specifier: ^7.8.3
         version: 7.8.3
+      '@types/react-tagcloud':
+        specifier: ^2.3.2
+        version: 2.3.2
       eslint:
         specifier: ^9.20.0
         version: 9.20.0(jiti@1.21.7)
@@ -1460,6 +1469,9 @@ packages:
 
   '@types/react-i18next@7.8.3':
     resolution: {integrity: sha512-VPopxbHXz/1Sjl+ljXQQchf6FHXaYLaH0a6TH6KnGOQGD4LzNbUVlofK26S30OIYfYibm8r/sAb2KeTst+AwTQ==}
+
+  '@types/react-tagcloud@2.3.2':
+    resolution: {integrity: sha512-b7yrbJR2rc6GPIH0FJl1kxbLM3mXCmWzh299QhoGewuRMJ/HRJ8Fmy215yxOFGsUyjd7+KyFUb0cOZ9M8kQBbw==}
 
   '@types/react@18.3.18':
     resolution: {integrity: sha512-t4yC+vtgnkYjNSKlFx1jkAhH8LgTo2N/7Qvi83kdEaUtMDiwpbLAktKDaAMlRcJ5eSxZkH74eEGt1ky31d7kfQ==}
@@ -2817,6 +2829,9 @@ packages:
   normalize-svg-path@1.1.0:
     resolution: {integrity: sha512-r9KHKG2UUeB5LoTouwDzBy2VxXlHsiM6fyLQvnJa0S5hrhzqElH/CH7TUGhT1fVvIYBIKf3OpY4YJ4CK+iaqHg==}
 
+  normalize-wheel@1.0.1:
+    resolution: {integrity: sha512-1OnlAPZ3zgrk8B91HyRj+eVv+kS5u+Z0SCsak6Xil/kmgEia50ga7zfkumayonZrImffAxPU/5WcyGhzetHNPA==}
+
   npmlog@5.0.1:
     resolution: {integrity: sha512-AqZtDUWOMKs1G/8lwylVjrdYgqA4d9nu8hc+0gzRxlDb1I10+FHBGMXs6aiQHFdCUUlqH99MUMuLfzWDNDtfxw==}
     deprecated: This package is no longer supported.
@@ -3042,6 +3057,9 @@ packages:
   raf@3.4.1:
     resolution: {integrity: sha512-Sq4CW4QhwOHE8ucn6J34MqtZCeWFP2aQSmrlroYgqAV1PjStIhJXxYuTgUIfkEk7zTLjmIjLmU5q+fbD1NnOJA==}
 
+  randomcolor@0.6.2:
+    resolution: {integrity: sha512-Mn6TbyYpFgwFuQ8KJKqf3bqqY9O1y37/0jgSK/61PUxV4QfIMv0+K2ioq8DfOjkBslcjwSzRfIDEXfzA9aCx7A==}
+
   react-day-picker@8.10.1:
     resolution: {integrity: sha512-TMx7fNbhLk15eqcMt+7Z7S2KF7mfTId/XJDjKE8f+IUcFn0l08/kI4FiYTL/0yuOLmEcbR4Fwe3GJf/NiiMnPA==}
     peerDependencies:
@@ -3076,6 +3094,12 @@ packages:
     engines: {node: '>= 10.13'}
     peerDependencies:
       react: '>= 16.8 || 18.0.0'
+
+  react-easy-crop@5.2.0:
+    resolution: {integrity: sha512-gjb7jN+WnwfgpbNUI2jSwyoIxF1sJ0PVSNVgEysAgF1rj8AqR75fqmdvqZ6PFVgEX3rT1G4HJELesiQXr2ZvAg==}
+    peerDependencies:
+      react: '>=16.4.0'
+      react-dom: '>=16.4.0'
 
   react-hook-form@7.54.2:
     resolution: {integrity: sha512-eHpAUgUjWbZocoQYUHposymRb4ZP6d0uwUnooL2uOybA9/3tPUvoAKqEWK1WaSiTxxOfTpffNZP7QwlnM3/gEg==}
@@ -3147,6 +3171,11 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  react-tagcloud@2.3.3:
+    resolution: {integrity: sha512-4E2lTU7wYU0bisi2x3xInueufHzYFkSuqoKsY0Ky8U4Ki60StVX0MicYtsiScvY2QcFbSULWt6evbEwYVKXl4g==}
+    peerDependencies:
+      react: '>=16.8.0'
 
   react-transition-group@4.4.5:
     resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
@@ -3284,6 +3313,9 @@ packages:
     resolution: {integrity: sha512-9BakfsO2aUQN2K9Fdbj87RJIEZ82Q9IGim7FqM5OsebfoFC6ZHXgDq/KvniuLTPdeM8wY2o6Dj3WQ7KeQCj3cA==}
     engines: {node: '>=0.10.0'}
 
+  seedrandom@3.0.5:
+    resolution: {integrity: sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==}
+
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
@@ -3326,6 +3358,9 @@ packages:
   shebang-regex@3.0.0:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
+
+  shuffle-array@1.0.1:
+    resolution: {integrity: sha512-0TFRU8zVQaLatWKr0/czo19VyPNgb/a3sBc1GAjVfivfzEGaS54vueNgtAu/8/pW7EM/VF5fwq9zgpLdGyRmVw==}
 
   side-channel-list@1.0.0:
     resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
@@ -4983,6 +5018,10 @@ snapshots:
       '@types/i18next': 12.1.0
       '@types/react': 18.3.18
 
+  '@types/react-tagcloud@2.3.2':
+    dependencies:
+      '@types/react': 18.3.18
+
   '@types/react@18.3.18':
     dependencies:
       '@types/prop-types': 15.7.14
@@ -6515,6 +6554,8 @@ snapshots:
     dependencies:
       svg-arc-to-cubic-bezier: 3.2.0
 
+  normalize-wheel@1.0.1: {}
+
   npmlog@5.0.1:
     dependencies:
       are-we-there-yet: 2.0.0
@@ -6732,6 +6773,8 @@ snapshots:
       performance-now: 2.1.0
     optional: true
 
+  randomcolor@0.6.2: {}
+
   react-day-picker@8.10.1(date-fns@2.28.0)(react@18.3.1):
     dependencies:
       date-fns: 2.28.0
@@ -6765,6 +6808,13 @@ snapshots:
       file-selector: 2.1.2
       prop-types: 15.8.1
       react: 18.3.1
+
+  react-easy-crop@5.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      normalize-wheel: 1.0.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      tslib: 2.8.1
 
   react-hook-form@7.54.2(react@18.3.1):
     dependencies:
@@ -6828,6 +6878,14 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 18.3.18
+
+  react-tagcloud@2.3.3(react@18.3.1):
+    dependencies:
+      prop-types: 15.8.1
+      randomcolor: 0.6.2
+      react: 18.3.1
+      seedrandom: 3.0.5
+      shuffle-array: 1.0.1
 
   react-transition-group@4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
@@ -7006,6 +7064,8 @@ snapshots:
 
   screenfull@5.2.0: {}
 
+  seedrandom@3.0.5: {}
+
   semver@6.3.1: {}
 
   semver@7.7.1: {}
@@ -7070,6 +7130,8 @@ snapshots:
       shebang-regex: 3.0.0
 
   shebang-regex@3.0.0: {}
+
+  shuffle-array@1.0.1: {}
 
   side-channel-list@1.0.0:
     dependencies:

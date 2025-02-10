@@ -1,32 +1,14 @@
 // src/components/custom/requests/data-table-row-actions.tsx
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Icons } from '@/components/ui/icons'
-import { Row } from '@tanstack/react-table'
-import { useState } from 'react'
 import { toast } from 'sonner'
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { useState } from 'react'
+import { Row } from '@tanstack/react-table'
+import { Icons } from '@/components/ui/icons'
+import { Button } from '@/components/ui/button'
 import { ExtendedCertifiedCopy } from '@/types/certified-true-copy'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
 // Add this type definition
 type CertifiedCopyStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED'
@@ -85,7 +67,7 @@ export function DataTableRowActions({
             onClick={() => setShowCancelAlert(true)}
             disabled={isLoading || request.status === 'CANCELLED'}
           >
-            <Icons.x className="mr-2 h-4 w-4" />
+            <Icons.close className="mr-2 h-4 w-4" />
             Cancel Request
           </DropdownMenuItem>
         </DropdownMenuContent>
