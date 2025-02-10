@@ -23,10 +23,10 @@ export function transformToMainNavItem(
     const userPermissions = user.roles.flatMap((role) => role.role.permissions.map((p) => p.permission));
 
     const baseItem: NavMainItem & { id: string } = {
-        id: route.id, // Attach the route id here
+        id: route.id,
         title: t(route.id),
         url: route.path,
-        notViewedCount: 0, // Set as needed
+        notViewedCount: 0,
     };
 
     // Set the icon – fallback to folder.
@@ -107,7 +107,9 @@ export function transformToSecondaryNavItem(routeId: string, t: (key: string) =>
  * You can use getMainNavItems(...) in your layout/page components.
  */
 export const navigationConfig: NavigationConfiguration = {
-    mainNav: [], // Populate at runtime via getMainNavItems(user, roles, t)
+    mainNav: [
+        // Populate at runtime via getMainNavItems(user, roles, t)
+    ],
     secondaryNav: [
         // You can add secondary nav items using transformToSecondaryNavItem()
     ],
@@ -116,15 +118,22 @@ export const navigationConfig: NavigationConfiguration = {
             id: "notifications",
             type: "projects",
             title: "Notifications",
-            url: "notifications",
+            url: "/notifications",
             iconName: "fileText",
         },
         {
             id: "settings",
             type: "projects",
             title: "Settings",
-            url: "settings",
-            iconName: "fileText",
+            url: "/settings",
+            iconName: "gear",
+        },
+        {
+            id: "help",
+            type: "projects",
+            title: "Help",
+            url: "/help",
+            iconName: "help",
         },
     ],
 }

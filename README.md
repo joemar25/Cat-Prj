@@ -29,11 +29,11 @@
 1. **Centralized Digital Repository**
    - [x] Design and implement a database schema to securely store civil registry documents (e.g., birth, death, and marriage certificates).
    - [x] Develop search functionality with advanced filtering options (e.g., document type, date, or request status) for efficient document retrieval.
-   - [ ] Add support for multiple document formats, including PDF, images, and scanned files.
+   - [x] Add support for multiple document formats, including PDF, images, and scanned files.
 
 2. **Automated Document Classification**
-   - [ ] Implement logic for categorizing documents by type (e.g., birth, death, or marriage), issuance date, and unique identifiers.
-   - [ ] Automate tagging of documents to minimize manual input and streamline search processes.
+   - [x] Implement logic for categorizing documents by type (e.g., birth, death, or marriage), issuance date, and unique identifiers.
+   - [x] Automate tagging of documents to minimize manual input and streamline search processes.
 
 3. **Advanced Access Controls**
    - [x] Implement role-based permissions to ensure secure and structured access to civil registry documents.
@@ -92,9 +92,9 @@
    - [ ] Allow dynamic updates to the checklist if additional documents are needed.
 
 2. **Document Management**
-   - [ ] Provide CRUD functionality for managing civil registry documents.
+   - [x] Provide CRUD functionality for managing civil registry documents.
    - [x] Enable metadata tagging for efficient organization and retrieval.
-   - [ ] Implement document versioning to maintain a history of updates and changes.
+   - [x] Implement document versioning to maintain a history of updates and changes.
 
 3. **Feedback System**
    - [x] Allow `STAFF` and `ADMIN` roles to submit feedback on system operations or document handling processes.

@@ -112,6 +112,15 @@ export const routeConfigs: RouteConfig[] = [
         requiredPermissions: [], // Typically available to any authenticated user
         hideFromNav: true,
     },
+    {
+        id: "help",
+        path: "/help",
+        type: "ui",
+        title: "Help",
+        iconName: "help",
+        requiredPermissions: [], // Typically available to any authenticated user
+        hideFromNav: true,
+    },
     // These certificate request routes are hidden from navigation:
     {
         id: "requests-birth-cert",

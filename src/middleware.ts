@@ -61,5 +61,8 @@ export const config = {
         '/settings/:path*',
         '/users/:path*',
         '/api/:path*',
+
+        // mar-note: add new routes here
+        '/help/:path*'
     ],
 }
