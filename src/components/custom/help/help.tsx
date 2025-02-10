@@ -8,12 +8,15 @@ import { Icons, IconsType } from '@/components/ui/icons'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { TUTORIALS, TutorialCategory, TutorialStep, TutorialMedia } from '@/lib/constants/tutorials'
 import { hasAllPermissions } from '@/types/auth'
+import { useUser } from '@/context/user-context'
 import { Permission } from '@prisma/client'
 
-export function HelpTutorials({ userPermissions }: { userPermissions: Permission[] }) {
+export function HelpTutorials() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
     const [selectedStep, setSelectedStep] = useState<TutorialStep | null>(null)
     const [isLoading, setIsLoading] = useState(true)
+
+    const { permissions } = useUser()
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 1000)
@@ -22,7 +25,7 @@ export function HelpTutorials({ userPermissions }: { userPermissions: Permission
 
     const canAccessCategory = (requiredPermissions?: Permission[]) => {
         if (!requiredPermissions) return true
-        return hasAllPermissions(userPermissions, requiredPermissions)
+        return hasAllPermissions(permissions as Permission[], requiredPermissions)
     }
 
     return (
