@@ -33,15 +33,16 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-// Import your user creation schema
 import { userCreateFormSchema, UserCreateFormValues } from '@/lib/validation/user/user-create-form'
 import { useRoles } from '@/hooks/use-roles'
+import { useUser } from '@/context/user-context'
+import { hasAllPermissions } from '@/types/auth'
+import { Permission } from '@prisma/client'
 
 interface AddUserDialogProps {
   onSuccess?: () => void
 }
 
-// Password generator function
 function generateSecurePassword() {
   const length = 12
   const uppercase = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'
@@ -52,27 +53,24 @@ function generateSecurePassword() {
   const allChars = uppercase + lowercase + numbers + symbols
   let password = ''
 
-  // Ensure at least one of each type
   password += uppercase[Math.floor(Math.random() * uppercase.length)]
   password += lowercase[Math.floor(Math.random() * lowercase.length)]
   password += numbers[Math.floor(Math.random() * numbers.length)]
   password += symbols[Math.floor(Math.random() * symbols.length)]
 
-  // Fill the rest randomly
   for (let i = password.length; i < length; i++) {
     password += allChars[Math.floor(Math.random() * allChars.length)]
   }
 
-  // Shuffle the password
   return password.split('').sort(() => Math.random() - 0.5).join('')
 }
-
 
 export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const { roles, loading: rolesLoading, error: rolesError } = useRoles()
+  const { permissions } = useUser()
 
   const form = useForm<UserCreateFormValues>({
     resolver: zodResolver(userCreateFormSchema),
@@ -105,6 +103,8 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
     form.setValue('password', newPassword)
     form.setValue('confirmPassword', newPassword)
   }
+
+  const canAssignSuperAdmin = hasAllPermissions(permissions, [Permission.USER_CREATE, Permission.USER_UPDATE, Permission.USER_DELETE])
 
   async function onSubmit(data: UserCreateFormValues) {
     setIsLoading(true)
@@ -151,7 +151,6 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Username field */}
               <FormField
                 control={form.control}
                 name="username"
@@ -166,7 +165,6 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
                 )}
               />
 
-              {/* Name field */}
               <FormField
                 control={form.control}
                 name="name"
@@ -181,7 +179,6 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
                 )}
               />
 
-              {/* Email field */}
               <FormField
                 control={form.control}
                 name="email"
@@ -196,7 +193,6 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
                 )}
               />
 
-              {/* Password field */}
               <FormField
                 control={form.control}
                 name="password"
@@ -233,7 +229,6 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
                 )}
               />
 
-              {/* Confirm Password field */}
               <FormField
                 control={form.control}
                 name="confirmPassword"
@@ -271,7 +266,11 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
                       <SelectContent>
                         <SelectItem value="none" disabled>Select role</SelectItem>
                         {!rolesLoading && !rolesError && roles.map((role) => (
-                          <SelectItem key={role.id} value={role.id}>
+                          <SelectItem
+                            key={role.id}
+                            value={role.id}
+                            disabled={role.name === 'Super Admin' && !canAssignSuperAdmin}
+                          >
                             {role.name}
                           </SelectItem>
                         ))}
@@ -282,7 +281,6 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
                 )}
               />
 
-              {/* Date of Birth field */}
               <FormField
                 control={form.control}
                 name="dateOfBirth"
@@ -297,7 +295,6 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
                 )}
               />
 
-              {/* Phone Number field */}
               <FormField
                 control={form.control}
                 name="phoneNumber"
@@ -312,7 +309,6 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
                 )}
               />
 
-              {/* Address field */}
               <FormField
                 control={form.control}
                 name="address"
@@ -327,7 +323,6 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
                 )}
               />
 
-              {/* City field */}
               <FormField
                 control={form.control}
                 name="city"
@@ -342,7 +337,48 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
                 )}
               />
 
-              {/* Gender field */}
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ''} placeholder="Enter state" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ''} placeholder="Enter country" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="postalCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Postal Code</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ''} placeholder="Enter postal code" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="gender"
@@ -371,9 +407,36 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="nationality"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nationality</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ''} placeholder="Enter nationality" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="occupation"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Occupation</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ''} placeholder="Enter occupation" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            {/* Bio field */}
             <FormField
               control={form.control}
               name="bio"
