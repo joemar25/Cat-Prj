@@ -1,0 +1,117 @@
+[
+  {
+    "category": "User Management",
+    "icon": "userCog",
+    "requiredPermissions": ["USER_CREATE"],
+    "tutorials": [
+      {
+        "id": 1,
+        "title": "Creating a New User",
+        "description": "Learn how to add new users to the system.",
+        "media": [
+          {
+            "type": "image",
+            "src": "/assets/default/help-items/test.jpg",
+            "description": "Navigate to 'Manage Users' from the navigation bar.",
+            "additionalNotes": "Ensure you have the required permissions: USER_READ, USER_CREATE, USER_UPDATE."
+          },
+          {
+            "type": "image",
+            "src": "/assets/default/help-items/test.jpg",
+            "description": "Select the role of the user you want to manage, e.g., Admin."
+          },
+          {
+            "type": "image",
+            "src": "/assets/default/help-items/test.jpg",
+            "description": "Click the 'Add User' button in the toolbar to open the modal dialog."
+          },
+          {
+            "type": "image",
+            "src": "/assets/default/help-items/test.jpg",
+            "description": "Fill in the user details in the form."
+          },
+          {
+            "type": "image",
+            "src": "/assets/default/help-items/test.jpg",
+            "description": "Submit the form to add the new user and see the results."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Editing User Profiles",
+        "description": "Steps to edit existing user profiles."
+      }
+    ]
+  },
+  {
+    "category": "Feedback Concepts",
+    "icon": "messageSquare",
+    "tutorials": [
+      {
+        "id": 1,
+        "title": "Submitting Feedback",
+        "description": "Guide on how to submit feedback effectively.",
+        "media": [
+          {
+            "type": "image",
+            "src": "/assets/default/help-items/test.jpg",
+            "description": "Screenshot of the user creation form."
+          },
+          {
+            "type": "image",
+            "src": "/assets/default/help-items/test.jpg",
+            "description": "Screenshot of the user creation form."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Viewing Feedback Reports",
+        "description": "Learn how to view and analyze feedback reports.",
+        "media": [
+          {
+            "type": "image",
+            "src": "/assets/default/help-items/test.jpg",
+            "description": "Screenshot of the user creation form."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "category": "Civil Registry Help",
+    "icon": "fileText",
+    "tutorials": [
+      {
+        "id": 1,
+        "title": "Requesting Birth Certificates",
+        "description": "Steps to request birth certificates online.",
+        "media": [
+          {
+            "type": "image",
+            "src": "/assets/default/help-items/test.jpg",
+            "description": "Screenshot of the user creation form."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Correcting Civil Records",
+        "description": "How to correct mistakes in civil records.",
+        "media": [
+          {
+            "type": "image",
+            "src": "/assets/default/help-items/test.jpg",
+            "description": "Screenshot of the user creation form."
+          },
+          {
+            "type": "image",
+            "src": "/assets/default/help-items/test.jpg",
+            "description": "Screenshot of the user creation form."
+          }
+        ]
+      }
+    ]
+  }
+]

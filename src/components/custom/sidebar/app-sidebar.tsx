@@ -1,4 +1,3 @@
-// src/components/custom/sidebar/app-sidebar.tsx
 "use client"
 
 import { useEffect, useState } from "react"
@@ -11,7 +10,7 @@ import { useTranslation } from "react-i18next"
 import { NavSecondary } from "./nav-secondary"
 import { useRoles } from "@/hooks/use-roles"
 import { useNavigationStore } from "@/lib/stores/navigation"
-import { getMainNavItems } from "@/lib/config/navigation"
+import { getMainNavItems, navigationConfig } from "@/lib/config/navigation"
 import {
   Sidebar,
   SidebarContent,
@@ -62,18 +61,12 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
     setMainNavItems(filteredItems.filter((item) => !item.hidden))
   }, [visibleMainItems, user, roles, loading, error, t])
 
-  const visibleProjectNav = [
-    {
-      title: t("notifications"),
-      url: "notifications",
-      icon: (Icons.bell) as LucideIcon,
-    },
-    {
-      title: t("settings"),
-      url: "settings",
-      icon: (Icons.gear) as LucideIcon,
-    },
-  ]
+  // Transform navigationConfig.projectsNav for display
+  const visibleProjectNav = navigationConfig.projectsNav.map((project) => ({
+    title: t(project.title),
+    url: project.url,
+    icon: project.iconName && Icons[project.iconName] ? (Icons[project.iconName] as LucideIcon) : Icons.folder,
+  }))
 
   if (loading) {
     return (
