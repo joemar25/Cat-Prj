@@ -171,11 +171,11 @@ export async function createDeathCertificate(
   ignoreDuplicate: boolean = false
 ) {
   try {
-    // Check for required dates
-    if (!data.personalInfo.dateOfDeath) {
+    // Check for required dates using the new deceasedInfo key
+    if (!data.deceasedInfo.dateOfDeath) {
       return { success: false, error: 'Date of death is required' };
     }
-    if (!data.personalInfo.dateOfBirth) {
+    if (!data.deceasedInfo.dateOfBirth) {
       return { success: false, error: 'Date of birth is required' };
     }
 
@@ -209,21 +209,21 @@ export async function createDeathCertificate(
             {
               deceasedName: {
                 path: ['firstName'],
-                string_contains: data.personalInfo.firstName.trim(),
+                string_contains: data.deceasedInfo.firstName.trim(),
               },
             },
             {
               deceasedName: {
                 path: ['lastName'],
-                string_contains: data.personalInfo.lastName.trim(),
+                string_contains: data.deceasedInfo.lastName.trim(),
               },
             },
-            { dateOfDeath: data.personalInfo.dateOfDeath },
+            { dateOfDeath: data.deceasedInfo.dateOfDeath },
             {
               placeOfDeath: {
                 path: ['cityMunicipality'],
                 string_contains:
-                  data.personalInfo.placeOfDeath.cityMunicipality.trim(),
+                  data.deceasedInfo.placeOfDeath.cityMunicipality.trim(),
               },
             },
           ],
@@ -247,7 +247,7 @@ export async function createDeathCertificate(
       return { success: false, error: 'Preparer not found' };
     }
 
-    // Create the death certificate
+    // Create the death certificate using BaseRegistryForm with a nested deathCertificateForm
     const baseForm = await prisma.baseRegistryForm.create({
       data: {
         formNumber: '103',
@@ -264,45 +264,45 @@ export async function createDeathCertificate(
         },
         deathCertificateForm: {
           create: {
-            // Personal Information
+            // Deceased Information (using deceasedInfo)
             deceasedName: {
-              firstName: data.personalInfo.firstName.trim(),
-              middleName: data.personalInfo.middleName?.trim() || '',
-              lastName: data.personalInfo.lastName.trim(),
+              firstName: data.deceasedInfo.firstName.trim(),
+              middleName: data.deceasedInfo.middleName?.trim() || '',
+              lastName: data.deceasedInfo.lastName.trim(),
             },
-            sex: data.personalInfo.sex,
-            dateOfDeath: data.personalInfo.dateOfDeath,
-            dateOfBirth: data.personalInfo.dateOfBirth,
-            // Map the new address object for placeOfDeath:
+            sex: data.deceasedInfo.sex,
+            dateOfDeath: data.deceasedInfo.dateOfDeath,
+            dateOfBirth: data.deceasedInfo.dateOfBirth,
+            // Map the address for place of death
             placeOfDeath: {
-              houseNumber: data.personalInfo.placeOfDeath.houseNumber,
-              street: data.personalInfo.placeOfDeath.street,
-              barangay: data.personalInfo.placeOfDeath.barangay,
-              cityMunicipality: data.personalInfo.placeOfDeath.cityMunicipality,
-              province: data.personalInfo.placeOfDeath.province,
-              country: data.personalInfo.placeOfDeath.country,
+              houseNumber: data.deceasedInfo.placeOfDeath.houseNumber,
+              street: data.deceasedInfo.placeOfDeath.street,
+              barangay: data.deceasedInfo.placeOfDeath.barangay,
+              cityMunicipality: data.deceasedInfo.placeOfDeath.cityMunicipality,
+              province: data.deceasedInfo.placeOfDeath.province,
+              country: data.deceasedInfo.placeOfDeath.country,
             },
-            // For backward compatibility, if you need placeOfBirth:
+            // For backward compatibility, set placeOfBirth the same as placeOfDeath
             placeOfBirth: {
-              houseNumber: data.personalInfo.placeOfDeath.houseNumber,
-              street: data.personalInfo.placeOfDeath.street,
-              barangay: data.personalInfo.placeOfDeath.barangay,
-              cityMunicipality: data.personalInfo.placeOfDeath.cityMunicipality,
-              province: data.personalInfo.placeOfDeath.province,
-              country: data.personalInfo.placeOfDeath.country,
+              houseNumber: data.deceasedInfo.placeOfDeath.houseNumber,
+              street: data.deceasedInfo.placeOfDeath.street,
+              barangay: data.deceasedInfo.placeOfDeath.barangay,
+              cityMunicipality: data.deceasedInfo.placeOfDeath.cityMunicipality,
+              province: data.deceasedInfo.placeOfDeath.province,
+              country: data.deceasedInfo.placeOfDeath.country,
             },
-            civilStatus: data.personalInfo.civilStatus,
-            religion: data.personalInfo.religion,
-            citizenship: data.personalInfo.citizenship,
+            civilStatus: data.deceasedInfo.civilStatus,
+            religion: data.deceasedInfo.religion,
+            citizenship: data.deceasedInfo.citizenship,
             residence: {
-              houseNumber: data.personalInfo.residence.houseNumber,
-              street: data.personalInfo.residence.street,
-              barangay: data.personalInfo.residence.barangay,
-              cityMunicipality: data.personalInfo.residence.cityMunicipality,
-              province: data.personalInfo.residence.province,
-              country: data.personalInfo.residence.country,
+              houseNumber: data.deceasedInfo.residence.houseNumber,
+              street: data.deceasedInfo.residence.street,
+              barangay: data.deceasedInfo.residence.barangay,
+              cityMunicipality: data.deceasedInfo.residence.cityMunicipality,
+              province: data.deceasedInfo.residence.province,
+              country: data.deceasedInfo.residence.country,
             },
-            occupation: data.personalInfo.occupation,
+            occupation: data.deceasedInfo.occupation,
 
             // Family Information
             nameOfFather: {
@@ -316,7 +316,7 @@ export async function createDeathCertificate(
               lastName: data.familyInfo.mother.lastName.trim(),
             },
 
-            // Medical Information
+            // Medical Certificate
             causesOfDeath: {
               immediate: data.medicalCertificate.causesOfDeath.immediate,
               antecedent: data.medicalCertificate.causesOfDeath.antecedent,
@@ -325,18 +325,18 @@ export async function createDeathCertificate(
                 data.medicalCertificate.causesOfDeath.contributingConditions ||
                 '',
             },
-            deathInterval: {
-              interval: data.personalInfo.ageAtDeath.years,
-            },
+            // Save the full ageAtDeath object (years, months, days, hours)
+            deathInterval: data.deceasedInfo.ageAtDeath,
             pregnancy: false,
             attendedByPhysician: data.certification.hasAttended === 'Yes',
             mannerOfDeath: data.medicalCertificate.externalCauses.mannerOfDeath,
             placeOfOccurrence:
               data.medicalCertificate.externalCauses.placeOfOccurrence,
 
-            // Certification
+            // Certification Information
             certificationType: 'STANDARD',
             certifier: {
+              signature: data.certification.signature,
               name: data.certification.name,
               title: data.certification.title,
               address: {
@@ -368,6 +368,7 @@ export async function createDeathCertificate(
 
             // Informant Details
             informant: {
+              signature: data.informant.signature,
               name: data.informant.name,
               relationship: data.informant.relationship,
               address: {
@@ -383,13 +384,14 @@ export async function createDeathCertificate(
 
             // Preparer Details
             preparer: {
+              signature: data.preparedBy.signature,
               name: data.preparedBy.name,
               title: data.preparedBy.title,
               date: data.preparedBy.date,
             },
           },
         },
-        // Additional base form fields
+        // Additional Base Form fields
         receivedBy: data.receivedBy.name.trim(),
         receivedByPosition: data.receivedBy.title.trim(),
         receivedDate: data.receivedBy.date,
@@ -400,7 +402,9 @@ export async function createDeathCertificate(
       },
     });
 
+    // Revalidate the civil registry path (or any other necessary path)
     revalidatePath('/civil-registry');
+
     return {
       success: true,
       data: baseForm,
