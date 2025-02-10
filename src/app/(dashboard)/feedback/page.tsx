@@ -69,10 +69,10 @@ export default async function FeedbackPage() {
       />
 
       <div className="flex-1 p-4 space-y-4">
-        <FeedbackHeader feedback={feedback} />
 
         <Suspense fallback={<FeedbackTableSkeleton />}>
           <DataTable data={feedback} selection={false} />
+          <FeedbackHeader feedback={feedback} />
         </Suspense>
       </div>
     </div>

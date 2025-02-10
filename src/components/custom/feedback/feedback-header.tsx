@@ -27,13 +27,6 @@ const FeedbackHeader = ({ feedback }: { feedback: FeedbackItem[] }) => {
 
     return (
         <>
-            <Alert>
-                <Icons.infoCircledIcon className="h-4 w-4" />
-                <AlertTitle>{t('summary_view_feedback')}</AlertTitle>
-                <AlertDescription>
-                    {t('dashboard_description_feedback')}
-                </AlertDescription>
-            </Alert>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <FeedbackWordCloud feedback={feedback} />
                 <FeedbackUserChart feedback={feedback} />

@@ -381,5 +381,20 @@
   "birth_conclusion_equal": "Equal Male and Female Births",
   "death_conclusion_more_male": "More Male Deaths",
   "death_conclusion_more_female": "More Female Deaths",
-  "death_conclusion_equal": "Equal Male and Female Deaths"
+  "death_conclusion_equal": "Equal Male and Female Deaths",
+  "User Type Distribution": "User Type Distribution",
+    "Comparison of Known vs. Anonymous Feedback": "Comparison of Known vs. Anonymous Feedback",
+    "Known Users": "Known Users",
+    "Anonymous Users": "Anonymous Users",
+    "Feedbacks": "Feedbacks", 
+    "settingsNoticeTitle": "Note:",
+  "settingsNoticeDescription": "These settings are for UI/UX demonstration purposes and are not final.",
+  "notificationTitle": "Notifications",
+  "notificationsEnabled": "Notifications Enabled",
+  "notificationsDisabled": "Notifications Disabled",
+  "notificationsDescription": "You will receive important updates and alerts.",
+  "privacyTitle": "Privacy Settings",
+  "privacyModeEnabled": "Privacy Mode On",
+  "privacyModeDisabled": "Privacy Mode Off",
+  "privacyModeDescription": "Your data sharing and tracking settings are minimized."
 }

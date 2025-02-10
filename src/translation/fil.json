@@ -387,5 +387,16 @@
   "birth_conclusion_equal": "Pantay na Lalaki at Babae sa Kapanganakan",
   "death_conclusion_more_male": "Mas Maraming Lalaki sa Pagkamatay",
   "death_conclusion_more_female": "Mas Maraming Babae sa Pagkamatay",
-  "death_conclusion_equal": "Pantay na Lalaki at Babae sa Pagkamatay"
+  "death_conclusion_equal": "Pantay na Lalaki at Babae sa Pagkamatay",
+
+  "settingsNoticeTitle": "Note:",
+  "settingsNoticeDescription": "These settings are for UI/UX demonstration purposes and are not final.",
+  "notificationTitle": "Notifications",
+  "notificationsEnabled": "Notifications Enabled",
+  "notificationsDisabled": "Notifications Disabled",
+  "notificationsDescription": "You will receive important updates and alerts.",
+  "privacyTitle": "Privacy Settings",
+  "privacyModeEnabled": "Privacy Mode On",
+  "privacyModeDisabled": "Privacy Mode Off",
+  "privacyModeDescription": "Your data sharing and tracking settings are minimized."
 }

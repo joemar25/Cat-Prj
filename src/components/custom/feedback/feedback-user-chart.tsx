@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { PieChart, Pie, Label } from 'recharts'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import { useTranslation } from 'react-i18next'
 
 interface FeedbackItem {
     id: string
@@ -35,6 +36,7 @@ const FeedbackUserChart = ({ feedback }: { feedback: FeedbackItem[] }) => {
     const [chartData, setChartData] = useState<{ name: string; value: number; fill: string }[]>([])
     const [knownCount, setKnownCount] = useState(0)
     const [anonymousCount, setAnonymousCount] = useState(0)
+    const { t } = useTranslation() // Use the translation hook
 
     // Function to resolve CSS variables to actual color values
     const resolveCssVariable = (variableName: string) => {
@@ -53,23 +55,22 @@ const FeedbackUserChart = ({ feedback }: { feedback: FeedbackItem[] }) => {
         const knownColor = `hsl(${resolveCssVariable('--chart-3')})`
         const anonymousColor = `hsl(${resolveCssVariable('--chart-2')})`
 
-        setChartData([
-            { name: 'Known Users', value: knownUsers, fill: knownColor },
-            { name: 'Anonymous Users', value: anonymousUsers, fill: anonymousColor },
+        setChartData([ 
+            { name: t('Known Users'), value: knownUsers, fill: knownColor }, 
+            { name: t('Anonymous Users'), value: anonymousUsers, fill: anonymousColor },
         ])
-    }, [feedback])
+    }, [feedback, t]) // Ensure t is included in dependency
 
     const totalFeedback = feedback.length
 
     return (
         <Card className="flex flex-col">
             <CardHeader className="items-center pb-0">
-                <CardTitle>User Type Distribution</CardTitle>
-                <CardDescription>Comparison of Known vs. Anonymous Feedback</CardDescription>
+                <CardTitle>{t('User Type Distribution')}</CardTitle>
+                <CardDescription>{t('Comparison of Known vs. Anonymous Feedback')}</CardDescription>
             </CardHeader>
 
             <CardContent className="flex-1 pb-0">
-                {/* Added the config prop here */}
                 <ChartContainer
                     config={chartConfig}
                     className="mx-auto aspect-square max-h-[250px]"
@@ -109,7 +110,7 @@ const FeedbackUserChart = ({ feedback }: { feedback: FeedbackItem[] }) => {
                                                     y={(viewBox.cy || 0) + 24}
                                                     className="fill-muted-foreground"
                                                 >
-                                                    Feedbacks
+                                                    {t('Feedbacks')}
                                                 </tspan>
                                             </text>
                                         )
@@ -122,8 +123,8 @@ const FeedbackUserChart = ({ feedback }: { feedback: FeedbackItem[] }) => {
             </CardContent>
 
             <CardFooter className="flex justify-between text-sm">
-                <div className="font-medium">Known Users: {knownCount}</div>
-                <div className="font-medium">Anonymous Users: {anonymousCount}</div>
+                <div className="font-medium">{t('Known Users')}: {knownCount}</div>
+                <div className="font-medium">{t('Anonymous Users')}: {anonymousCount}</div>
             </CardFooter>
         </Card>
     )

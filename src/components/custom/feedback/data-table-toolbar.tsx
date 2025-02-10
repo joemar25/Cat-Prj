@@ -105,6 +105,8 @@ export function DataTableToolbar<TData extends Feedback>({
                     </Button>
 
                     <DataTableViewOptions table={table} />
+
+                    
                 </div>
             </div>
         </div>
