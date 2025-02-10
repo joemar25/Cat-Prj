@@ -11,7 +11,55 @@ import { Attachment, CertifiedCopy } from "@prisma/client"
 
 // Define the type for the attachment with its relations
 type AttachmentWithRelations = Attachment & {
-    certifiedCopies: CertifiedCopy[]
+    certifiedCopies: (CertifiedCopy & {
+        form?: {
+            formType: 'FORM_1A' | 'FORM_2A' | 'FORM_3A'
+            birthForm?: {
+                nameOfChild: string
+                sex: string
+                dateOfBirth: Date
+                placeOfBirth: string
+                nameOfMother: string
+                citizenshipMother: string
+                nameOfFather: string
+                citizenshipFather: string
+                dateMarriageParents?: Date | null
+                placeMarriageParents?: string | null
+            }
+            deathForm?: {
+                nameOfDeceased: string
+                sex: string
+                age: number
+                civilStatus: string
+                citizenship: string
+                dateOfDeath: Date
+                placeOfDeath: string
+                causeOfDeath: string
+            }
+            marriageForm?: {
+                husbandName: string
+                husbandDateOfBirthAge: string
+                husbandCitizenship: string
+                husbandCivilStatus: string
+                husbandMother: string
+                husbandFather: string
+                wifeName: string
+                wifeDateOfBirthAge: string
+                wifeCitizenship: string
+                wifeCivilStatus: string
+                wifeMother: string
+                wifeFather: string
+                dateOfMarriage: Date
+                placeOfMarriage: string
+            }
+            preparedByName: string
+            preparedByPosition: string
+            verifiedByName: string
+            verifiedByPosition: string
+            civilRegistrar: string
+            civilRegistrarPosition: string
+        }
+    })[]
 }
 
 export async function GET(
@@ -28,16 +76,21 @@ export async function GET(
         const { searchParams } = new URL(req.url)
         const includeZip = searchParams.get("zip") === "true"
 
-        // Fetch attachment with certified copy data
+        // Fetch attachment with certified copy data and related forms
         const attachment = await prisma.attachment.findUnique({
             where: {
                 id: params.id
             },
             include: {
-                certifiedCopies: true,
-                document: {
+                certifiedCopies: {
                     include: {
-                        civilRegistryForms: true
+                        form: {
+                            include: {
+                                birthForm: true,
+                                deathForm: true,
+                                marriageForm: true
+                            }
+                        }
                     }
                 }
             }
@@ -49,11 +102,9 @@ export async function GET(
 
         // Read the file from the filesystem
         try {
-            // Construct the file path - adjust the base path according to your upload configuration
             const filePath = path.join(process.cwd(), 'public', attachment.fileUrl)
             const fileBuffer = await fs.readFile(filePath)
 
-            // Generate filename with timestamp
             const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
             const fileExt = attachment.fileName.split(".").pop() || ""
             const newFileName = `${timestamp}-original.${fileExt}`
@@ -67,10 +118,7 @@ export async function GET(
                 })
             }
 
-            // Create ZIP with original file and certified copy if it exists
             const zip = new JSZip()
-
-            // Add original file to zip
             zip.file(newFileName, fileBuffer)
 
             // If there's a certified copy, generate and add the PDF
@@ -79,12 +127,11 @@ export async function GET(
                 try {
                     const pdfBuffer = await generateCertifiedCopy({
                         ...certifiedCopy,
-                        // Ensure dates are properly handled
-                        date: certifiedCopy.date,
-                        registeredDate: certifiedCopy.registeredDate,
+                        date: certifiedCopy.date || new Date(),
+                        registeredDate: certifiedCopy.registeredDate || new Date(),
+                        form: certifiedCopy.form
                     })
 
-                    // Add the certified copy PDF to the zip
                     zip.file(`${timestamp}-certified.pdf`, pdfBuffer)
                 } catch (error) {
                     console.error("Error generating certified copy PDF:", error)
@@ -95,7 +142,6 @@ export async function GET(
                 }
             }
 
-            // Generate the final zip file
             const zipBuffer = await zip.generateAsync({
                 type: "nodebuffer",
                 compression: "DEFLATE",
@@ -104,7 +150,6 @@ export async function GET(
                 }
             })
 
-            // Send the response with appropriate headers
             return new NextResponse(zipBuffer, {
                 headers: {
                     "Content-Type": "application/zip",
