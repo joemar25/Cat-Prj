@@ -1,7 +1,6 @@
 // src/components/custom/certified-true-copies/requests-table-client.tsx
 'use client'
 
-import { t } from 'i18next'
 import { useState } from 'react'
 import { Icons } from '@/components/ui/icons'
 import { ExtendedCertifiedCopy } from '@/types/certified-true-copy'

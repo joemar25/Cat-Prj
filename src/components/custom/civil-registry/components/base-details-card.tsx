@@ -2,17 +2,14 @@
 
 import { toast } from 'sonner'
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { FormType, Permission, Attachment, DocumentStatus } from '@prisma/client'
-
-import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-
 import { hasPermission } from '@/types/auth'
-import { useUser } from '@/context/user-context'
-
 import { Icons } from '@/components/ui/icons'
+import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import { useUser } from '@/context/user-context'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { FormType, Permission, Attachment, DocumentStatus } from '@prisma/client'
 import { FileUploadDialog } from '@/components/custom/civil-registry/components/file-upload'
 import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
 import { AttachmentsTable, AttachmentWithCertifiedCopies } from '@/components/custom/civil-registry/components/attachment-table'
@@ -28,16 +25,6 @@ const formTypeLabels: Record<FormType, string> = {
     MARRIAGE: 'Marriage (Form 97)',
     BIRTH: 'Birth (Form 102)',
     DEATH: 'Death (Form 103)',
-}
-
-const statusVariants: Record<
-    string,
-    { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }
-> = {
-    PENDING: { label: 'Pending', variant: 'secondary' },
-    VERIFIED: { label: 'Verified', variant: 'default' },
-    REJECTED: { label: 'Rejected', variant: 'destructive' },
-    EXPIRED: { label: 'Expired', variant: 'outline' },
 }
 
 /**

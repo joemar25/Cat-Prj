@@ -1,9 +1,9 @@
 'use client'
 
-import { DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Role } from '@prisma/client'
 import { format } from 'date-fns'
+import { Role } from '@prisma/client'
+import { Button } from '@/components/ui/button'
+import { DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 
 interface RoleDetailsDialogProps {
     role: Role & {

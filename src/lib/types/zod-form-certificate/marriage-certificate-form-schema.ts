@@ -30,7 +30,7 @@ export const marriageCertificateSchema = z.object({
     relationship: z.string().min(1, 'Relationship is required'),
     residence: z.string().min(1, 'Residence is required'),
   }),
-  wifeConsentPerson:z.object({
+  wifeConsentPerson: z.object({
     firstName: nameSchema.shape.firstName,
     middleName: nameSchema.shape.middleName,
     lastName: nameSchema.shape.lastName,

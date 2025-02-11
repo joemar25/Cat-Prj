@@ -16,7 +16,7 @@ interface GenderDistributionChartProps {
 }
 
 const MALE_COLOR = "hsl(var(--chart-1))"
-const FEMALE_COLOR = "hsl(var(--chart-3))"
+const FEMALE_COLOR = "hsl(var(--chart-5))"
 
 export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = ({
     totalMale,
@@ -106,13 +106,13 @@ export const GenderDistributionChart: React.FC<GenderDistributionChartProps> = (
 
                 <div className="flex justify-around text-sm mt-4">
                     <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full" style={{ backgroundColor: MALE_COLOR }} />
+                        <div className="h-3 w-3 rounded-full" />
                         <span className="text-muted-foreground">
                             {t('male')}: {malePercentage}% ({totalMale.toLocaleString()})
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full" style={{ backgroundColor: FEMALE_COLOR }} />
+                        <div className="h-3 w-3 rounded-full"  />
                         <span className="text-muted-foreground">
                             {t('female')}: {femalePercentage}% ({totalFemale.toLocaleString()})
                         </span>

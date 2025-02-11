@@ -1,6 +1,5 @@
 import { toast } from 'sonner'
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { BaseRegistryFormWithRelations, deleteBaseRegistryForm } from '@/hooks/civil-registry-action'
 
 interface DeleteFormActionProps {

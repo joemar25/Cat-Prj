@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
-import React from 'react';
+;
 import { useFormContext } from 'react-hook-form';
 
 const HusbandConsentInfoCard: React.FC = () => {

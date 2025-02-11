@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { PrismaClient, Prisma, FormType } from '@prisma/client'
 import {
-    getWeekNumber,
     GroupByOption,
     ReportDataItem,
     groupDocumentsByPeriod,
@@ -21,7 +20,6 @@ export async function GET(request: Request) {
         const endDateParam = searchParams.get('endDate')
         const displayMode = searchParams.get('displayMode') || 'all'
         const classification = searchParams.get('classification') || 'all'
-        const monthParam = searchParams.get('month') || 'All'
         const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
         const pageSize = Math.max(1, parseInt(searchParams.get('pageSize') || '20', 10))
 

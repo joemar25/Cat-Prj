@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import React from 'react';
+;
 import { useFormContext } from 'react-hook-form';
 
 const AttendantInformationCard: React.FC = () => {

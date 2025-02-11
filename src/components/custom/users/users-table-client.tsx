@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { DataTable } from '@/components/custom/users/data-table'
-import { createColumns } from '@/components/custom/users/columns'
-import { UserWithRoleAndProfile } from '@/types/user'
 import { useSession } from 'next-auth/react'
+import { UserWithRoleAndProfile } from '@/types/user'
+import { createColumns } from '@/components/custom/users/columns'
+import { DataTable } from '@/components/custom/users/data-table'
 
 interface UsersTableClientProps {
     users: UserWithRoleAndProfile[]

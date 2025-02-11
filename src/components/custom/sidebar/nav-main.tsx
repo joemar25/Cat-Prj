@@ -61,17 +61,17 @@ export function NavMain({ items }: NavMainProps) {
                     onClick={() => item.click?.()}
                     tooltip={item.title}
                     className={`flex-1 flex items-center gap-2 transition-all duration-150 ease-in-out 
-                      hover:bg-accent/50 active:scale-[0.98] py-2 px-2 
-                      ${isActive ? 'bg-muted/90 text-accent-foreground font-medium' : ''}
+                      hover:bg-chart-1/30 active:scale-[0.98] py-5 px-4
+                      ${isActive ? 'bg-chart-2 text-accent-foreground font-medium' : ''}
                     `}
                   >
                     <Link href={item.url} className='flex items-center gap-2 w-full'>
                       {ItemIcon && (
                         <ItemIcon className={`w-6 h-6 transition-colors duration-150 
-                          ${isActive ? 'text-accent-foreground' : 'text-muted-foreground'}
+                          ${isActive ? 'text-white' : 'text-muted-foreground'}
                         `} />
                       )}
-                      <span className={`${isActive ? 'text-accent-foreground' : 'text-muted-foreground'}`}>
+                      <span className={`${isActive ? 'text-white' : 'text-muted-foreground'}`}>
                         {item.title}
                       </span>
                       {item.notViewedCount !== undefined && item.notViewedCount > 0 && (

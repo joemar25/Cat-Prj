@@ -1,19 +1,11 @@
 // src/components/custom/civil-registry/components/view-attachments-dialog.tsx
 'use client'
 
-import React from 'react'
-import { Attachment, FormType } from '@prisma/client'
+import { Attachment } from '@prisma/client'
 import { Button } from '@/components/ui/button'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog'
-import { AttachmentsTable, AttachmentWithCertifiedCopies } from './attachment-table'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+import { AttachmentsTable, AttachmentWithCertifiedCopies } from './attachment-table'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 interface ViewAttachmentsDialogProps {
     open: boolean

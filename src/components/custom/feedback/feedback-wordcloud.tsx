@@ -56,7 +56,7 @@ const STOP_WORDS = new Set([
     'is', 'are', 'was', 'were', 'am', 'been', 'being', 'can', 'could'
 ])
 
-const customRenderer = (tag: Tag, size: number, color: string) => {
+const customRenderer = (tag: Tag, size: number) => {
     // Get a consistent color for each word based on its value
     const colorIndex = tag.value.length % COLOR_PALETTE.length
     const wordColor = COLOR_PALETTE[colorIndex]

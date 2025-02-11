@@ -1,7 +1,7 @@
 // src/components/custom/users/data-table.tsx
 'use client'
 
-import React from 'react'
+
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -31,6 +31,7 @@ import { DataTablePagination } from '@/components/custom/table/data-table-pagina
 import { DataTableToolbar } from './data-table-toolbar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Icons } from '@/components/ui/icons'
+import React from 'react'
 
 // Define possible value types that can appear in the columns
 type UserValue = string | number | boolean | Date | null | undefined
