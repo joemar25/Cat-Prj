@@ -1,9 +1,8 @@
 // src/components/custom/civil-registry/components/death-details-card.tsx
-import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { Card, CardContent } from '@/components/ui/card'
 import { renderName, formatDate, formatLocation } from './utils'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 interface DeathDetailsCardProps {
     form: BaseRegistryFormWithRelations

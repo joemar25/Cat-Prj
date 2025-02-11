@@ -1,9 +1,5 @@
 'use client'
 
-import { Icons } from '@/components/ui/icons'
-import { useTranslation } from 'react-i18next'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-
 import FeedbackUserChart from './feedback-user-chart'
 import FeedbackWordCloud from './feedback-wordcloud'
 
@@ -23,8 +19,6 @@ interface FeedbackItem {
 }
 
 const FeedbackHeader = ({ feedback }: { feedback: FeedbackItem[] }) => {
-    const { t } = useTranslation()
-
     return (
         <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

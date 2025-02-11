@@ -3,7 +3,7 @@
 import { LucideIcon } from 'lucide-react'
 // import { Icons } from '@/components/ui/icons'
 // import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
+import { SidebarGroup, SidebarGroupLabel, SidebarMenu,/* SidebarMenuAction, */ SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
 
 export function NavProjects({
   items,
@@ -14,7 +14,7 @@ export function NavProjects({
     icon: LucideIcon | null;
   }[]
 }) {
-  const { isMobile } = useSidebar()
+  // const { isMobile } = useSidebar()
 
   return (
     <SidebarGroup className='group-data-[collapsible=icon]:hidden'>

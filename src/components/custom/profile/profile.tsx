@@ -3,15 +3,15 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { ProfileForm } from './profile-form'
 import { Icons } from '@/components/ui/icons'
+import { PasswordForm } from './password-form'
+import { AvatarUpload } from './avatar-upload'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ProfileWithUser } from '@/types/user-profile'
-import { ProfileForm } from './profile-form'
-import { PasswordForm } from './password-form'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { AvatarUpload } from './avatar-upload'
 
 interface ProfileProps {
     userId: string

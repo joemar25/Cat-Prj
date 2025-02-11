@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import React from 'react';
+;
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
@@ -36,9 +36,9 @@ interface AffidavitFormsCardProps {
 
 const AffidavitFormsCard: React.FC<AffidavitFormsCardProps> = ({
   affiantAddressNcrMode = false,
-  setAffiantAddressNcrMode = () => {},
+  setAffiantAddressNcrMode = () => { },
   adminOfficerAddressNcrMode = false,
-  setAdminOfficerAddressNcrMode = () => {},
+  setAdminOfficerAddressNcrMode = () => { },
 }) => {
   const { control, watch } = useFormContext();
   const hasAffidavitOfPaternity = watch('hasAffidavitOfPaternity');

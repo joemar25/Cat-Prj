@@ -1,15 +1,17 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { useSession } from "next-auth/react"
-import { redirect } from "next/navigation"
+import { cn } from "@/lib/utils"
 import { FormType } from "@prisma/client"
+import { redirect } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { useDropzone } from "react-dropzone"
 import { Icons } from "@/components/ui/icons"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { useState, useEffect, useCallback } from "react"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+
+import Image from "next/image"
 
 interface FileUploadDialogProps {
     open: boolean
@@ -223,7 +225,13 @@ export function FileUploadDialog({
                                 file.type.startsWith("application/pdf") ? (
                                     <iframe src={previewUrl} title="PDF Preview" className="h-full w-full border rounded" />
                                 ) : file.type.startsWith("image/") ? (
-                                    <img src={previewUrl} alt="Preview" className="object-contain" />
+                                    <Image
+                                        src={previewUrl}
+                                        width={720}
+                                        height={1080}
+                                        alt="Preview"
+                                        className="object-contain"
+                                    />
                                 ) : (
                                     <p className="text-lg text-muted-foreground">
                                         Preview not available for this file type.

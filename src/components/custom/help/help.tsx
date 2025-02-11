@@ -1,15 +1,17 @@
 'use client'
 
+import Image from 'next/image'
+
 import { LucideIcon } from 'lucide-react'
+import { Permission } from '@prisma/client'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { useUser } from '@/context/user-context'
+import { hasAllPermissions } from '@/types/auth'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Icons, IconsType } from '@/components/ui/icons'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { TUTORIALS, TutorialCategory, TutorialStep, TutorialMedia } from '@/lib/constants/tutorials'
-import { hasAllPermissions } from '@/types/auth'
-import { useUser } from '@/context/user-context'
-import { Permission } from '@prisma/client'
 
 export function HelpTutorials() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -56,7 +58,13 @@ export function HelpTutorials() {
                                         <div className="text-center font-medium text-lg">{idx + 1}. {media.description}</div>
                                     )}
                                     {media.type === 'image' || media.type === 'gif' ? (
-                                        <img src={media.src} alt={media.description || selectedStep.title} className="w-full object-cover rounded-md" />
+                                        <Image
+                                            src={media.src}
+                                            alt={media.description || selectedStep.title}
+                                            height={200}
+                                            width={200}
+                                            className="w-full object-cover rounded-md"
+                                        />
                                     ) : media.type === 'video' ? (
                                         <video controls className="w-full rounded-md">
                                             <source src={media.src} type="video/mp4" />

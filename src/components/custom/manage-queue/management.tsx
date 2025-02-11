@@ -1,7 +1,7 @@
 // src\components\custom\manage-queue\management.tsx
 'use client'
 
-import React from 'react'
+
 import {
     AlertCircle, ChevronLeft, ChevronRight,
     Download, RefreshCw,

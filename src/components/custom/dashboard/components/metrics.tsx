@@ -129,18 +129,9 @@ export default function MetricsDashboard({
       {metrics.map((metric) => (
         <Card
           key={metric.titleKey}
-          className={`cursor-pointer transition-all ${selectedMetric === metric.titleKey && ["metrics.birth_certificates", "metrics.death_certificates"].includes(metric.titleKey) ? "text-white" : ""}`}
-          style={{
-            backgroundColor: selectedMetric === metric.titleKey
-              ? metric.titleKey === "metrics.death_certificates"
-                ? "hsl(var(--chart-2))"
-                : metric.titleKey === "metrics.marriage_certificates"
-                  ? "hsl(var(--chart-3) / 0.75)"
-                  : metric.titleKey === "metrics.birth_certificates"
-                    ? "hsl(var(--chart-1))"
-                    : "hsl(var(--chart-3) / 0.7)"
-              : "transparent"
-          }}
+          className={`cursor-pointer transition-all ${selectedMetric === metric.titleKey ? "text-white" : ""} 
+          ${selectedMetric === metric.titleKey ? "bg-chart-2 dark:bg-chart-5" : "bg-transparent"}`}
+         
           onClick={() => handleSelectMetric(metric.titleKey, metric.model, metric.currentCount)}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -149,9 +140,11 @@ export default function MetricsDashboard({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metric.currentCount.toLocaleString()}</div>
-            <p className={`text-xs ${selectedMetric === metric.titleKey && ["metrics.birth_certificates", "metrics.death_certificates"].includes(metric.titleKey) ? "text-white/60" : "text-muted-foreground"}`}>
-              {metric.percentageChange > 0 ? "+" : ""}
-              {metric.percentageChange.toFixed(1)}% {t("metrics.from_last_month")}
+            <p className={`text-xs ${selectedMetric === metric.titleKey ? "text-white/80" : "text-muted-foreground"}`}>
+              <span className="">
+                {metric.percentageChange > 0 ? "+" : ""}
+                {metric.percentageChange.toFixed(1)}% {t("metrics.from_last_month")}
+              </span>
             </p>
           </CardContent>
         </Card>

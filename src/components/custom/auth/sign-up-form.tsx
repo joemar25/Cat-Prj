@@ -1,30 +1,17 @@
 'use client'
 
 import { toast } from "sonner"
-import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
+import { useState, useEffect } from "react"
+import { useRoles } from "@/hooks/use-roles"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { createSignUpSchema, SignUpForm } from "@/lib/validation"
 import { PasswordInput } from "@/components/custom/general/password-input"
 import { handleCredentialsSignin, handleSignUp } from "@/hooks/auth-actions"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form"
-import { useRoles } from "@/hooks/use-roles"
-import { createSignUpSchema, SignUpForm } from "@/lib/validation"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 
 interface SignUpFormProps {
     onSuccess?: () => void

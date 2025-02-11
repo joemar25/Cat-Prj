@@ -1,7 +1,7 @@
 // src/components/custom/civil-registry/components/delete-confirmation-dialog.tsx
 'use client'
 
-import React from 'react'
+
 import { useTranslation } from 'react-i18next'
 import {
     AlertDialog,

@@ -1,6 +1,5 @@
 'use client'
 
-import * as React from 'react'
 import { PieChart, Pie, Label, Cell, Tooltip, Legend } from 'recharts'
 
 interface DonutChartProps {
