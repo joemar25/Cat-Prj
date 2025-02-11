@@ -1,25 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import { FormType } from "@prisma/client"
+import { useDropzone } from "react-dropzone"
+import { Icons } from "@/components/ui/icons"
+import { cn } from "@/lib/utils"
 
 interface FileUploadDialogProps {
     open: boolean
     onOpenChangeAction: (open: boolean) => void
-    onUploadSuccess?: (fileUrl: string) => void
+    onUploadSuccess?: (fileData: { url: string; id: string }) => void
     formId: string
     formType: FormType
     registryNumber: string
@@ -45,7 +40,6 @@ export function FileUploadDialog({
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false)
 
-    // When the selected file changes, update the preview URL.
     useEffect(() => {
         if (file) {
             const url = URL.createObjectURL(file)
@@ -56,11 +50,22 @@ export function FileUploadDialog({
         }
     }, [file])
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files[0]) {
-            setFile(event.target.files[0])
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+        const selectedFile = acceptedFiles[0]
+        if (selectedFile) {
+            setFile(selectedFile)
         }
-    }
+    }, [])
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+        onDrop,
+        accept: {
+            'image/*': ['.jpeg', '.jpg', '.png'],
+            'application/pdf': ['.pdf']
+        },
+        maxSize: 10485760, // 10MB
+        multiple: false
+    })
 
     const handleUpload = async () => {
         if (!file) {
@@ -73,7 +78,6 @@ export function FileUploadDialog({
         try {
             let documentId: string | undefined
 
-            // Step 0: Fetch the current form to check if it already has a document.
             const formResponse = await fetch(`/api/forms/${formId}`, {
                 method: "GET",
             })
@@ -81,11 +85,10 @@ export function FileUploadDialog({
             if (!formResponse.ok) {
                 throw new Error(formJson.error || "Failed to fetch form data")
             }
-            // If a document already exists, reuse its id.
+
             documentId = formJson.data?.documentId
 
             if (!documentId) {
-                // Step 1: Create a new Document record because none exists.
                 const documentResponse = await fetch("/api/documents", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -102,22 +105,15 @@ export function FileUploadDialog({
                 })
 
                 const documentJson = await documentResponse.json()
-                console.log("Document API response:", documentJson)
-
                 if (!documentResponse.ok) {
-                    throw new Error(
-                        `Document creation failed: ${documentJson.error || "Unknown error"}`
-                    )
+                    throw new Error(`Document creation failed: ${documentJson.error || "Unknown error"}`)
                 }
 
                 documentId = documentJson.data?.id
                 if (!documentId) {
-                    throw new Error(
-                        "Document creation failed: Missing document ID in response"
-                    )
+                    throw new Error("Document creation failed: Missing document ID in response")
                 }
 
-                // Step 1b: Update the form with the new documentId.
                 const updateFormResponse = await fetch(`/api/forms/${formId}`, {
                     method: "PATCH",
                     headers: { "Content-Type": "application/json" },
@@ -125,15 +121,11 @@ export function FileUploadDialog({
                 })
 
                 const updateFormJson = await updateFormResponse.json()
-                console.log("Form update after document creation:", updateFormJson)
                 if (!updateFormResponse.ok) {
                     throw new Error(`Form update failed: ${JSON.stringify(updateFormJson)}`)
                 }
-            } else {
-                console.log("Reusing existing documentId:", documentId)
             }
 
-            // Step 2: Upload the file.
             const formData = new FormData()
             formData.append("file", file)
             formData.append("referenceNumber", registryNumber)
@@ -143,13 +135,17 @@ export function FileUploadDialog({
                 body: formData,
             })
 
-            const uploadJson = await uploadResponse.json()
-            console.log("Upload API response:", uploadJson)
-
             if (!uploadResponse.ok) {
-                throw new Error(
-                    `File upload failed: ${uploadJson.error || "Unknown error"}`
-                )
+                const errorText = await uploadResponse.text()
+                console.error("Upload failed response:", errorText)
+                throw new Error(`File upload failed: ${errorText || "Unknown error"}`)
+            }
+
+            let uploadJson
+            try {
+                uploadJson = await uploadResponse.json()
+            } catch (e) {
+                throw new Error("Invalid JSON response from server")
             }
 
             const fileUrl = uploadJson.filepath
@@ -157,7 +153,6 @@ export function FileUploadDialog({
                 throw new Error("File upload failed: Missing file URL in response")
             }
 
-            // Step 3: Create attachment record.
             const attachmentPayload = {
                 userId,
                 documentId,
@@ -168,8 +163,6 @@ export function FileUploadDialog({
                 mimeType: file.type,
             }
 
-            console.log("Sending attachment payload:", attachmentPayload)
-
             const attachmentResponse = await fetch("/api/attachments", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -177,26 +170,16 @@ export function FileUploadDialog({
             })
 
             const attachmentJson = await attachmentResponse.json()
-            console.log("Attachment API response:", attachmentJson)
-
-            if (!attachmentResponse.ok) {
-                throw new Error(
-                    `Attachment creation failed: ${JSON.stringify(attachmentJson)}`
-                )
-            }
-
-            if (!attachmentJson.success) {
-                throw new Error("Attachment creation failed: No success response")
+            if (!attachmentResponse.ok || !attachmentJson.success) {
+                throw new Error(`Attachment creation failed: ${JSON.stringify(attachmentJson)}`)
             }
 
             toast.success("File uploaded successfully!")
-            onUploadSuccess?.(fileUrl)
+            onUploadSuccess?.({ url: fileUrl, id: documentId })
             onOpenChangeAction(false)
         } catch (error) {
             console.error("Upload process error:", error)
-            toast.error(
-                error instanceof Error ? error.message : "Failed to upload file"
-            )
+            toast.error(error instanceof Error ? error.message : "Failed to upload file")
         } finally {
             setIsLoading(false)
         }
@@ -204,90 +187,59 @@ export function FileUploadDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChangeAction}>
-            <DialogContent className="max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0">
-                {/* Header Section */}
+            <DialogContent className="max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-4">
                 <DialogHeader className="p-4 border-b">
                     <DialogTitle>Upload Document</DialogTitle>
                     <DialogDescription>
-                        Select a file to upload. You can preview it before confirming.
+                        Drag & drop a file, or click to select. Supported formats: JPEG, PNG, PDF (max 10MB).
                     </DialogDescription>
                 </DialogHeader>
 
-                {/* Responsive Two-Column Layout */}
-                <div className="flex flex-col md:flex-row h-full">
-                    {/* Left Column: File Selection & Instructions */}
+                <div className="flex flex-col md:flex-row h-[65vh]">
                     <div className="md:w-1/2 p-6 border-b md:border-b-0 md:border-r overflow-y-auto">
-                        <div className="space-y-6">
-                            {/* File Selection */}
-                            <div className="flex flex-col gap-4">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => document.getElementById("fileInput")?.click()}
-                                >
-                                    Select File
-                                </Button>
-                                <Input
-                                    id="fileInput"
-                                    type="file"
-                                    onChange={handleFileChange}
-                                    className="hidden"
-                                />
-                            </div>
-
-                            {/* Upload Instructions */}
-                            <div className="space-y-3">
-                                <h3 className="text-xl font-semibold">Upload Instructions</h3>
+                        <div
+                            {...getRootProps()}
+                            className={cn(
+                                "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer",
+                                isDragActive && "border-primary bg-primary/10"
+                            )}
+                        >
+                            <input {...getInputProps()} />
+                            <div className="flex flex-col items-center gap-2">
+                                <Icons.upload className="h-8 w-8 text-muted-foreground" />
                                 <p className="text-sm text-muted-foreground">
-                                    Please select a file to upload. Supported formats include JPEG, PNG, GIF for images, and PDF for documents.
+                                    Drag & drop a file here, or click to select
                                 </p>
-                                <p className="text-sm text-muted-foreground">
-                                    Ensure your file does not exceed the maximum allowed size.
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                    Once you select a file, a preview will be displayed on the right.
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                    To change the file, simply click "Select File" again.
+                                <p className="text-xs text-muted-foreground">
+                                    Supported formats: JPEG, PNG, PDF (max 10MB)
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Column: File Preview */}
-                    <div className="md:w-1/2 p-6 overflow-y-auto flex items-center justify-center bg-gray-50">
-                        {file && previewUrl ? (
-                            file.type.startsWith("application/pdf") ? (
-                                <iframe
-                                    src={previewUrl}
-                                    title="PDF Preview"
-                                    className="w-full h-full border rounded"
-                                ></iframe>
-                            ) : file.type.startsWith("image/") ? (
-                                <img
-                                    src={previewUrl}
-                                    alt="Preview"
-                                    className="max-w-full max-h-full object-contain"
-                                />
+                    <div className="md:w-1/2">
+                        <div className="w-full overflow-y-auto flex items-center justify-center bg-muted cursor-pointer h-full border-2 border-dotted border-gray-400">
+                            {file && previewUrl ? (
+                                file.type.startsWith("application/pdf") ? (
+                                    <iframe src={previewUrl} title="PDF Preview" className="h-full w-full border rounded" />
+                                ) : file.type.startsWith("image/") ? (
+                                    <img src={previewUrl} alt="Preview" className="object-contain" />
+                                ) : (
+                                    <p className="text-lg text-muted-foreground">
+                                        Preview not available for this file type.
+                                    </p>
+                                )
                             ) : (
-                                <p className="text-lg text-muted-foreground">
-                                    Preview not available for this file type.
+                                <p className="text-lg text-center flex items-center justify-center text-muted-foreground w-full h-[400px]">
+                                    No file selected. The preview will appear here.
                                 </p>
-                            )
-                        ) : (
-                            <p className="text-lg text-muted-foreground">
-                                No file selected. The preview will appear here.
-                            </p>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                {/* Footer Section */}
                 <DialogFooter className="p-4 border-t">
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChangeAction(false)}
-                        disabled={isLoading}
-                    >
+                    <Button variant="outline" onClick={() => onOpenChangeAction(false)} disabled={isLoading}>
                         Cancel
                     </Button>
                     <Button onClick={handleUpload} disabled={!file || isLoading}>

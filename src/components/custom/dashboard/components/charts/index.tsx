@@ -1,8 +1,7 @@
 "use client"
 
-import { Icons } from "@/components/ui/icons"
 import { useEffect, useMemo, useState } from "react"
-import { getBirthGenderCount, getRecentRegistrations } from "@/hooks/count-metrics"
+import { getBirthAndDeathGenderCount, getRecentRegistrations } from "@/hooks/count-metrics"
 import { GenderDistributionChart } from "@/components/custom/dashboard/components/charts/gender-distribution-chart"
 import { RecentRegistrationsTable } from "@/components/custom/dashboard/components/charts/recent-registrations-table"
 
@@ -47,7 +46,13 @@ const filterRecentRegistrations = (registrations: BaseRegistration[]): RecentReg
         }))
 }
 
-export default function ChartsDashboard() {
+interface ChartsDashboardProps {
+    selectedMetric: {
+        model: "baseRegistryForm" | "birthCertificateForm" | "deathCertificateForm" | "marriageCertificateForm" | null
+    }
+}
+
+export default function ChartsDashboard({ selectedMetric }: ChartsDashboardProps) {
     const [chartData, setChartData] = useState<GenderCountData[]>([])
     const [recentRegistrations, setRecentRegistrations] = useState<RecentRegistration[]>([])
     const [isLoading, setIsLoading] = useState(true)
@@ -61,9 +66,12 @@ export default function ChartsDashboard() {
 
     useEffect(() => {
         const fetchData = async () => {
+            setIsLoading(true)
             try {
+                if (!selectedMetric.model) return
+                const type = selectedMetric.model === "birthCertificateForm" ? "birth" : "death"
                 const [genderCountData, recentRegistrationsData] = await Promise.all([
-                    getBirthGenderCount(),
+                    getBirthAndDeathGenderCount(type),
                     getRecentRegistrations()
                 ])
 
@@ -75,26 +83,25 @@ export default function ChartsDashboard() {
                 setIsLoading(false)
             }
         }
-
         fetchData()
-    }, [])
-
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-screen">
-                <Icons.spinner className="h-8 w-8 animate-spin" />
-            </div>
-        )
-    }
+    }, [selectedMetric]) // Re-fetch data when selectedMetric changes
 
     return (
         <div className="grid gap-6 lg:grid-cols-5">
+            {/* Gender Distribution Chart with Skeleton Loader */}
             <GenderDistributionChart
                 totalMale={totalMale}
                 totalFemale={totalFemale}
                 totalRegistrations={totalRegistrations}
+                name={selectedMetric.model === "birthCertificateForm" ? "Birth" : "Death"}
+                isLoading={isLoading}
             />
-            <RecentRegistrationsTable recentRegistrations={recentRegistrations} />
+
+            {/* Recent Registrations Table with Skeleton Loader */}
+            <RecentRegistrationsTable
+                recentRegistrations={recentRegistrations}
+                isLoading={isLoading}
+            />
         </div>
     )
 }

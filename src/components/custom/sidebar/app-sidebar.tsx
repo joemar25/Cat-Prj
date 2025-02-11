@@ -1,4 +1,3 @@
-// src/components/custom/sidebar/app-sidebar.tsx
 "use client"
 
 import { useEffect, useState } from "react"
@@ -11,7 +10,7 @@ import { useTranslation } from "react-i18next"
 import { NavSecondary } from "./nav-secondary"
 import { useRoles } from "@/hooks/use-roles"
 import { useNavigationStore } from "@/lib/stores/navigation"
-import { getMainNavItems } from "@/lib/config/navigation"
+import { getMainNavItems, navigationConfig } from "@/lib/config/navigation"
 import {
   Sidebar,
   SidebarContent,
@@ -20,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { Skeleton } from "@/components/ui/skeleton"
 import { NavMainItem } from "@/lib/types/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -38,54 +38,63 @@ type AppSidebarProps = {
 }
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
-  const { t } = useTranslation();
-  const { roles, loading, error } = useRoles();
-  const { visibleMainItems } = useNavigationStore();
-  const [mainNavItems, setMainNavItems] = useState<NavMainItem[]>([]);
+  const { t } = useTranslation()
+  const { roles, loading, error } = useRoles()
+  const { visibleMainItems } = useNavigationStore()
+  const [mainNavItems, setMainNavItems] = useState<NavMainItem[]>([])
 
-  const roleName = user.roles[0]?.role.name || "User";
+  const roleName = user.roles[0]?.role.name || "User"
 
   useEffect(() => {
-    if (loading) return;
+    if (loading) return
 
     if (error) {
-      console.error("Error loading roles:", error);
-      return;
+      console.error("Error loading roles:", error)
+      return
     }
 
-    // Use the centralized helper function to get the main navigation items.
-    const transformedItems = getMainNavItems(user, roles, t);
-    // Optionally, if you still want to filter by visibleMainItems from your store,
-    // you can do so here. For example:
+    const transformedItems = getMainNavItems(user, roles, t)
     const filteredItems =
       visibleMainItems && visibleMainItems.length > 0
         ? transformedItems.filter((item) => visibleMainItems.includes(item.id))
-        : transformedItems;
-    setMainNavItems(filteredItems.filter((item) => !item.hidden));
-  }, [visibleMainItems, user, roles, loading, error, t]);
+        : transformedItems
+    setMainNavItems(filteredItems.filter((item) => !item.hidden))
+  }, [visibleMainItems, user, roles, loading, error, t])
 
-  // For project navigation, here we assume notifications is the only project nav.
-  const visibleProjectNav = [
-    {
-      title: t("notifications"),
-      url: "notifications",
-      icon: (Icons.fileText) as LucideIcon,
-    },
-    {
-      title: t("settings"),
-      url: "settings",
-      icon: (Icons.shield) as LucideIcon,
-    },
-  ];
+  // Transform navigationConfig.projectsNav for display
+  const visibleProjectNav = navigationConfig.projectsNav.map((project) => ({
+    title: t(project.title),
+    url: project.url,
+    icon: project.iconName && Icons[project.iconName] ? (Icons[project.iconName] as LucideIcon) : Icons.folder,
+  }))
 
-  if (loading)
-    return <p className="p-4 text-center text-sm">Loading sidebar...</p>;
-  if (error)
+  if (loading) {
+    return (
+      <Sidebar variant="inset" {...props} className="border border-border p-0">
+        <SidebarHeader className="border-b p-4">
+          <Skeleton className="h-12 w-full" />
+        </SidebarHeader>
+
+        <div className="p-4 border-b bg-muted/50">
+          <Skeleton className="h-4 w-32" />
+        </div>
+
+        <SidebarContent className="p-4 space-y-4">
+          {[1, 2, 3, 4].map((item) => (
+            <Skeleton key={item} className="h-10 w-full" />
+          ))}
+        </SidebarContent>
+      </Sidebar>
+    )
+  }
+
+  if (error) {
     return (
       <p className="p-4 text-center text-sm text-red-500">
         Error loading sidebar
       </p>
-    );
+    )
+  }
 
   return (
     <Sidebar variant="inset" {...props} className="border border-border p-0">
@@ -125,5 +134,5 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <NavSecondary items={[]} className="mt-auto" />
       </SidebarContent>
     </Sidebar>
-  );
+  )
 }

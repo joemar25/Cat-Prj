@@ -1,3 +1,4 @@
+// src/lib/types/zod-form-certificate/death-certificate-form-schema.ts
 import { z } from 'zod';
 import {
   addressSchema,
@@ -19,151 +20,165 @@ export interface DeathCertificateFormProps {
   onSubmit?: (data: DeathCertificateFormValues) => void;
 }
 
-export const deathCertificateSchema = z.object({
-  // Registry Information
-  registryNumber: registryNumberSchema,
-  province: provinceSchema,
-  cityMunicipality: cityMunicipalitySchema,
+/**
+ * Factory function that creates the death certificate schema.
+ *
+ * Similar to the birth certificate schema, boolean flags are provided
+ * to determine whether certain address fields (for registry, deceased’s
+ * residence, certifier, and informant) should use an optional province.
+ */
+export const createDeathCertificateSchema = (
+  registryNCRMode: boolean,
+  deceasedResidenceNcrMode: boolean,
+  certifierAddressNcrMode: boolean,
+  informantAddressNcrMode: boolean
+) =>
+  z.object({
+    // Registry Information
+    registryNumber: registryNumberSchema,
+    province: provinceSchema(registryNCRMode),
+    cityMunicipality: cityMunicipalitySchema,
 
-  // Death Information
-  timeOfDeath: timeSchema,
+    // Death Information
+    timeOfDeath: timeSchema,
 
-  // Personal Information
-  personalInfo: z.object({
-    firstName: nameSchema.shape.firstName,
-    middleName: nameSchema.shape.middleName,
-    lastName: nameSchema.shape.lastName,
-    sex: z.string().min(1, 'Please select a sex'),
-    dateOfDeath: dateSchema,
-    dateOfBirth: dateSchema,
-    ageAtDeath: z.object({
-      years: z
-        .string()
-        .min(1, 'Years is required')
-        .refine(
-          (value) => /^\d+$/.test(value) && parseInt(value, 10) >= 0,
-          'Years must be a non-negative number.'
-        ),
-      months: z
-        .string()
-        .optional()
-        .refine(
-          (value) =>
-            !value || (/^\d+$/.test(value) && parseInt(value, 10) >= 0),
-          'Months must be a non-negative number.'
-        ),
-      days: z
-        .string()
-        .optional()
-        .refine(
-          (value) =>
-            !value || (/^\d+$/.test(value) && parseInt(value, 10) >= 0),
-          'Days must be a non-negative number.'
-        ),
-      hours: z
-        .string()
-        .optional()
-        .refine(
-          (value) =>
-            !value || (/^\d+$/.test(value) && parseInt(value, 10) >= 0),
-          'Hours must be a non-negative number.'
-        ),
+    // Deceased Information (renamed from "personalInfo" for consistency)
+    deceasedInfo: z.object({
+      firstName: nameSchema.shape.firstName,
+      middleName: nameSchema.shape.middleName,
+      lastName: nameSchema.shape.lastName,
+      sex: z.string().min(1, 'Please select a sex'),
+      dateOfDeath: dateSchema,
+      dateOfBirth: dateSchema,
+      ageAtDeath: z.object({
+        years: z
+          .string()
+          .min(1, 'Years is required')
+          .refine(
+            (value) => /^\d+$/.test(value) && parseInt(value, 10) >= 0,
+            'Years must be a non-negative number.'
+          ),
+        months: z
+          .string()
+          .optional()
+          .refine(
+            (value) =>
+              !value || (/^\d+$/.test(value) && parseInt(value, 10) >= 0),
+            'Months must be a non-negative number.'
+          ),
+        days: z
+          .string()
+          .optional()
+          .refine(
+            (value) =>
+              !value || (/^\d+$/.test(value) && parseInt(value, 10) >= 0),
+            'Days must be a non-negative number.'
+          ),
+        hours: z
+          .string()
+          .optional()
+          .refine(
+            (value) =>
+              !value || (/^\d+$/.test(value) && parseInt(value, 10) >= 0),
+            'Hours must be a non-negative number.'
+          ),
+      }),
+      // Use the shared addressSchema with a flag for province requirement:
+      placeOfDeath: addressSchema(deceasedResidenceNcrMode),
+      civilStatus: z.string().min(1, 'Please select civil status'),
+      religion: z.string().min(1, 'Religion is required'),
+      citizenship: z.string().min(1, 'Citizenship is required'),
+      // Residence also uses the shared address schema:
+      residence: addressSchema(deceasedResidenceNcrMode),
+      occupation: z.string().min(1, 'Occupation is required'),
     }),
-    placeOfDeath: z.object({
-      province: provinceSchema,
-      cityMunicipality: cityMunicipalitySchema,
-      specificAddress: z
-        .string()
-        .max(200, 'Specific address must not exceed 200 characters')
-        .optional(),
-    }),
-    civilStatus: z.string().min(1, 'Please select civil status'),
-    religion: z.string().min(1, 'Religion is required'),
-    citizenship: z.string().min(1, 'Citizenship is required'),
-    residence: addressSchema,
-    occupation: z.string().min(1, 'Occupation is required'),
-  }),
 
-  // Family Information
-  familyInfo: z.object({
-    father: nameSchema,
-    mother: nameSchema,
-  }),
-
-  // Medical Certificate
-  medicalCertificate: z.object({
-    causesOfDeath: z.object({
-      immediate: z.string().min(1, 'Immediate cause of death is required'),
-      antecedent: z.string().min(1, 'Antecedent cause is required'),
-      underlying: z.string().min(1, 'Underlying cause is required'),
-      contributingConditions: z.string().optional(),
+    // Family Information
+    familyInfo: z.object({
+      father: nameSchema,
+      mother: nameSchema,
     }),
-    maternalCondition: z.string().optional(),
-    externalCauses: z.object({
-      mannerOfDeath: z.string().min(1, 'Manner of death is required'),
-      placeOfOccurrence: z.string().min(1, 'Place of occurrence is required'),
-    }),
-  }),
 
-  // Medical Attendance
-  attendant: z.object({
-    type: z.string().min(1, 'Please select attendant type'),
-    attendance: z.object({
-      from: dateSchema,
-      to: dateSchema,
+    // Medical Certificate
+    medicalCertificate: z.object({
+      causesOfDeath: z.object({
+        immediate: z.string().min(1, 'Immediate cause of death is required'),
+        antecedent: z.string().min(1, 'Antecedent cause is required'),
+        underlying: z.string().min(1, 'Underlying cause is required'),
+        contributingConditions: z.string().optional(),
+      }),
+      maternalCondition: z.string().optional(),
+      externalCauses: z.object({
+        mannerOfDeath: z.string().min(1, 'Manner of death is required'),
+        placeOfOccurrence: z.string().min(1, 'Place of occurrence is required'),
+      }),
     }),
-  }),
 
-  // Certification
-  certification: z.object({
-    hasAttended: z.string().min(1, 'Please indicate if you attended'),
-    signature: signatureSchema.shape.signature,
-    name: signatureSchema.shape.name,
-    title: signatureSchema.shape.title,
-    address: addressSchema,
-    date: dateSchema,
-    reviewedBy: z.object({
+    // Medical Attendance
+    attendant: z.object({
+      type: z.string().min(1, 'Please select attendant type'),
+      attendance: z.object({
+        from: dateSchema,
+        to: dateSchema,
+      }),
+    }),
+
+    // Certification
+    certification: z.object({
+      hasAttended: z.string().min(1, 'Please indicate if you attended'),
+      signature: signatureSchema.shape.signature,
       name: signatureSchema.shape.name,
       title: signatureSchema.shape.title,
-      position: z.string().min(1, 'Reviewer position is required'),
+      // The certifier's address uses the shared addressSchema:
+      address: addressSchema(certifierAddressNcrMode),
+      date: dateSchema,
+      reviewedBy: z.object({
+        name: signatureSchema.shape.name,
+        title: signatureSchema.shape.title,
+        position: z.string().min(1, 'Reviewer position is required'),
+        date: dateSchema,
+      }),
+    }),
+
+    // Disposal Information
+    disposal: z.object({
+      method: z.string().min(1, 'Disposal method is required'),
+      burialPermit: z.object({
+        number: z.string().min(1, 'Burial permit number is required'),
+        dateIssued: dateSchema,
+      }),
+      transferPermit: z.object({
+        number: z.string().optional(),
+        dateIssued: dateSchema.optional().nullable(),
+      }),
+      cemeteryAddress: z.string().min(1, 'Cemetery address is required'),
+    }),
+
+    // Informant Details
+    informant: z.object({
+      signature: signatureSchema.shape.signature,
+      name: signatureSchema.shape.name,
+      relationship: z.string().min(1, 'Relationship to deceased is required'),
+      // Use the shared addressSchema with its flag for informant’s address:
+      address: addressSchema(informantAddressNcrMode),
       date: dateSchema,
     }),
-  }),
 
-  // In the schema, change the transferPermit definition:
-  disposal: z.object({
-    method: z.string().min(1, 'Disposal method is required'),
-    burialPermit: z.object({
-      number: z.string().min(1, 'Burial permit number is required'),
-      dateIssued: dateSchema,
-    }),
-    transferPermit: z.object({
-      number: z.string().optional(),
-      dateIssued: dateSchema.optional().nullable(), // Add nullable() here
-    }),
-    cemeteryAddress: z.string().min(1, 'Cemetery address is required'),
-  }),
+    // Administrative Information
+    preparedBy: signatureSchema,
+    receivedBy: signatureSchema,
+    registeredAtCivilRegistrar: signatureSchema,
 
-  // Informant Details
-  informant: z.object({
-    signature: signatureSchema.shape.signature,
-    name: signatureSchema.shape.name,
-    relationship: z.string().min(1, 'Relationship to deceased is required'),
-    address: addressSchema,
-    date: dateSchema,
-  }),
+    remarks: z.string().optional(),
+  });
 
-  // Administrative Information
-  preparedBy: signatureSchema,
-  receivedBy: signatureSchema,
-  registeredAtCivilRegistrar: signatureSchema,
-
-  remarks: z.string().optional(),
-});
 export type DeathCertificateFormValues = WithNullableDates<
-  z.infer<typeof deathCertificateSchema>
+  z.infer<ReturnType<typeof createDeathCertificateSchema>>
 >;
 
+// ------------------------------------------------------------------
+// Default values for the death certificate form.
+// Note: The "personalInfo" object has been renamed to "deceasedInfo" below.
 export const defaultDeathCertificateFormValues: DeathCertificateFormValues = {
   // Registry Information
   registryNumber: '2024-00001',
@@ -173,8 +188,8 @@ export const defaultDeathCertificateFormValues: DeathCertificateFormValues = {
   // Death Information
   timeOfDeath: parseTimeStringToDate('14:30'),
 
-  // Personal Information
-  personalInfo: {
+  // Deceased Information
+  deceasedInfo: {
     firstName: 'Juan',
     middleName: 'Santos',
     lastName: 'Dela Cruz',
@@ -188,15 +203,20 @@ export const defaultDeathCertificateFormValues: DeathCertificateFormValues = {
       hours: '3',
     },
     placeOfDeath: {
-      province: 'Metro Manila',
+      houseNumber: '',
+      street: "St. Luke's Medical Center, E Rodriguez Sr. Ave",
+      barangay: '',
       cityMunicipality: 'Quezon City',
-      specificAddress: "St. Luke's Medical Center, E Rodriguez Sr. Ave",
+      province: 'Metro Manila',
+      country: 'Philippines',
     },
     civilStatus: 'Married',
     religion: 'Roman Catholic',
     citizenship: 'Filipino',
     residence: {
-      address: '123 Maginhawa Street, Teachers Village',
+      houseNumber: '123',
+      street: 'Maginhawa Street, Teachers Village',
+      barangay: '',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -249,7 +269,9 @@ export const defaultDeathCertificateFormValues: DeathCertificateFormValues = {
     name: 'Dr. Ana Santos',
     title: 'Attending Physician',
     address: {
-      address: "St. Luke's Medical Center, E Rodriguez Sr. Ave",
+      houseNumber: '',
+      street: "St. Luke's Medical Center, E Rodriguez Sr. Ave",
+      barangay: '',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -283,7 +305,9 @@ export const defaultDeathCertificateFormValues: DeathCertificateFormValues = {
     name: 'Maria Cruz',
     relationship: 'Spouse',
     address: {
-      address: '123 Maginhawa Street, Teachers Village',
+      houseNumber: '',
+      street: '123 Maginhawa Street, Teachers Village',
+      barangay: '',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',

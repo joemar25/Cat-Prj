@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Icons } from "@/components/ui/icons"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { getCurrentMonthRegistrations, getPreviousMonthRegistrations } from "@/hooks/count-metrics"
 import { useTranslation } from "react-i18next"
 
@@ -44,9 +45,9 @@ const METRIC_ITEMS: MetricItem[] = [
 ]
 
 export default function MetricsDashboard({
-  onSelectMetric,
+  onSelectMetricAction, // Renamed here
 }: {
-  onSelectMetric: (
+  onSelectMetricAction: (
     model: "baseRegistryForm" | "birthCertificateForm" | "deathCertificateForm" | "marriageCertificateForm",
     currentCount: number
   ) => void;
@@ -97,11 +98,26 @@ export default function MetricsDashboard({
     currentCount: number
   ) => {
     setSelectedMetric(titleKey)
-    onSelectMetric(model, currentCount)
+    onSelectMetricAction(model, currentCount) // Updated here
   }
 
   if (isLoading) {
-    return <div className="text-center">Loading metrics...</div>
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((_, index) => (
+          <Card key={index} className="p-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-1/2" /> {/* Title skeleton */}
+              <Skeleton className="h-4 w-4 rounded-full" /> {/* Icon skeleton */}
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-3/4 mb-2" /> {/* Current count skeleton */}
+              <Skeleton className="h-3 w-1/2" /> {/* Percentage skeleton */}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
   }
 
   if (error) {
@@ -119,7 +135,7 @@ export default function MetricsDashboard({
               ? metric.titleKey === "metrics.death_certificates"
                 ? "hsl(var(--chart-2))"
                 : metric.titleKey === "metrics.marriage_certificates"
-                  ? "hsl(var(--chart-3) / 0.75)" // Change opacity to 0.75 (75%)
+                  ? "hsl(var(--chart-3) / 0.75)"
                   : metric.titleKey === "metrics.birth_certificates"
                     ? "hsl(var(--chart-1))"
                     : "hsl(var(--chart-3) / 0.7)"
@@ -127,7 +143,6 @@ export default function MetricsDashboard({
           }}
           onClick={() => handleSelectMetric(metric.titleKey, metric.model, metric.currentCount)}
         >
-
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t(metric.titleKey)}</CardTitle>
             {metric.icon}
@@ -138,7 +153,6 @@ export default function MetricsDashboard({
               {metric.percentageChange > 0 ? "+" : ""}
               {metric.percentageChange.toFixed(1)}% {t("metrics.from_last_month")}
             </p>
-
           </CardContent>
         </Card>
       ))}

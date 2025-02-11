@@ -22,8 +22,24 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
+import LocationSelector from '../shared-components/location-selector';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
-const AffidavitFormsCard: React.FC = () => {
+interface AffidavitFormsCardProps {
+  // Props to control the affiant's address behavior
+  affiantAddressNcrMode?: boolean;
+  setAffiantAddressNcrMode?: (value: boolean) => void;
+  // Props to control the admin officer's address behavior
+  adminOfficerAddressNcrMode?: boolean;
+  setAdminOfficerAddressNcrMode?: (value: boolean) => void;
+}
+
+const AffidavitFormsCard: React.FC<AffidavitFormsCardProps> = ({
+  affiantAddressNcrMode = false,
+  setAffiantAddressNcrMode = () => {},
+  adminOfficerAddressNcrMode = false,
+  setAdminOfficerAddressNcrMode = () => {},
+}) => {
   const { control, watch } = useFormContext();
   const hasAffidavitOfPaternity = watch('hasAffidavitOfPaternity');
   const isDelayedRegistration = watch('isDelayedRegistration');
@@ -164,6 +180,44 @@ const AffidavitFormsCard: React.FC = () => {
                     />
                   </div>
 
+                  {/* Admin Officer Address */}
+                  <div className='space-y-4'>
+                    <NCRModeSwitch
+                      isNCRMode={adminOfficerAddressNcrMode}
+                      setIsNCRMode={setAdminOfficerAddressNcrMode}
+                    />
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                      <LocationSelector
+                        provinceFieldName='affidavitOfPaternityDetails.adminOfficer.address.province'
+                        municipalityFieldName='affidavitOfPaternityDetails.adminOfficer.address.cityMunicipality'
+                        barangayFieldName='affidavitOfPaternityDetails.adminOfficer.address.barangay'
+                        provinceLabel='Province'
+                        municipalityLabel='City/Municipality'
+                        selectTriggerClassName='h-10 px-3 text-base md:text-sm'
+                        provincePlaceholder='Select province'
+                        municipalityPlaceholder='Select city/municipality'
+                        className='col-span-2 grid grid-cols-2 gap-4'
+                        isNCRMode={adminOfficerAddressNcrMode}
+                        showBarangay={true}
+                        barangayLabel='Barangay'
+                        barangayPlaceholder='Select barangay'
+                      />
+                      <FormField
+                        control={control}
+                        name='affidavitOfPaternityDetails.adminOfficer.address.country'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Country</FormLabel>
+                            <FormControl>
+                              <Input {...field} className='h-10' />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
                   {/* CTC Information */}
                   <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                     <FormField
@@ -284,6 +338,44 @@ const AffidavitFormsCard: React.FC = () => {
                   />
                 </div>
 
+                {/* Affiant Address Section */}
+                <div className='space-y-4'>
+                  <NCRModeSwitch
+                    isNCRMode={affiantAddressNcrMode}
+                    setIsNCRMode={setAffiantAddressNcrMode}
+                  />
+                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                    <LocationSelector
+                      provinceFieldName='affidavitOfDelayedRegistration.affiant.address.province'
+                      municipalityFieldName='affidavitOfDelayedRegistration.affiant.address.cityMunicipality'
+                      barangayFieldName='affidavitOfDelayedRegistration.affiant.address.barangay'
+                      provinceLabel='Province'
+                      municipalityLabel='City/Municipality'
+                      selectTriggerClassName='h-10 px-3 text-base md:text-sm'
+                      provincePlaceholder='Select province'
+                      municipalityPlaceholder='Select city/municipality'
+                      className='col-span-2 grid grid-cols-2 gap-4'
+                      isNCRMode={affiantAddressNcrMode}
+                      showBarangay={true}
+                      barangayLabel='Barangay'
+                      barangayPlaceholder='Select barangay'
+                    />
+                    <FormField
+                      control={control}
+                      name='affidavitOfDelayedRegistration.affiant.address.country'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Country</FormLabel>
+                          <FormControl>
+                            <Input {...field} className='h-10' />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
                 {/* Registration Type and Parent Status */}
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <FormField
@@ -398,6 +490,44 @@ const AffidavitFormsCard: React.FC = () => {
                       </FormItem>
                     )}
                   />
+                </div>
+
+                {/* Admin Officer Address Section */}
+                <div className='space-y-4'>
+                  <NCRModeSwitch
+                    isNCRMode={adminOfficerAddressNcrMode}
+                    setIsNCRMode={setAdminOfficerAddressNcrMode}
+                  />
+                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                    <LocationSelector
+                      provinceFieldName='affidavitOfDelayedRegistration.adminOfficer.address.province'
+                      municipalityFieldName='affidavitOfDelayedRegistration.adminOfficer.address.cityMunicipality'
+                      barangayFieldName='affidavitOfDelayedRegistration.adminOfficer.address.barangay'
+                      provinceLabel='Province'
+                      municipalityLabel='City/Municipality'
+                      selectTriggerClassName='h-10 px-3 text-base md:text-sm'
+                      provincePlaceholder='Select province'
+                      municipalityPlaceholder='Select city/municipality'
+                      className='col-span-2 grid grid-cols-2 gap-4'
+                      isNCRMode={adminOfficerAddressNcrMode}
+                      showBarangay={true}
+                      barangayLabel='Barangay'
+                      barangayPlaceholder='Select barangay'
+                    />
+                    <FormField
+                      control={control}
+                      name='affidavitOfDelayedRegistration.adminOfficer.address.country'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Country</FormLabel>
+                          <FormControl>
+                            <Input {...field} className='h-10' />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
 
                 {/* CTC Information */}

@@ -15,7 +15,7 @@ export default function DashboardContent() {
     model: "baseRegistryForm" | "birthCertificateForm" | "deathCertificateForm" | "marriageCertificateForm" | null
     currentCount: number | null
   }>({
-    model: "baseRegistryForm",  // Default to baseRegistryForm
+    model: "baseRegistryForm",
     currentCount: null,
   })
 
@@ -37,11 +37,11 @@ export default function DashboardContent() {
         </AlertDescription>
       </Alert>
 
-      <MetricsDashboard onSelectMetric={handleSelectMetric} />
+      <MetricsDashboard onSelectMetricAction={handleSelectMetric} />
 
       <StatisticsDashboard selectedMetric={selectedMetric} />
 
-      <ChartsDashboard />
+      <ChartsDashboard selectedMetric={selectedMetric} />
     </div>
   )
 }

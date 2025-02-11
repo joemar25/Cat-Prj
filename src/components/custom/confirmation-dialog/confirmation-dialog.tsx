@@ -19,12 +19,12 @@ interface ConfirmationDialogProps {
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   isSubmitting?: boolean;
-  formType: 'BIRTH' | 'MARRIAGE' | 'DEATH'; // Add formType prop
+  formType: 'BIRTH' | 'MARRIAGE' | 'DEATH'; // Accept formType prop
   localStorageKey?: string;
   confirmButtonText?: string;
   cancelButtonText?: string;
-  title?: string; // Add title prop
-  description?: string; // Add description prop
+  title?: string; // Optional title override
+  description?: string; // Optional description override
 }
 
 export function ConfirmationDialog({
@@ -32,27 +32,40 @@ export function ConfirmationDialog({
   onOpenChange,
   onConfirm,
   isSubmitting = false,
-  formType, // Accept formType
-  localStorageKey = `skip${formType}Alert`, // Default localStorageKey based on formType
+  formType,
+  localStorageKey = `skip${formType}Alert`,
   confirmButtonText = 'Confirm',
   cancelButtonText = 'Cancel',
   title = `Confirm ${
     formType.charAt(0) + formType.slice(1).toLowerCase()
-  } Registration`, // Default title
-  description = `Are you sure all the details for this ${formType.toLowerCase()} certificate are filled up correctly? This action cannot be undone.`, // Default description
+  } Registration`,
+  description = `Are you sure all the details for this ${formType.toLowerCase()} certificate are filled up correctly? This action cannot be undone.`,
 }: ConfirmationDialogProps) {
+  // Always call hooks at the top level.
   const [skipAlert, setSkipAlert] = useState(false);
 
+  // On mount, check localStorage for the user's preference.
   useEffect(() => {
-    // Check if user has previously chosen to skip the alert
     const savedPreference = localStorage.getItem(localStorageKey);
     if (savedPreference === 'true') {
       setSkipAlert(true);
     }
   }, [localStorageKey]);
 
+  // If the user has chosen to skip the alert and the dialog is open,
+  // immediately call onConfirm. (We do not return early, so hooks order stays the same.)
+  useEffect(() => {
+    if (skipAlert && open) {
+      onConfirm();
+    }
+  }, [skipAlert, open, onConfirm]);
+
+  // We compute the "actual" open value. Even if `open` is true,
+  // if skipAlert is true we want the AlertDialog to be hidden.
+  const computedOpen = open && !skipAlert;
+
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={computedOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
@@ -63,8 +76,9 @@ export function ConfirmationDialog({
             id='skip-alert'
             checked={skipAlert}
             onCheckedChange={(checked) => {
-              setSkipAlert(checked as boolean);
-              if (checked) {
+              const value = checked as boolean;
+              setSkipAlert(value);
+              if (value) {
                 localStorage.setItem(localStorageKey, 'true');
               } else {
                 localStorage.removeItem(localStorageKey);
@@ -99,7 +113,7 @@ export function ConfirmationDialog({
   );
 }
 
-// Function to check if alerts should be skipped
+// Optional helper function to check if alerts should be skipped.
 export function shouldSkipAlert(key: string): boolean {
   return localStorage.getItem(key) === 'true';
 }

@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Separator } from "@/components/ui/separator"
-import { Button } from "@/components/ui/button"
+import { Icons } from '@/components/ui/icons'
+import { useTranslation } from 'react-i18next'
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-// Import your report components
 import { DocumentReport } from "./document-report"
 import { UserActivityReport } from "./user-activity-report"
 import { MarriageReport } from "./marriage-report"
@@ -20,7 +22,6 @@ const reports: { key: ReportKey; label: string }[] = [
     { key: "birth", label: "Birth Reports" },
     { key: "death", label: "Death Reports" },
 ]
-
 export const ReportsDashboard = () => {
     const [selectedReport, setSelectedReport] = useState<ReportKey>("document")
 
@@ -42,29 +43,39 @@ export const ReportsDashboard = () => {
     }
 
     return (
-        <div className="flex flex-col md:flex-row">
-            {/* Sidebar Navigation */}
-            <aside className="md:w-1/4 p-4">
-                <h2 className="mb-4 text-lg font-semibold">Reports</h2>
-                <ul className="space-y-2">
-                    {reports.map((report) => (
-                        <li key={report.key}>
-                            <Button
-                                variant={selectedReport === report.key ? "default" : "outline"}
-                                className="w-full text-left"
-                                onClick={() => setSelectedReport(report.key)}
-                            >
-                                {report.label}
-                            </Button>
-                        </li>
-                    ))}
-                </ul>
-            </aside>
-
-            {/* Main Content */}
-            <main className="flex-1 p-4">
-                {renderReport()}
-            </main>
+        <div className="w-full ml-0 mr-auto">
+            <Alert>
+                <Icons.infoCircledIcon className="h-4 w-4" />
+                <AlertTitle>Reports</AlertTitle>
+                <AlertDescription>
+                    Design is not final. But it is functional. Please provide feedback.
+                </AlertDescription>
+            </Alert>
+            <div className="w-full">
+                <CardHeader>
+                    <CardTitle>Reports Dashboard</CardTitle>
+                </CardHeader>
+                <CardContent className="w-full">
+                    <Tabs
+                        value={selectedReport}
+                        onValueChange={(value) => setSelectedReport(value as ReportKey)}
+                        className="w-full"
+                    >
+                        <TabsList className="grid w-full max-w-[700px] p-1 grid-cols-2 lg:grid-cols-5 mb-6 max-h-10">
+                            {reports.map((report) => (
+                                <TabsTrigger key={report.key} value={report.key} className="p-1 px-4">
+                                    {report.label}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+                        {reports.map((report) => (
+                            <TabsContent key={report.key} value={report.key} className="w-full max-w-[1000px]">
+                                <div className="w-full">{renderReport()}</div> {/* Ensures content inside takes full width */}
+                            </TabsContent>
+                        ))}
+                    </Tabs>
+                </CardContent>
+            </div>
         </div>
     )
 }

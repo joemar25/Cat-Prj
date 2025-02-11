@@ -7,7 +7,6 @@ const prisma = new PrismaClient()
 export const POST = async (req: Request) => {
     try {
         const payload = await req.json()
-        console.log('Received payload:', payload)
 
         const { userId, documentId, type, fileUrl, fileName, fileSize, mimeType } = payload
 

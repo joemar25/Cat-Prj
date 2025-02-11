@@ -3,10 +3,10 @@
 import { toast } from "sonner"
 import { useState } from "react"
 import { Send, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { useTranslation } from "react-i18next"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 
 interface FeedbackFormProps {
     userId: string
@@ -23,7 +23,7 @@ export function FeedbackForm({ userId, onSubmitAction }: FeedbackFormProps) {
         e.stopPropagation()
 
         if (!feedback.trim()) {
-            toast.error(t("feedbacks.emptyError")) // Use translated error message
+            toast.error(t("feedbacks.emptyError"))
             return
         }
 
@@ -43,15 +43,15 @@ export function FeedbackForm({ userId, onSubmitAction }: FeedbackFormProps) {
             const result = await response.json()
 
             if (result.success) {
-                toast.success(result.message || t("feedbacks.success")) // Use translated success message
+                toast.success(result.message || t("feedbacks.success"))
                 setFeedback("")
                 await onSubmitAction()
             } else {
-                toast.error(result.error || t("feedbacks.submitError")) // Use translated error message
+                toast.error(result.error || t("feedbacks.submitError"))
             }
         } catch (error) {
             console.error("Failed to submit feedback:", error)
-            toast.error(t("feedbacks.unexpectedError")) // Use translated error message
+            toast.error(t("feedbacks.unexpectedError"))
         } finally {
             setIsSubmitting(false)
         }
@@ -60,7 +60,7 @@ export function FeedbackForm({ userId, onSubmitAction }: FeedbackFormProps) {
     return (
         <div className="space-y-6">
             <p className="text-muted-foreground">
-                {t("feedbacks.helpText")} 
+                {t("feedbacks.helpText")}
             </p>
             <div className="space-y-4">
                 <div className="space-y-2">
@@ -69,7 +69,7 @@ export function FeedbackForm({ userId, onSubmitAction }: FeedbackFormProps) {
                     </Label>
                     <Textarea
                         id="feedback"
-                        placeholder={t("feedbacks.placeholder")} 
+                        placeholder={t("feedbacks.placeholder")}
                         className="min-h-[120px] resize-none focus:ring-2 focus:ring-primary"
                         value={feedback}
                         onChange={(e) => setFeedback(e.target.value)}
@@ -84,12 +84,12 @@ export function FeedbackForm({ userId, onSubmitAction }: FeedbackFormProps) {
                     {isSubmitting ? (
                         <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            {t("feedbacks.submitting")} {/* Translated submitting text */}
+                            {t("feedbacks.submitting")}
                         </>
                     ) : (
                         <>
                             <Send className="mr-2 h-4 w-4" />
-                            {t("feedbacks.submit")} {/* Translated submit button text */}
+                            {t("feedbacks.submit")}
                         </>
                     )}
                 </Button>

@@ -10,15 +10,21 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-
-import React, { useState } from 'react';
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
-const FatherInformationCard: React.FC = () => {
+interface FatherInformationCardProps {
+  fatherResidenceNcrMode: boolean;
+  setFatherResidenceNcrMode: (value: boolean) => void;
+}
+
+const FatherInformationCard: React.FC<FatherInformationCardProps> = ({
+  fatherResidenceNcrMode,
+  setFatherResidenceNcrMode,
+}) => {
   const { control } = useFormContext<BirthCertificateFormValues>();
-  const [isNCRMode, setIsNCRMode] = useState(false);
 
   return (
     <Card>
@@ -180,7 +186,11 @@ const FatherInformationCard: React.FC = () => {
             <h3 className='text-sm font-semibold'>Residence Information</h3>
           </CardHeader>
           <CardContent>
-            <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
+            {/* Use the passed-in props for controlling the NCR mode */}
+            <NCRModeSwitch
+              isNCRMode={fatherResidenceNcrMode}
+              setIsNCRMode={setFatherResidenceNcrMode}
+            />
             <div className='space-y-4'>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 {/* House Number */}
@@ -236,7 +246,7 @@ const FatherInformationCard: React.FC = () => {
                   provincePlaceholder='Select province'
                   municipalityPlaceholder='Select city/municipality'
                   className='col-span-2 grid grid-cols-2 gap-4'
-                  isNCRMode={isNCRMode}
+                  isNCRMode={fatherResidenceNcrMode}
                   showBarangay={true}
                   barangayLabel='Barangay'
                   barangayPlaceholder='Select barangay'

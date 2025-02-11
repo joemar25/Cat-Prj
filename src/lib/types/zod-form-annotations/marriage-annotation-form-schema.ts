@@ -1,61 +1,15 @@
 //src\lib\types\zod-form-annotations\marriage-annotation-form-schema.ts
-import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action';
-import { Row } from '@tanstack/react-table';
-import { z } from 'zod';
-import {
-  MarriagePlaceStructure,
-  NameStructure,
-  PlaceStructure,
-} from './form-annotation-shared-interfaces';
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
+import { z } from 'zod'
 
 export interface MarriageAnnotationFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onCancel: () => void
 }
 
-export interface ExtendedMarriageAnnotationFormProps
-  extends MarriageAnnotationFormProps {
-  row?: Row<BaseRegistryFormWithRelations>;
-}
-
-export interface MarriageCertificateForm {
-  id: string;
-  baseFormId: string;
-  husbandFirstName: string;
-  husbandMiddleName: string;
-  husbandLastName: string;
-  husbandDateOfBirth: string | Date;
-  husbandAge: number;
-  husbandPlaceOfBirth: PlaceStructure;
-  husbandSex: string;
-  husbandCitizenship: string;
-  husbandResidence: string;
-  husbandReligion: string;
-  husbandCivilStatus: string;
-  husbandFatherName: NameStructure;
-  husbandMotherMaidenName: NameStructure;
-  husbandFatherCitizenship: string;
-  husbandMotherCitizenship: string;
-  wifeFirstName: string;
-  wifeMiddleName: string;
-  wifeLastName: string;
-  wifeDateOfBirth: string | Date;
-  wifeAge: number;
-  wifePlaceOfBirth: PlaceStructure;
-  wifeSex: string;
-  wifeCitizenship: string;
-  wifeResidence: string;
-  wifeReligion: string;
-  wifeCivilStatus: string;
-  wifeFatherName: NameStructure;
-  wifeMotherMaidenName: NameStructure;
-  wifeFatherCitizenship: string;
-  wifeMotherCitizenship: string;
-  placeOfMarriage: MarriagePlaceStructure;
-  dateOfMarriage: string | Date;
-  timeOfMarriage: string;
-  marriageSettlement: boolean;
+export interface ExtendedMarriageAnnotationFormProps extends MarriageAnnotationFormProps {
+  formData: BaseRegistryFormWithRelations
 }
 
 export const marriageAnnotationSchema = z.object({
@@ -105,8 +59,8 @@ export const marriageAnnotationSchema = z.object({
     required_error: 'Marriage date is required',
   }),
   placeOfMarriage: z.string().min(1, 'Place of marriage is required'),
-});
+})
 
 export type MarriageAnnotationFormValues = z.infer<
   typeof marriageAnnotationSchema
->;
+>

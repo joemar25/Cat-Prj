@@ -8,7 +8,14 @@ import { routeConfigs } from '@/lib/config/route-config'
 export async function middleware(request: NextRequest) {
     const session = await auth()
     const { pathname } = request.nextUrl
+    const isDevelopment = process.env.NEXT_PUBLIC_NODE_ENV === 'development'
 
+    // Allow public access to the roles API endpoint only in development mode
+    if (isDevelopment && pathname === '/api/roles') {
+        return NextResponse.next()
+    }
+
+    // Handle authentication for the /auth page
     if (pathname === '/auth') {
         if (session) {
             return NextResponse.redirect(new URL('/dashboard', request.url))
@@ -16,6 +23,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next()
     }
 
+    // Match protected routes and enforce session
     const matchingRoute = routeConfigs.find((route) => pathname.startsWith(route.path))
 
     if (matchingRoute?.type !== 'public' && !session) {
@@ -24,6 +32,7 @@ export async function middleware(request: NextRequest) {
             : NextResponse.redirect(new URL('/auth', request.url))
     }
 
+    // Enforce permission checks for routes with specific permissions
     if (matchingRoute?.requiredPermissions?.length) {
         if (!hasAnyPermission(session!.user.permissions, matchingRoute.requiredPermissions)) {
             return pathname.startsWith('/api/')
@@ -52,5 +61,8 @@ export const config = {
         '/settings/:path*',
         '/users/:path*',
         '/api/:path*',
+
+        // mar-note: add new routes here
+        '/help/:path*'
     ],
 }

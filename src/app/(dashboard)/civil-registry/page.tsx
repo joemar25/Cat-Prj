@@ -1,4 +1,3 @@
-// src/app/(dashboard)/civil-registry/page.tsx
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { DataTable } from '@/components/custom/civil-registry/data-table'
 import { columns } from '@/components/custom/civil-registry/columns'
@@ -25,10 +24,24 @@ async function getCivilRegistryForms() {
         birthCertificateForm: true,
         deathCertificateForm: true,
         marriageCertificateForm: true,
-        document: { include: { attachments: true } },
+        document: {
+          include: {
+            attachments: {
+              include: { certifiedCopies: true },
+              orderBy: { updatedAt: 'desc' }, // Ensures latest attachment is first
+            },
+          },
+        },
       },
     })
-    return forms
+
+    // Safely check for certified copies
+    return forms.map(form => {
+      const latestAttachment = form.document?.attachments?.[0]
+      const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0
+
+      return { ...form, hasCTC }
+    })
   } catch (error) {
     console.error('Error fetching civil registry forms:', error)
     return []

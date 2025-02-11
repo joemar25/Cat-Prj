@@ -1,17 +1,18 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
-import { type NavSecondaryItem } from '@/lib/types/navigation'
-import { FeedbackForm } from '@/components/custom/feedback/actions/feedback-form'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
+import { useSession } from 'next-auth/react'
 import { Icons } from '@/components/ui/icons'
-import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
-import { handleSignOut } from '@/hooks/auth-actions'
 import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import { handleSignOut } from '@/hooks/auth-actions'
+import { FeedbackForm } from '@/components/custom/feedback/actions/feedback-form'
+import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+
+import { type NavSecondaryItem } from '@/lib/types/navigation'
 
 interface NavSecondaryProps extends React.ComponentPropsWithoutRef<typeof SidebarGroup> {
   items: Array<NavSecondaryItem & { icon?: React.ElementType }>
@@ -22,7 +23,7 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
   const [mounted, setMounted] = useState(false)
   const [openDialog, setOpenDialog] = useState<string | null>(null)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const { t } = useTranslation()  // Add the translation hook
+  const { t } = useTranslation()
 
   useEffect(() => {
     setMounted(true)
@@ -35,19 +36,19 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
   const handleLogout = async () => {
     setIsLoggingOut(true)
     await handleSignOut()
-    toast.success(t('loggingOut'), { duration: 3000 })  // Use translation for "Logging out..."
+    toast.success(t('loggingOut'), { duration: 3000 })
     setIsLoggingOut(false)
     handleCloseAction()
   }
 
   const getDialogContent = (item: NavSecondaryItem) => {
-    if (item.title === t('feedback')) {
+    if (item.title === t('send-feedback')) {
       return (
         <div className="mt-4">
           {session?.user?.id ? (
             <FeedbackForm userId={session.user.id} onSubmitAction={handleCloseAction} />
           ) : (
-            <p className="text-muted-foreground">{t('signInToSubmitFeedback')}</p>  
+            <p className="text-muted-foreground">{t('signInToSubmitFeedback')}</p>
           )}
         </div>
       )
@@ -57,11 +58,11 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
       return (
         <>
           <DialogDescription className="text-sm text-muted-foreground">
-            {t('areYouSureToLogout')}  {/* Translation for logout confirmation */}
+            {t('areYouSureToLogout')}
           </DialogDescription>
           <DialogFooter className="flex justify-center space-x-4 mt-4">
             <Button onClick={handleCloseAction} variant="outline" disabled={isLoggingOut}>
-              {t('cancel')}  {/* Translation for Cancel button */}
+              {t('cancel')}
             </Button>
             <Button
               onClick={handleLogout}
@@ -88,9 +89,9 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
   const extendedItems = [
     ...items,
     {
-      title: t('feedback'),  // Ensure "Feedback" is translated here
+      title: t('send-feedback'),
       url: '#',
-      icon: Icons.messageSquare,  // Make sure to add your correct icon here
+      icon: Icons.messageSquare,
     },
     {
       title: t('logOut'),
@@ -122,18 +123,18 @@ export function NavSecondary({ items, ...props }: NavSecondaryProps) {
                       className={cn(
                         'w-full transition-colors',
                         openDialog === item.title && 'bg-primary/10 text-primary',
-                        item.title === t('logOut') && 'text-red-600 hover:bg-red-500 hover:text-white'  // Translate "Log Out" button class
+                        item.title === t('logOut') && 'text-red-600 hover:bg-red-500 hover:text-white'
                       )}
                     >
                       {ItemIcon && <ItemIcon className="h-4 w-4" />}
-                      <span>{item.title}</span> {/* This will be translated */}
+                      <span>{item.title}</span>
                     </SidebarMenuButton>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                         {ItemIcon && <ItemIcon className="h-5 w-5 text-primary" />}
-                        {item.title} {/* This will be translated */}
+                        {item.title}
                       </DialogTitle>
                     </DialogHeader>
                     {getDialogContent(item)}

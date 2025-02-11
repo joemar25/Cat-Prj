@@ -9,7 +9,7 @@ import { Icons } from '@/components/ui/icons'
 import { Feedback } from '@prisma/client'
 import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
 import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
-import { useTranslation } from 'react-i18next' // Import useTranslation
+import { useTranslation } from 'react-i18next'
 
 interface DataTableToolbarProps<TData extends Feedback> {
     table: Table<TData>
@@ -61,49 +61,53 @@ export function DataTableToolbar<TData extends Feedback>({
     }
 
     return (
-        <div className="flex items-center justify-between">
-            <div className="flex flex-1 items-center space-x-4">
-                <div className="relative">
-                    <Icons.search className="absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    <Input
-                        placeholder={t('Search feedback...')}
-                        value={(feedbackColumn?.getFilterValue() as string) ?? ''}
-                        onChange={(event) => handleSearch(event.target.value)}
-                        className="h-10 w-[200px] lg:w-[300px] pl-10"
-                    />
+        <div className="items-center justify-between">
+            <div className='flex items-center justify-between mt-3'>
+                <div className="flex flex-1 items-center space-x-4">
+                    <div className="relative">
+                        <Icons.search className="absolute h-5 w-5 left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <Input
+                            placeholder={t('Search feedback...')}
+                            value={(feedbackColumn?.getFilterValue() as string) ?? ''}
+                            onChange={(event) => handleSearch(event.target.value)}
+                            className="h-10 w-[200px] lg:w-[300px] pl-10"
+                        />
+                    </div>
+
+                    {submittedByColumn && (
+                        <DataTableFacetedFilter
+                            column={submittedByColumn}
+                            title={t('Submitted By')}
+                            options={submittedByOptions}
+                        />
+                    )}
+
+                    {isFiltered && (
+                        <Button
+                            variant="ghost"
+                            onClick={handleResetFilters}
+                            className="h-10 px-3"
+                        >
+                            {t('Reset')}
+                            <Cross2Icon className="ml-2 h-5 w-5" />
+                        </Button>
+                    )}
                 </div>
 
-                {submittedByColumn && (
-                    <DataTableFacetedFilter
-                        column={submittedByColumn}
-                        title={t('Submitted By')}
-                        options={submittedByOptions}
-                    />
-                )}
-
-                {isFiltered && (
+                <div className="flex items-center space-x-4">
                     <Button
-                        variant="ghost"
-                        onClick={handleResetFilters}
-                        className="h-10 px-3"
+                        variant="outline"
+                        className="h-10"
+                        onClick={handleExport}
                     >
-                        {t('Reset')}
-                        <Cross2Icon className="ml-2 h-5 w-5" />
+                        <Icons.download className="mr-2 h-4 w-4" />
+                        {t('Export')} {/* Translated Export text */}
                     </Button>
-                )}
-            </div>
 
-            <div className="flex items-center space-x-4">
-                <Button
-                    variant="outline"
-                    className="h-10"
-                    onClick={handleExport}
-                >
-                    <Icons.download className="mr-2 h-4 w-4" />
-                    {t('Export')} {/* Translated Export text */}
-                </Button>
+                    <DataTableViewOptions table={table} />
 
-                <DataTableViewOptions table={table} />
+                    
+                </div>
             </div>
         </div>
     )

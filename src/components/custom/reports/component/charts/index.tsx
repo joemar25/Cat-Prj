@@ -19,7 +19,16 @@ export const Chart = <T extends Record<string, any>>({
     dataKeyX,
     dataKeysY,
 }: ChartProps<T>) => {
-    const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#d45087", "#ff7c43"]
+    const resolveCssVariable = (variableName: string) =>
+        getComputedStyle(document.documentElement).getPropertyValue(variableName).trim()
+
+    const COLORS = [
+        `hsl(${resolveCssVariable('--chart-1')})`,
+        `hsl(${resolveCssVariable('--chart-2')})`,
+        `hsl(${resolveCssVariable('--chart-3')})`,
+        `hsl(${resolveCssVariable('--chart-4')})`,
+        `hsl(${resolveCssVariable('--chart-5')})`,
+    ]
 
     // Calculate total for DonutChartComponent
     const aggregatedData = dataKeysY.map((key) => ({
@@ -37,7 +46,7 @@ export const Chart = <T extends Record<string, any>>({
                 <LineChartComponent data={data} dataKeyX={dataKeyX} dataKeysY={dataKeysY} colors={COLORS} />
             )}
             {chartType === "Donut Chart" && (
-                <DonutChartComponent data={aggregatedData} colors={COLORS} total={total} />
+                <DonutChartComponent data={aggregatedData} total={total} />
             )}
             {chartType === "Area Chart" && (
                 <AreaChartComponent data={data} dataKeyX={dataKeyX} dataKeysY={dataKeysY} colors={COLORS} />

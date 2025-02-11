@@ -1,12 +1,12 @@
 // prisma/seed.ts
-import { hash } from 'bcryptjs';
-import { generateTestData } from './seed-data';
-import { Permission, PrismaClient } from '@prisma/client';
+import { hash } from 'bcryptjs'
+import { generateTestData } from './seed-data'
+import { Permission, PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Starting database seeding...');
+  console.log('Starting database seeding...')
 
   // ----------------------------
   // Seed Roles & Permissions
@@ -97,7 +97,7 @@ async function main() {
       description: 'Performs data entry and administrative support',
       permissions: [Permission.DOCUMENT_READ, Permission.REPORT_READ],
     },
-  ];
+  ]
 
   // Upsert each role with its permissions.
   // Note: We now pass both "permission" and the required "roleName"
@@ -115,32 +115,32 @@ async function main() {
           })),
         },
       },
-    });
+    })
   }
 
-  const roles = await prisma.role.findMany();
-  const roleMap = Object.fromEntries(roles.map((role) => [role.name, role.id]));
+  const roles = await prisma.role.findMany()
+  const roleMap = Object.fromEntries(roles.map((role) => [role.name, role.id]))
   if (!roleMap['Super Admin'] || !roleMap['Admin']) {
-    throw new Error('Required roles not found');
+    throw new Error('Required roles not found')
   }
 
   // ----------------------------
   // Create / Reuse Users
   // ----------------------------
-  const defaultPassword = await hash('password', 12);
-  const userIds: string[] = [];
+  const defaultPassword = await hash('password', 12)
+  const userIds: string[] = []
 
   // Check for existing users (for example, users whose email ends with '@gov.ph')
   const existingUsers = await prisma.user.findMany({
     where: { email: { endsWith: '@gov.ph' } },
     include: { roles: { include: { role: true } } },
-  });
+  })
 
   if (existingUsers.length > 0) {
     console.log(
       `Found ${existingUsers.length} existing users. Reusing them...`
-    );
-    existingUsers.forEach((user) => userIds.push(user.id));
+    )
+    existingUsers.forEach((user) => userIds.push(user.id))
   } else {
     // Helper function to create users for a given role.
     const createUsers = async (
@@ -153,7 +153,7 @@ async function main() {
         Array(count)
           .fill(null)
           .map(async (_, index) => {
-            const email = `${emailPrefix}${index + 1}@${domain}`;
+            const email = `${emailPrefix}${index + 1}@${domain}`
             const user = await prisma.user.upsert({
               where: { email },
               update: {},
@@ -176,39 +176,39 @@ async function main() {
                 },
               },
               include: { roles: { include: { role: true } } },
-            });
-            userIds.push(user.id);
-            return user;
+            })
+            userIds.push(user.id)
+            return user
           })
-      );
-    };
+      )
+    }
 
     const superAdmins = await createUsers(
       2,
       'Super Admin',
       'superadmin',
       'gov.ph'
-    );
-    const admins = await createUsers(3, 'Admin', 'admin', 'gov.ph');
+    )
+    const admins = await createUsers(3, 'Admin', 'admin', 'gov.ph')
     const registrars = await createUsers(
       3,
       'Registrar Officer',
       'registrar',
       'gov.ph'
-    );
+    )
     const recordsOfficers = await createUsers(
       3,
       'Records Officer',
       'records',
       'gov.ph'
-    );
+    )
     const verificationOfficers = await createUsers(
       3,
       'Verification Officer',
       'verification',
       'gov.ph'
-    );
-    const clerks = await createUsers(3, 'Clerk', 'clerk', 'gov.ph');
+    )
+    const clerks = await createUsers(3, 'Clerk', 'clerk', 'gov.ph')
 
     console.log('Created new users:');
     [
@@ -221,8 +221,8 @@ async function main() {
     ].forEach((user) => {
       console.log(
         `- ${user.roles[0]?.role?.name ?? 'No Role'}: ${user.email} / password`
-      );
-    });
+      )
+    })
   }
 
   // ----------------------------
@@ -245,22 +245,22 @@ async function main() {
     occupation: user.roles[0]?.role?.name ?? '',
     gender: 'male',
     nationality: 'Filipino',
-  }));
+  }))
 
-  await prisma.profile.createMany({ data: profiles, skipDuplicates: true });
+  await prisma.profile.createMany({ data: profiles, skipDuplicates: true })
 
   // ----------------------------
   // Generate Additional Test Data
   // ----------------------------
-  await generateTestData(prisma, userIds);
+  await generateTestData(prisma, userIds)
 
-  console.log('Seeding completed successfully!');
+  console.log('Seeding completed successfully!')
 }
 
 main()
   .then(() => prisma.$disconnect())
   .catch(async (e) => {
-    console.error('Error during seeding:', e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+    console.error('Error during seeding:', e)
+    await prisma.$disconnect()
+    process.exit(1)
+  })

@@ -22,6 +22,7 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
     const pathname = usePathname()
     const isDashboardRoot = pathname === "/dashboard"
     const { t } = useTranslation()
+    const isDevelopment = process.env.NEXT_PUBLIC_NODE_ENV === "development"
 
     // Get greeting based on time of day
     const getGreeting = () => {
@@ -32,7 +33,14 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
     }
 
     return (
-        <header className="z-20  flex h-16 shrink-0 items-center px-4 justify-between mx-4 rounded-lg shadow-sm border bg-popover">
+        <header className="relative z-20 flex h-16 shrink-0 items-center px-4 justify-between mx-4 rounded-lg shadow-sm border bg-popover">
+            {/* Development Mode Indicator */}
+            {isDevelopment && (
+                <div className="absolute top-0 left-0 bg-red-600 text-white text-xs px-2 py-1 rounded-br-lg shadow-md">
+                    Development Mode
+                </div>
+            )}
+
             {/* Left Section */}
             <div className="flex items-center gap-2">
                 <SidebarTrigger className="-ml-1" aria-label="Toggle Sidebar">
@@ -77,12 +85,10 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
             </div>
 
             {/* Right Section */}
-            <div className="ml-auto flex items-center gap-3 sm:gap-4 ">
+            <div className="ml-auto flex items-center gap-3 sm:gap-4">
                 {/* Date & Time */}
                 <div className="hidden xl:flex items-center">
-                    <div
-                        className="flex items-center gap-2 border border-muted p-[5px] px-3 rounded-md bg-card"
-                    >
+                    <div className="flex items-center gap-2 border border-muted p-[5px] px-3 rounded-md bg-card">
                         <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                         <TimeDisplay />
                     </div>
@@ -97,7 +103,6 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                     </div>
                     {user && <NotificationBell userId={user.id} />}
                     <UserHeaderNav user={user} />
-
                 </div>
             </div>
         </header>

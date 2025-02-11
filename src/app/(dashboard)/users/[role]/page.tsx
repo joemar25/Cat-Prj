@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { UsersTableClient } from '@/components/custom/users/users-table-client'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { UserWithRoleAndProfile } from '@/types/user'
 
 interface PageProps {
   params: { role: string }
@@ -31,7 +32,11 @@ async function getUsers(roleSlug: string) {
           include: {
             role: {
               include: {
-                permissions: true
+                permissions: {
+                  select: {
+                    permission: true
+                  }
+                }
               }
             }
           }
@@ -41,7 +46,19 @@ async function getUsers(roleSlug: string) {
         createdAt: 'desc',
       },
     })
-    return users
+
+    // Transform the data to match UserWithRoleAndProfile type
+    return users.map(user => ({
+      ...user,
+      roles: user.roles.map(userRole => ({
+        role: {
+          ...userRole.role!,
+          permissions: userRole.role!.permissions.map(p => ({
+            permission: p.permission
+          }))
+        }
+      }))
+    })) as UserWithRoleAndProfile[]
   } catch (error) {
     console.error('Error fetching users:', error)
     return []
@@ -70,9 +87,11 @@ function UsersTableSkeleton() {
   )
 }
 
-export default async function UsersPage({ params }: PageProps) {
-  const users = await getUsers(params.role)
-  const roleName = getRoleDisplayName(params.role)
+export default async function UsersPage({ params }: { params: { role: string } }) {
+  const { role } = await params
+
+  const users = await getUsers(role)
+  const roleName = getRoleDisplayName(role)
 
   if (!roleName) {
     // Handle invalid role slug

@@ -19,10 +19,17 @@ import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
-const AttendantInformationCard: React.FC = () => {
+interface AttendantInformationCardProps {
+  attendantAddressNcrMode: boolean;
+  setAttendantAddressNcrMode: (value: boolean) => void;
+}
+
+const AttendantInformationCard: React.FC<AttendantInformationCardProps> = ({
+  attendantAddressNcrMode,
+  setAttendantAddressNcrMode,
+}) => {
   const { control } = useFormContext<BirthCertificateFormValues>();
   const [showOtherInput, setShowOtherInput] = useState(false);
-  const [isNCRMode, setIsNCRMode] = useState(false);
 
   return (
     <Card>
@@ -88,7 +95,10 @@ const AttendantInformationCard: React.FC = () => {
             <h3 className='text-sm font-semibold'>Certification Details</h3>
           </CardHeader>
           <CardContent>
-            <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
+            <NCRModeSwitch
+              isNCRMode={attendantAddressNcrMode}
+              setIsNCRMode={setAttendantAddressNcrMode}
+            />
             <div className='space-y-4'>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 {/* Time of Birth */}
@@ -101,9 +111,7 @@ const AttendantInformationCard: React.FC = () => {
                       <FormControl>
                         <TimePicker
                           value={field.value}
-                          onChange={(value) => {
-                            field.onChange(value);
-                          }}
+                          onChange={(value) => field.onChange(value)}
                         />
                       </FormControl>
                       <FormMessage />
@@ -216,7 +224,7 @@ const AttendantInformationCard: React.FC = () => {
                   provincePlaceholder='Select province'
                   municipalityPlaceholder='Select city/municipality'
                   className='col-span-2 grid grid-cols-2 gap-4'
-                  isNCRMode={isNCRMode}
+                  isNCRMode={attendantAddressNcrMode}
                   showBarangay={true}
                   barangayLabel='Barangay'
                   barangayPlaceholder='Select barangay'
@@ -230,7 +238,7 @@ const AttendantInformationCard: React.FC = () => {
                     <FormItem>
                       <FormLabel>Country</FormLabel>
                       <FormControl>
-                        <Input {...field} disabled className='h-10' />
+                        <Input {...field} className='h-10' />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
