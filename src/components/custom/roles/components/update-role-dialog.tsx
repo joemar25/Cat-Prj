@@ -11,13 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { CheckedState } from '@radix-ui/react-checkbox'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useState, useTransition, useMemo, useEffect } from 'react'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 
 // Adjusted props to allow description to be null and permissions optional.
 interface UpdateRoleDialogProps {

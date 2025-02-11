@@ -1,8 +1,8 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import Profile from '@/components/custom/profile/profile'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
-import { Skeleton } from '@/components/ui/skeleton'
+
+import Profile from '@/components/custom/profile/profile'
 
 export default async function ProfilePage() {
     const session = await auth()

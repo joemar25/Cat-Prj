@@ -1,29 +1,16 @@
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import TimePicker from '@/components/custom/time/time-picker';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
+import { Input } from '@/components/ui/input'
+import { useFormContext } from 'react-hook-form'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema'
 
-import { useState } from 'react';
-import { useFormContext } from 'react-hook-form';
-import LocationSelector from '../shared-components/location-selector';
+import TimePicker from '@/components/custom/time/time-picker'
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
+import LocationSelector from '@/components/custom/forms/certificates/form-cards/shared-components/location-selector'
 
 const DeceasedInformationCard = () => {
-  const { control, setValue } = useFormContext<DeathCertificateFormValues>();
+  const { control } = useFormContext<DeathCertificateFormValues>()
 
   return (
     <Card className='w-full'>
@@ -243,8 +230,8 @@ const DeceasedInformationCard = () => {
                         inputMode='numeric'
                         maxLength={3}
                         onChange={(e) => {
-                          const value = e.target.value;
-                          field.onChange(value === '' ? '' : value);
+                          const value = e.target.value
+                          field.onChange(value === '' ? '' : value)
                         }}
                         value={field.value || ''}
                       />
@@ -270,8 +257,8 @@ const DeceasedInformationCard = () => {
                         inputMode='numeric'
                         maxLength={2}
                         onChange={(e) => {
-                          const value = e.target.value;
-                          field.onChange(value === '' ? '' : value);
+                          const value = e.target.value
+                          field.onChange(value === '' ? '' : value)
                         }}
                         value={field.value || ''}
                       />
@@ -297,8 +284,8 @@ const DeceasedInformationCard = () => {
                         inputMode='numeric'
                         maxLength={2}
                         onChange={(e) => {
-                          const value = e.target.value;
-                          field.onChange(value === '' ? '' : value);
+                          const value = e.target.value
+                          field.onChange(value === '' ? '' : value)
                         }}
                         value={field.value || ''}
                       />
@@ -324,8 +311,8 @@ const DeceasedInformationCard = () => {
                         inputMode='numeric'
                         maxLength={2}
                         onChange={(e) => {
-                          const value = e.target.value;
-                          field.onChange(value === '' ? '' : value);
+                          const value = e.target.value
+                          field.onChange(value === '' ? '' : value)
                         }}
                         value={field.value || ''}
                       />
@@ -599,7 +586,7 @@ const DeceasedInformationCard = () => {
         </Card>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default DeceasedInformationCard;
+export default DeceasedInformationCard

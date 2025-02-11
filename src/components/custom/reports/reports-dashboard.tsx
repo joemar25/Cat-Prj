@@ -2,16 +2,15 @@
 
 import { useState } from "react"
 import { Icons } from '@/components/ui/icons'
-import { useTranslation } from 'react-i18next'
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { DocumentReport } from "./document-report"
-import { UserActivityReport } from "./user-activity-report"
-import { MarriageReport } from "./marriage-report"
 import { BirthReport } from "./birth-report"
 import { DeathReport } from "./death-report"
+import { DocumentReport } from "./document-report"
+import { MarriageReport } from "./marriage-report"
+import { UserActivityReport } from "./user-activity-report"
 
 export type ReportKey = "document" | "user-activity" | "marriage" | "birth" | "death"
 

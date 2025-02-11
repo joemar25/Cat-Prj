@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -31,6 +31,7 @@ import { DataTableToolbar } from './data-table-toolbar'
 import { Card, CardContent } from '@/components/ui/card'
 import { Icons } from '@/components/ui/icons'
 import { useTranslation } from 'react-i18next'
+import React from 'react'
 
 interface DataTableProps<TData extends CertifiedCopy> {
     columns: ColumnDef<TData>[]

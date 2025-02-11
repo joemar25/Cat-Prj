@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -34,6 +34,7 @@ import { useTranslation } from 'react-i18next'
 import { useUser } from '@/context/user-context'
 import { hasPermission } from '@/types/auth'
 import { columns } from './columns'
+import React from 'react'
 
 type RoleValue = string | number | boolean | Date | null | undefined
 

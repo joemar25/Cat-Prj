@@ -57,3 +57,4 @@ next-env.d.ts
 
 # Except dummy.pdf in public/assets/pdf
 !public/assets/default/issued-ctc/dummy.pdf
+.history

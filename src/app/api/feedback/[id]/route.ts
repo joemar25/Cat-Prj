@@ -1,13 +1,12 @@
-// src/app/api/feedback/[id]/route.ts
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: { params: { id: string } }
 ) {
     try {
-        const id = params.id
+        const { id } = context.params
 
         if (!id) {
             return NextResponse.json(

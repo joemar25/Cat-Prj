@@ -39,11 +39,6 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
     );
   }
 
-  // 
-  const secondPageSections = [
-
-  ]
-
   return (
     <Document>
       <Page size="LEGAL" style={styles.page}>
@@ -74,7 +69,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
               <View style={styles.gridContainer}>
                 {/* Left Grid: Province and City/Municipality */}
                 <View style={[styles.flexColumn, { flex: 2, padding: 0 }]}>
-                  <View style={[styles.flexRow, styles.paddingGlobal, { borderBottom: '1px solid #000', justifyContent: 'flex-start'}]}>
+                  <View style={[styles.flexRow, styles.paddingGlobal, { borderBottom: '1px solid #000', justifyContent: 'flex-start' }]}>
                     <Text style={styles.label}>Province:</Text>
                     <Text style={styles.valueCenter}>{data.province || ''}</Text>
                   </View>
@@ -774,7 +769,6 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
             </View>
           </View>,
 
-          // Wife's Information
           <View key={'wifeInfo'}>
             {/* Fifteenth Section */}
             <View style={styles.gridContainer}>

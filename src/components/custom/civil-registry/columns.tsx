@@ -1,12 +1,13 @@
 'use client'
 
-import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
-import { Badge } from '@/components/ui/badge'
-import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { DataTableRowActions } from './data-table-row-actions'
 import { DateRange } from 'react-day-picker'
+import { Badge } from '@/components/ui/badge'
 import { useTranslation } from 'react-i18next'
+import { ColumnDef } from '@tanstack/react-table'
+import { DataTableRowActions } from './data-table-row-actions'
+import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header'
+
 import StatusDropdown from '@/components/custom/civil-registry/components/status-dropdown'
 
 import { BaseRegistryForm, User, BirthCertificateForm, DeathCertificateForm, MarriageCertificateForm, Document, Attachment, CertifiedCopy, FormType, DocumentStatus } from '@prisma/client'
@@ -32,17 +33,6 @@ const formTypeVariants: Record<
   MARRIAGE: { label: 'Marriage', variant: 'destructive' },
   BIRTH: { label: 'Birth', variant: 'secondary' },
   DEATH: { label: 'Death', variant: 'default' },
-}
-
-const statusVariants: Record<
-  DocumentStatus,
-  { label: string; variant: 'default' | 'secondary' | 'destructive' }
-> = {
-  PENDING: { label: 'Pending', variant: 'secondary' },
-  VERIFIED: { label: 'Verified', variant: 'default' },
-  LATE_REGISTRATION: { label: 'Late Registration', variant: 'destructive' },
-  READY_FOR_RELEASE: { label: 'Ready for Release', variant: 'default' },
-  RELEASED: { label: 'Released', variant: 'default' }
 }
 
 export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
