@@ -65,13 +65,13 @@ export function NavMain({ items }: NavMainProps) {
                       ${isActive ? 'bg-chart-2 text-accent-foreground font-medium' : ''}
                     `}
                   >
-                    <Link href={item.url} className='flex items-center gap-2 w-full'>
+                    <Link href={item.url} className='flex items-center gap-2 w-full text-accent'>
                       {ItemIcon && (
                         <ItemIcon className={`w-6 h-6 transition-colors duration-150 
-                          ${isActive ? 'text-white' : 'text-muted-foreground'}
+                          ${isActive ? '' : 'text-muted-foreground'}
                         `} />
                       )}
-                      <span className={`${isActive ? 'text-white' : 'text-muted-foreground'}`}>
+                      <span className={`${isActive ? '' : 'text-muted-foreground'}`}>
                         {item.title}
                       </span>
                       {item.notViewedCount !== undefined && item.notViewedCount > 0 && (
@@ -86,12 +86,12 @@ export function NavMain({ items }: NavMainProps) {
                   {item.items?.length ? (
                     <CollapsibleTrigger asChild>
                       <SidebarMenuAction
-                        className={`transition-transform duration-150 ease-in-out 
-                          hover:bg-accent/30 active:scale-[0.98]
-                          ${hasActiveSubItem ? 'text-accent-foreground rotate-90' : 'text-muted-foreground'}
+                        className={`transition-transform duration-150 ease-in-out mt-1 flex justify-between items-center
+                          hover:bg-chart-4 active:scale-[0.98]
+                          ${hasActiveSubItem ? 'text-accent-foreground ' : 'text-muted-foreground'}
                         `}
                       >
-                        <Icons.chevronRight className="w-5 h-5" />
+                        <Icons.chevronRight className={`w-7 h-7 ml-0.5 text-accent`} /> 
                         <span className='sr-only'>Toggle</span>
                       </SidebarMenuAction>
                     </CollapsibleTrigger>
@@ -100,7 +100,7 @@ export function NavMain({ items }: NavMainProps) {
 
                 {/* Collapsible Submenu */}
                 {item.items?.length ? (
-                  <CollapsibleContent className='pl-6 transition-all duration-200 ease-in-out'>
+                  <CollapsibleContent className='pl-6 mt-1 transition-all duration-200 ease-in-out'>
                     <SidebarMenuSub>
                       {item.items.map((subItem) => {
                         const isSubActive = pathname === subItem.url
@@ -110,14 +110,14 @@ export function NavMain({ items }: NavMainProps) {
                               asChild
                               onClick={() => subItem.click?.()}
                               className={`transition-all duration-150 ease-in-out 
-                                hover:bg-accent/50 active:scale-[0.98]
-                                ${isSubActive ? 'bg-accent/80 text-accent-foreground font-medium' : ''}
+                                hover:bg-chart-2/30 active:scale-[0.98]
+                                ${isSubActive ? ' text-accent-foreground font-medium' : ''}
                               `}
                             >
-                              <Link href={subItem.url} className="flex items-center gap-2">
+                              <Link href={subItem.url} className="flex items-center gap-2 px-4 py-4">
                                 <span>{subItem.title}</span>
                                 {subItem.notViewedCount !== undefined && subItem.notViewedCount > 0 && (
-                                  <Badge variant='destructive' className='text-xs px-1.5 py-0.5'>
+                                  <Badge variant='destructive' className='text-xs px-2'>
                                     {subItem.notViewedCount}
                                   </Badge>
                                 )}

@@ -47,8 +47,8 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                 </SidebarTrigger>
 
                 {user && isDashboardRoot ? (
-                    <div className="hidden xl:flex items-center gap-2">
-                        <span className="text-muted-foreground">{getGreeting()},</span>
+                    <div className="hidden xl:flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground ">{getGreeting()},</span>
                         <span className="font-semibold text-foreground">
                             {user.name || user.username || user.email?.split('@')[0]}
                         </span>
@@ -57,7 +57,7 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
                 ) : breadcrumbs.length > 0 ? (
                     <>
                         <Separator orientation="vertical" className="hidden sm:block h-4" />
-                        <Breadcrumb className="hidden xl:flex">
+                        <Breadcrumb className="hidden xl:flex ">
                             <BreadcrumbList>
                                 {breadcrumbs.map((breadcrumb, index) => (
                                     <Fragment key={index}>
@@ -84,11 +84,11 @@ export function DashboardHeaderClient({ user, breadcrumbs = [] }: DashboardHeade
             </div>
 
             {/* Right Section */}
-            <div className="ml-auto flex items-center gap-3 sm:gap-4">
+            <div className="ml-auto flex items-center gap-3 sm:gap-4 ">
                 {/* Date & Time */}
                 <div className="hidden xl:flex items-center">
-                    <div className="flex items-center gap-2 border border-muted p-[5px] px-3 rounded-md bg-card">
-                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2 text-sm border border-muted p-[5px] px-3 rounded-md bg-card">
+                        <CalendarIcon className="h-6.5 w-4  text-muted-foreground" />
                         <TimeDisplay />
                     </div>
                 </div>

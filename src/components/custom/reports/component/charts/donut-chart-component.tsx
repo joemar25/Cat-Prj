@@ -8,11 +8,14 @@ interface DonutChartProps {
 }
 
 export const DonutChartComponent = ({ data, total }: DonutChartProps) => {
-    const colorVariables = [
-        '--chart-1', '--chart-2', '--chart-3', '--chart-4', '--chart-5',
-        '--chart-6', '--chart-7', '--chart-8', '--chart-9', '--chart-10',
-    ]
+    // Determine color variables based on the number of data points
+    const colorVariables = data.length === 3
+        ? ['--chart-1', '--chart-4', '--chart-5']
+        : data.length === 2
+            ? ['--chart-1', '--chart-4']
+            : ['--chart-1', '--chart-2', '--chart-3', '--chart-4', '--chart-5']
 
+    // Fetch HSL values from CSS variables
     const colors = colorVariables.map((variable) => {
         const value = getComputedStyle(document.documentElement).getPropertyValue(variable).trim()
         return value ? `hsl(${value})` : '#ccc'
@@ -27,7 +30,6 @@ export const DonutChartComponent = ({ data, total }: DonutChartProps) => {
                 dataKey="value"
                 nameKey="name"
                 innerRadius={100}
-                // outerRadius={90}
                 stroke="none"
                 isAnimationActive={false}
             >
@@ -45,7 +47,7 @@ export const DonutChartComponent = ({ data, total }: DonutChartProps) => {
                                     dominantBaseline="middle"
                                     style={{ pointerEvents: 'none' }}
                                 >
-
+                                    {total} {/* Display total in the center */}
                                 </text>
                             )
                         }

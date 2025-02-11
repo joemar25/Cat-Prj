@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Icons } from "@/components/ui/icons"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getCurrentMonthRegistrations, getPreviousMonthRegistrations } from "@/hooks/count-metrics"
 import { useTranslation } from "react-i18next"
@@ -130,13 +130,13 @@ export default function MetricsDashboard({
         <Card
           key={metric.titleKey}
           className={`cursor-pointer transition-all ${selectedMetric === metric.titleKey ? "text-white" : ""} 
-          ${selectedMetric === metric.titleKey ? "bg-chart-2 dark:bg-chart-5" : "bg-transparent"}`}
+          ${selectedMetric === metric.titleKey ? "bg-chart-2  dark:bg-chart-5" : "bg-transparent"}`}
          
           onClick={() => handleSelectMetric(metric.titleKey, metric.model, metric.currentCount)}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t(metric.titleKey)}</CardTitle>
-            {metric.icon}
+            <CardDescription className="text-white"> {metric.icon}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metric.currentCount.toLocaleString()}</div>
