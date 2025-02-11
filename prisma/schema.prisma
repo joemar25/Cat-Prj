@@ -1,6 +1,6 @@
 // ------------------------------
 // Generator & Datasource
-// ------------------------------
+// -----------------------------s-
 generator client {
   provider = "prisma-client-js"
 }

@@ -1,15 +1,4 @@
 services:
-  nextjs:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    depends_on:
-      - db-container
-    networks:
-      - custom-network
-
   db-container:
     image: postgres:15
     container_name: postgres
@@ -31,9 +20,22 @@ services:
     volumes:
       - .:/app
     command: >
-      sh -c "npm install @prisma/client && npx prisma generate && npx prisma db push && npm run prisma:seed"
+      sh -c "npm install @prisma/client && npx prisma generate && npx prisma db push --force-reset && npm run prisma:seed"
     depends_on:
       - db-container
+    networks:
+      - custom-network
+
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./public/assets:/app/public/assets
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prisma
     networks:
       - custom-network
 
@@ -62,6 +64,9 @@ services:
       - "53:53/udp"
       - "53:53/tcp"
       - "853:853/tcp"
+    depends_on:
+      - nextjs
+      - nginx
     networks:
       - custom-network
 
