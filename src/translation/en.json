@@ -328,7 +328,7 @@
   "birthCertificateForm_registration_distribution": "Birth Registration Distribution",
   "deathCertificateForm_registration_distribution": "Death Registration Distribution",
   "marriageCertificateForm_registration_distribution": "Marriage Registration Distribution",
-  "baseRegistryForm_registration_distribution": "Marriage Registration Distribution",
+  "baseRegistryForm_registration_distribution": "All Registration Distribution",
   "monthly_breakdown_baseRegistryForm": "Monthly breakdown of all registrations.",
   "monthly_breakdown_birthCertificateForm": "Monthly breakdown of birth registrations.",
   "monthly_breakdown_deathCertificateForm": "Monthly breakdown of death registrations.",
