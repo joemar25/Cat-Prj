@@ -192,9 +192,9 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
             className="bg-white dark:bg-muted p-4 rounded shadow-lg max-w-md z-50 mt-20"
             side="right"
           >
-            <AlertTitle>{t('summary_view_civil')}</AlertTitle> {/* Translated title */}
+            <AlertTitle>{t('summary_view_civil')}</AlertTitle>
             <AlertDescription>
-              {t('dashboard_description_civil')} {/* Translated description */}
+              {t('dashboard_description_civil')}
             </AlertDescription>
           </Tooltip.Content>
         </Tooltip.Root>
