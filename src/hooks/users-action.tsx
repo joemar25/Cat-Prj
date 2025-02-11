@@ -72,14 +72,6 @@ async function notifyUsersWithPermission(
   )
 }
 
-// Schema for creating a user in the admin panel
-const createUserSchema = z.object({
-  email: getEmailSchema(),
-  password: getPasswordSchema('password'),
-  name: getNameSchema(),
-  role: z.enum(['ADMIN', 'USER']).default('USER'),
-})
-
 // ===================================================
 // PASSWORD CHANGE ACTION (notifies only the affected user)
 // ===================================================

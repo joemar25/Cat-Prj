@@ -86,7 +86,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
     const [annotationFormOpen, setAnnotationFormOpen] = useState(false)
 
     // Handler to open the annotation dialog.
-    const handleIssueCertificate = (attachment: AttachmentWithCertifiedCopies) => {
+    const handleIssueCertificate = () => {
         setAnnotationFormOpen(true)
     }
 
@@ -279,7 +279,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                 )}
 
                                                 <Button
-                                                    onClick={() => handleIssueCertificate(attachment)}
+                                                    onClick={() => handleIssueCertificate()}
                                                     variant="secondary"
                                                     size="sm"
                                                 >

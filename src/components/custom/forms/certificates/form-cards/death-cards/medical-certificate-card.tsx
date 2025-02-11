@@ -1,6 +1,6 @@
 // MedicalCertificateCard.tsx
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import React from 'react';
+;
 
 const MedicalCertificateCard: React.FC = () => {
   return (

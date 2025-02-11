@@ -127,7 +127,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       } else {
         setShowMunicipalitySuggestions(
           !!value &&
-            getMatchingMunicipalityItems(value, municipalities).length > 0
+          getMatchingMunicipalityItems(value, municipalities).length > 0
         );
       }
     }, 100),
@@ -273,9 +273,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           return (
             <FormItem className={formItemClassName}>
               <FormLabel
-                className={`${formLabelClassName} ${
-                  !showError ? 'text-neutral-800' : ''
-                }`}
+                className={`${formLabelClassName} ${!showError ? 'text-neutral-800' : ''
+                  }`}
                 aria-invalid={showError ? 'true' : 'false'}
               >
                 {municipalityLabel}

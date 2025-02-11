@@ -1,99 +1,93 @@
-'use client';
-import { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Plus } from 'lucide-react';
+'use client'
+
+import { useState, useRef } from 'react'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 interface ImportPDFBirthProps {
-  open: boolean; // Add open prop
-  onOpenChange: (open: boolean) => void; // Add onOpenChange prop
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 export function ImportPDFMarriage({ open, onOpenChange }: ImportPDFBirthProps) {
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [previewPosition, setPreviewPosition] = useState({ x: 0, y: 0 });
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const dropRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null)
+  const [previewPosition, setPreviewPosition] = useState({ x: 0, y: 0 })
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const dropRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Handle file input change
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const file = event.target.files?.[0]
     if (file && file.type === 'application/pdf') {
-      setPdfFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      setPdfFile(file)
+      const url = URL.createObjectURL(file)
+      setPreviewUrl(url)
     }
-  };
+  }
 
   // Handle drag over the drop area
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setIsDragging(true);
-  };
+    event.preventDefault()
+    setIsDragging(true)
+  }
 
   // Handle file drop
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setIsDragging(false);
-    const file = event.dataTransfer.files?.[0];
+    event.preventDefault()
+    setIsDragging(false)
+    const file = event.dataTransfer.files?.[0]
     if (file && file.type === 'application/pdf') {
-      setPdfFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      setPdfFile(file)
+      const url = URL.createObjectURL(file)
+      setPreviewUrl(url)
     }
-  };
+  }
 
   // Handle clicking the drop area to trigger file input
   const handleClick = () => {
-    fileInputRef.current?.click();
-  };
+    fileInputRef.current?.click()
+  }
 
   // Handle dragging the PDF preview
   const handleDragStart = (event: React.DragEvent<HTMLIFrameElement>) => {
-    event.dataTransfer.setData('text/plain', ''); // Required for Firefox
-  };
+    event.dataTransfer.setData('text/plain', '')
+  }
 
   const handleDrag = (event: React.DragEvent<HTMLIFrameElement>) => {
-    const rect = dropRef.current?.getBoundingClientRect();
+    const rect = dropRef.current?.getBoundingClientRect()
     if (rect) {
       // Ensure the iframe stays within the bounds of the drop area
-      const newX = event.clientX - rect.left - 150; // Adjust for iframe width
-      const newY = event.clientY - rect.top - 200; // Adjust for iframe height
+      const newX = event.clientX - rect.left - 150
+      const newY = event.clientY - rect.top - 200
 
       setPreviewPosition({
-        x: Math.max(0, Math.min(newX, rect.width - 300)), // Limit X position
-        y: Math.max(0, Math.min(newY, rect.height - 400)), // Limit Y position
-      });
+        x: Math.max(0, Math.min(newX, rect.width - 300)),
+        y: Math.max(0, Math.min(newY, rect.height - 400)),
+      })
     }
-  };
+  }
 
   // Reset the state when cancel is clicked
   const handleCancel = () => {
-    setPdfFile(null);
-    setPreviewUrl(null);
-    setPreviewPosition({ x: 0, y: 0 });
-    setIsDragging(false);
-    onOpenChange(false); // Close the dialog using the onOpenChange prop
-  };
+    setPdfFile(null)
+    setPreviewUrl(null)
+    setPreviewPosition({ x: 0, y: 0 })
+    setIsDragging(false)
+    onOpenChange(false)
+  }
 
   // Handle the import action
   const handleImport = () => {
     if (pdfFile) {
       // Perform the import action here (e.g., upload the file)
-      console.log('Importing PDF:', pdfFile.name);
-      onOpenChange(false); // Close the dialog after import
+      console.log('Importing PDF:', pdfFile.name)
+      onOpenChange(false)
     } else {
-      alert('Please select a PDF file to import.');
+      alert('Please select a PDF file to import.')
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -120,7 +114,7 @@ export function ImportPDFMarriage({ open, onOpenChange }: ImportPDFBirthProps) {
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              overflow: 'hidden', // Ensure the iframe doesn't overflow
+              overflow: 'hidden',
             }}
           >
             {previewUrl ? (
@@ -133,8 +127,8 @@ export function ImportPDFMarriage({ open, onOpenChange }: ImportPDFBirthProps) {
                   position: 'absolute',
                   left: previewPosition.x,
                   top: previewPosition.y,
-                  width: '100%', // Fit the iframe to the drop area width
-                  height: '100%', // Fit the iframe to the drop area height
+                  width: '100%',
+                  height: '100%',
                   border: 'none',
                   cursor: 'move',
                 }}
@@ -149,7 +143,7 @@ export function ImportPDFMarriage({ open, onOpenChange }: ImportPDFBirthProps) {
               accept='application/pdf'
               onChange={handleFileChange}
               ref={fileInputRef}
-              style={{ display: 'none' }} // Hide the file input
+              style={{ display: 'none' }}
             />
           </div>
           <div className='mt-4 flex justify-end gap-2'>
@@ -161,5 +155,5 @@ export function ImportPDFMarriage({ open, onOpenChange }: ImportPDFBirthProps) {
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

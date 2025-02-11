@@ -1,5 +1,5 @@
 // src\types\user.ts
-import { Permission, Profile, Role, User as PrismaUser } from '@prisma/client'
+import { Permission, Profile, User as PrismaUser } from '@prisma/client'
 
 export interface UserWithRoleAndProfile extends PrismaUser {
     profile: Profile | null

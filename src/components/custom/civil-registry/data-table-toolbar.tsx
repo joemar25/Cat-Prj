@@ -1,30 +1,27 @@
 "use client"
 
-import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { ComponentType } from "react"
 import { useState, useEffect } from "react"
 import { DateRange } from "react-day-picker"
-import { Table } from "@tanstack/react-table"
+import { hasPermission } from "@/types/auth"
 import { Icons } from "@/components/ui/icons"
+import { Table } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
+import { useUser } from "@/context/user-context"
 import { Cross2Icon } from "@radix-ui/react-icons"
+import { CardContent } from "@/components/ui/card"
 import { Calendar } from "@/components/ui/calendar"
 import { ExtendedBaseRegistryForm } from "./columns"
 import { FormType, Permission } from "@prisma/client"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { DataTableViewOptions } from "@/components/custom/table/data-table-view-options"
 import { DataTableFacetedFilter } from "@/components/custom/table/data-table-faceted-filter"
 import { AddCivilRegistryFormDialog } from "@/components/custom/civil-registry/actions/add-form-dialog"
-
-import { useTranslation } from "react-i18next"
-import { useUser } from "@/context/user-context"
-import { hasPermission } from "@/types/auth"
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>
@@ -62,9 +59,9 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const yearColumn = table.getColumn("year")
   const registryDetailsColumn = table.getColumn("registryDetails")
   const detailsColumn = table.getColumn("details")
-  const [activeTab, setActiveTab] = useState<string | null>(null);
-  const canExport = hasPermission(permissions, Permission.REPORT_EXPORT)
   const canAdd = hasPermission(permissions, Permission.DOCUMENT_CREATE)
+
+  const [activeTab, setActiveTab] = useState<string | null>(null)
 
   useEffect(() => {
     const defaultVisibleColumns = [
@@ -179,47 +176,17 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     setBookSearch("")
   }
 
-  const handleExport = () => {
-    try {
-      const tableData = table.getCoreRowModel().rows.map((row) => row.original)
-      if (tableData.length === 0) {
-        toast.error(t("No data available to export"))
-        return
-      }
-      const headers = Object.keys(tableData[0]).join(",")
-      const rows = tableData
-        .map((row) =>
-          Object.values(row)
-            .map((value) => `"${value}"`)
-            .join(",")
-        )
-        .join("\n")
-      const csvContent = `${headers}\n${rows}`
-      const blob = new Blob([csvContent], { type: "text/csvcharset=utf-8" })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.setAttribute("download", "exported-data.csv")
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      toast.success(t("Data exported successfully"))
-    } catch (error) {
-      toast.error(t("Failed to export data"))
-      console.error("Export Error:", error)
-    }
-  }
   const handleToggleTab = (tab: string) => {
-    setActiveTab((prev) => (prev === tab ? null : tab)); // Toggle visibility
-  };
+    setActiveTab((prev) => (prev === tab ? null : tab))
+  }
 
   return (
     <div className="space-y-4">
       <Alert>
         <Icons.infoCircledIcon className="h-4 w-4" />
-        <AlertTitle>{t('summary_view_civil')}</AlertTitle> {/* Translated title */}
+        <AlertTitle>{t('summary_view_civil')}</AlertTitle>
         <AlertDescription>
-          {t('dashboard_description_civil')} {/* Translated description */}
+          {t('dashboard_description_civil')}
         </AlertDescription>
       </Alert>
       <div className="flex flex-col sm:flex-row">
@@ -276,13 +243,13 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                   placeholder={t("First name")}
                   value={firstNameSearch}
                   onChange={(event) => {
-                    setFirstNameSearch(event.target.value);
+                    setFirstNameSearch(event.target.value)
                     if (detailsColumn) {
                       detailsColumn.setFilterValue([
                         event.target.value,
                         middleNameSearch,
                         lastNameSearch,
-                      ]);
+                      ])
                     }
                   }}
                   className="w-full h-7"
@@ -291,13 +258,13 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                   placeholder={t("Middle name")}
                   value={middleNameSearch}
                   onChange={(event) => {
-                    setMiddleNameSearch(event.target.value);
+                    setMiddleNameSearch(event.target.value)
                     if (detailsColumn) {
                       detailsColumn.setFilterValue([
                         firstNameSearch,
                         event.target.value,
                         lastNameSearch,
-                      ]);
+                      ])
                     }
                   }}
                   className="w-full h-7"
@@ -306,13 +273,13 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                   placeholder={t("Last name")}
                   value={lastNameSearch}
                   onChange={(event) => {
-                    setLastNameSearch(event.target.value);
+                    setLastNameSearch(event.target.value)
                     if (detailsColumn) {
                       detailsColumn.setFilterValue([
                         firstNameSearch,
                         middleNameSearch,
                         event.target.value,
-                      ]);
+                      ])
                     }
                   }}
                   className="w-full h-7"

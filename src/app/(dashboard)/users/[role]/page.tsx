@@ -2,14 +2,10 @@ import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { getRoleDisplayName } from '@/types/auth'
 import { Skeleton } from '@/components/ui/skeleton'
+import { UserWithRoleAndProfile } from '@/types/user'
 import { UsersTableClient } from '@/components/custom/users/users-table-client'
 import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { UserWithRoleAndProfile } from '@/types/user'
-
-interface PageProps {
-  params: { role: string }
-}
 
 async function getUsers(roleSlug: string) {
   try {

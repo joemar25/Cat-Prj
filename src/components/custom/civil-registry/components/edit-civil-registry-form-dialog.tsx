@@ -12,7 +12,6 @@ interface EditCivilRegistryFormDialogProps {
 }
 
 export function EditCivilRegistryFormDialog({
-    form,
     open,
     onOpenChangeAction,
 }: EditCivilRegistryFormDialogProps) {

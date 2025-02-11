@@ -1,9 +1,8 @@
 'use client'
 
+
 import dynamic from 'next/dynamic'
-import React from 'react'
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
-import { useTranslation } from 'react-i18next'
 
 // Dynamically import certificate-specific details cards with SSR disabled.
 const DynamicBirthDetailsCard = dynamic(
@@ -24,7 +23,6 @@ interface CertificateDetailsProps {
 }
 
 export const CertificateDetails: React.FC<CertificateDetailsProps> = ({ form }) => {
-    const { t } = useTranslation()
 
     if (form.marriageCertificateForm) {
         return <DynamicMarriageDetailsCard form={form} />

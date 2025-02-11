@@ -3,7 +3,7 @@
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { formatDateTime } from '@/utils/date';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
-import React from 'react';
+;
 import { style } from './styles';
 
 interface DeathCertificatePDFProps {
@@ -222,7 +222,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
               </View>
             </View>
           </View>
-          
+
         </View>
         <View style={[style.gridColumn, style.paddingGlobal, { border: '2px solid #000', }]}>
           <Text style={[style.headerTitle, { textAlign: 'center' }]}>

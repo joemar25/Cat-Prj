@@ -1,17 +1,15 @@
 "use client"
 
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Input } from "@/components/ui/signin/signin-input"
 import { Label } from "@/components/ui/signin/signin-label"
-import { cn } from "@/lib/utils"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { handleCredentialsSignin } from "@/hooks/auth-actions"
 import { signInSchema, type SignInForm } from "@/lib/validation"
-import { PasswordInput } from "@/components/custom/general/password-input"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
-import type React from "react" // Added import for React
 
 const BottomGradient = () => {
   return (
@@ -64,49 +62,49 @@ export const SignInFormComponent = () => {
   }
 
   return (
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="my-2">
-          <LabelInputContainer className="mb-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <Label htmlFor="email">Email Address</Label>
-                  <FormControl>
-                    <Input id="email" placeholder="name@example.com" type="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </LabelInputContainer>
-          <LabelInputContainer className="mb-8">
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <Label htmlFor="password">Password</Label>
-                  <FormControl>
-                    <Input placeholder="••••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </LabelInputContainer>
-          <button
-  type="submit"
-  disabled={isLoading}
-  className="bg-gradient-to-br relative group/btn from-blue-600 dark:from-[var(--blueColor)] dark:to-[var(--blueColor)] to-blue-800 block dark:bg-[var(--blueColor)] w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--blueColor)_inset,0px_-1px_0px_0px_var(--blueColor)_inset]"
->
-  {isLoading ? "Signing In..." : "Sign In"} &rarr;
-  <BottomGradient />
-</button>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="my-2">
+        <LabelInputContainer className="mb-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <Label htmlFor="email">Email Address</Label>
+                <FormControl>
+                  <Input id="email" placeholder="name@example.com" type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </LabelInputContainer>
+        <LabelInputContainer className="mb-8">
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <Label htmlFor="password">Password</Label>
+                <FormControl>
+                  <Input placeholder="••••••••" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </LabelInputContainer>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="bg-gradient-to-br relative group/btn from-blue-600 dark:from-[var(--blueColor)] dark:to-[var(--blueColor)] to-blue-800 block dark:bg-[var(--blueColor)] w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--blueColor)_inset,0px_-1px_0px_0px_var(--blueColor)_inset]"
+        >
+          {isLoading ? "Signing In..." : "Sign In"} &rarr;
+          <BottomGradient />
+        </button>
 
-        </form>
-      </Form>
+      </form>
+    </Form>
   )
 }
 

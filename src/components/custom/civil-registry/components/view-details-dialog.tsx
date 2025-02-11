@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+
 import { useTranslation } from 'react-i18next'
 import { BaseDetailsCard } from './base-details-card'
 import { BirthDetailsCard } from './birth-details-card'
