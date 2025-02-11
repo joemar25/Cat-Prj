@@ -22,9 +22,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { DataTableViewOptions } from "@/components/custom/table/data-table-view-options"
 import { DataTableFacetedFilter } from "@/components/custom/table/data-table-faceted-filter"
 import { AddCivilRegistryFormDialog } from "@/components/custom/civil-registry/actions/add-form-dialog"
+import * as Tooltip from "@radix-ui/react-tooltip"
 
-=======
->>>>>>> ca2a7a08c109907d024517dffc97204f294498a9
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>
 }
@@ -202,14 +201,6 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
       </Tooltip.Provider>
 
 
-    <div className="space-y-4">
-      <Alert>
-        <Icons.infoCircledIcon className="h-4 w-4" />
-        <AlertTitle>{t('summary_view_civil')}</AlertTitle>
-        <AlertDescription>
-          {t('dashboard_description_civil')}
-        </AlertDescription>
-      </Alert>
       <div className="flex flex-col sm:flex-row">
         <div className="flex-1">
           <CardContent className="p-2.5">
