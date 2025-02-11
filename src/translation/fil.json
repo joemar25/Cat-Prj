@@ -398,5 +398,12 @@
   "privacyTitle": "Privacy Settings",
   "privacyModeEnabled": "Privacy Mode On",
   "privacyModeDisabled": "Privacy Mode Off",
-  "privacyModeDescription": "Your data sharing and tracking settings are minimized."
+  "privacyModeDescription": "Your data sharing and tracking settings are minimized.",
+  "reports_dashboard": "Dashboard ng Ulat",
+  "document_requests": "Dokumento",
+  "user_activity": "Aktibidad",
+  "marriage_reports": "Kasal",
+  "birth_reports": "Kapanganakan",
+  "death_reports": "Kamatayan",
+  "tooltip_description": "Nagbibigay ang mga ulat ng detalyadong pananaw at pagsusuri ng datos batay sa nakolektang impormasyon. Ang mga ulat na ito ay tumutulong sa paggawa ng matalinong desisyon at pagsubaybay sa progreso sa paglipas ng panahon. Maaari mong tingnan, i-filter, at i-export ang mga datos para sa karagdagang paggamit."
 }

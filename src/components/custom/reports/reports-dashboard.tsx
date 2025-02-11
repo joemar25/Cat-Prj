@@ -8,21 +8,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { BirthReport } from "./birth-report"
 import { DeathReport } from "./death-report"
+import * as Tooltip from '@radix-ui/react-tooltip'
 import { DocumentReport } from "./document-report"
 import { MarriageReport } from "./marriage-report"
 import { UserActivityReport } from "./user-activity-report"
+import { useTranslation } from "react-i18next"
 
 export type ReportKey = "document" | "user-activity" | "marriage" | "birth" | "death"
 
-const reports: { key: ReportKey; label: string }[] = [
-    { key: "document", label: "Document Requests" },
-    { key: "user-activity", label: "User Activity" },
-    { key: "marriage", label: "Marriage Reports" },
-    { key: "birth", label: "Birth Reports" },
-    { key: "death", label: "Death Reports" },
+const reports: { key: ReportKey; labelKey: string }[] = [
+    { key: "document", labelKey: "document_requests" },
+    { key: "user-activity", labelKey: "user_activity" },
+    { key: "marriage", labelKey: "marriage_reports" },
+    { key: "birth", labelKey: "birth_reports" },
+    { key: "death", labelKey: "death_reports" },
 ]
+
 export const ReportsDashboard = () => {
     const [selectedReport, setSelectedReport] = useState<ReportKey>("document")
+    const { t } = useTranslation()
 
     const renderReport = () => {
         switch (selectedReport) {
@@ -42,17 +46,24 @@ export const ReportsDashboard = () => {
     }
 
     return (
-        <div className="w-full ml-0 mr-auto">
-            <Alert>
-                <Icons.infoCircledIcon className="h-4 w-4" />
-                <AlertTitle>Reports</AlertTitle>
-                <AlertDescription>
-                    Design is not final. But it is functional. Please provide feedback.
-                </AlertDescription>
-            </Alert>
+        <div className="w-full ml-0 mr-auto relative">
+            <Tooltip.Provider>
+                <Tooltip.Root>
+                    <Tooltip.Trigger asChild>
+                        <Icons.infoCircledIcon className="h-4 w-4 cursor-pointer absolute left-5 -top-1" />
+                    </Tooltip.Trigger>
+                    <Tooltip.Content className="bg-white p-4 rounded shadow-lg max-w-md mt-20 dark:bg-muted" side="right">
+                        <AlertTitle>{t('reports')}</AlertTitle>
+                        <AlertDescription>
+                            {t('tooltip_description')}
+                        </AlertDescription>
+                    </Tooltip.Content>
+                </Tooltip.Root>
+            </Tooltip.Provider>
+
             <div className="w-full">
                 <CardHeader>
-                    <CardTitle>Reports Dashboard</CardTitle>
+                    <CardTitle>{t('reports_dashboard')}</CardTitle>
                 </CardHeader>
                 <CardContent className="w-full">
                     <Tabs
@@ -63,7 +74,7 @@ export const ReportsDashboard = () => {
                         <TabsList className="grid w-full max-w-[700px] p-1 grid-cols-2 lg:grid-cols-5 mb-6 max-h-10">
                             {reports.map((report) => (
                                 <TabsTrigger key={report.key} value={report.key} className="p-1 px-4">
-                                    {report.label}
+                                    {t(report.labelKey)} {/* Use the translated label key here */}
                                 </TabsTrigger>
                             ))}
                         </TabsList>

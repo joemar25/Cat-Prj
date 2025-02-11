@@ -396,5 +396,12 @@
   "privacyTitle": "Privacy Settings",
   "privacyModeEnabled": "Privacy Mode On",
   "privacyModeDisabled": "Privacy Mode Off",
-  "privacyModeDescription": "Your data sharing and tracking settings are minimized."
+  "privacyModeDescription": "Your data sharing and tracking settings are minimized.",
+  "reports_dashboard": "Reports Dashboard",
+  "document_requests": "Document Requests",
+  "user_activity": "User Activity",
+  "marriage_reports": "Marriage Reports",
+  "birth_reports": "Birth Reports",
+  "death_reports": "Death Reports",
+  "tooltip_description": "Reports provide detailed insights and data analysis based on the collected information. These reports help in making informed decisions and tracking progress over time. You can view, filter, and export the data for further use."
 }
