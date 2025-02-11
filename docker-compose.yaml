@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - ./public/assets:/app/public/assets
     ports:
       - "3000:3000"
     depends_on:
@@ -24,6 +26,12 @@ services:
       - "5432:5432"
     networks:
       - custom-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_DATABASE}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
 
   prisma:
     image: node:18
@@ -34,6 +42,7 @@ services:
       sh -c "npm install @prisma/client && npx prisma generate && npx prisma db push && npm run prisma:seed"
     depends_on:
       - db-container
+    restart: on-failure
     networks:
       - custom-network
 

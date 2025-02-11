@@ -8,7 +8,7 @@ done
 
 # Push database schema
 echo "Pushing Prisma schema to the database..."
-npx prisma db push
+npx prisma db push --force-reset
 
 # Apply migrations
 echo "Applying migrations..."
