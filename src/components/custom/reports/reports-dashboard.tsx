@@ -8,10 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { BirthReport } from "./birth-report"
 import { DeathReport } from "./death-report"
-import * as Tooltip from '@radix-ui/react-tooltip'  // Import Tooltip
+import * as Tooltip from '@radix-ui/react-tooltip'
 import { DocumentReport } from "./document-report"
 import { MarriageReport } from "./marriage-report"
 import { UserActivityReport } from "./user-activity-report"
+import { useTranslation } from "react-i18next"
 
 export type ReportKey = "document" | "user-activity" | "marriage" | "birth" | "death"
 
@@ -25,7 +26,7 @@ const reports: { key: ReportKey; labelKey: string }[] = [
 
 export const ReportsDashboard = () => {
     const [selectedReport, setSelectedReport] = useState<ReportKey>("document")
-    const { t } = useTranslation() // Initialize the translation hook
+    const { t } = useTranslation()
 
     const renderReport = () => {
         switch (selectedReport) {
