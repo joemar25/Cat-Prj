@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useCallback, useState } from "react"
 import { Table } from "@tanstack/react-table"
@@ -13,6 +13,7 @@ import { useUser } from "@/context/user-context"
 import { hasPermission } from "@/types/auth"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Link } from "lucide-react"
+import * as Tooltip from '@radix-ui/react-tooltip'  // Import Tooltip
 
 interface DataTableToolbarProps<TData extends Role> {
     table: Table<TData>
@@ -22,32 +23,25 @@ export function DataTableToolbar<TData extends Role>({ table }: DataTableToolbar
     const { t } = useTranslation()
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
-    // Retrieve current user permissions from context.
     const { permissions } = useUser()
 
-    // Check permissions for creating and exporting roles.
     const canCreate = hasPermission(permissions, Permission.ROLE_CREATE)
     const canExport = hasPermission(permissions, Permission.ROLE_EXPORT)
 
-    // Get the "name" column for filtering.
     const nameColumn = table.getColumn("name")
 
-    // Handle search filter on the name column.
     const handleSearch = useCallback((value: string) => {
         if (nameColumn) {
             nameColumn.setFilterValue(value)
         }
     }, [nameColumn])
 
-    // Export function: extracts filtered rows from the table, converts them to CSV,
-    // and triggers a download.
     const handleExport = useCallback(() => {
         const tableData = table.getFilteredRowModel().rows.map((row) => row.original)
         if (tableData.length === 0) {
             console.error("No data available to export")
             return
         }
-        // Generate CSV headers from the keys of the first row.
         const headers = Object.keys(tableData[0]).join(",")
         const rows = tableData
             .map((row) =>
@@ -69,7 +63,6 @@ export function DataTableToolbar<TData extends Role>({ table }: DataTableToolbar
         console.info("Roles exported successfully")
     }, [table])
 
-    // Create role action: sends a POST request to create a role.
     const handleCreateRole = useCallback(async (data: any) => {
         try {
             const response = await fetch("/api/roles", {
@@ -84,14 +77,24 @@ export function DataTableToolbar<TData extends Role>({ table }: DataTableToolbar
     }, [])
 
     return (
-        <div>
-            <Alert>
-                <Icons.infoCircledIcon className="h-4 w-4" />
-                <AlertTitle>{t("summary_view_role")}</AlertTitle>
-                <AlertDescription>
-                    {t("dashboard_description_role")}.
-                </AlertDescription>
-            </Alert>
+        <div className="relative">
+            <Tooltip.Provider>
+                <Tooltip.Root>
+                    <Tooltip.Trigger asChild>
+                        <Icons.infoCircledIcon className="h-5 w-5 cursor-pointer absolute left-2 -top-7"/>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content 
+                        className="bg-white p-4 rounded shadow-lg max-w-md z-50 dark:bg-muted mt-20" 
+                        side="right"
+                    >
+                        <AlertTitle>{t("summary_view_role")}</AlertTitle>
+                        <AlertDescription>
+                            {t("dashboard_description_role")}
+                        </AlertDescription>
+                    </Tooltip.Content>
+                </Tooltip.Root>
+            </Tooltip.Provider>
+
             <div className="flex items-center justify-between mt-4">
                 {/* Left side: Search input */}
                 <div className="flex flex-1 items-center space-x-4">

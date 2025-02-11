@@ -15,6 +15,7 @@ import { useUser } from '@/context/user-context'
 import { hasPermission } from '@/types/auth'
 import { Permission } from '@prisma/client'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
+import * as Tooltip from '@radix-ui/react-tooltip'
 
 interface DataTableToolbarProps<TData extends User> {
   table: Table<TData>
@@ -52,14 +53,23 @@ export function DataTableToolbar<TData extends User>({
   }
 
   return (
-    <div>
-      <Alert>
-        <Icons.infoCircledIcon className="h-4 w-4" />
-        <AlertTitle>{t('summary_view_user')}</AlertTitle> {/* Translated title */}
-        <AlertDescription>
-          {t('dashboard_description_user')} {/* Translated description */}
-        </AlertDescription>
-      </Alert>
+    <div className='relative'>
+      <Tooltip.Provider>
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <Icons.infoCircledIcon className="h-5 w-5 cursor-pointer left-2 -top-7 absolute" />
+          </Tooltip.Trigger>
+          <Tooltip.Content 
+            className="bg-white dark:bg-muted p-4 rounded shadow-lg max-w-md mt-20 z-50" 
+            side="right"
+          >
+            <AlertTitle>{t('summary_view_user')}</AlertTitle> {/* Translated title */}
+            <AlertDescription>
+              {t('dashboard_description_user')} {/* Translated description */}
+            </AlertDescription>
+          </Tooltip.Content>
+        </Tooltip.Root>
+      </Tooltip.Provider>
 
       <div className="flex items-center justify-between mt-4">
         <div className="flex flex-1 items-center space-x-4">
@@ -72,24 +82,6 @@ export function DataTableToolbar<TData extends User>({
               className="h-10 w-[200px] lg:w-[300px] pl-10"
             />
           </div>
-          {/* 
-        mar-note: Do not remove this comment, as this role column can be used for future purposes.
-        {roleColumn && (
-          <DataTableFacetedFilter
-            column={roleColumn}
-            title='Role'
-            options={userRoles.map((role) => ({
-              label: role.label,
-              value: role.value,
-              icon:
-                role.value === UserRole.ADMIN
-                  ? Icons.shield
-                  : role.value === UserRole.STAFF
-                    ? Icons.user
-                    : Icons.userCog,
-            }))}
-          />
-        )} */}
 
           {statusColumn && (
             <DataTableFacetedFilter
