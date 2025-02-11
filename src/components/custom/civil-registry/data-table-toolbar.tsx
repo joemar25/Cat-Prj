@@ -229,14 +229,14 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               <div className={`flex gap-6 justify-center w-full max-w-[1000px] ${activeTab === null ? "" : "h-12"}`}>
                 <button
                   className={`hover:border-chart-2/50 dark:hover:border-chart-3 w-full max-h-9 flex items-center justify-center text-center rounded-lg p-2 transition-all
-        ${activeTab === "basic" ? "rounded-md bg-muted border border-chart-2/50 dark:border-chart-3" : "border"}`}
+        ${activeTab === "basic" ? "rounded-md bg-chart-5 text-white border border-chart-2/50 dark:border-chart-3" : "border"}`}
                   onClick={() => handleToggleTab("basic")}
                 >
                   {t("Basic Search")}
                 </button>
                 <button
                   className={`hover:border-chart-2/50 dark:hover:border-chart-3 w-full max-h-9 flex items-center justify-center text-center rounded-lg p-2 transition-all
-        ${activeTab === "advanced" ? "rounded-md bg-muted border border-chart-2/50 dark:border-chart-3" : "border"}`}
+        ${activeTab === "advanced" ? "rounded-md bg-chart-5 text-white border border-chart-2/50 dark:border-chart-3" : "border"}`}
                   onClick={() => handleToggleTab("advanced")}
                 >
                   {t("Name Search")}
@@ -252,19 +252,19 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                 <Input
                   placeholder={t("Search forms...")}
                   onChange={(event) => table.setGlobalFilter(event.target.value)}
-                  className="w-full h-7"
+                  className="w-full h-8.5"
                 />
                 <Input
                   placeholder={t("Page number...")}
                   value={pageSearch}
                   onChange={(event) => handlePageSearch(event.target.value)}
-                  className="w-full h-7"
+                  className="w-full h-8.5"
                 />
                 <Input
                   placeholder={t("Book number...")}
                   value={bookSearch}
                   onChange={(event) => handleBookSearch(event.target.value)}
-                  className="w-full h-7"
+                  className="w-full h-8.5"
                 />
               </div>
             )}
@@ -285,7 +285,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                       ]);
                     }
                   }}
-                  className="w-full h-7"
+                  className="w-full h-8.5"
                 />
                 <Input
                   placeholder={t("Middle name")}
@@ -300,7 +300,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                       ]);
                     }
                   }}
-                  className="w-full h-7"
+                  className="w-full h-8.5"
                 />
                 <Input
                   placeholder={t("Last name")}
@@ -315,7 +315,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
                       ]);
                     }
                   }}
-                  className="w-full h-7"
+                  className="w-full h-8.5"
                 />
               </div>
             )}
