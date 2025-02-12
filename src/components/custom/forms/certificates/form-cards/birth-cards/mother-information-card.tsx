@@ -10,11 +10,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-;
+import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
-
 interface MotherInformationCardProps {
   motherResidenceNcrMode: boolean;
   setMotherResidenceNcrMode: (value: boolean) => void;
@@ -24,7 +23,24 @@ const MotherInformationCard: React.FC<MotherInformationCardProps> = ({
   motherResidenceNcrMode,
   setMotherResidenceNcrMode,
 }) => {
-  const { control } = useFormContext<BirthCertificateFormValues>();
+  // Inside your MotherInformationCard component
+  const { control, watch, trigger } =
+    useFormContext<BirthCertificateFormValues>();
+
+  // Watch the children statistics fields for real-time validation
+  const totalChildren = watch('motherInfo.totalChildrenBornAlive');
+  const livingChildren = watch('motherInfo.childrenStillLiving');
+  const deadChildren = watch('motherInfo.childrenNowDead');
+
+  useEffect(() => {
+    if (totalChildren && livingChildren && deadChildren) {
+      trigger([
+        'motherInfo.totalChildrenBornAlive',
+        'motherInfo.childrenStillLiving',
+        'motherInfo.childrenNowDead',
+      ]);
+    }
+  }, [totalChildren, livingChildren, deadChildren, trigger]);
 
   return (
     <Card>
@@ -212,6 +228,9 @@ const MotherInformationCard: React.FC<MotherInformationCardProps> = ({
                       />
                     </FormControl>
                     <FormMessage />
+                    <p className='text-sm text-muted-foreground'>
+                      Should equal the sum of living and deceased children
+                    </p>
                   </FormItem>
                 )}
               />

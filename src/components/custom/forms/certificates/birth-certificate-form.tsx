@@ -26,7 +26,6 @@ import { toast } from 'sonner';
 
 import { FormType } from '@prisma/client';
 
-import AffidavitFormsCard from './form-cards/birth-cards/affidavit-form-card';
 import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
 import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
 import ChildInformationCard from './form-cards/birth-cards/child-information-card';
@@ -34,6 +33,7 @@ import FatherInformationCard from './form-cards/birth-cards/father-information-c
 import MarriageOfParentsCard from './form-cards/birth-cards/marriage-parents-card';
 import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
 
+import AffidavitFormsCard from './form-cards/birth-cards/affidavit-form-card';
 import PreparedByCard from './form-cards/shared-components/prepared-by-card';
 import ReceivedByCard from './form-cards/shared-components/received-by-card';
 import RegisteredAtOfficeCard from './form-cards/shared-components/registered-at-office-card';
@@ -106,16 +106,16 @@ export default function BirthCertificateForm({
 
       if (result.success) {
         toast.success('Birth Certificate Registration', {
-          description: 'Birth certificate has been registered successfully',
+          description: result.message,
         });
         onOpenChange(false);
         formMethods.reset();
-      } else if (result.warning) {
+      } else if ('warning' in result && result.warning) {
         setPendingSubmission(values);
         setShowAlert(true);
       } else {
         toast.error('Registration Error', {
-          description: result.error || 'Failed to register birth certificate',
+          description: 'message' in result ? result.message : result.error,
         });
       }
     } catch (error) {
@@ -139,13 +139,13 @@ export default function BirthCertificateForm({
 
         if (result.success) {
           toast.success('Birth Certificate Registration', {
-            description: 'Birth certificate has been registered successfully',
+            description: result.message,
           });
           onOpenChange(false);
           formMethods.reset();
         } else {
           toast.error('Registration Error', {
-            description: result.error || 'Failed to register birth certificate',
+            description: 'message' in result ? result.message : result.error,
           });
         }
       } catch (error) {

@@ -61,20 +61,45 @@ export const createBirthCertificateSchema = (
     }),
 
     // Mother Information
-    motherInfo: z.object({
-      firstName: nameSchema.shape.firstName,
-      middleName: nameSchema.shape.middleName,
-      lastName: nameSchema.shape.lastName,
-      citizenship: z.string().min(1, 'Citizenship is required'),
-      religion: z.string().min(1, 'Religion is required'),
-      occupation: z.string().min(1, 'Occupation is required'),
-      age: z.string().min(1, 'Age is required'),
-      totalChildrenBornAlive: z.string().min(1, 'Required'),
-      childrenStillLiving: z.string().min(1, 'Required'),
-      childrenNowDead: z.string().min(1, 'Required'),
-      // Use the provided prop for mother's residence:
-      residence: addressSchema(motherResidenceNcrMode),
-    }),
+    motherInfo: z
+      .object({
+        firstName: nameSchema.shape.firstName,
+        middleName: nameSchema.shape.middleName,
+        lastName: nameSchema.shape.lastName,
+        citizenship: z.string().min(1, 'Citizenship is required'),
+        religion: z.string().min(1, 'Religion is required'),
+        occupation: z.string().min(1, 'Occupation is required'),
+        age: z.string().min(1, 'Age is required'),
+        totalChildrenBornAlive: z
+          .string()
+          .min(1, 'Required')
+          .refine((val) => !isNaN(Number(val)), 'Must be a valid number')
+          .refine((val) => Number(val) >= 0, 'Cannot be negative'),
+        childrenStillLiving: z
+          .string()
+          .min(1, 'Required')
+          .refine((val) => !isNaN(Number(val)), 'Must be a valid number')
+          .refine((val) => Number(val) >= 0, 'Cannot be negative'),
+        childrenNowDead: z
+          .string()
+          .min(1, 'Required')
+          .refine((val) => !isNaN(Number(val)), 'Must be a valid number')
+          .refine((val) => Number(val) >= 0, 'Cannot be negative'),
+        residence: addressSchema(motherResidenceNcrMode),
+      })
+      .refine(
+        (data) => {
+          const total = Number(data.totalChildrenBornAlive);
+          const living = Number(data.childrenStillLiving);
+          const dead = Number(data.childrenNowDead);
+          return total === living + dead;
+        },
+        {
+          message:
+            'Total children born alive must equal the sum of children still living and children now dead',
+          path: ['totalChildrenBornAlive'], // This will show the error on the totalChildrenBornAlive field
+        }
+      ),
 
     // Father Information
     fatherInfo: z.object({
@@ -189,44 +214,44 @@ export type BirthCertificateFormValues = WithNullableDates<
 // Production default values with real data and affidavit sections turned off.
 export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
   // Registry Information
-  registryNumber: '2024-6969',
+  registryNumber: '2024-0001',
   province: 'Metro Manila',
   cityMunicipality: 'Quezon City',
 
   // Child Information
   childInfo: {
-    firstName: 'Juan',
-    middleName: 'Santos',
-    lastName: 'Dela Cruz',
+    firstName: 'Gabriel',
+    middleName: 'Reyes',
+    lastName: 'De Guzman',
     sex: 'Male',
-    dateOfBirth: new Date('2024-01-01T08:30:00'),
+    dateOfBirth: new Date('2024-02-10T15:45:00'),
     placeOfBirth: {
-      hospital: 'St. Luke Hospital',
+      hospital: 'Quirino Memorial Medical Center',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
     },
     typeOfBirth: 'Single',
     multipleBirthOrder: '',
-    birthOrder: '1',
-    weightAtBirth: '3.2',
+    birthOrder: '2',
+    weightAtBirth: '2.8',
   },
 
   // Mother Information
   motherInfo: {
-    firstName: 'Maria',
-    middleName: 'Luisa',
-    lastName: 'Santos',
+    firstName: 'Isabella',
+    middleName: 'Santos',
+    lastName: 'Reyes',
     citizenship: 'Filipino',
     religion: 'Roman Catholic',
-    occupation: 'Teacher',
-    age: '28',
+    occupation: 'Accountant',
+    age: '31',
     totalChildrenBornAlive: '2',
     childrenStillLiving: '2',
     childrenNowDead: '0',
     residence: {
-      houseNumber: '45B',
-      street: 'C. Raymundo Ave',
-      barangay: 'Pinyahan',
+      houseNumber: '143',
+      street: 'Maginhawa Street',
+      barangay: 'Teachers Village',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -235,17 +260,17 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
 
   // Father Information
   fatherInfo: {
-    firstName: 'Jose',
-    middleName: 'Ramon',
-    lastName: 'Dela Cruz',
+    firstName: 'Antonio',
+    middleName: 'Cruz',
+    lastName: 'De Guzman',
     citizenship: 'Filipino',
     religion: 'Roman Catholic',
-    occupation: 'Engineer',
-    age: '32',
+    occupation: 'Software Developer',
+    age: '33',
     residence: {
-      houseNumber: '78A',
-      street: 'Ortigas Avenue',
-      barangay: 'Camp 4',
+      houseNumber: '143',
+      street: 'Maginhawa Street',
+      barangay: 'Teachers Village',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -254,11 +279,11 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
 
   // Marriage of Parents
   parentMarriage: {
-    date: new Date('2023-10-15T00:00:00'),
+    date: new Date('2020-06-25T00:00:00'),
     place: {
-      houseNumber: '78A',
-      street: 'Ortigas Avenue',
-      barangay: 'Camp 4',
+      houseNumber: '1',
+      street: 'Cathedral Road',
+      barangay: 'San Roque',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
@@ -269,39 +294,39 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
   attendant: {
     type: 'Physician',
     certification: {
-      time: parseTimeStringToDate('08:30'),
-      signature: 'Dr. Reyes',
-      name: 'Dr. Carla Reyes',
-      title: 'Pediatrician',
+      time: parseTimeStringToDate('15:45'),
+      signature: 'Dr. Santos',
+      name: 'Dr. Patricia Santos',
+      title: 'OB-GYN',
       address: {
-        houseNumber: '12',
-        street: 'Legarda St',
-        barangay: 'Escolta',
-        cityMunicipality: 'Manila',
+        houseNumber: '88',
+        street: 'Matalino Street',
+        barangay: 'Central',
+        cityMunicipality: 'Quezon City',
         province: 'Metro Manila',
         country: 'Philippines',
       },
-      date: new Date('2024-01-01T08:30:00'),
+      date: new Date('2024-02-10T15:45:00'),
     },
   },
 
   // Informant
   informant: {
-    signature: 'JoseDC',
-    name: 'Jose Dela Cruz',
+    signature: 'ADGuzman',
+    name: 'Antonio De Guzman',
     relationship: 'Father',
     address: {
-      houseNumber: '78A',
-      street: 'Ortigas Avenue',
-      barangay: 'Camp 4',
+      houseNumber: '143',
+      street: 'Maginhawa Street',
+      barangay: 'Teachers Village',
       cityMunicipality: 'Quezon City',
       province: 'Metro Manila',
       country: 'Philippines',
     },
-    date: new Date('2024-01-03T09:00:00'),
+    date: new Date('2024-02-11T10:30:00'),
   },
 
-  // Prepared By
+  // Keeping original preparer info
   preparedBy: {
     signature: 'Staff3',
     name: 'Staff User 3',
@@ -309,7 +334,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     date: new Date('2024-01-04T10:00:00'),
   },
 
-  // Received By
+  // Keeping original received by info
   receivedBy: {
     signature: 'Staff4',
     name: 'Staff User 4',
@@ -317,7 +342,7 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     date: new Date('2024-01-05T11:00:00'),
   },
 
-  // Registered By Civil Registry
+  // Keeping original registered by info
   registeredByOffice: {
     signature: 'Admin1',
     name: 'Admin User 1',
@@ -325,11 +350,9 @@ export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
     date: new Date('2024-01-06T12:00:00'),
   },
 
-  // Affidavit of Paternity: set flag to false and omit details
+  // Affidavit sections
   hasAffidavitOfPaternity: false,
   affidavitOfPaternityDetails: null,
-
-  // Delayed Registration: set flag to false and omit details
   isDelayedRegistration: false,
   affidavitOfDelayedRegistration: null,
 
