@@ -69,7 +69,7 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
   // Watch the staff name (e.g., "registeredByOffice.name")
   const selectedName = watch(`${fieldPrefix}.name` as Path<T>);
 
-  // Create constants for field names
+  // Field names for auto-filled fields
   const titleFieldName = `${fieldPrefix}.title` as Path<T>;
   const signatureFieldName = `${fieldPrefix}.signature` as Path<T>;
 
@@ -83,7 +83,7 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
         shouldDirty: true,
       });
 
-      // Only set signature if showSignature is true
+      // Update signature if needed
       if (showSignature) {
         setValue(signatureFieldName, staff.name as any, {
           shouldValidate: isSubmitted,
@@ -101,11 +101,11 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
     showSignature,
   ]);
 
-  // Calculate the number of grid columns based on visible fields
+  // Determine grid columns based on which fields are visible
   const getGridCols = () => {
-    let baseCols = 2; // Start with 2 for name and title
-    if (showSignature) baseCols++; // Add column for signature if shown
-    if (!hideDate) baseCols++; // Add column for date if not hidden
+    let baseCols = 2; // Name and title fields
+    if (showSignature) baseCols++; // Add column for signature
+    if (!hideDate) baseCols++; // Add column for date if visible
     return `md:grid-cols-${baseCols}`;
   };
 
@@ -123,7 +123,10 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value ?? ''}
+                >
                   <FormControl>
                     <SelectTrigger className='h-10'>
                       <SelectValue placeholder='Select staff name' />
@@ -152,7 +155,8 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
                 <FormControl>
                   <Input
                     placeholder='Title will auto-fill'
-                    {...field}
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
                     className='h-10'
                     disabled
                   />
@@ -162,7 +166,7 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
             )}
           />
 
-          {/* Signature Field - Only shown if showSignature is true */}
+          {/* Signature Field - Only rendered if showSignature is true */}
           {showSignature && (
             <FormField
               control={control}
@@ -172,9 +176,10 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
                   <FormLabel>Signature</FormLabel>
                   <FormControl>
                     <Input
-                      {...field}
-                      className='h-10'
                       placeholder='Signature will auto-fill'
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      className='h-10'
                       disabled
                     />
                   </FormControl>
@@ -184,14 +189,17 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
             />
           )}
 
-          {/* Date Field - Only shown if hideDate is false */}
+          {/* Date Field - Rendered only if hideDate is false */}
           {!hideDate && (
             <FormField
               control={control}
               name={`${fieldPrefix}.date` as Path<T>}
               render={({ field }) => (
                 <DatePickerField
-                  field={{ value: field.value, onChange: field.onChange }}
+                  field={{
+                    value: field.value ?? null,
+                    onChange: field.onChange,
+                  }}
                   label='Date'
                   placeholder='Select date'
                 />

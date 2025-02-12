@@ -982,9 +982,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </Text>
               <Text style={[back.textStyle, { marginLeft: 12 }]}>at</Text>
               <Text style={[back.textStyle, back.formFieldWider]}>
-                {`${childInfo?.placeOfBirth?.hospital || ''}, ${
-                  childInfo?.placeOfBirth?.cityMunicipality || ''
-                }, ${childInfo?.placeOfBirth?.province || ''}`}
+                {[
+                  childInfo?.placeOfBirth?.hospital,
+                  childInfo?.placeOfBirth?.cityMunicipality,
+                  childInfo?.placeOfBirth?.province,
+                ]
+                  .filter(Boolean)
+                  .join(', ')}
               </Text>
             </View>
             <View
@@ -1151,11 +1155,17 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </View>
               <View style={back.signatureBlock}>
                 <Text style={[back.textStyle, back.signatureText]}>
-                  {affidavitOfPaternityDetails?.adminOfficer?.address
-                    ?.cityMunicipality || ''}
-                  ,{' '}
-                  {affidavitOfPaternityDetails?.adminOfficer?.address
-                    ?.province || ''}
+                  {[
+                    affidavitOfPaternityDetails?.adminOfficer?.address
+                      ?.barangay,
+                    affidavitOfPaternityDetails?.adminOfficer?.address
+                      ?.cityMunicipality,
+                    affidavitOfPaternityDetails?.adminOfficer?.address
+                      ?.province,
+                    affidavitOfPaternityDetails?.adminOfficer?.address?.country,
+                  ]
+                    .filter(Boolean)
+                    .join(', ')}
                 </Text>
                 <Text style={[back.textStyle, back.captionText]}>
                   (Address)

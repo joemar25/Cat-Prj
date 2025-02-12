@@ -7,7 +7,7 @@ import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/dea
 import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
 import { formatAddress } from '@/lib/utils/location-helpers';
 import { isValidDate } from '@/utils/certificate-helper-functions';
-import { FormType } from '@prisma/client';
+import { FormType, Sex } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 type BirthCertificateResponse =
@@ -558,6 +558,28 @@ export async function createBirthCertificate(
         throw new Error('Preparer not found');
       }
 
+      // Build optional payloads.
+      // Only include the nested object if it is not null.
+      const affidavitOfPaternityPayload =
+        sanitizedData.hasAffidavitOfPaternity &&
+        sanitizedData.affidavitOfPaternityDetails !== null
+          ? {
+              affidavitOfPaternityDetails:
+                sanitizedData.affidavitOfPaternityDetails,
+            }
+          : {};
+
+      const delayedRegistrationPayload =
+        sanitizedData.isDelayedRegistration &&
+        sanitizedData.affidavitOfDelayedRegistration !== null
+          ? {
+              reasonForDelay:
+                sanitizedData.affidavitOfDelayedRegistration.reasonForDelay,
+              affidavitOfDelayedRegistration:
+                sanitizedData.affidavitOfDelayedRegistration,
+            }
+          : {};
+
       // Create the base registry form with nested birth certificate
       const baseForm = await tx.baseRegistryForm.create({
         data: {
@@ -580,7 +602,7 @@ export async function createBirthCertificate(
                 middleName: sanitizedData.childInfo.middleName,
                 lastName: sanitizedData.childInfo.lastName,
               },
-              sex: sanitizedData.childInfo.sex,
+              sex: sanitizedData.childInfo.sex as Sex,
               dateOfBirth: sanitizedData.childInfo.dateOfBirth || new Date(),
               placeOfBirth: sanitizedData.childInfo.placeOfBirth,
               typeOfBirth: sanitizedData.childInfo.typeOfBirth,
@@ -653,26 +675,10 @@ export async function createBirthCertificate(
                 title: sanitizedData.preparedBy.title.trim(),
                 date: sanitizedData.preparedBy.date || new Date(),
               },
-
               hasAffidavitOfPaternity: sanitizedData.hasAffidavitOfPaternity,
-              ...(sanitizedData.hasAffidavitOfPaternity &&
-              sanitizedData.affidavitOfPaternityDetails
-                ? {
-                    affidavitOfPaternityDetails:
-                      sanitizedData.affidavitOfPaternityDetails,
-                  }
-                : {}),
+              ...affidavitOfPaternityPayload,
               isDelayedRegistration: sanitizedData.isDelayedRegistration,
-              ...(sanitizedData.isDelayedRegistration &&
-              sanitizedData.affidavitOfDelayedRegistration
-                ? {
-                    reasonForDelay:
-                      sanitizedData.affidavitOfDelayedRegistration
-                        .reasonForDelay,
-                    affidavitOfDelayedRegistration:
-                      sanitizedData.affidavitOfDelayedRegistration,
-                  }
-                : {}),
+              ...delayedRegistrationPayload,
             },
           },
           receivedBy: sanitizedData.receivedBy.name,
