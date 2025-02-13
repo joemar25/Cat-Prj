@@ -41,12 +41,23 @@ export interface RegisteredAtOfficeCardProps<
    * Defaults to CIVIL_REGISTRAR_STAFF.
    */
   staffOptions?: { id: string; name: string; title: string }[];
+  /**
+   * When true, the date field will not be rendered.
+   */
+  hideDate?: boolean;
+  /**
+   * When true, displays a signature field.
+   * @default false - To maintain backward compatibility
+   */
+  showSignature?: boolean;
 }
 
 const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
   fieldPrefix = 'registeredByOffice',
   cardTitle = 'Registered at the Office of Civil Registrar',
   staffOptions = CIVIL_REGISTRAR_STAFF,
+  hideDate = false,
+  showSignature = false, // Default to false for backward compatibility
 }: RegisteredAtOfficeCardProps<T>) => {
   const {
     control,
@@ -58,20 +69,45 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
   // Watch the staff name (e.g., "registeredByOffice.name")
   const selectedName = watch(`${fieldPrefix}.name` as Path<T>);
 
-  // Create a constant for the title field name.
+  // Field names for auto-filled fields
   const titleFieldName = `${fieldPrefix}.title` as Path<T>;
+  const signatureFieldName = `${fieldPrefix}.signature` as Path<T>;
 
-  // Auto-fill the title when a staff name is selected.
+  // Auto-fill the title and signature when a staff name is selected
   useEffect(() => {
     const staff = staffOptions.find((staff) => staff.name === selectedName);
     if (staff) {
-      // Cast staff.title to any to satisfy the setValue signature.
+      // Update title
       setValue(titleFieldName, staff.title as any, {
         shouldValidate: isSubmitted,
         shouldDirty: true,
       });
+
+      // Update signature if needed
+      if (showSignature) {
+        setValue(signatureFieldName, staff.name as any, {
+          shouldValidate: isSubmitted,
+          shouldDirty: true,
+        });
+      }
     }
-  }, [selectedName, setValue, isSubmitted, staffOptions, titleFieldName]);
+  }, [
+    selectedName,
+    setValue,
+    isSubmitted,
+    staffOptions,
+    titleFieldName,
+    signatureFieldName,
+    showSignature,
+  ]);
+
+  // Determine grid columns based on which fields are visible
+  const getGridCols = () => {
+    let baseCols = 2; // Name and title fields
+    if (showSignature) baseCols++; // Add column for signature
+    if (!hideDate) baseCols++; // Add column for date if visible
+    return `md:grid-cols-${baseCols}`;
+  };
 
   return (
     <Card>
@@ -79,7 +115,7 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
         <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+        <div className={`grid grid-cols-1 ${getGridCols()} gap-4`}>
           {/* Name Field */}
           <FormField
             control={control}
@@ -87,7 +123,10 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value ?? ''}
+                >
                   <FormControl>
                     <SelectTrigger className='h-10'>
                       <SelectValue placeholder='Select staff name' />
@@ -116,7 +155,8 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
                 <FormControl>
                   <Input
                     placeholder='Title will auto-fill'
-                    {...field}
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
                     className='h-10'
                     disabled
                   />
@@ -126,21 +166,46 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
             )}
           />
 
-          {/* Date Field */}
-          <FormField
-            control={control}
-            name={`${fieldPrefix}.date` as Path<T>}
-            render={({ field }) => (
-              <DatePickerField
-                field={{
-                  value: field.value,
-                  onChange: field.onChange,
-                }}
-                label='Date'
-                placeholder='Select date'
-              />
-            )}
-          />
+          {/* Signature Field - Only rendered if showSignature is true */}
+          {showSignature && (
+            <FormField
+              control={control}
+              name={signatureFieldName}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Signature</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='Signature will auto-fill'
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      className='h-10'
+                      disabled
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {/* Date Field - Rendered only if hideDate is false */}
+          {!hideDate && (
+            <FormField
+              control={control}
+              name={`${fieldPrefix}.date` as Path<T>}
+              render={({ field }) => (
+                <DatePickerField
+                  field={{
+                    value: field.value ?? null,
+                    onChange: field.onChange,
+                  }}
+                  label='Date'
+                  placeholder='Select date'
+                />
+              )}
+            />
+          )}
         </div>
       </CardContent>
     </Card>

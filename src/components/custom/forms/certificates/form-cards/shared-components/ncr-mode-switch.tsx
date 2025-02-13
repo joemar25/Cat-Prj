@@ -23,7 +23,7 @@ const NCRModeSwitch: React.FC<NCRModeSwitchProps> = ({
         htmlFor='ncr-mode'
         className='text-xs text-muted-foreground cursor-pointer transition-colors hover:text-foreground'
       >
-        NCR Mode
+        National Capital Region
       </Label>
     </div>
   );

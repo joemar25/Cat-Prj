@@ -68,7 +68,7 @@ export function NavMain({ items }: NavMainProps) {
                         <ItemIcon className={`w-6 h-6 transition-colors duration-150 
                           ${isActive ? '' : 'text-muted-foreground'}`}/>
                       )}
-                      <span className={`${isActive ? '' : 'text-muted-foreground'}`}>
+                      <span className={`${isActive ? 'text-white' : 'text-muted-foreground'}`}>
                         {item.title}
                       </span>
                       {item.notViewedCount !== undefined && item.notViewedCount > 0 && (

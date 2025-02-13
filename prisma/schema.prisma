@@ -1,6 +1,6 @@
 // ------------------------------
 // Generator & Datasource
-// ------------------------------
+// -----------------------------s-
 generator client {
   provider = "prisma-client-js"
 }
@@ -156,7 +156,7 @@ model MarriageCertificateForm {
   husbandDateOfBirth          DateTime
   husbandAge                  Int
   husbandPlaceOfBirth         Json
-  husbandSex                  String
+  husbandSex                  Sex?
   husbandCitizenship          String
   husbandResidence            String
   husbandReligion             String?
@@ -171,7 +171,7 @@ model MarriageCertificateForm {
   wifeDateOfBirth             DateTime
   wifeAge                     Int
   wifePlaceOfBirth            Json
-  wifeSex                     String
+  wifeSex                     Sex?
   wifeCitizenship             String
   wifeResidence               String
   wifeReligion                String?
@@ -209,7 +209,7 @@ model BirthCertificateForm {
   id                             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   baseFormId                     String?           @unique @db.Uuid
   childName                      Json
-  sex                            String
+  sex                            Sex
   dateOfBirth                    DateTime
   placeOfBirth                   Json
   typeOfBirth                    String
@@ -253,7 +253,7 @@ model DeathCertificateForm {
   id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   baseFormId          String?           @unique @db.Uuid
   deceasedName        Json
-  sex                 String
+  sex                 Sex
   dateOfDeath         DateTime
   placeOfDeath        Json
   dateOfBirth         DateTime?
@@ -621,7 +621,7 @@ model CivilRegistryForm1A {
   id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   baseFormId           String?                @unique @db.Uuid
   nameOfChild          String
-  sex                  String?
+  sex                  Sex?
   dateOfBirth          DateTime
   placeOfBirth         String
   nameOfMother         String
@@ -643,7 +643,7 @@ model CivilRegistryForm2A {
   id             String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   baseFormId     String?                @unique @db.Uuid
   nameOfDeceased String
-  sex            String?
+  sex            Sex?
   age            Int?
   civilStatus    String?
   citizenship    String?
@@ -811,6 +811,11 @@ enum CivilRegistryFormType {
 enum NotificationStatus {
   favorite
   archive
+}
+
+enum Sex {
+  Male
+  Female
 }
 
 // pnpm prisma db push --force-reset

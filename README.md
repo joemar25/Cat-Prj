@@ -143,3 +143,32 @@ pnpm up @types/react@latest @types/react-dom@latest next-auth@latest
 ```
 
 Remember to check the Next.js upgrade guide for any breaking changes: <https://nextjs.org/docs/pages/building-your-application/upgrading>
+
+
+# Docker Setup (in proper sequence)
+
+## Running Nextjs, postgres, prisma, and CoreDNS
+1. install and run docker desktop
+2. navigate to the project folder and open cmd
+3. type ipconfig take note of the IPv4 Address of your primary adapter (usually wireless lan)
+4. edit coredns/Corefile and change the host ip address to the whatever is your IPv4 address from step 3
+5. do docker-compose down --volumes to remove possible existing containers
+6. do docker-compose up --build to run the system
+7. do docker-compose restart prisma in another cmd if prisma failed to seed or restart the prisma container in docker desktop
+8. access localhost on browser
+
+## Access the system on client machines
+1. get the ip address of host machine running docker
+2. change the preferred dns in the client machine's wifi adapter settings to the host machines ip address
+3. put 8.8.8.8 for alternate dns and save
+4. do ipconfig /all in cmd to confirm the set dns server are the preferred and alternate dns servers
+5. if not, do ipconfig /release and ipconfig /renew, then do step 4 again
+6. if the dns server was properly set, the system can now be access via cris-legazpi.com in the browser
+
+## Revert changes in client machines
+1. remove the preferred and alternate dns
+2. or set the dns/ip settings to automatic DHCP
+3. do ipconfig /release and ipconfig /renew to update your ip
+
+
+

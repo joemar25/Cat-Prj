@@ -3,7 +3,7 @@ cris-legazpi.com {
     log
     tls /etc/coredns/ssl/cris-legazpi.crt /etc/coredns/ssl/cris-legazpi.key
     hosts {
-	192.168.10.7 cris-legazpi.com
+	192.168.10.80 cris-legazpi.com
     }
 }
 

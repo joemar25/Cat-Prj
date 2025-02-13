@@ -1,5 +1,3 @@
-// src\lib\types\zod-form-certificate\birth-certificate-form-schema.ts
-
 // src/lib/types/zod-form-certificate/birth-certificate-form-schema.ts
 import { z } from 'zod';
 import {
@@ -36,513 +34,488 @@ export const createBirthCertificateSchema = (
   adminOfficerAddressNcrMode: boolean,
   affiantAddressNcrMode: boolean
 ) =>
-  z.object({
-    // Registry Information
-    registryNumber: registryNumberSchema,
-    province: provinceSchema(registryNCRMode),
-    cityMunicipality: cityMunicipalitySchema,
+  z
+    .object({
+      // Registry Information
+      registryNumber: registryNumberSchema,
+      province: provinceSchema(registryNCRMode),
+      cityMunicipality: cityMunicipalitySchema,
 
-    // Child Information
-    childInfo: z.object({
-      firstName: nameSchema.shape.firstName,
-      middleName: nameSchema.shape.middleName,
-      lastName: nameSchema.shape.lastName,
-      sex: z.string().min(1, 'Please select a sex'),
-      dateOfBirth: dateSchema,
-      placeOfBirth: z.object({
-        hospital: z.string().min(1, 'Hospital/Clinic name is required'),
-        cityMunicipality: cityMunicipalitySchema,
-        province: provinceSchema(childNCRMode),
+      // Child Information
+      childInfo: z.object({
+        firstName: nameSchema.shape.firstName,
+        middleName: nameSchema.shape.middleName,
+        lastName: nameSchema.shape.lastName,
+        sex: z.string().min(1, 'Please select a sex'),
+        dateOfBirth: dateSchema,
+        placeOfBirth: z.object({
+          hospital: z.string().min(1, 'Hospital/Clinic name is required'),
+          cityMunicipality: cityMunicipalitySchema,
+          province: provinceSchema(childNCRMode),
+        }),
+        typeOfBirth: z.string().min(1, 'Please select type of birth'),
+        multipleBirthOrder: z.string().optional(),
+        birthOrder: z.string().min(1, 'Birth order is required'),
+        weightAtBirth: z.string().min(1, 'Weight at birth is required'),
       }),
-      typeOfBirth: z.string().min(1, 'Please select type of birth'),
-      multipleBirthOrder: z.string().optional(),
-      birthOrder: z.string().min(1, 'Birth order is required'),
-      weightAtBirth: z.string().min(1, 'Weight at birth is required'),
-    }),
 
-    // Mother Information
-    motherInfo: z.object({
-      firstName: nameSchema.shape.firstName,
-      middleName: nameSchema.shape.middleName,
-      lastName: nameSchema.shape.lastName,
-      citizenship: z.string().min(1, 'Citizenship is required'),
-      religion: z.string().min(1, 'Religion is required'),
-      occupation: z.string().min(1, 'Occupation is required'),
-      age: z.string().min(1, 'Age is required'),
-      totalChildrenBornAlive: z.string().min(1, 'Required'),
-      childrenStillLiving: z.string().min(1, 'Required'),
-      childrenNowDead: z.string().min(1, 'Required'),
-      // Use the provided prop for mother's residence:
-      residence: addressSchema(motherResidenceNcrMode),
-    }),
+      // Mother Information
+      motherInfo: z
+        .object({
+          firstName: nameSchema.shape.firstName,
+          middleName: nameSchema.shape.middleName,
+          lastName: nameSchema.shape.lastName,
+          citizenship: z.string().min(1, 'Citizenship is required'),
+          religion: z.string().min(1, 'Religion is required'),
+          occupation: z.string().min(1, 'Occupation is required'),
+          age: z.string().min(1, 'Age is required'),
+          totalChildrenBornAlive: z
+            .string()
+            .min(1, 'Required')
+            .refine((val) => !isNaN(Number(val)), 'Must be a valid number')
+            .refine((val) => Number(val) >= 0, 'Cannot be negative'),
+          childrenStillLiving: z
+            .string()
+            .min(1, 'Required')
+            .refine((val) => !isNaN(Number(val)), 'Must be a valid number')
+            .refine((val) => Number(val) >= 0, 'Cannot be negative'),
+          childrenNowDead: z
+            .string()
+            .min(1, 'Required')
+            .refine((val) => !isNaN(Number(val)), 'Must be a valid number')
+            .refine((val) => Number(val) >= 0, 'Cannot be negative'),
+          residence: addressSchema(motherResidenceNcrMode),
+        })
+        .refine(
+          (data) => {
+            const total = Number(data.totalChildrenBornAlive);
+            const living = Number(data.childrenStillLiving);
+            const dead = Number(data.childrenNowDead);
+            return total === living + dead;
+          },
+          {
+            message:
+              'Total children born alive must equal the sum of children still living and children now dead',
+            path: ['totalChildrenBornAlive'],
+          }
+        ),
 
-    // Father Information
-    fatherInfo: z.object({
-      firstName: nameSchema.shape.firstName,
-      middleName: nameSchema.shape.middleName,
-      lastName: nameSchema.shape.lastName,
-      citizenship: z.string().min(1, 'Citizenship is required'),
-      religion: z.string().min(1, 'Religion is required'),
-      occupation: z.string().min(1, 'Occupation is required'),
-      age: z.string().min(1, 'Age is required'),
-      // Use the provided prop for father's residence:
-      residence: addressSchema(fatherResidenceNcrMode),
-    }),
+      // Father Information
+      fatherInfo: z.object({
+        firstName: nameSchema.shape.firstName,
+        middleName: nameSchema.shape.middleName,
+        lastName: nameSchema.shape.lastName,
+        citizenship: z.string().min(1, 'Citizenship is required'),
+        religion: z.string().min(1, 'Religion is required'),
+        occupation: z.string().min(1, 'Occupation is required'),
+        age: z.string().min(1, 'Age is required'),
+        residence: addressSchema(fatherResidenceNcrMode),
+      }),
 
-    // Marriage of Parents
-    parentMarriage: z.object({
-      date: dateSchema,
-      // Use the provided prop for marriage place:
-      place: addressSchema(parentMarriagePlaceNcrMode),
-    }),
+      // Marriage of Parents
+      parentMarriage: z.object({
+        date: dateSchema,
+        place: addressSchema(parentMarriagePlaceNcrMode),
+      }),
 
-    // Certification of Birth Attendant
-    attendant: z.object({
-      type: z.string().min(1, 'Please select attendant type'),
-      certification: z.object({
-        time: timeSchema,
+      // Certification of Birth Attendant
+      attendant: z.object({
+        type: z.string().min(1, 'Please select attendant type'),
+        certification: z.object({
+          time: timeSchema,
+          signature: signatureSchema.shape.signature,
+          name: signatureSchema.shape.name,
+          title: signatureSchema.shape.title,
+          address: addressSchema(attendantAddressNcrMode),
+          date: dateSchema,
+        }),
+      }),
+
+      // Informant
+      informant: z.object({
         signature: signatureSchema.shape.signature,
         name: signatureSchema.shape.name,
-        title: signatureSchema.shape.title,
-        // Use the provided prop for attendant's address:
-        address: addressSchema(attendantAddressNcrMode),
+        relationship: z.string().min(1, 'Relationship is required'),
+        address: addressSchema(informantAddressNcrMode),
         date: dateSchema,
       }),
-    }),
 
-    // Informant
-    informant: z.object({
-      signature: signatureSchema.shape.signature,
-      name: signatureSchema.shape.name,
-      relationship: z.string().min(1, 'Relationship is required'),
-      // Use the provided prop for informant's address:
-      address: addressSchema(informantAddressNcrMode),
-      date: dateSchema,
-    }),
+      // Prepared By
+      preparedBy: signatureSchema,
 
-    // Prepared By
-    preparedBy: signatureSchema,
+      // Received By
+      receivedBy: signatureSchema,
 
-    // Received By
-    receivedBy: signatureSchema,
+      // Registered By Civil Registry
+      registeredByOffice: signatureSchema,
 
-    // Registered By Civil Registry
-    registeredByOffice: signatureSchema,
+      // Affidavit Sections
+      hasAffidavitOfPaternity: z.boolean().default(false),
+      affidavitOfPaternityDetails: z
+        .union([
+          z.object({
+            father: signatureSchema.omit({ date: true }),
+            mother: signatureSchema.omit({ date: true }),
+            dateSworn: dateSchema,
+            adminOfficer: z.object({
+              signature: z.string().min(1, 'Officer signature is required'),
+              name: z.string().min(1, 'Officer name is required'),
+              position: z.string().min(1, 'Position is required'),
+              address: addressSchema(adminOfficerAddressNcrMode),
+            }),
+            ctcInfo: z.object({
+              number: z.string().min(1, 'CTC number is required'),
+              dateIssued: dateSchema,
+              placeIssued: z.string().min(1, 'Place issued is required'),
+            }),
+          }),
+          z.null(),
+        ])
+        .default(null),
 
-    hasAffidavitOfPaternity: z.boolean().default(false),
-    affidavitOfPaternityDetails: z
-      .object({
-        father: signatureSchema.omit({ date: true }),
-        mother: signatureSchema.omit({ date: true }),
-        dateSworn: dateSchema,
-        adminOfficer: z.object({
-          signature: z.string(),
-          name: z.string().min(1, 'Officer name is required'),
-          position: z.string().min(1, 'Position is required'),
-          // Use the provided prop for admin officer's address:
-          address: addressSchema(adminOfficerAddressNcrMode),
-        }),
-        ctcInfo: z.object({
-          number: z.string().min(1, 'CTC number is required'),
-          dateIssued: dateSchema,
-          placeIssued: z.string().min(1, 'Place issued is required'),
-        }),
-      })
-      .nullable(),
+      isDelayedRegistration: z.boolean().default(false),
+      affidavitOfDelayedRegistration: z
+        .object({
+          affiant: z.object({
+            name: z.string().min(1, 'Affiant name is required'),
+            address: addressSchema(affiantAddressNcrMode),
+            civilStatus: z.string().min(1, 'Civil status is required'),
+            citizenship: z.string().min(1, 'Citizenship is required'),
+          }),
+          registrationType: z.enum(['SELF', 'OTHER']),
+          parentMaritalStatus: z.enum(['MARRIED', 'NOT_MARRIED']),
+          reasonForDelay: z.string().min(1, 'Reason for delay is required'),
+          dateSworn: dateSchema,
+          adminOfficer: z.object({
+            signature: z.string(),
+            name: z.string().min(1, 'Officer name is required'),
+            position: z.string().min(1, 'Position is required'),
+          }),
+          ctcInfo: z.object({
+            number: z.string().min(1, 'CTC number is required'),
+            dateIssued: dateSchema,
+            placeIssued: z.string().min(1, 'Place issued is required'),
+          }),
+          spouseName: z.string().optional(),
+          applicantRelationship: z.string().optional(),
+        })
+        .nullable(),
 
-    isDelayedRegistration: z.boolean().default(false),
-    affidavitOfDelayedRegistration: z
-      .object({
-        affiant: z.object({
-          name: z.string().min(1, 'Affiant name is required'),
-          // Use the provided prop for affiant's address:
-          address: addressSchema(affiantAddressNcrMode),
-          civilStatus: z.string().min(1, 'Civil status is required'),
-          citizenship: z.string().min(1, 'Citizenship is required'),
-        }),
-        registrationType: z.enum(['SELF', 'OTHER']),
-        parentMaritalStatus: z.enum(['MARRIED', 'NOT_MARRIED']),
-        reasonForDelay: z.string().min(1, 'Reason for delay is required'),
-        dateSworn: dateSchema,
-        adminOfficer: z.object({
-          signature: z.string(),
-          name: z.string().min(1, 'Officer name is required'),
-          position: z.string().min(1, 'Position is required'),
-        }),
-        ctcInfo: z.object({
-          number: z.string().min(1, 'CTC number is required'),
-          dateIssued: dateSchema,
-          placeIssued: z.string().min(1, 'Place issued is required'),
-        }),
-        spouseName: z.string().optional(),
-        applicantRelationship: z.string().optional(),
-      })
-      .nullable(),
-
-    remarks: z.string().optional(),
-  });
+      remarks: z.string().optional(),
+    })
+    .refine(
+      (data) =>
+        !data.hasAffidavitOfPaternity ||
+        data.affidavitOfPaternityDetails !== null,
+      {
+        message:
+          'Please fill in the affidavit details if including an affidavit',
+        path: ['affidavitOfPaternityDetails'],
+      }
+    );
 
 export type BirthCertificateFormValues = WithNullableDates<
   z.infer<ReturnType<typeof createBirthCertificateSchema>>
 >;
 
-// Production default values with real data and affidavit sections turned off.
-export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
-  // Registry Information
-  registryNumber: '2024-6969',
-  province: 'Metro Manila',
-  cityMunicipality: 'Quezon City',
+/*
+  Default values for testing purposes (with sample data):
+*/
+export const defaultBirthCertificateFormValuesTest: BirthCertificateFormValues =
+  {
+    // Registry Information
+    registryNumber: '2024-0001',
+    province: 'Metro Manila',
+    cityMunicipality: 'Quezon City',
 
-  // Child Information
-  childInfo: {
-    firstName: 'Juan',
-    middleName: 'Santos',
-    lastName: 'Dela Cruz',
-    sex: 'Male',
-    dateOfBirth: new Date('2024-01-01T08:30:00'),
-    placeOfBirth: {
-      hospital: 'St. Luke Hospital',
-      cityMunicipality: 'Quezon City',
-      province: 'Metro Manila',
+    // Child Information
+    childInfo: {
+      firstName: 'Gabriel',
+      middleName: 'Reyes',
+      lastName: 'De Guzman',
+      sex: 'Male',
+      dateOfBirth: new Date('2024-02-10T15:45:00'),
+      placeOfBirth: {
+        hospital: 'Quirino Memorial Medical Center',
+        cityMunicipality: 'Quezon City',
+        province: 'Metro Manila',
+      },
+      typeOfBirth: 'Single',
+      multipleBirthOrder: '',
+      birthOrder: '2',
+      weightAtBirth: '2.8',
     },
-    typeOfBirth: 'Single',
-    multipleBirthOrder: '',
-    birthOrder: '1',
-    weightAtBirth: '3.2',
-  },
 
-  // Mother Information
-  motherInfo: {
-    firstName: 'Maria',
-    middleName: 'Luisa',
-    lastName: 'Santos',
-    citizenship: 'Filipino',
-    religion: 'Roman Catholic',
-    occupation: 'Teacher',
-    age: '28',
-    totalChildrenBornAlive: '2',
-    childrenStillLiving: '2',
-    childrenNowDead: '0',
-    residence: {
-      houseNumber: '45B',
-      street: 'C. Raymundo Ave',
-      barangay: 'Pinyahan',
-      cityMunicipality: 'Quezon City',
-      province: 'Metro Manila',
-      country: 'Philippines',
-    },
-  },
-
-  // Father Information
-  fatherInfo: {
-    firstName: 'Jose',
-    middleName: 'Ramon',
-    lastName: 'Dela Cruz',
-    citizenship: 'Filipino',
-    religion: 'Roman Catholic',
-    occupation: 'Engineer',
-    age: '32',
-    residence: {
-      houseNumber: '78A',
-      street: 'Ortigas Avenue',
-      barangay: 'Camp 4',
-      cityMunicipality: 'Quezon City',
-      province: 'Metro Manila',
-      country: 'Philippines',
-    },
-  },
-
-  // Marriage of Parents
-  parentMarriage: {
-    date: new Date('2023-10-15T00:00:00'),
-    place: {
-      houseNumber: '78A',
-      street: 'Ortigas Avenue',
-      barangay: 'Camp 4',
-      cityMunicipality: 'Quezon City',
-      province: 'Metro Manila',
-      country: 'Philippines',
-    },
-  },
-
-  // Birth Attendant
-  attendant: {
-    type: 'Physician',
-    certification: {
-      time: parseTimeStringToDate('08:30'),
-      signature: 'Dr. Reyes',
-      name: 'Dr. Carla Reyes',
-      title: 'Pediatrician',
-      address: {
-        houseNumber: '12',
-        street: 'Legarda St',
-        barangay: 'Escolta',
-        cityMunicipality: 'Manila',
+    // Mother Information
+    motherInfo: {
+      firstName: 'Isabella',
+      middleName: 'Santos',
+      lastName: 'Reyes',
+      citizenship: 'Filipino',
+      religion: 'Roman Catholic',
+      occupation: 'Accountant',
+      age: '31',
+      totalChildrenBornAlive: '2',
+      childrenStillLiving: '2',
+      childrenNowDead: '0',
+      residence: {
+        houseNumber: '143',
+        street: 'Maginhawa Street',
+        barangay: 'Teachers Village',
+        cityMunicipality: 'Quezon City',
         province: 'Metro Manila',
         country: 'Philippines',
       },
-      date: new Date('2024-01-01T08:30:00'),
     },
-  },
 
-  // Informant
-  informant: {
-    signature: 'JoseDC',
-    name: 'Jose Dela Cruz',
-    relationship: 'Father',
-    address: {
-      houseNumber: '78A',
-      street: 'Ortigas Avenue',
-      barangay: 'Camp 4',
-      cityMunicipality: 'Quezon City',
-      province: 'Metro Manila',
-      country: 'Philippines',
+    // Father Information
+    fatherInfo: {
+      firstName: 'Antonio',
+      middleName: 'Cruz',
+      lastName: 'De Guzman',
+      citizenship: 'Filipino',
+      religion: 'Roman Catholic',
+      occupation: 'Software Developer',
+      age: '33',
+      residence: {
+        houseNumber: '143',
+        street: 'Maginhawa Street',
+        barangay: 'Teachers Village',
+        cityMunicipality: 'Quezon City',
+        province: 'Metro Manila',
+        country: 'Philippines',
+      },
     },
-    date: new Date('2024-01-03T09:00:00'),
-  },
 
-  // Prepared By
-  preparedBy: {
-    signature: 'Staff3',
-    name: 'Staff User 3',
-    title: 'Registration Officer',
-    date: new Date('2024-01-04T10:00:00'),
-  },
+    // Marriage of Parents
+    parentMarriage: {
+      date: new Date('2020-06-25T00:00:00'),
+      place: {
+        houseNumber: '1',
+        street: 'Cathedral Road',
+        barangay: 'San Roque',
+        cityMunicipality: 'Quezon City',
+        province: 'Metro Manila',
+        country: 'Philippines',
+      },
+    },
 
-  // Received By
-  receivedBy: {
-    signature: 'Staff4',
-    name: 'Staff User 4',
-    title: 'Document Processing Officer',
-    date: new Date('2024-01-05T11:00:00'),
-  },
+    // Certification of Birth Attendant
+    attendant: {
+      type: 'Physician',
+      certification: {
+        time: parseTimeStringToDate('15:45'),
+        signature: 'Dr. Santos',
+        name: 'Dr. Patricia Santos',
+        title: 'OB-GYN',
+        address: {
+          houseNumber: '88',
+          street: 'Matalino Street',
+          barangay: 'Central',
+          cityMunicipality: 'Quezon City',
+          province: 'Metro Manila',
+          country: 'Philippines',
+        },
+        date: new Date('2024-02-10T15:45:00'),
+      },
+    },
 
-  // Registered By Civil Registry
-  registeredByOffice: {
-    signature: 'Admin1',
-    name: 'Admin User 1',
-    title: 'Civil Registrar',
-    date: new Date('2024-01-06T12:00:00'),
-  },
+    // Informant
+    informant: {
+      signature: 'ADGuzman',
+      name: 'Antonio De Guzman',
+      relationship: 'Father',
+      address: {
+        houseNumber: '143',
+        street: 'Maginhawa Street',
+        barangay: 'Teachers Village',
+        cityMunicipality: 'Quezon City',
+        province: 'Metro Manila',
+        country: 'Philippines',
+      },
+      date: new Date('2024-02-11T10:30:00'),
+    },
 
-  // Affidavit of Paternity: set flag to false and omit details
-  hasAffidavitOfPaternity: false,
-  affidavitOfPaternityDetails: null,
+    // Prepared By
+    preparedBy: {
+      signature: 'Staff3',
+      name: 'Staff User 3',
+      title: 'Registration Officer',
+      date: new Date('2024-01-04T10:00:00'),
+    },
 
-  // Delayed Registration: set flag to false and omit details
-  isDelayedRegistration: false,
-  affidavitOfDelayedRegistration: null,
+    // Received By
+    receivedBy: {
+      signature: 'Staff4',
+      name: 'Staff User 4',
+      title: 'Document Processing Officer',
+      date: new Date('2024-01-05T11:00:00'),
+    },
 
-  // Remarks
-  remarks: '',
-};
+    // Registered By Civil Registry
+    registeredByOffice: {
+      signature: 'Admin1',
+      name: 'Admin User 1',
+      title: 'Civil Registrar',
+      date: new Date('2024-01-06T12:00:00'),
+    },
 
-// export const defaultBirthCertificateFormValues: BirthCertificateFormValues = {
-//   // Registry Information
-//   registryNumber: '',
-//   province: '',
-//   cityMunicipality: '',
+    hasAffidavitOfPaternity: false,
+    affidavitOfPaternityDetails: null, // Set to null when not used
+    isDelayedRegistration: false,
+    affidavitOfDelayedRegistration: null, // Set to null when not used
 
-//   // Child Information
-//   childInfo: {
-//     firstName: '',
-//     middleName: '',
-//     lastName: '',
-//     sex: '',
-//     dateOfBirth: null,
-//     placeOfBirth: {
-//       hospital: '',
-//       cityMunicipality: '',
-//       province: '',
-//     },
-//     typeOfBirth: '',
-//     multipleBirthOrder: '',
-//     birthOrder: '',
-//     weightAtBirth: '',
-//   },
+    // Remarks
+    remarks: '',
+  };
 
-//   // Mother Information
-//   motherInfo: {
-//     firstName: '',
-//     middleName: '',
-//     lastName: '',
-//     citizenship: '',
-//     religion: '',
-//     occupation: '',
-//     age: '',
-//     totalChildrenBornAlive: '',
-//     childrenStillLiving: '',
-//     childrenNowDead: '',
-//     residence: {
-//       houseNumber: '',
-//       street: '',
-//       barangay: '',
-//       cityMunicipality: '',
-//       province: '',
-//       country: '',
-//     },
-//   },
+/*
+  Default values for production purposes (empty form):
+*/
+export const defaultBirthCertificateFormValuesProd: BirthCertificateFormValues =
+  {
+    // Registry Information
+    registryNumber: '',
+    province: '',
+    cityMunicipality: '',
 
-//   // Father Information
-//   fatherInfo: {
-//     firstName: '',
-//     middleName: '',
-//     lastName: '',
-//     citizenship: '',
-//     religion: '',
-//     occupation: '',
-//     age: '',
-//     residence: {
-//       houseNumber: '',
-//       street: '',
-//       barangay: '',
-//       cityMunicipality: '',
-//       province: '',
-//       country: '',
-//     },
-//   },
+    // Child Information
+    childInfo: {
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      sex: '',
+      dateOfBirth: null, // use null for dates
+      placeOfBirth: {
+        hospital: '',
+        cityMunicipality: '',
+        province: '',
+      },
+      typeOfBirth: '',
+      multipleBirthOrder: '',
+      birthOrder: '',
+      weightAtBirth: '',
+    },
 
-//   // Marriage of Parents
-//   parentMarriage: {
-//     date: null,
-//     place: {
-//       houseNumber: '',
-//       street: '',
-//       barangay: '',
-//       cityMunicipality: '',
-//       province: '',
-//       country: '',
-//     },
-//   },
+    // Mother Information
+    motherInfo: {
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      citizenship: '',
+      religion: '',
+      occupation: '',
+      age: '',
+      totalChildrenBornAlive: '',
+      childrenStillLiving: '',
+      childrenNowDead: '',
+      residence: {
+        houseNumber: '',
+        street: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: '',
+      },
+    },
 
-//   // Certification of Birth Attendant
-//   attendant: {
-//     type: '',
-//     certification: {
-//       time: null,
-//       signature: '',
-//       name: '',
-//       title: '',
-//       address: {
-//         houseNumber: '',
-//         street: '',
-//         barangay: '',
-//         cityMunicipality: '',
-//         province: '',
-//         country: '',
-//       },
-//       date: null,
-//     },
-//   },
+    // Father Information
+    fatherInfo: {
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      citizenship: '',
+      religion: '',
+      occupation: '',
+      age: '',
+      residence: {
+        houseNumber: '',
+        street: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: '',
+      },
+    },
 
-//   // Informant
-//   informant: {
-//     signature: '',
-//     name: '',
-//     relationship: '',
-//     address: {
-//       houseNumber: '',
-//       street: '',
-//       barangay: '',
-//       cityMunicipality: '',
-//       province: '',
-//       country: '',
-//     },
-//     date: null,
-//   },
+    // Marriage of Parents
+    parentMarriage: {
+      date: null,
+      place: {
+        houseNumber: '',
+        street: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: '',
+      },
+    },
 
-//   // Prepared By
-//   preparedBy: {
-//     signature: '',
-//     name: '',
-//     title: '',
-//     date: null,
-//   },
+    // Certification of Birth Attendant
+    attendant: {
+      type: '',
+      certification: {
+        time: null,
+        signature: '',
+        name: '',
+        title: '',
+        address: {
+          houseNumber: '',
+          street: '',
+          barangay: '',
+          cityMunicipality: '',
+          province: '',
+          country: '',
+        },
+        date: null,
+      },
+    },
 
-//   // Received By
-//   receivedBy: {
-//     signature: '',
-//     name: '',
-//     title: '',
-//     date: null,
-//   },
+    // Informant
+    informant: {
+      signature: '',
+      name: '',
+      relationship: '',
+      address: {
+        houseNumber: '',
+        street: '',
+        barangay: '',
+        cityMunicipality: '',
+        province: '',
+        country: '',
+      },
+      date: null,
+    },
 
-//   // Registered By Civil Registry
-//   registeredByOffice: {
-//     signature: '',
-//     name: '',
-//     title: '',
-//     date: null,
-//   },
+    // Prepared By
+    preparedBy: {
+      signature: '',
+      name: '',
+      title: '',
+      date: null,
+    },
 
-//   // Affidavit of Paternity
-//   hasAffidavitOfPaternity: false,
-//   affidavitOfPaternityDetails: {
-//     father: {
-//       signature: '',
-//       name: '',
-//       title: '',
-//     },
-//     mother: {
-//       signature: '',
-//       name: '',
-//       title: '',
-//     },
-//     dateSworn: new Date(),
-//     adminOfficer: {
-//       signature: '',
-//       name: '',
-//       position: '',
-//       address: {
-//         houseNumber: '',
-//         street: '',
-//         barangay: '',
-//         cityMunicipality: '',
-//         province: '',
-//         country: '',
-//       },
-//     },
-//     ctcInfo: {
-//       number: '',
-//       dateIssued: new Date(),
-//       placeIssued: '',
-//     },
-//   },
+    // Received By
+    receivedBy: {
+      signature: '',
+      name: '',
+      title: '',
+      date: null,
+    },
 
-//   // Delayed Registration
-//   isDelayedRegistration: false,
-//   affidavitOfDelayedRegistration: {
-//     affiant: {
-//       name: '',
-//       address: {
-//         houseNumber: '',
-//         street: '',
-//         barangay: '',
-//         cityMunicipality: '',
-//         province: '',
-//         country: '',
-//       },
-//       civilStatus: '',
-//       citizenship: '',
-//     },
-//     registrationType: 'SELF', // or you can set to an empty string if preferred
-//     parentMaritalStatus: 'MARRIED', // or an empty string if preferred
-//     reasonForDelay: '',
-//     dateSworn: new Date(),
-//     adminOfficer: {
-//       signature: '',
-//       name: '',
-//       position: '',
-//     },
-//     ctcInfo: {
-//       number: '',
-//       dateIssued: new Date(),
-//       placeIssued: '',
-//     },
-//     spouseName: '',
-//     applicantRelationship: '',
-//   },
+    // Registered By Civil Registry
+    registeredByOffice: {
+      signature: '',
+      name: '',
+      title: '',
+      date: null,
+    },
 
-//   // Remarks
-//   remarks: '',
-// };
+    hasAffidavitOfPaternity: false,
+    affidavitOfPaternityDetails: null, // Set to null when not used
+    isDelayedRegistration: false,
+    affidavitOfDelayedRegistration: null, // Set to null when not used
+
+    // Remarks
+    remarks: '',
+  };
