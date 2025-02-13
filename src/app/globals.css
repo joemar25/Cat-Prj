@@ -24,7 +24,7 @@
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
+    --primary: 225 80% 50%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -38,10 +38,10 @@
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
     --chart-1: 225 80% 50%;
-    --chart-2: 225 80% 50%;
-    --chart-3: 225 80% 50%;
-    --chart-4: 225 20% 50%;
-    --chart-5: 225 50% 50%;
+    --chart-2: 222 78% 55%;
+    --chart-3: 220 76% 60%;
+    --chart-4: 218 74% 65%;
+    --chart-5: 216 72% 70%;
     --radius: 0.5rem;
 
     /* Sidebar colors, do not remove */
@@ -75,11 +75,11 @@
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
-    --chart-1: 217 91% 60%;
-    --chart-2: 217 91% 60%;
-    --chart-3: 218 91% 60%;
-    --chart-4: 223 84% 5%;
-    --chart-5: 218 62% 28%;
+    --chart-1: 225 80% 50%;
+    --chart-2: 225 78% 54%;
+    --chart-3: 225 76% 58%;
+    --chart-4: 225 74% 62%;
+    --chart-5: 225 72% 66%;
 
     /* Sidebar colors, do not remove */
     --sidebar-background: 240 10% 12%;

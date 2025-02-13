@@ -84,7 +84,7 @@ export const createColumns = (
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <div className="flex items-center gap-1.5">
-                                    <Icons.file className="h-4 w-4 text-blue-500" />
+                                    <Icons.file className="h-4 w-4 text-chart-1" />
                                     <span className="text-sm truncate max-w-[150px]">
                                         {certifiedCopy.attachment?.fileName ?? 'No attachment'}
                                     </span>

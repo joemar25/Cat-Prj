@@ -72,7 +72,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
       'preparedBy',
       'verifiedBy',
       'registeredBy',
-      'status',
+      // 'status',
       'createdAt',
       'hasCTC',
     ]
@@ -208,14 +208,14 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               <div className={`flex gap-6 justify-center w-full max-w-[1000px] ${activeTab === null ? "" : "h-12"}`}>
                 <button
                   className={`hover:border-chart-2/50 dark:hover:border-chart-3 w-full max-h-9 flex items-center justify-center text-center rounded-lg p-2 transition-all
-        ${activeTab === "basic" ? "rounded-md bg-chart-5 text-white border border-chart-2/50 dark:border-chart-3" : "border"}`}
+        ${activeTab === "basic" ? "rounded-md bg-chart-3 text-white border border-chart-2/50 dark:border-chart-3" : "border"}`}
                   onClick={() => handleToggleTab("basic")}
                 >
                   {t("Basic Search")}
                 </button>
                 <button
                   className={`hover:border-chart-2/50 dark:hover:border-chart-3 w-full max-h-9 flex items-center justify-center text-center rounded-lg p-2 transition-all
-        ${activeTab === "advanced" ? "rounded-md bg-chart-5 text-white border border-chart-2/50 dark:border-chart-3" : "border"}`}
+        ${activeTab === "advanced" ? "rounded-md bg-chart-3 text-white border border-chart-2/50 dark:border-chart-3" : "border"}`}
                   onClick={() => handleToggleTab("advanced")}
                 >
                   {t("Name Search")}

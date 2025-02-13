@@ -48,28 +48,25 @@ export function NavMain({ items }: NavMainProps) {
       <SidebarMenu>
         {items.map((item) => {
           const hasActiveSubItem = item.items?.some(subItem => pathname === subItem.url)
-          const isActive = pathname === item.url
+          const isActive = pathname === item.url || hasActiveSubItem
           const ItemIcon = item.icon
 
           return (
             <Collapsible key={item.title} defaultOpen={hasActiveSubItem}>
               <SidebarMenuItem>
                 <div className="flex items-center w-full justify-between">
-                  {/* Sidebar Button (Left Side) */}
                   <SidebarMenuButton
                     asChild
                     onClick={() => item.click?.()}
                     tooltip={item.title}
                     className={`flex-1 flex items-center gap-2 transition-all duration-150 ease-in-out 
-                      hover:bg-chart-1/30 active:scale-[0.98] py-5 px-4
-                      ${isActive ? 'bg-chart-2 text-accent-foreground font-medium' : ''}
-                    `}
+                      hover:bg-chart-1/20 active:scale-[0.98] py-5 px-4
+                      ${isActive ? 'bg-chart-2 text-accent dark:text-accent-foreground hover:text-muted-foreground font-medium' : ''}`}
                   >
                     <Link href={item.url} className='flex items-center gap-2 w-full text-accent'>
                       {ItemIcon && (
                         <ItemIcon className={`w-6 h-6 transition-colors duration-150 
-                          ${isActive ? '' : 'text-muted-foreground'}
-                        `} />
+                          ${isActive ? '' : 'text-muted-foreground'}`}/>
                       )}
                       <span className={`${isActive ? '' : 'text-muted-foreground'}`}>
                         {item.title}
@@ -82,23 +79,20 @@ export function NavMain({ items }: NavMainProps) {
                     </Link>
                   </SidebarMenuButton>
 
-                  {/* Chevron Icon (Right Side) */}
                   {item.items?.length ? (
                     <CollapsibleTrigger asChild>
                       <SidebarMenuAction
                         className={`transition-transform duration-150 ease-in-out mt-1 flex justify-between items-center
-                          hover:bg-chart-4 active:scale-[0.98]
-                          ${hasActiveSubItem ? 'text-accent-foreground ' : 'text-muted-foreground'}
-                        `}
+                          hover:bg-chart-2  active:scale-[0.98]
+                          ${hasActiveSubItem ? 'text-accent-foreground' : 'text-muted-foreground'}`}
                       >
-                        <Icons.chevronRight className={`w-7 h-7 ml-0.5 text-accent`} /> 
+                        <Icons.chevronRight className='w-7 h-7 ml-0.5' /> 
                         <span className='sr-only'>Toggle</span>
                       </SidebarMenuAction>
                     </CollapsibleTrigger>
                   ) : null}
                 </div>
 
-                {/* Collapsible Submenu */}
                 {item.items?.length ? (
                   <CollapsibleContent className='pl-6 mt-1 transition-all duration-200 ease-in-out'>
                     <SidebarMenuSub>
@@ -111,8 +105,7 @@ export function NavMain({ items }: NavMainProps) {
                               onClick={() => subItem.click?.()}
                               className={`transition-all duration-150 ease-in-out 
                                 hover:bg-chart-2/30 active:scale-[0.98]
-                                ${isSubActive ? ' text-accent-foreground font-medium' : ''}
-                              `}
+                                ${isSubActive ? 'bg-chart-2 text-accent hover:text-accent-foreground font-medium' : ''}`}
                             >
                               <Link href={subItem.url} className="flex items-center gap-2 px-4 py-4">
                                 <span>{subItem.title}</span>

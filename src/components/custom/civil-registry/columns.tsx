@@ -45,9 +45,20 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
       const formType = row.getValue('formType') as FormType
       const formTypeInfo = formTypeVariants[formType]
       return (
-        <Badge variant={formTypeInfo.variant} className='font-medium'>
+        <Badge
+          variant={formTypeInfo.variant}
+          className={`font-medium ${formTypeInfo.label.toLowerCase() === 'marriage'
+              ? 'bg-chart-1'
+              : formTypeInfo.label.toLowerCase() === 'death'
+                ? 'bg-muted text-accent-foreground hover:bg-muted/80'
+                : formTypeInfo.label.toLowerCase() === 'birth'
+                  ? 'bg-primary hover:bg-primary/80 text-accent dark:text-accent-foreground'
+                  : ''
+            }`}
+        >
           {useTranslation().t(formTypeInfo.label.toLowerCase())}
         </Badge>
+
       )
     },
     filterFn: (row, id, value) => {
