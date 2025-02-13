@@ -1,118 +1,12 @@
-import { parseToDate, type DateFormatOptions } from '@/utils/date';
 import { z } from 'zod';
 
-interface DateSchemaOptions {
-  minYear?: number;
-  allowFuture?: boolean;
-  customMessage?: string;
-  formatOptions?: DateFormatOptions;
-}
-
-export const createDateSchema = (options: DateSchemaOptions = {}) => {
-  const { minYear = 1900, allowFuture = false, customMessage } = options;
-
-  return z.string().refine(
-    (value) => {
-      // Handle empty string if the field is optional
-      if (!value) return true;
-
-      // Validate MM/DD/YYYY format
-      if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(value)) return false;
-
-      const [month, day, year] = value.split('/').map(Number);
-      const date = parseToDate(year, month, day);
-
-      if (!date) return false;
-
-      const now = new Date();
-
-      // Year range check
-      const isValidYear = year >= minYear && (allowFuture || date <= now);
-
-      return isValidYear;
-    },
-    {
-      message:
-        customMessage ||
-        `Please enter a valid date in MM/DD/YYYY format${
-          !allowFuture ? ' (past or today only)' : ''
-        }`,
-    }
-  );
-};
-
-// Helper function for form date string to Date object conversion
-export const parseFormDate = (dateString: string): Date | undefined => {
-  if (!dateString) return undefined;
-
-  const [month, day, year] = dateString.split('/').map(Number);
-  const date = parseToDate(year, month, day);
-  return date || undefined;
-};
-
-export const parseTimeStringToDate = (timeString: string): Date | null => {
-  if (!timeString) return null;
-  const [hours, minutes] = timeString.split(':').map(Number);
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0); // Set hours and minutes, reset seconds and milliseconds
-  return date;
-};
-
-// ------------------------------------------//
-
-// Helper schemas
-export const nameSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  middleName: z.string().optional(),
-  lastName: z.string().min(1, 'Last name is required'),
-});
-
-export const placeOfBirthSchema = z.object({
-  province: z.string().min(1, 'Province is required'),
-  cityMunicipality: z.string().min(1, 'City/Municipality is required'),
-  specificAddress: z.string().optional(),
-});
-
-export const dateSchema = z
-  .date({
-    required_error: 'Date is required',
-    invalid_type_error: 'Please provide a valid date',
-  })
-  .nullable()
-  .refine((val) => val !== null, {
-    message: 'Date is required',
-  });
-
-export const timeSchema = z
-  .date({
-    required_error: 'Time is required',
-    invalid_type_error: 'Please provide a valid time',
-  })
-  .nullable()
-  .refine((val) => val !== null, {
-    message: 'Time is required',
-  })
-  .refine(
-    (val) => {
-      if (!val) return false;
-      const hours = val.getHours();
-      const minutes = val.getMinutes();
-      return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
-    },
-    {
-      message: 'Please provide a valid time in HH:MM format (e.g., 14:30).',
-    }
-  );
-
+// 1. Registry Number (Enforces "YYYY-numbers" and validates the year range)
 export const registryNumberSchema = z
   .string()
-  .regex(
-    /^\d{4}-\d+$/, // Simply enforces YYYY- followed by any digits
-    'Registry number must be in format: YYYY-numbers'
-  )
+  .regex(/^\d{4}-\d+$/, 'Registry number must be in format: YYYY-numbers')
   .refine(
     (value) => {
-      const year = parseInt(value.split('-')[0]);
+      const year = parseInt(value.split('-')[0], 10);
       const currentYear = new Date().getFullYear();
       return year >= 1945 && year <= currentYear;
     },
@@ -121,41 +15,82 @@ export const registryNumberSchema = z
     }
   );
 
-export const provinceSchema = (isOptional: boolean) =>
-  z
-    .string()
-    .min(
-      isOptional ? 0 : 3,
-      isOptional ? undefined : 'Please select a province.'
-    )
-    .max(100, 'Province name is too long.');
+// 2. Province (Non-empty string)
+export const provinceSchema = z.string().nonempty('Province is required');
 
+// 3. City/Municipality (Non-empty string)
 export const cityMunicipalitySchema = z
   .string()
-  .min(3, 'Please select a city/municipality.')
-  .max(100, 'City/Municipality name is too long.');
+  .nonempty('City/Municipality is required');
 
-export const signatureSchema = z.object({
-  signature: z.string().optional(),
-  name: z.string().min(1, 'Name is required'),
-  title: z.string().min(1, 'Title is required'),
-  date: dateSchema,
+// ─────────────────────────────────────────────────────────────────────────────
+// PROCESSING DETAILS: "Prepared By", "Received By", "Registered By"
+// Each has Signature, Name in Print, Title/Position, and Date
+// ─────────────────────────────────────────────────────────────────────────────
+export const signatoryDetailsSchema = z.object({
+  signature: z.string().nonempty('Signature is required'),
+  nameInPrint: z.string().nonempty('Name in print is required'),
+  titleOrPosition: z.string().nonempty('Title or position is required'),
+  date: z.string().nonempty('Date is required'),
 });
 
-export const addressSchema = (isProvinceOptional: boolean = false) =>
-  z.object({
-    houseNumber: z.string().optional(),
-    street: z.string().optional(),
-    barangay: z.string().min(1, 'Barangay is required').optional(),
-    cityMunicipality: z.string().min(1, 'City/Municipality is required'),
-    province: provinceSchema(isProvinceOptional),
-    country: z.string().min(1, 'Country is required').default('Philippines'),
-  });
+// If you want a single object that includes all three sets (Prepared, Received, Registered):
+export const processingDetailsSchema = z.object({
+  preparedBy: signatoryDetailsSchema,
+  receivedBy: signatoryDetailsSchema,
+  registeredBy: signatoryDetailsSchema,
+});
 
-export type WithNullableDates<T> = {
-  [P in keyof T]: T[P] extends Date
-    ? Date | null
-    : T[P] extends object
-    ? WithNullableDates<T[P]>
-    : T[P];
-};
+// ─────────────────────────────────────────────────────────────────────────────
+// COMMON PERSONAL DATA FIELDS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Name (First, Middle, Last)
+export const nameSchema = z.object({
+  first: z.string().nonempty('First name is required'),
+  middle: z.string().optional(), // Middle name can be optional
+  last: z.string().nonempty('Last name is required'),
+});
+
+// Citizenship
+export const citizenshipSchema = z.string().nonempty('Citizenship is required');
+
+// Religion/Religious Sect
+export const religionSchema = z
+  .string()
+  .nonempty('Religion/Religious Sect is required');
+
+// Residence (House No., Street, Barangay, City/Municipality, Province, Country)
+export const residenceSchema = z.object({
+  houseNo: z.string().nonempty('House number is required'),
+  st: z.string().nonempty('Street is required'),
+  barangay: z.string().nonempty('Barangay is required'),
+  cityMunicipality: cityMunicipalitySchema, // Reuse shared city/municipality schema
+  province: provinceSchema, // Reuse shared province schema
+  country: z.string().nonempty('Country is required'),
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PARENT INFORMATION
+// (Father's Name, Mother's Name) - Both are nameSchema
+// ─────────────────────────────────────────────────────────────────────────────
+export const parentInfoSchema = z.object({
+  fatherName: nameSchema,
+  motherName: nameSchema,
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMINISTRATIVE
+// Remarks/Annotations, Late Registration Option, Document Status
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Remarks/Annotations (optional text)
+export const remarksAnnotationsSchema = z.string().optional();
+
+// Late Registration Option (could be a boolean or an enum/string depending on your UI)
+export const lateRegistrationOptionSchema = z.boolean().optional();
+
+// Document Status (e.g., 'Draft', 'Final', 'Archived'—adjust as needed)
+export const documentStatusSchema = z
+  .string()
+  .nonempty('Document status is required');

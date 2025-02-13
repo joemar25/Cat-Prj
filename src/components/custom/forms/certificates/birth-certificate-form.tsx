@@ -1,6 +1,5 @@
 'use client';
 
-import { ConfirmationDialog } from '@/components/custom/confirmation-dialog/confirmation-dialog';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,210 +9,73 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { createBirthCertificate } from '@/hooks/form-certificate-actions';
 import {
   BirthCertificateFormProps,
+  birthCertificateFormSchema,
   BirthCertificateFormValues,
-  createBirthCertificateSchema,
-  defaultBirthCertificateFormValuesProd,
-  defaultBirthCertificateFormValuesTest,
 } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormType } from '@prisma/client';
-import { PDFViewer } from '@react-pdf/renderer';
-import { Loader2, Save } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { Save } from 'lucide-react';
+import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-
-import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
-import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
-import ChildInformationCard from './form-cards/birth-cards/child-information-card';
-import FatherInformationCard from './form-cards/birth-cards/father-information-card';
-import MarriageOfParentsCard from './form-cards/birth-cards/marriage-parents-card';
-import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
-
-import DelayedRegistrationForm from './form-cards/birth-cards/affidavit-for-delayed-registration';
-import AffidavitOfPaternityForm from './form-cards/birth-cards/affidavit-of-paternity';
-import PreparedByCard from './form-cards/shared-components/prepared-by-card';
-import ReceivedByCard from './form-cards/shared-components/received-by-card';
-import RegisteredAtOfficeCard from './form-cards/shared-components/registered-at-office-card';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
-import RemarksCard from './form-cards/shared-components/remarks-card';
-import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
 
 export default function BirthCertificateForm({
   open,
   onOpenChange,
   onCancel,
 }: BirthCertificateFormProps) {
-  // Manage NCR mode states for various sections
   const [registryNCRMode, setRegistryNCRMode] = useState(false);
-  const [childNCRMode, setChildNCRMode] = useState(false);
-
-  // New state for each address property using addressSchema
-  const [motherResidenceNcrMode, setMotherResidenceNcrMode] = useState(false);
-  const [fatherResidenceNcrMode, setFatherResidenceNcrMode] = useState(false);
-  const [parentMarriagePlaceNcrMode, setParentMarriagePlaceNcrMode] =
-    useState(false);
-  const [attendantAddressNcrMode, setAttendantAddressNcrMode] = useState(false);
-  const [informantAddressNcrMode, setInformantAddressNcrMode] = useState(false);
-  const [adminOfficerAddressNcrMode, setAdminOfficerAddressNcrMode] =
-    useState(false);
-  const [affiantAddressNcrMode, setAffiantAddressNcrMode] = useState(false);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [pendingSubmission, setPendingSubmission] =
-    useState<BirthCertificateFormValues | null>(null);
-
-  // Pass all new booleans to the schema creator
-  const schema = useMemo(
-    () =>
-      createBirthCertificateSchema(
-        registryNCRMode,
-        childNCRMode,
-        motherResidenceNcrMode,
-        fatherResidenceNcrMode,
-        parentMarriagePlaceNcrMode,
-        attendantAddressNcrMode,
-        informantAddressNcrMode,
-        adminOfficerAddressNcrMode,
-        affiantAddressNcrMode
-      ),
-    [
-      registryNCRMode,
-      childNCRMode,
-      motherResidenceNcrMode,
-      fatherResidenceNcrMode,
-      parentMarriagePlaceNcrMode,
-      attendantAddressNcrMode,
-      informantAddressNcrMode,
-      adminOfficerAddressNcrMode,
-      affiantAddressNcrMode,
-    ]
-  );
 
   const formMethods = useForm<BirthCertificateFormValues>({
-    resolver: zodResolver(schema),
-    defaultValues:
-      process.env.NODE_ENV === 'production'
-        ? defaultBirthCertificateFormValuesProd
-        : defaultBirthCertificateFormValuesTest,
+    resolver: zodResolver(birthCertificateFormSchema),
+    defaultValues: {
+      registryNumber: '',
+      province: '',
+      cityMunicipality: '',
+      childInfo: {
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        sex: 'Male',
+        dateOfBirth: '',
+        placeOfBirth: {
+          hospital: '',
+          cityMunicipality: '',
+          province: '',
+        },
+        typeOfBirth: 'Single',
+        birthOrder: '',
+        weightAtBirth: '',
+      },
+      // Add other default values as needed
+      hasAffidavitOfPaternity: false,
+      isDelayedRegistration: false,
+      remarks: '',
+    },
   });
 
-  useEffect(() => {
-    const defaults =
-      process.env.NODE_ENV === 'production'
-        ? defaultBirthCertificateFormValuesProd
-        : defaultBirthCertificateFormValuesTest;
-    formMethods.reset(defaults);
-  }, []);
-
-  const onSubmit = async (values: BirthCertificateFormValues) => {
+  const onSubmit = async (data: BirthCertificateFormValues) => {
     try {
-      setIsSubmitting(true);
-      const result = await createBirthCertificate(values);
-
-      if (result.success) {
-        toast.success('Birth Certificate Registration', {
-          description: result.message,
-        });
-        onOpenChange(false);
-        formMethods.reset();
-      } else if ('warning' in result && result.warning) {
-        setPendingSubmission(values);
-        setShowAlert(true);
-      } else {
-        toast.error('Registration Error', {
-          description: 'message' in result ? result.message : result.error,
-        });
-      }
+      console.log('Form submitted:', data);
+      // Your submission logic here
+      toast.success('Form validated successfully');
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'An unexpected error occurred. Please try again.';
-      toast.error('Registration Error', {
-        description: errorMessage,
-      });
-    } finally {
-      setIsSubmitting(false);
+      console.error('Form submission error:', error);
+      toast.error('Form submission failed');
     }
   };
 
-  const confirmSubmit = async () => {
-    if (pendingSubmission) {
-      try {
-        setIsSubmitting(true);
-        const result = await createBirthCertificate(pendingSubmission, true);
-
-        if (result.success) {
-          toast.success('Birth Certificate Registration', {
-            description: result.message,
-          });
-          onOpenChange(false);
-          formMethods.reset();
-        } else {
-          toast.error('Registration Error', {
-            description: 'message' in result ? result.message : result.error,
-          });
-        }
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'An unexpected error occurred. Please try again.';
-        toast.error('Registration Error', {
-          description: errorMessage,
-        });
-      } finally {
-        setIsSubmitting(false);
-        setShowAlert(false);
-        setPendingSubmission(null);
-      }
+  const handleError = (errors: any) => {
+    console.error('Form validation errors:', errors);
+    if (errors.registryNumber || errors.province || errors.cityMunicipality) {
+      toast.error('Please check registry information');
+      return;
     }
-  };
-
-  const handleError = () => {
-    const errors = formMethods.formState.errors;
-
-    formMethods
-      .trigger(['registryNumber', 'province', 'cityMunicipality'])
-      .then(() => {
-        if (
-          formMethods.getFieldState('registryNumber').error ||
-          formMethods.getFieldState('province').error ||
-          formMethods.getFieldState('cityMunicipality').error
-        ) {
-          toast.error('Birth Registry Information', {
-            description:
-              'Please complete registry number, province, and city/municipality fields',
-          });
-          return;
-        }
-
-        if (errors.childInfo) {
-          toast.error(
-            "Please check the child's information section for errors"
-          );
-          return;
-        }
-        if (errors.motherInfo) {
-          toast.error(
-            "Please check the mother's information section for errors"
-          );
-          return;
-        }
-        if (errors.fatherInfo) {
-          toast.error(
-            "Please check the father's information section for errors"
-          );
-          return;
-        }
-
-        toast.error('Please check all required fields and try again');
-      });
+    // Add other specific error checks
+    toast.error('Please check form for errors');
   };
 
   return (
@@ -236,113 +98,53 @@ export default function BirthCertificateForm({
                       onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
                       className='space-y-6'
                     >
+                      {/* Registry Information Section */}
                       <RegistryInformationCard
                         formType={FormType.BIRTH}
-                        title='Birth Registry Information'
                         isNCRMode={registryNCRMode}
                         setIsNCRMode={setRegistryNCRMode}
                       />
-                      <ChildInformationCard
-                        isNCRMode={childNCRMode}
-                        setIsNCRMode={setChildNCRMode}
-                      />
-                      {/* Pass the new state props to the components that need them */}
-                      <MotherInformationCard
-                        motherResidenceNcrMode={motherResidenceNcrMode}
-                        setMotherResidenceNcrMode={setMotherResidenceNcrMode}
-                      />
-                      <FatherInformationCard
-                        fatherResidenceNcrMode={fatherResidenceNcrMode}
-                        setFatherResidenceNcrMode={setFatherResidenceNcrMode}
-                      />
-                      <MarriageOfParentsCard
-                        parentMarriagePlaceNcrMode={parentMarriagePlaceNcrMode}
-                        setParentMarriagePlaceNcrMode={
-                          setParentMarriagePlaceNcrMode
-                        }
-                      />
-                      <AttendantInformationCard
-                        attendantAddressNcrMode={attendantAddressNcrMode}
-                        setAttendantAddressNcrMode={setAttendantAddressNcrMode}
-                      />
-                      <CertificationOfInformantCard
-                        informantAddressNcrMode={informantAddressNcrMode}
-                        setInformantAddressNcrMode={setInformantAddressNcrMode}
-                      />
-                      <PreparedByCard<BirthCertificateFormValues>
-                        fieldPrefix='preparedBy'
-                        cardTitle='Prepared By'
-                      />
-                      <ReceivedByCard<BirthCertificateFormValues>
-                        fieldPrefix='receivedBy'
-                        cardTitle='Received By'
-                      />
-                      <RegisteredAtOfficeCard<BirthCertificateFormValues>
-                        fieldPrefix='registeredByOffice'
-                        cardTitle='Registered at the Office of Civil Registrar'
-                      />
-                      <RemarksCard<BirthCertificateFormValues>
-                        fieldName='remarks'
-                        cardTitle='Birth Certificate Remarks'
-                        label='Additional Remarks'
-                        placeholder='Enter any additional remarks or annotations'
-                      />
 
-                      <AffidavitOfPaternityForm
-                        adminOfficerAddressNcrMode={adminOfficerAddressNcrMode}
-                        setAdminOfficerAddressNcrMode={
-                          setAdminOfficerAddressNcrMode
-                        }
-                      />
-                      <DelayedRegistrationForm
-                        affiantAddressNcrMode={affiantAddressNcrMode}
-                        setAffiantAddressNcrMode={setAffiantAddressNcrMode}
-                        adminOfficerAddressNcrMode={adminOfficerAddressNcrMode}
-                        setAdminOfficerAddressNcrMode={
-                          setAdminOfficerAddressNcrMode
-                        }
-                      />
+                      {/* Child Information Section */}
+                      {/* TODO: Add Child Information Component */}
+
+                      {/* Mother Information Section */}
+                      {/* TODO: Add Mother Information Component */}
+
+                      {/* Father Information Section */}
+                      {/* TODO: Add Father Information Component */}
+
+                      {/* Marriage Information Section */}
+                      {/* TODO: Add Marriage Information Component */}
+
+                      {/* Attendant Information Section */}
+                      {/* TODO: Add Attendant Information Component */}
+
+                      {/* Informant Section */}
+                      {/* TODO: Add Informant Component */}
+
+                      {/* Processing Section */}
+                      {/* TODO: Add Processing Component */}
+
+                      {/* Affidavit Section */}
+                      {/* TODO: Add Affidavit Component */}
+
                       <DialogFooter>
                         <Button
                           type='button'
                           variant='outline'
                           className='h-10'
                           onClick={onCancel}
-                          disabled={isSubmitting}
                         >
                           Cancel
                         </Button>
-                        <Button
-                          type='submit'
-                          className='h-10 ml-2'
-                          disabled={isSubmitting}
-                        >
-                          {isSubmitting ? (
-                            <>
-                              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <Save className='mr-2 h-4 w-4' />
-                              Save Registration
-                            </>
-                          )}
+                        <Button type='submit' className='h-10 ml-2'>
+                          <Save className='mr-2 h-4 w-4' />
+                          Save Registration
                         </Button>
                       </DialogFooter>
                     </form>
                   </FormProvider>
-                  <ConfirmationDialog
-                    open={showAlert}
-                    onOpenChange={setShowAlert}
-                    onConfirm={confirmSubmit}
-                    isSubmitting={isSubmitting}
-                    formType='BIRTH'
-                    title='Duplicate Record Detected'
-                    description='A similar birth record already exists. Do you want to proceed with saving this record?'
-                    confirmButtonText='Proceed'
-                    cancelButtonText='Cancel'
-                  />
                 </div>
               </ScrollArea>
             </div>
@@ -350,9 +152,7 @@ export default function BirthCertificateForm({
             {/* Right Side - Preview */}
             <div className='w-1/2'>
               <div className='h-[calc(95vh-120px)] p-6'>
-                <PDFViewer width='100%' height='100%'>
-                  <BirthCertificatePDF data={formMethods.watch()} />
-                </PDFViewer>
+                {/* PDF Preview will be added here later */}
               </div>
             </div>
           </div>

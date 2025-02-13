@@ -2,6 +2,10 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import {
+  BirthCertificateResponse,
+  DeathCertificateResponse,
+} from '@/lib/types/form-certificates-types/types';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
@@ -9,13 +13,6 @@ import { formatAddress } from '@/lib/utils/location-helpers';
 import { isValidDate } from '@/utils/certificate-helper-functions';
 import { FormType, Sex } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
-
-type BirthCertificateResponse =
-  | { success: true; data: any; message: string }
-  | { success: false; warning?: boolean; message: string }
-  | { success: false; error: string };
-
-// -----------------------------HELPER FUNCTION--------------//
 
 // ----------------------------END OF HELPER FUNCTION----------------------------------------//
 export async function createMarriageCertificate(
@@ -170,259 +167,305 @@ export async function createMarriageCertificate(
 }
 
 // Death Certificate Server Action
-
 export async function createDeathCertificate(
   data: DeathCertificateFormValues,
   ignoreDuplicate: boolean = false
-) {
+): Promise<DeathCertificateResponse> {
   try {
-    // Check for required dates using the new deceasedInfo key
-    if (!data.deceasedInfo.dateOfDeath) {
-      return { success: false, error: 'Date of death is required' };
-    }
-    if (!data.deceasedInfo.dateOfBirth) {
-      return { success: false, error: 'Date of birth is required' };
-    }
-
-    // Validate registry number format before checking in DB
-    if (!/\d{4}-\d{5}/.test(data.registryNumber)) {
-      return {
-        success: false,
-        error: 'Registry number must be in the format YYYY-#####',
-      };
-    }
-
-    // Validate registry number does not already exist
-    const existingRegistry = await prisma.baseRegistryForm.findFirst({
-      where: {
-        registryNumber: data.registryNumber,
-        formType: 'DEATH',
+    // Assume the data has already been validated by Zod.
+    // Sanitize the incoming data following the birth certificate pattern.
+    const sanitizedData: DeathCertificateFormValues = {
+      ...data,
+      registryNumber: data.registryNumber.trim(),
+      province: data.province.trim(),
+      cityMunicipality: data.cityMunicipality.trim(),
+      deceasedInfo: {
+        ...data.deceasedInfo,
+        deceasedName: {
+          firstName: data.deceasedInfo.deceasedName.firstName.trim(),
+          middleName: data.deceasedInfo.deceasedName.middleName?.trim() || '',
+          lastName: data.deceasedInfo.deceasedName.lastName.trim(),
+        },
+        civilStatus: data.deceasedInfo.civilStatus.trim(),
+        religion: data.deceasedInfo.religion?.trim(),
+        citizenship: data.deceasedInfo.citizenship.trim(),
+        residence: {
+          houseNumber:
+            data.deceasedInfo.residence.houseNumber?.trim?.() ||
+            data.deceasedInfo.residence.houseNumber,
+          street:
+            data.deceasedInfo.residence.street?.trim?.() ||
+            data.deceasedInfo.residence.street,
+          barangay:
+            data.deceasedInfo.residence.barangay?.trim?.() ||
+            data.deceasedInfo.residence.barangay,
+          cityMunicipality: data.deceasedInfo.residence.cityMunicipality.trim(),
+          province: data.deceasedInfo.residence.province.trim(),
+          country:
+            data.deceasedInfo.residence.country?.trim?.() ||
+            data.deceasedInfo.residence.country,
+        },
+        placeOfDeath: {
+          houseNumber:
+            data.deceasedInfo.placeOfDeath.houseNumber?.trim?.() ||
+            data.deceasedInfo.placeOfDeath.houseNumber,
+          street:
+            data.deceasedInfo.placeOfDeath.street?.trim?.() ||
+            data.deceasedInfo.placeOfDeath.street,
+          barangay:
+            data.deceasedInfo.placeOfDeath.barangay?.trim?.() ||
+            data.deceasedInfo.placeOfDeath.barangay,
+          cityMunicipality:
+            data.deceasedInfo.placeOfDeath.cityMunicipality.trim(),
+          province: data.deceasedInfo.placeOfDeath.province.trim(),
+          country:
+            data.deceasedInfo.placeOfDeath.country?.trim?.() ||
+            data.deceasedInfo.placeOfDeath.country,
+        },
+        placeOfBirth: {
+          houseNumber:
+            data.deceasedInfo.placeOfBirth.houseNumber?.trim?.() ||
+            data.deceasedInfo.placeOfBirth.houseNumber,
+          street:
+            data.deceasedInfo.placeOfBirth.street?.trim?.() ||
+            data.deceasedInfo.placeOfBirth.street,
+          barangay:
+            data.deceasedInfo.placeOfBirth.barangay?.trim?.() ||
+            data.deceasedInfo.placeOfBirth.barangay,
+          cityMunicipality:
+            data.deceasedInfo.placeOfBirth.cityMunicipality.trim(),
+          province: data.deceasedInfo.placeOfBirth.province.trim(),
+          country:
+            data.deceasedInfo.placeOfBirth.country?.trim?.() ||
+            data.deceasedInfo.placeOfBirth.country,
+        },
       },
-    });
-    if (existingRegistry) {
+      familyInfo: {
+        nameOfFather: {
+          firstName: data.familyInfo.nameOfFather.firstName.trim(),
+          middleName: data.familyInfo.nameOfFather.middleName?.trim() || '',
+          lastName: data.familyInfo.nameOfFather.lastName.trim(),
+        },
+        nameOfMother: {
+          firstName: data.familyInfo.nameOfMother.firstName.trim(),
+          middleName: data.familyInfo.nameOfMother.middleName?.trim() || '',
+          lastName: data.familyInfo.nameOfMother.lastName.trim(),
+        },
+      },
+      informant: {
+        ...data.informant,
+        name: data.informant.name.trim(),
+        relationship: data.informant.relationship.trim(),
+        address: {
+          houseNumber:
+            data.informant.address.houseNumber?.trim?.() ||
+            data.informant.address.houseNumber,
+          street:
+            data.informant.address.street?.trim?.() ||
+            data.informant.address.street,
+          barangay:
+            data.informant.address.barangay?.trim?.() ||
+            data.informant.address.barangay,
+          cityMunicipality: data.informant.address.cityMunicipality.trim(),
+          province: data.informant.address.province.trim(),
+          country:
+            data.informant.address.country?.trim?.() ||
+            data.informant.address.country,
+        },
+      },
+      preparer: {
+        ...data.preparer,
+        name: data.preparer.name.trim(),
+        title: data.preparer.title.trim(),
+      },
+      receivedBy: {
+        ...data.receivedBy,
+        name: data.receivedBy.name.trim(),
+        title: data.receivedBy.title.trim(),
+      },
+      registeredAtCivilRegistrar: {
+        ...data.registeredAtCivilRegistrar,
+        name: data.registeredAtCivilRegistrar.name.trim(),
+        title: data.registeredAtCivilRegistrar.title.trim(),
+      },
+      remarks: data.remarks?.trim() || '',
+    };
+
+    // Validate registry number format.
+    if (!/\d{4}-\d+/.test(sanitizedData.registryNumber)) {
       return {
-        success: false,
-        error: 'Registry number already exists. Please use a different number.',
+        success: false as const,
+        error: 'Registry number must be in format: YYYY-numbers',
+        message: '',
       };
     }
 
-    // Check for duplicate deceased information
-    if (!ignoreDuplicate) {
-      const existingDeceased = await prisma.deathCertificateForm.findFirst({
+    const result = await prisma.$transaction(async (tx) => {
+      // Check for an existing BaseRegistryForm with the same registry number for DEATH.
+      const existingRegistry = await tx.baseRegistryForm.findFirst({
         where: {
-          AND: [
-            {
-              deceasedName: {
-                path: ['firstName'],
-                string_contains: data.deceasedInfo.firstName.trim(),
-              },
-            },
-            {
-              deceasedName: {
-                path: ['lastName'],
-                string_contains: data.deceasedInfo.lastName.trim(),
-              },
-            },
-            { dateOfDeath: data.deceasedInfo.dateOfDeath },
-            {
-              placeOfDeath: {
-                path: ['cityMunicipality'],
-                string_contains:
-                  data.deceasedInfo.placeOfDeath.cityMunicipality.trim(),
-              },
-            },
-          ],
+          registryNumber: sanitizedData.registryNumber,
+          formType: FormType.DEATH,
         },
       });
-      if (existingDeceased) {
-        return {
-          success: false,
-          warning: true,
-          message:
-            'Similar death record already exists. Do you want to proceed with saving this record?',
-        };
+      if (existingRegistry) {
+        throw new Error(
+          'Registry number already exists. Please use a different number.'
+        );
       }
-    }
 
-    // Validate preparer exists
-    const user = await prisma.user.findFirst({
-      where: { name: data.preparedBy.name },
-    });
-    if (!user) {
-      return { success: false, error: 'Preparer not found' };
-    }
-
-    // Create the death certificate using BaseRegistryForm with a nested deathCertificateForm
-    const baseForm = await prisma.baseRegistryForm.create({
-      data: {
-        formNumber: '103',
-        formType: 'DEATH',
-        registryNumber: data.registryNumber,
-        province: data.province,
-        cityMunicipality: data.cityMunicipality,
-        pageNumber: '1',
-        bookNumber: '1',
-        dateOfRegistration: new Date(),
-        status: 'PENDING',
-        preparedBy: {
-          connect: { id: user.id },
-        },
-        deathCertificateForm: {
-          create: {
-            // Deceased Information (using deceasedInfo)
-            deceasedName: {
-              firstName: data.deceasedInfo.firstName.trim(),
-              middleName: data.deceasedInfo.middleName?.trim() || '',
-              lastName: data.deceasedInfo.lastName.trim(),
-            },
-            sex: data.deceasedInfo.sex,
-            dateOfDeath: data.deceasedInfo.dateOfDeath,
-            dateOfBirth: data.deceasedInfo.dateOfBirth,
-            // Map the address for place of death
-            placeOfDeath: {
-              houseNumber: data.deceasedInfo.placeOfDeath.houseNumber,
-              street: data.deceasedInfo.placeOfDeath.street,
-              barangay: data.deceasedInfo.placeOfDeath.barangay,
-              cityMunicipality: data.deceasedInfo.placeOfDeath.cityMunicipality,
-              province: data.deceasedInfo.placeOfDeath.province,
-              country: data.deceasedInfo.placeOfDeath.country,
-            },
-            // For backward compatibility, set placeOfBirth the same as placeOfDeath
-            placeOfBirth: {
-              houseNumber: data.deceasedInfo.placeOfDeath.houseNumber,
-              street: data.deceasedInfo.placeOfDeath.street,
-              barangay: data.deceasedInfo.placeOfDeath.barangay,
-              cityMunicipality: data.deceasedInfo.placeOfDeath.cityMunicipality,
-              province: data.deceasedInfo.placeOfDeath.province,
-              country: data.deceasedInfo.placeOfDeath.country,
-            },
-            civilStatus: data.deceasedInfo.civilStatus,
-            religion: data.deceasedInfo.religion,
-            citizenship: data.deceasedInfo.citizenship,
-            residence: {
-              houseNumber: data.deceasedInfo.residence.houseNumber,
-              street: data.deceasedInfo.residence.street,
-              barangay: data.deceasedInfo.residence.barangay,
-              cityMunicipality: data.deceasedInfo.residence.cityMunicipality,
-              province: data.deceasedInfo.residence.province,
-              country: data.deceasedInfo.residence.country,
-            },
-            occupation: data.deceasedInfo.occupation,
-
-            // Family Information
-            nameOfFather: {
-              firstName: data.familyInfo.father.firstName.trim(),
-              middleName: data.familyInfo.father.middleName?.trim() || '',
-              lastName: data.familyInfo.father.lastName.trim(),
-            },
-            nameOfMother: {
-              firstName: data.familyInfo.mother.firstName.trim(),
-              middleName: data.familyInfo.mother.middleName?.trim() || '',
-              lastName: data.familyInfo.mother.lastName.trim(),
-            },
-
-            // Medical Certificate
-            causesOfDeath: {
-              immediate: data.medicalCertificate.causesOfDeath.immediate,
-              antecedent: data.medicalCertificate.causesOfDeath.antecedent,
-              underlying: data.medicalCertificate.causesOfDeath.underlying,
-              contributingConditions:
-                data.medicalCertificate.causesOfDeath.contributingConditions ||
-                '',
-            },
-            // Save the full ageAtDeath object (years, months, days, hours)
-            deathInterval: data.deceasedInfo.ageAtDeath,
-            pregnancy: false,
-            attendedByPhysician: data.certification.hasAttended === 'Yes',
-            mannerOfDeath: data.medicalCertificate.externalCauses.mannerOfDeath,
-            placeOfOccurrence:
-              data.medicalCertificate.externalCauses.placeOfOccurrence,
-
-            // Certification Information
-            certificationType: 'STANDARD',
-            certifier: {
-              signature: data.certification.signature,
-              name: data.certification.name,
-              title: data.certification.title,
-              address: {
-                houseNumber: data.certification.address.houseNumber,
-                street: data.certification.address.street,
-                barangay: data.certification.address.barangay,
-                cityMunicipality: data.certification.address.cityMunicipality,
-                province: data.certification.address.province,
-                country: data.certification.address.country,
+      // Optionally check for a duplicate death certificate based on key fields.
+      if (
+        !ignoreDuplicate &&
+        sanitizedData.deceasedInfo.dateOfDeath &&
+        sanitizedData.deceasedInfo.deceasedName.firstName &&
+        sanitizedData.deceasedInfo.deceasedName.lastName
+      ) {
+        const existingDeceased = await tx.deathCertificateForm.findFirst({
+          where: {
+            AND: [
+              {
+                deceasedName: {
+                  path: ['firstName'],
+                  string_contains:
+                    sanitizedData.deceasedInfo.deceasedName.firstName,
+                },
               },
-              date: data.certification.date,
-            },
-
-            // Disposal Information
-            disposalDetails: {
-              method: data.disposal.method,
-              burialPermit: {
-                number: data.disposal.burialPermit.number,
-                dateIssued: data.disposal.burialPermit.dateIssued,
+              {
+                deceasedName: {
+                  path: ['lastName'],
+                  string_contains:
+                    sanitizedData.deceasedInfo.deceasedName.lastName,
+                },
               },
-              transferPermit: data.disposal.transferPermit.number
+              { dateOfDeath: sanitizedData.deceasedInfo.dateOfDeath! },
+              {
+                placeOfDeath: {
+                  path: ['cityMunicipality'],
+                  string_contains:
+                    sanitizedData.deceasedInfo.placeOfDeath.cityMunicipality,
+                },
+              },
+            ],
+          },
+        });
+        if (existingDeceased) {
+          return {
+            success: false as const,
+            error: '',
+            warning: true,
+            message:
+              'A similar death record already exists. Do you want to proceed with saving this record?',
+          };
+        }
+      }
+
+      // Validate that the preparer exists.
+      const preparer = await tx.user.findFirst({
+        where: { name: sanitizedData.preparer.name },
+      });
+      if (!preparer) {
+        throw new Error('Preparer not found');
+      }
+
+      // Create the BaseRegistryForm with nested DeathCertificateForm.
+      const baseForm = await tx.baseRegistryForm.create({
+        data: {
+          formNumber: '103',
+          formType: FormType.DEATH,
+          registryNumber: sanitizedData.registryNumber,
+          province: sanitizedData.province,
+          cityMunicipality: sanitizedData.cityMunicipality,
+          pageNumber: '1',
+          bookNumber: '1',
+          dateOfRegistration: new Date(),
+          status: 'PENDING',
+          preparedBy: { connect: { id: preparer.id } },
+          deathCertificateForm: {
+            create: {
+              deceasedName: sanitizedData.deceasedInfo.deceasedName,
+              sex: sanitizedData.deceasedInfo.sex,
+              dateOfDeath: sanitizedData.deceasedInfo.dateOfDeath!, // non-null
+              dateOfBirth: sanitizedData.deceasedInfo.dateOfBirth ?? undefined,
+              placeOfDeath: sanitizedData.deceasedInfo.placeOfDeath,
+              placeOfBirth: sanitizedData.deceasedInfo.placeOfBirth,
+              civilStatus: sanitizedData.deceasedInfo.civilStatus,
+              religion: sanitizedData.deceasedInfo.religion,
+              citizenship: sanitizedData.deceasedInfo.citizenship,
+              residence: sanitizedData.deceasedInfo.residence,
+              occupation: sanitizedData.deceasedInfo.occupation,
+              pregnancy: sanitizedData.deceasedInfo.pregnancy,
+              nameOfFather: sanitizedData.familyInfo.nameOfFather,
+              nameOfMother: sanitizedData.familyInfo.nameOfMother,
+              causesOfDeath: sanitizedData.medicalInfo.causesOfDeath,
+              deathInterval: sanitizedData.medicalInfo.deathInterval,
+              maternalCondition:
+                sanitizedData.medicalInfo.maternalCondition ?? undefined,
+              autopsyPerformed: sanitizedData.medicalInfo.autopsyPerformed,
+              attendedByPhysician: sanitizedData.attendance.attendedByPhysician,
+              attendanceDuration:
+                sanitizedData.attendance.attendanceDuration ?? undefined,
+              mannerOfDeath: sanitizedData.externalCauses.mannerOfDeath,
+              externalCause: sanitizedData.externalCauses.externalCause,
+              placeOfOccurrence: sanitizedData.externalCauses.placeOfOccurrence,
+              certificationType: sanitizedData.certification.certificationType,
+              certifier: sanitizedData.certification.certifier,
+              disposalDetails:
+                sanitizedData.disposal.disposalDetails ?? undefined,
+              burialPermit: sanitizedData.disposal.burialPermit
                 ? {
-                    number: data.disposal.transferPermit.number,
-                    dateIssued: data.disposal.transferPermit.dateIssued || null,
+                    ...sanitizedData.disposal.burialPermit,
+                    dateIssued: sanitizedData.disposal.burialPermit.dateIssued!,
                   }
-                : null,
-              cemeteryAddress: data.disposal.cemeteryAddress,
-            },
-
-            // Informant Details
-            informant: {
-              signature: data.informant.signature,
-              name: data.informant.name,
-              relationship: data.informant.relationship,
-              address: {
-                houseNumber: data.informant.address.houseNumber,
-                street: data.informant.address.street,
-                barangay: data.informant.address.barangay,
-                cityMunicipality: data.informant.address.cityMunicipality,
-                province: data.informant.address.province,
-                country: data.informant.address.country,
-              },
-              date: data.informant.date,
-            },
-
-            // Preparer Details
-            preparer: {
-              signature: data.preparedBy.signature,
-              name: data.preparedBy.name,
-              title: data.preparedBy.title,
-              date: data.preparedBy.date,
+                : undefined,
+              transferPermit:
+                sanitizedData.disposal.transferPermit ?? undefined,
+              cemeteryDetails:
+                sanitizedData.disposal.cemeteryDetails ?? undefined,
+              postmortemDetails:
+                sanitizedData.additionalDetails.postmortemDetails ?? undefined,
+              embalmerDetails:
+                sanitizedData.additionalDetails.embalmerDetails ?? undefined,
+              infantDeathDetails:
+                sanitizedData.additionalDetails.infantDeathDetails ?? undefined,
+              delayedRegistration:
+                sanitizedData.delayedRegistration ?? undefined,
+              // Uncomment these lines if your Prisma model includes them:
+              // ageAtDeath: sanitizedData.ageAtDeath ?? undefined,
+              // reviewedBy: sanitizedData.reviewedBy ?? undefined,
+              informant: sanitizedData.informant,
+              preparer: sanitizedData.preparer,
             },
           },
+          receivedBy: sanitizedData.receivedBy.name.trim(),
+          receivedByPosition: sanitizedData.receivedBy.title.trim(),
+          receivedDate: sanitizedData.receivedBy.date,
+          registeredBy: sanitizedData.registeredAtCivilRegistrar.name.trim(),
+          registeredByPosition:
+            sanitizedData.registeredAtCivilRegistrar.title.trim(),
+          registrationDate: sanitizedData.registeredAtCivilRegistrar.date,
+          remarks: sanitizedData.remarks || null,
         },
-        // Additional Base Form fields
-        receivedBy: data.receivedBy.name.trim(),
-        receivedByPosition: data.receivedBy.title.trim(),
-        receivedDate: data.receivedBy.date,
-        registeredBy: data.registeredAtCivilRegistrar.name.trim(),
-        registeredByPosition: data.registeredAtCivilRegistrar.title.trim(),
-        registrationDate: data.registeredAtCivilRegistrar.date,
-        remarks: data.remarks?.trim(),
-      },
+      });
+
+      return {
+        success: true as const,
+        data: baseForm,
+        message: 'Death certificate created successfully',
+      };
     });
 
-    // Revalidate the civil registry path (or any other necessary path)
     revalidatePath('/civil-registry');
-
-    return {
-      success: true,
-      data: baseForm,
-      message: 'Death certificate created successfully',
-    };
+    return result;
   } catch (error) {
     console.error('Error creating death certificate:', error);
     return {
-      success: false,
+      success: false as const,
       error:
         error instanceof Error
           ? error.message
           : 'Failed to create death certificate',
+      message: '',
     };
   }
 }
@@ -474,7 +517,8 @@ export async function createBirthCertificate(
     if (!/\d{4}-\d+/.test(sanitizedData.registryNumber)) {
       return {
         success: false,
-        error: 'Registry number must be in format: YYYY-numbers',
+        error: 'Invalid registry number format',
+        message: 'Registry number must be in format: YYYY-numbers',
       };
     }
 
@@ -540,6 +584,7 @@ export async function createBirthCertificate(
         if (existingChild) {
           return {
             success: false,
+            error: '',
             warning: true,
             message:
               'Child information already exists in the database. Do you want to proceed with saving this record?',
@@ -559,7 +604,6 @@ export async function createBirthCertificate(
       }
 
       // Build optional payloads.
-      // Only include the nested object if it is not null.
       const affidavitOfPaternityPayload =
         sanitizedData.hasAffidavitOfPaternity &&
         sanitizedData.affidavitOfPaternityDetails !== null
@@ -698,7 +742,6 @@ export async function createBirthCertificate(
       };
     });
 
-    // Revalidate after successful transaction
     await revalidatePath('/civil-registry');
     if (result.success) {
       return {
@@ -709,6 +752,7 @@ export async function createBirthCertificate(
     } else {
       return {
         success: false,
+        error: '', // when returning a failure with warning, ensure an error field exists
         warning: result.warning,
         message: result.message,
       };
@@ -721,6 +765,7 @@ export async function createBirthCertificate(
         error instanceof Error
           ? error.message
           : 'Failed to create birth certificate',
+      message: '',
     };
   }
 }
@@ -751,3 +796,300 @@ export async function checkRegistryNumberExists(
     };
   }
 }
+
+// // export async function createBirthCertificate(
+//   data: BirthCertificateFormValues,
+//   ignoreDuplicateChild: boolean = false
+// ): Promise<BirthCertificateResponse> {
+//   try {
+//     // Data sanitization
+//     const sanitizedData = {
+//       ...data,
+//       registryNumber: data.registryNumber.trim(),
+//       province: data.province.trim(),
+//       cityMunicipality: data.cityMunicipality.trim(),
+//       childInfo: {
+//         ...data.childInfo,
+//         firstName: data.childInfo.firstName.trim(),
+//         middleName: data.childInfo.middleName?.trim() || '',
+//         lastName: data.childInfo.lastName.trim(),
+//         placeOfBirth: {
+//           hospital: data.childInfo.placeOfBirth.hospital.trim(),
+//           cityMunicipality: data.childInfo.placeOfBirth.cityMunicipality.trim(),
+//           province: data.childInfo.placeOfBirth.province.trim(),
+//         },
+//       },
+//       motherInfo: {
+//         ...data.motherInfo,
+//         firstName: data.motherInfo.firstName.trim(),
+//         middleName: data.motherInfo.middleName?.trim() || '',
+//         lastName: data.motherInfo.lastName.trim(),
+//         citizenship: data.motherInfo.citizenship.trim(),
+//         religion: data.motherInfo.religion?.trim(),
+//         occupation: data.motherInfo.occupation?.trim(),
+//       },
+//       fatherInfo: {
+//         ...data.fatherInfo,
+//         firstName: data.fatherInfo.firstName.trim(),
+//         middleName: data.fatherInfo.middleName?.trim() || '',
+//         lastName: data.fatherInfo.lastName.trim(),
+//         citizenship: data.fatherInfo.citizenship.trim(),
+//         religion: data.fatherInfo.religion?.trim(),
+//         occupation: data.fatherInfo.occupation?.trim(),
+//       },
+//     };
+
+//     // Validate registry number format (expects YYYY-#####)
+//     if (!/\d{4}-\d+/.test(sanitizedData.registryNumber)) {
+//       return {
+//         success: false,
+//         error: 'Registry number must be in format: YYYY-numbers',
+//       };
+//     }
+
+//     // Use transaction for atomicity
+//     const result = await prisma.$transaction(async (tx) => {
+//       // Check for existing registry number
+//       const existingRegistry = await tx.baseRegistryForm.findFirst({
+//         where: {
+//           registryNumber: sanitizedData.registryNumber,
+//           formType: FormType.BIRTH,
+//         },
+//       });
+
+//       if (existingRegistry) {
+//         throw new Error(
+//           'Registry number already exists. Please use a different number.'
+//         );
+//       }
+
+//       // Check for duplicate child if not ignoring
+//       if (!ignoreDuplicateChild && sanitizedData.childInfo.dateOfBirth) {
+//         const existingChild = await tx.birthCertificateForm.findFirst({
+//           where: {
+//             AND: [
+//               {
+//                 childName: {
+//                   path: ['firstName'],
+//                   string_contains: sanitizedData.childInfo.firstName,
+//                 },
+//               },
+//               {
+//                 childName: {
+//                   path: ['lastName'],
+//                   string_contains: sanitizedData.childInfo.lastName,
+//                 },
+//               },
+//               { dateOfBirth: sanitizedData.childInfo.dateOfBirth },
+//               {
+//                 placeOfBirth: {
+//                   path: ['hospital'],
+//                   string_contains:
+//                     sanitizedData.childInfo.placeOfBirth.hospital,
+//                 },
+//               },
+//               {
+//                 placeOfBirth: {
+//                   path: ['cityMunicipality'],
+//                   string_contains:
+//                     sanitizedData.childInfo.placeOfBirth.cityMunicipality,
+//                 },
+//               },
+//               {
+//                 placeOfBirth: {
+//                   path: ['province'],
+//                   string_contains:
+//                     sanitizedData.childInfo.placeOfBirth.province,
+//                 },
+//               },
+//             ],
+//           },
+//         });
+
+//         if (existingChild) {
+//           return {
+//             success: false,
+//             warning: true,
+//             message:
+//               'Child information already exists in the database. Do you want to proceed with saving this record?',
+//           };
+//         }
+//       }
+
+//       // Validate that the preparer exists
+//       const user = await tx.user.findFirst({
+//         where: {
+//           name: sanitizedData.preparedBy.name,
+//         },
+//       });
+
+//       if (!user) {
+//         throw new Error('Preparer not found');
+//       }
+
+//       // Build optional payloads.
+//       // Only include the nested object if it is not null.
+//       const affidavitOfPaternityPayload =
+//         sanitizedData.hasAffidavitOfPaternity &&
+//         sanitizedData.affidavitOfPaternityDetails !== null
+//           ? {
+//               affidavitOfPaternityDetails:
+//                 sanitizedData.affidavitOfPaternityDetails,
+//             }
+//           : {};
+
+//       const delayedRegistrationPayload =
+//         sanitizedData.isDelayedRegistration &&
+//         sanitizedData.affidavitOfDelayedRegistration !== null
+//           ? {
+//               reasonForDelay:
+//                 sanitizedData.affidavitOfDelayedRegistration.reasonForDelay,
+//               affidavitOfDelayedRegistration:
+//                 sanitizedData.affidavitOfDelayedRegistration,
+//             }
+//           : {};
+
+//       // Create the base registry form with nested birth certificate
+//       const baseForm = await tx.baseRegistryForm.create({
+//         data: {
+//           formNumber: '102',
+//           formType: FormType.BIRTH,
+//           registryNumber: sanitizedData.registryNumber,
+//           province: sanitizedData.province,
+//           cityMunicipality: sanitizedData.cityMunicipality,
+//           pageNumber: '1',
+//           bookNumber: '1',
+//           dateOfRegistration: new Date(),
+//           status: 'PENDING',
+//           preparedBy: {
+//             connect: { id: user.id },
+//           },
+//           birthCertificateForm: {
+//             create: {
+//               childName: {
+//                 firstName: sanitizedData.childInfo.firstName,
+//                 middleName: sanitizedData.childInfo.middleName,
+//                 lastName: sanitizedData.childInfo.lastName,
+//               },
+//               sex: sanitizedData.childInfo.sex as Sex,
+//               dateOfBirth: sanitizedData.childInfo.dateOfBirth || new Date(),
+//               placeOfBirth: sanitizedData.childInfo.placeOfBirth,
+//               typeOfBirth: sanitizedData.childInfo.typeOfBirth,
+//               multipleBirthOrder: sanitizedData.childInfo.multipleBirthOrder,
+//               birthOrder: sanitizedData.childInfo.birthOrder,
+//               weightAtBirth: parseFloat(sanitizedData.childInfo.weightAtBirth),
+//               motherMaidenName: {
+//                 firstName: sanitizedData.motherInfo.firstName,
+//                 middleName: sanitizedData.motherInfo.middleName,
+//                 lastName: sanitizedData.motherInfo.lastName,
+//               },
+//               motherCitizenship: sanitizedData.motherInfo.citizenship,
+//               motherReligion: sanitizedData.motherInfo.religion,
+//               motherOccupation: sanitizedData.motherInfo.occupation,
+//               motherAge: parseInt(sanitizedData.motherInfo.age),
+//               motherResidence: formatAddress(
+//                 sanitizedData.motherInfo.residence
+//               ),
+//               totalChildrenBornAlive: parseInt(
+//                 sanitizedData.motherInfo.totalChildrenBornAlive
+//               ),
+//               childrenStillLiving: parseInt(
+//                 sanitizedData.motherInfo.childrenStillLiving
+//               ),
+//               childrenNowDead: parseInt(
+//                 sanitizedData.motherInfo.childrenNowDead
+//               ),
+//               fatherName: {
+//                 firstName: sanitizedData.fatherInfo.firstName,
+//                 middleName: sanitizedData.fatherInfo.middleName,
+//                 lastName: sanitizedData.fatherInfo.lastName,
+//               },
+//               fatherCitizenship: sanitizedData.fatherInfo.citizenship,
+//               fatherReligion: sanitizedData.fatherInfo.religion,
+//               fatherOccupation: sanitizedData.fatherInfo.occupation,
+//               fatherAge: parseInt(sanitizedData.fatherInfo.age),
+//               fatherResidence: formatAddress(
+//                 sanitizedData.fatherInfo.residence
+//               ),
+//               parentMarriage: {
+//                 date: sanitizedData.parentMarriage.date || new Date(),
+//                 place: sanitizedData.parentMarriage.place,
+//               },
+//               attendant: {
+//                 type: sanitizedData.attendant.type,
+//                 certification: {
+//                   time:
+//                     sanitizedData.attendant.certification.time || new Date(),
+//                   signature:
+//                     sanitizedData.attendant.certification.signature || '',
+//                   name: sanitizedData.attendant.certification.name.trim(),
+//                   title: sanitizedData.attendant.certification.title.trim(),
+//                   address: formatAddress(
+//                     sanitizedData.attendant.certification.address
+//                   ),
+//                   date:
+//                     sanitizedData.attendant.certification.date || new Date(),
+//                 },
+//               },
+//               informant: {
+//                 signature: sanitizedData.informant.signature || '',
+//                 name: sanitizedData.informant.name,
+//                 relationship: sanitizedData.informant.relationship,
+//                 address: formatAddress(sanitizedData.informant.address),
+//                 date: sanitizedData.informant.date || new Date(),
+//               },
+//               preparer: {
+//                 signature: sanitizedData.preparedBy.signature || '',
+//                 name: sanitizedData.preparedBy.name.trim(),
+//                 title: sanitizedData.preparedBy.title.trim(),
+//                 date: sanitizedData.preparedBy.date || new Date(),
+//               },
+//               hasAffidavitOfPaternity: sanitizedData.hasAffidavitOfPaternity,
+//               ...affidavitOfPaternityPayload,
+//               isDelayedRegistration: sanitizedData.isDelayedRegistration,
+//               ...delayedRegistrationPayload,
+//             },
+//           },
+//           receivedBy: sanitizedData.receivedBy.name,
+//           receivedByPosition: sanitizedData.receivedBy.title,
+//           receivedDate: sanitizedData.receivedBy.date || new Date(),
+//           registeredBy: sanitizedData.registeredByOffice.name,
+//           registeredByPosition: sanitizedData.registeredByOffice.title,
+//           registrationDate: sanitizedData.registeredByOffice.date || new Date(),
+//           remarks: sanitizedData.remarks?.trim() || null,
+//         },
+//       });
+
+//       return {
+//         success: true,
+//         data: baseForm,
+//         message: 'Birth certificate created successfully',
+//       };
+//     });
+
+//     // Revalidate after successful transaction
+//     await revalidatePath('/civil-registry');
+//     if (result.success) {
+//       return {
+//         success: true,
+//         data: result.data,
+//         message: result.message,
+//       };
+//     } else {
+//       return {
+//         success: false,
+//         warning: result.warning,
+//         message: result.message,
+//       };
+//     }
+//   } catch (error) {
+//     console.error('Error creating birth certificate:', error);
+//     return {
+//       success: false,
+//       error:
+//         error instanceof Error
+//           ? error.message
+//           : 'Failed to create birth certificate',
+//     };
+//   }
+// }

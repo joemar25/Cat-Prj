@@ -25,7 +25,7 @@ import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-// Reusable shared components (same for Birth, Death, and Marriage)
+// Shared/reusable components
 import PreparedByCard from './form-cards/shared-components/prepared-by-card';
 import ReceivedByCard from './form-cards/shared-components/received-by-card';
 import RegisteredAtOfficeCard from './form-cards/shared-components/registered-at-office-card';
@@ -33,17 +33,17 @@ import RegistryInformationCard from './form-cards/shared-components/registry-inf
 import RemarksCard from './form-cards/shared-components/remarks-card';
 
 // Death-specific components
-
-import DeathCertificatePDF from './preview/death-certificate/death-certificate-preview';
-import DeceasedInformationCard from './form-cards/death-cards/deceased-information-card';
-import MedicalCertificateCard from './form-cards/death-cards/medical-certificate-card';
-import CausesOfDeathCard from './form-cards/death-cards/causes-of-death';
-import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
-import DeathByExternalCausesCard from './form-cards/death-cards/death-by-external-causes';
 import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
+import CausesOfDeathCard from './form-cards/death-cards/causes-of-death';
 import CertificationOfDeathCard from './form-cards/death-cards/certification-of-death-card';
-import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
 import CertificationInformantCard from './form-cards/death-cards/certification-of-informant-card';
+import DeathByExternalCausesCard from './form-cards/death-cards/death-by-external-causes';
+import DeceasedInformationCard from './form-cards/death-cards/deceased-information-card';
+import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
+import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
+import MedicalCertificateCard from './form-cards/death-cards/medical-certificate-card';
+import DeathCertificatePDF from './preview/death-certificate/death-certificate-preview';
+import { DeathCertificateResponse } from '@/lib/types/form-certificates-types/types';
 
 export default function DeathCertificateForm({
   open,
@@ -55,33 +55,39 @@ export default function DeathCertificateForm({
   const [pendingSubmission, setPendingSubmission] =
     useState<DeathCertificateFormValues | null>(null);
 
-  // State for the RegistryInformationCard (e.g. special mode flag)
+  // Manage a flag for registry mode (adjust as needed)
   const [isNCRMode, setIsNCRMode] = useState(false);
 
-  const form = useForm<DeathCertificateFormValues>({
+  // Initialize the form using our Zod schema and default values.
+  const formMethods = useForm<DeathCertificateFormValues>({
     resolver: zodResolver(
       createDeathCertificateSchema(isNCRMode, isNCRMode, isNCRMode, isNCRMode)
     ),
     defaultValues: defaultDeathCertificateFormValues,
   });
 
+  // onSubmit handler: call the server action and show toasts based on response.
   const onSubmit = async (values: DeathCertificateFormValues) => {
     try {
       setIsSubmitting(true);
-      const result = await createDeathCertificate(values);
+      const result: DeathCertificateResponse = await createDeathCertificate(
+        values
+      );
       if (result.success) {
         toast.success('Death Certificate Registration', {
-          description: 'Death certificate has been registered successfully',
+          description: result.message,
         });
         onOpenChange(false);
-        form.reset();
-      } else if (result.warning) {
-        setPendingSubmission(values);
-        setShowAlert(true);
+        formMethods.reset();
       } else {
-        toast.error('Registration Error', {
-          description: result.error || 'Failed to register death certificate',
-        });
+        if (result.warning) {
+          setPendingSubmission(values);
+          setShowAlert(true);
+        } else {
+          toast.error('Registration Error', {
+            description: result.error,
+          });
+        }
       }
     } catch (error) {
       const errorMessage =
@@ -94,20 +100,24 @@ export default function DeathCertificateForm({
     }
   };
 
+  // confirmSubmit: called when user confirms to proceed despite duplicate warnings.
   const confirmSubmit = async () => {
     if (pendingSubmission) {
       try {
         setIsSubmitting(true);
-        const result = await createDeathCertificate(pendingSubmission, true);
+        const result: DeathCertificateResponse = await createDeathCertificate(
+          pendingSubmission,
+          true
+        );
         if (result.success) {
           toast.success('Death Certificate Registration', {
-            description: 'Death certificate has been registered successfully',
+            description: result.message,
           });
           onOpenChange(false);
-          form.reset();
+          formMethods.reset();
         } else {
           toast.error('Registration Error', {
-            description: result.error || 'Failed to register death certificate',
+            description: result.error,
           });
         }
       } catch (error) {
@@ -125,16 +135,16 @@ export default function DeathCertificateForm({
   };
 
   const handleError = () => {
-    const errors = form.formState.errors;
-    form
+    const errors = formMethods.formState.errors;
+    formMethods
       .trigger(['registryNumber', 'province', 'cityMunicipality'])
       .then(() => {
         if (
-          form.getFieldState('registryNumber').error ||
-          form.getFieldState('province').error ||
-          form.getFieldState('cityMunicipality').error
+          formMethods.getFieldState('registryNumber').error ||
+          formMethods.getFieldState('province').error ||
+          formMethods.getFieldState('cityMunicipality').error
         ) {
-          toast.error('Birth Registry Information', {
+          toast.error('Registry Information', {
             description:
               'Please complete registry number, province, and city/municipality fields',
           });
@@ -142,7 +152,7 @@ export default function DeathCertificateForm({
         }
         if (errors.deceasedInfo) {
           toast.error(
-            'Please check the personal information section for errors'
+            'Please check the deceased information section for errors'
           );
           return;
         }
@@ -168,9 +178,9 @@ export default function DeathCertificateForm({
             <div className='w-1/2 border-r'>
               <ScrollArea className='h-[calc(95vh-120px)]'>
                 <div className='p-6'>
-                  <FormProvider {...form}>
+                  <FormProvider {...formMethods}>
                     <form
-                      onSubmit={form.handleSubmit(onSubmit, handleError)}
+                      onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
                       className='space-y-6'
                     >
                       {/* Registry Information */}
@@ -204,28 +214,28 @@ export default function DeathCertificateForm({
                       {/* Disposal Information */}
                       <DisposalInformationCard />
 
-                      {/* Informant Information */}
+                      {/* Certification Informant */}
                       <CertificationInformantCard />
 
-                      {/* Prepared By (reusable shared component) */}
+                      {/* Prepared By */}
                       <PreparedByCard<DeathCertificateFormValues>
                         fieldPrefix='preparedBy'
                         cardTitle='Prepared By'
                       />
 
-                      {/* Received By (reusable shared component) */}
+                      {/* Received By */}
                       <ReceivedByCard<DeathCertificateFormValues>
                         fieldPrefix='receivedBy'
                         cardTitle='Received By'
                       />
 
-                      {/* Registered At Office (reusable shared component) */}
+                      {/* Registered At Office */}
                       <RegisteredAtOfficeCard<DeathCertificateFormValues>
                         fieldPrefix='registeredByOffice'
                         cardTitle='Registered at the Office of Civil Registrar'
                       />
 
-                      {/* Remarks (reusable shared component) */}
+                      {/* Remarks */}
                       <RemarksCard<DeathCertificateFormValues>
                         fieldName='remarks'
                         cardTitle='Death Certificate Remarks'
@@ -281,7 +291,7 @@ export default function DeathCertificateForm({
             <div className='w-1/2'>
               <div className='h-[calc(95vh-120px)] p-6'>
                 <PDFViewer width='100%' height='100%'>
-                  <DeathCertificatePDF data={form.watch()} />
+                  <DeathCertificatePDF data={formMethods.watch()} />
                 </PDFViewer>
               </div>
             </div>

@@ -269,6 +269,7 @@ model DeathCertificateForm {
   deathInterval       Json
   pregnancy           Boolean?
   attendedByPhysician Boolean
+  attendanceDuration    Json?  
   mannerOfDeath       String?
   autopsyPerformed    Boolean?
   externalCause       String?
@@ -279,6 +280,15 @@ model DeathCertificateForm {
   informant           Json
   preparer            Json
   burialPermit        Json?
+  transferPermit        Json?   
+  cemeteryDetails       Json? 
+  postmortemDetails     Json?  
+  embalmerDetails       Json?
+  infantDeathDetails    Json?
+  maternalCondition     Json?
+  delayedRegistration   Json?        
+  ageAtDeath         Json?
+  reviewedBy         Json?  
   baseForm            BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: SetNull)
 
   @@index([dateOfDeath])

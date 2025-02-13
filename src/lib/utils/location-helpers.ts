@@ -5,18 +5,12 @@ import {
   PROVINCES,
 } from '../constants/locations';
 
-/* =======================================================================
-   TypeScript interfaces
-======================================================================== */
-
-// For province suggestions (and for internal use)
 export interface Province {
   id: string;
   name: string;
   regionName: string;
 }
 
-// A basic location record with common properties.
 interface LocationBase {
   id: string;
   name: string;
@@ -24,7 +18,6 @@ interface LocationBase {
   provinceName: string | null;
 }
 
-// Interfaces for city/municipality records (used in getAllLocations below)
 interface City extends LocationBase {
   subMunicipalities: string[];
   municipalities: string[];
@@ -36,35 +29,21 @@ interface Municipality extends LocationBase {
   barangays: string[];
 }
 
-// For barangays:
 export interface Barangay extends LocationBase {
   cityName: string | null;
   municipalityName: string | null;
 }
 
-/* =======================================================================
-   New Combined Suggestion Interface
-======================================================================== */
-
-/**
- * This interface represents a flattened location suggestion used for
- * city/municipality/sub‑municipality selection.
- */
 export interface LocationSuggestion {
   id: string;
   displayName: string;
   region: string;
   province: string | null;
-  // If coming from a City record, city is set.
-  // If coming from a Municipality record (or its subMunicipalities), municipality is set.
   city?: string | null;
   municipality?: string | null;
   type: 'city' | 'municipality' | 'subMunicipality';
 }
 
-/* =======================================================================
-   Helper Function: generateId
-======================================================================== */
 function generateId(parts: (string | null)[]): string {
   return parts
     .filter((part) => part !== null)
@@ -72,11 +51,6 @@ function generateId(parts: (string | null)[]): string {
     .toLowerCase()
     .replace(/\s+/g, '-');
 }
-
-/* =======================================================================
-   Basic Helpers: getAllProvinces, getAllLocations, getLocationsByProvince,
-   getBarangaysByLocation, getBarangaysBySubMunicipality
-======================================================================== */
 
 export function getAllProvinces(): Province[] {
   return PROVINCES.map((province) => ({
@@ -88,8 +62,6 @@ export function getAllProvinces(): Province[] {
 
 export function getAllLocations(): (City | Municipality)[] {
   const locations: (City | Municipality)[] = [];
-
-  // Add cities
   CITIES.forEach((city) => {
     locations.push({
       id: generateId([city.region, city.province, city.name]),
@@ -100,8 +72,6 @@ export function getAllLocations(): (City | Municipality)[] {
       municipalities: city.municipalities,
     });
   });
-
-  // Add municipalities (avoid duplicates)
   MUNICIPALITIES.forEach((mun) => {
     if (
       !locations.some(
@@ -113,21 +83,15 @@ export function getAllLocations(): (City | Municipality)[] {
         name: mun.name,
         regionName: mun.region,
         provinceName: mun.province,
-        // For municipality records, we store cityName if available.
         cityName: mun.city,
         subMunicipalities: mun.subMunicipalities,
         barangays: mun.barangays,
       });
     }
   });
-
   return locations.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/**
- * Returns locations filtered by province.
- * In NCR mode, returns all locations in the NCR regardless of provinceId.
- */
 export function getLocationsByProvince(
   provinceId: string,
   isNCRMode: boolean = false
@@ -144,19 +108,13 @@ export function getLocationsByProvince(
   );
 }
 
-/**
- * Returns barangays for a given location.
- */
 export function getBarangaysByLocation(locationId: string): Barangay[] {
   const location = getAllLocations().find((loc) => loc.id === locationId);
   if (!location) return [];
-
   return BARANGAYS.filter((barangay) => {
     if ('municipalities' in location) {
-      // For cities
       return barangay.city === location.name;
     } else {
-      // For municipalities
       return barangay.municipality === location.name;
     }
   })
@@ -177,25 +135,19 @@ export function getBarangaysByLocation(locationId: string): Barangay[] {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/**
- * Returns barangays for a given sub-municipality.
- */
 export function getBarangaysBySubMunicipality(
   locationId: string,
   subMunicipalityName: string
 ): Barangay[] {
   const location = getAllLocations().find((loc) => loc.id === locationId);
   if (!location) return [];
-
   return BARANGAYS.filter((barangay) => {
     if ('municipalities' in location) {
-      // For cities
       return (
         barangay.city === location.name &&
         location.subMunicipalities.includes(subMunicipalityName)
       );
     } else {
-      // For municipalities
       return (
         barangay.municipality === location.name &&
         location.subMunicipalities.includes(subMunicipalityName)
@@ -219,41 +171,19 @@ export function getBarangaysBySubMunicipality(
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/* =======================================================================
-   NEW HELPER: Combined City Suggestions
-======================================================================== */
-
-/**
- * Combines data from CITIES and MUNICIPALITIES into one flattened list.
- * The suggestions include:
- *  - The city itself (type 'city')
- *  - Each subMunicipality from a City (type 'subMunicipality')
- *  - The municipalities declared in a City (type 'municipality')
- *  - Standalone Municipality records (type 'municipality') plus their subMunicipalities.
- *
- * If not in NCR mode and a provinceId is provided, only suggestions
- * from that province are returned.
- * When in NCR mode, only records from NCR are returned.
- */
 export function getCombinedCitySuggestions(
   provinceId: string,
   isNCRMode: boolean = false
 ): LocationSuggestion[] {
   const suggestions: LocationSuggestion[] = [];
-
-  // Find province object if applicable.
   const provinceObj = getAllProvinces().find((p) => p.id === provinceId);
-
-  // Process CITIES array.
+  const modePrefix = isNCRMode ? 'ncr' : 'non-ncr';
   CITIES.forEach((city) => {
-    // Filter by province if not in NCR mode.
     if (!isNCRMode && provinceObj && city.province !== provinceObj.name) return;
     if (isNCRMode && city.region !== 'NATIONAL CAPITAL REGION (NCR)') return;
-
-    // Add the city itself.
     const cityId = generateId([city.region, city.province, city.name]);
     suggestions.push({
-      id: cityId,
+      id: `${modePrefix}-city-${cityId}`,
       displayName: city.name,
       region: city.region,
       province: city.province,
@@ -261,12 +191,10 @@ export function getCombinedCitySuggestions(
       municipality: null,
       type: 'city',
     });
-
-    // Add each subMunicipality as its own suggestion.
     city.subMunicipalities.forEach((sub) => {
       const subId = generateId([city.region, city.province, city.name, sub]);
       suggestions.push({
-        id: subId,
+        id: `${modePrefix}-sub-${subId}`,
         displayName: `${sub} (${city.name})`,
         region: city.region,
         province: city.province,
@@ -275,8 +203,6 @@ export function getCombinedCitySuggestions(
         type: 'subMunicipality',
       });
     });
-
-    // Add each municipality name declared on the City.
     city.municipalities.forEach((munName) => {
       const munId = generateId([
         city.region,
@@ -285,7 +211,7 @@ export function getCombinedCitySuggestions(
         munName,
       ]);
       suggestions.push({
-        id: munId,
+        id: `${modePrefix}-mun-${munId}`,
         displayName: munName,
         region: city.region,
         province: city.province,
@@ -295,18 +221,13 @@ export function getCombinedCitySuggestions(
       });
     });
   });
-
-  // Process MUNICIPALITIES array.
   MUNICIPALITIES.forEach((mun) => {
-    // Filter by province if not in NCR mode.
     if (!isNCRMode && provinceObj && mun.province !== provinceObj.name) return;
     if (isNCRMode && mun.region !== 'NATIONAL CAPITAL REGION (NCR)') return;
-
-    // If there is no associated city, add it as a standalone municipality.
     if (!mun.city) {
       const munId = generateId([mun.region, mun.province, mun.name]);
       suggestions.push({
-        id: munId,
+        id: `${modePrefix}-mun-${munId}`,
         displayName: mun.name,
         region: mun.region,
         province: mun.province,
@@ -315,11 +236,10 @@ export function getCombinedCitySuggestions(
         type: 'municipality',
       });
     }
-    // Add subMunicipalities from the municipality record.
     mun.subMunicipalities.forEach((sub) => {
       const subId = generateId([mun.region, mun.province, mun.name, sub]);
       suggestions.push({
-        id: subId,
+        id: `${modePrefix}-sub-${subId}`,
         displayName: `${sub} (${mun.name})`,
         region: mun.region,
         province: mun.province,
@@ -329,8 +249,28 @@ export function getCombinedCitySuggestions(
       });
     });
   });
-
   suggestions.sort((a, b) => a.displayName.localeCompare(b.displayName));
+  const seen = new Set<string>();
+  const uniqueSuggestions = suggestions.filter((item) => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+  return uniqueSuggestions;
+}
+
+const suggestionCache: { [key: string]: LocationSuggestion[] } = {};
+
+export function getCachedCitySuggestions(
+  provinceId: string,
+  isNCRMode: boolean
+): LocationSuggestion[] {
+  const cacheKey = `${provinceId}-${isNCRMode ? 'ncr' : 'non-ncr'}`;
+  if (suggestionCache[cacheKey]) {
+    return suggestionCache[cacheKey];
+  }
+  const suggestions = getCombinedCitySuggestions(provinceId, isNCRMode);
+  suggestionCache[cacheKey] = suggestions;
   return suggestions;
 }
 
@@ -343,7 +283,6 @@ export function formatAddress(address: {
   country?: string;
   region?: string;
 }) {
-  // Try to get the region by matching the province name.
   let region = address.region || '';
   const provinces = getAllProvinces();
   if (address.province) {
@@ -351,7 +290,6 @@ export function formatAddress(address: {
       (p) => p.name.toLowerCase() === address.province!.toLowerCase()
     );
     if (prov) {
-      // Use 'regionName' if that is the correct property name.
       region = prov.regionName;
     }
   }
