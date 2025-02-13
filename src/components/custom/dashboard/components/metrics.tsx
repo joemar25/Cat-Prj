@@ -130,7 +130,7 @@ export default function MetricsDashboard({
         <Card
           key={metric.titleKey}
           className={`cursor-pointer transition-all ${selectedMetric === metric.titleKey ? "text-white" : ""} 
-          ${selectedMetric === metric.titleKey ? "bg-chart-2  dark:bg-chart-5" : "bg-transparent"}`}
+          ${selectedMetric === metric.titleKey ? "bg-chart-2" : "bg-transparent"}`}
          
           onClick={() => handleSelectMetric(metric.titleKey, metric.model, metric.currentCount)}
         >

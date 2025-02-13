@@ -10,15 +10,15 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useTranslation } from "react-i18next"
 
 const areaChartConfig = {
-  birth: { label: "Birth", color: "hsl(var(--chart-5))" },
-  death: { label: "Death", color: "hsl(var(--chart-5))" },
-  marriage: { label: "Marriage", color: "hsl(var(--chart-5))" },
+  birth: { label: "Birth", color: "hsl(var(--chart-1))" },
+  death: { label: "Death", color: "hsl(var(--chart-2))" },
+  marriage: { label: "Marriage", color: "hsl(var(--chart-3))" },
 } satisfies ChartConfig
 
 const pieChartConfig = {
-  birth: { label: "Births", color: "hsl(var(--chart-2))" },
+  birth: { label: "Births", color: "hsl(var(--chart-1))" },
   death: { label: "Deaths", color: "hsl(var(--chart-2))" },
-  marriage: { label: "Marriages", color: "hsl(var(--chart-2))" },
+  marriage: { label: "Marriages", color: "hsl(var(--chart-3))" },
 } satisfies ChartConfig;
 
 interface RegistryStatisticsDashboardProps {
