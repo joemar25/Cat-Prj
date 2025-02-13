@@ -68,10 +68,10 @@ export function NavMain({ items }: NavMainProps) {
                     <Link href={item.url} className='flex items-center gap-2 w-full text-accent'>
                       {ItemIcon && (
                         <ItemIcon className={`w-6 h-6 transition-colors duration-150 
-                          ${isActive ? '' : 'text-muted-foreground'}
+                          ${isActive ? 'text-white' : 'text-muted-foreground'}
                         `} />
                       )}
-                      <span className={`${isActive ? '' : 'text-muted-foreground'}`}>
+                      <span className={`${isActive ? 'text-white' : 'text-muted-foreground'}`}>
                         {item.title}
                       </span>
                       {item.notViewedCount !== undefined && item.notViewedCount > 0 && (
@@ -91,7 +91,7 @@ export function NavMain({ items }: NavMainProps) {
                           ${hasActiveSubItem ? 'text-accent-foreground ' : 'text-muted-foreground'}
                         `}
                       >
-                        <Icons.chevronRight className={`w-7 h-7 ml-0.5 text-accent`} /> 
+                        <Icons.chevronRight className={`w-7 h-7 ml-0.5 text-accent`} />
                         <span className='sr-only'>Toggle</span>
                       </SidebarMenuAction>
                     </CollapsibleTrigger>
