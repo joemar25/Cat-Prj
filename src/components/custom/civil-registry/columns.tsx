@@ -63,11 +63,11 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
         <Badge
           variant={formTypeInfo.variant}
           className={`font-medium ${formTypeInfo.label.toLowerCase() === 'marriage'
-              ? 'bg-chart-1'
+              ? 'bg-blue-500/30 dark:bg-blue-500/50 dark:text-accent-foreground text-blue-500 hover:bg-blue-500/30'
               : formTypeInfo.label.toLowerCase() === 'death'
-                ? 'bg-muted text-accent-foreground hover:bg-muted/80'
+                ? 'bg-muted text-accent-foreground hover:bg-muted'
                 : formTypeInfo.label.toLowerCase() === 'birth'
-                  ? 'bg-primary hover:bg-primary/80 text-accent dark:text-accent-foreground'
+                  ? 'bg-green-500/30 dark:bg-green-500/50 text-green-500  dark:text-accent-foreground hover:bg-green-500/30'
                   : ''
             }`}
         >
@@ -543,42 +543,42 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
       return value.includes(row.getValue(id));
     },
   },
-  {
-    id: 'hasCTC',
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('For Release?')}
-      />
-    ),
-    cell: ({ row }) => {
-      const attachments = row.original.document?.attachments || [];
+  // {
+  //   id: 'hasCTC',
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader
+  //       column={column}
+  //       title={useTranslation().t('For Release?')}
+  //     />
+  //   ),
+  //   cell: ({ row }) => {
+  //     const attachments = row.original.document?.attachments || [];
 
-      // Safely get the latest attachment
-      const latestAttachment = attachments[0];
+  //     // Safely get the latest attachment
+  //     const latestAttachment = attachments[0];
 
-      // Ensure TypeScript safety with optional chaining and nullish coalescing
-      const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0;
+  //     // Ensure TypeScript safety with optional chaining and nullish coalescing
+  //     const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0;
 
-      return (
-        <Badge
-          variant={hasCTC ? 'default' : 'secondary'}
-          className='font-medium'
-        >
-          {hasCTC ? useTranslation().t('Yes') : useTranslation().t('No')}
-        </Badge>
-      );
-    },
-    filterFn: (row, id, value) => {
-      const attachments = row.original.document?.attachments || [];
-      const latestAttachment = attachments[0];
+  //     return (
+  //       <Badge
+  //         variant={hasCTC ? 'default' : 'secondary'}
+  //         className='font-medium'
+  //       >
+  //         {hasCTC ? useTranslation().t('Yes') : useTranslation().t('No')}
+  //       </Badge>
+  //     );
+  //   },
+  //   filterFn: (row, id, value) => {
+  //     const attachments = row.original.document?.attachments || [];
+  //     const latestAttachment = attachments[0];
 
-      // Apply safe check for certified copies
-      const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0;
+  //     // Apply safe check for certified copies
+  //     const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0;
 
-      return value === 'Yes' ? hasCTC : !hasCTC;
-    },
-  },
+  //     return value === 'Yes' ? hasCTC : !hasCTC;
+  //   },
+  // },
   {
     accessorKey: 'createdAt',
     header: ({ column }) => (
@@ -626,6 +626,12 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     id: 'actions',
     enableSorting: false,
     enableHiding: false,
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title={useTranslation().t('Actions')}
+      />
+    ),
     cell: ({ row }) => {
       return <DataTableRowActions row={row} />;
     },
