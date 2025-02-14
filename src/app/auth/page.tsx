@@ -160,7 +160,7 @@ const lottieSet = [
   { animationData: red, color: "#fcd000" },
   { animationData: check, color: "#fcd000" },
   { animationData: lock, color: "#fcd000" },
-  { animationData: files, color: "#fcd000" },
+  // { animationData: files, color: "#fcd000" },
 ]
 
 const RightSide = () => {
@@ -181,7 +181,7 @@ const RightSide = () => {
   }, [])
 
   return (
-    <div className="w-full hidden lg:flex flex-col items-center justify-center dark:bg-blueColor/30 bg-white relative overflow-hidden">
+    <div className="w-full hidden lg:flex flex-col items-center justify-center blueColor dark:bg-blueColor/30 bg-chart-1/5 relative overflow-hidden">
       <span className="z-50 absolute top-2 right-0">
         <ThemeChange />
       </span>
@@ -210,10 +210,11 @@ const RightSide = () => {
             Efficient.
           </span>
         </CardTitle>
-        <CardDescription className="max-w-sm text-muted-foreground dark:text-white">
+        <CardDescription className="max-w-md pt-2">
           Committed to provide high-quality services and ensuring that all the
           data stored is protected.
         </CardDescription>
+
       </div>
 
       <div className="flex gap-2 mt-4 absolute bottom-6 z-50">
