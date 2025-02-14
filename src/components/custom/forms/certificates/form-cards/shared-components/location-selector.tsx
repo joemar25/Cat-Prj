@@ -1,4 +1,5 @@
 'use client';
+
 import {
   FormControl,
   FormField,
@@ -39,8 +40,10 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   const {
     control,
     setValue,
+    trigger,
     formState: { isSubmitted },
   } = useFormContext();
+
   const {
     selectedProvince,
     selectedMunicipality,
@@ -62,6 +65,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     onMunicipalityChange,
     onBarangayChange,
   });
+
   const provinceOptions = isNCRMode
     ? [
         {
@@ -71,12 +75,14 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         },
       ]
     : provinces;
+
   return (
     <>
+      {/* Province/Region Field */}
       <FormField
         control={control}
         name={provinceFieldName}
-        render={() => (
+        render={({ field, fieldState }) => (
           <FormItem className={formItemClassName}>
             <FormLabel className={formLabelClassName}>
               {isNCRMode ? 'Region' : provinceLabel}
@@ -84,7 +90,13 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             <FormControl>
               <Select
                 value={selectedProvince}
-                onValueChange={(value: string) => handleProvinceChange(value)}
+                onValueChange={(value: string) => {
+                  // Update react-hook-form state and custom state
+                  field.onChange(value);
+                  handleProvinceChange(value);
+                  // Force immediate revalidation
+                  trigger(provinceFieldName);
+                }}
                 disabled={isNCRMode}
               >
                 <SelectTrigger className='text-sm dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800'>
@@ -103,10 +115,13 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormMessage />
+            {/* Render error message unconditionally */}
+            <FormMessage>{fieldState.error?.message}</FormMessage>
           </FormItem>
         )}
       />
+
+      {/* Municipality/City Field */}
       <FormField
         control={control}
         name={municipalityFieldName}
@@ -118,9 +133,11 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             <FormControl>
               <Select
                 value={selectedMunicipality}
-                onValueChange={(value: string) =>
-                  handleMunicipalityChange(value)
-                }
+                onValueChange={(value: string) => {
+                  field.onChange(value);
+                  handleMunicipalityChange(value);
+                  trigger(municipalityFieldName);
+                }}
                 disabled={!selectedProvince}
               >
                 <SelectTrigger className='text-sm dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800'>
@@ -135,12 +152,12 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 </SelectContent>
               </Select>
             </FormControl>
-            {isSubmitted && (
-              <FormMessage>{fieldState.error?.message}</FormMessage>
-            )}
+            <FormMessage>{fieldState.error?.message}</FormMessage>
           </FormItem>
         )}
       />
+
+      {/* Barangay Field (if applicable) */}
       {showBarangay && (
         <FormField
           control={control}
@@ -153,7 +170,11 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               <FormControl>
                 <Select
                   value={selectedBarangay}
-                  onValueChange={(value: string) => handleBarangayChange(value)}
+                  onValueChange={(value: string) => {
+                    field.onChange(value);
+                    handleBarangayChange(value);
+                    trigger(barangayFieldName);
+                  }}
                   disabled={!selectedMunicipality}
                 >
                   <SelectTrigger className='text-sm dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800'>
@@ -168,9 +189,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                   </SelectContent>
                 </Select>
               </FormControl>
-              {isSubmitted && (
-                <FormMessage>{fieldState.error?.message}</FormMessage>
-              )}
+              <FormMessage>{fieldState.error?.message}</FormMessage>
             </FormItem>
           )}
         />

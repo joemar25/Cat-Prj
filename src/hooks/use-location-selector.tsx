@@ -8,7 +8,7 @@ import {
   Province,
 } from '@/lib/utils/location-helpers';
 import { useEffect, useMemo, useState } from 'react';
-import { UseFormSetValue } from 'react-hook-form';
+import { useFormContext, UseFormSetValue } from 'react-hook-form';
 
 interface UseLocationSelectorProps {
   provinceFieldName: string;
@@ -37,6 +37,7 @@ export const useLocationSelector = ({
   onBarangayChange,
   trigger,
 }: UseLocationSelectorProps) => {
+  const { clearErrors } = useFormContext();
   const [selectedProvince, setSelectedProvince] = useState<string>(
     isNCRMode ? NCR_PROVINCE_ID : ''
   );
@@ -66,35 +67,45 @@ export const useLocationSelector = ({
         `${selectedProvince}-${locationName}`.toLowerCase(),
         subMun
       );
-      return result.map((barangay) => ({
-        id: barangay.id,
-        name: barangay.name,
-      }));
+      return result.map((b) => ({ id: b.id, name: b.name }));
     }
     const result: Barangay[] = getBarangaysByLocation(
       `${selectedProvince}-${selectedMunicipality}`.toLowerCase()
     );
-    return result.map((barangay) => ({ id: barangay.id, name: barangay.name }));
+    return result.map((b) => ({ id: b.id, name: b.name }));
   }, [selectedProvince, selectedMunicipality]);
 
   useEffect(() => {
     if (isNCRMode) {
       setSelectedProvince(NCR_PROVINCE_ID);
       setValue(provinceFieldName, NCR_PROVINCE_DISPLAY);
+      clearErrors(provinceFieldName);
     } else {
       setSelectedProvince('');
       setValue(provinceFieldName, '');
+      clearErrors(provinceFieldName);
     }
     setSelectedMunicipality('');
     setSelectedBarangay('');
     setValue(municipalityFieldName, '');
-    if (barangayFieldName) setValue(barangayFieldName, '');
+    if (barangayFieldName) {
+      setValue(barangayFieldName, '');
+    }
+    if (trigger) {
+      const fieldsToTrigger = [provinceFieldName, municipalityFieldName];
+      if (barangayFieldName) {
+        fieldsToTrigger.push(barangayFieldName);
+      }
+      void trigger(fieldsToTrigger);
+    }
   }, [
     isNCRMode,
     provinceFieldName,
     municipalityFieldName,
     barangayFieldName,
     setValue,
+    trigger,
+    clearErrors,
   ]);
 
   const handleProvinceChange = async (value: string) => {
@@ -107,10 +118,15 @@ export const useLocationSelector = ({
       : provinces.find((p) => p.id === value)?.name || '';
     setValue(provinceFieldName, selectedProvinceName);
     setValue(municipalityFieldName, '');
-    if (barangayFieldName) setValue(barangayFieldName, '');
+    if (barangayFieldName) {
+      setValue(barangayFieldName, '');
+    }
     if (trigger) {
-      await trigger(provinceFieldName);
-      await trigger(municipalityFieldName);
+      const fieldsToTrigger = [provinceFieldName, municipalityFieldName];
+      if (barangayFieldName) {
+        fieldsToTrigger.push(barangayFieldName);
+      }
+      await trigger(fieldsToTrigger);
     }
     onProvinceChange?.(selectedProvinceName);
   };
@@ -122,9 +138,15 @@ export const useLocationSelector = ({
     setSelectedMunicipality(selectedSuggestion.id);
     setSelectedBarangay('');
     setValue(municipalityFieldName, selectedSuggestion.displayName);
-    if (barangayFieldName) setValue(barangayFieldName, '');
+    if (barangayFieldName) {
+      setValue(barangayFieldName, '');
+    }
     if (trigger) {
-      await trigger(municipalityFieldName);
+      const fieldsToTrigger = [municipalityFieldName];
+      if (barangayFieldName) {
+        fieldsToTrigger.push(barangayFieldName);
+      }
+      await trigger(fieldsToTrigger);
     }
     onMunicipalityChange?.(selectedSuggestion.displayName);
   };
@@ -132,7 +154,9 @@ export const useLocationSelector = ({
   const handleBarangayChange = async (value: string) => {
     if (value === selectedBarangay) return;
     setSelectedBarangay(value);
-    if (barangayFieldName) setValue(barangayFieldName, value);
+    if (barangayFieldName) {
+      setValue(barangayFieldName, value);
+    }
     if (trigger && barangayFieldName) {
       await trigger(barangayFieldName);
     }

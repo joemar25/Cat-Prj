@@ -31,6 +31,7 @@ export default function BirthCertificateForm({
 
   const formMethods = useForm<BirthCertificateFormValues>({
     resolver: zodResolver(birthCertificateFormSchema),
+    mode: 'onChange',
     defaultValues: {
       registryNumber: '',
       province: '',

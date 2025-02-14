@@ -48,7 +48,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     (value: string): string => {
       if (!value) return '';
 
-      // Apply the same regex for all form types.
       const formatRegex = /^\d{4}-\d+$/;
       if (!value.match(formatRegex)) {
         if (value.length < minLength) return ''; // Wait for more characters
@@ -74,7 +73,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         const response = await fetch('/api/check-registry-number', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // Pass the formType for server logic if needed
           body: JSON.stringify({ registryNumber: value, formType }),
         });
 
@@ -107,6 +105,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     [setError, clearErrors, formType]
   );
 
+  // Debounced effect for asynchronous registry number check.
   useEffect(() => {
     if (debouncedRegistryNumber.length >= minLength) {
       const error = validateRegistryNumber(debouncedRegistryNumber);
@@ -165,7 +164,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     return null;
   };
 
-  // Use the same placeholder and description for all form types.
   const placeholder = 'YYYY-numbers';
   const description = 'Format: YYYY-numbers (e.g., 2025-123456)';
 
@@ -175,7 +173,6 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        {/* NCR Mode Switch – controlled via props */}
         <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           <FormField
