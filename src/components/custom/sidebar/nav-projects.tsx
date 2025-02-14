@@ -22,7 +22,7 @@ export function NavProjects({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className='hover:bg-chart-1/30 hover:scale-105 duration-300 ease-in-out transition-all'>
               <a href={item.url}>
                 {item.icon && <item.icon className="w-5 h-5 text-muted-foreground" />}
                 <span>{item.title}</span>
