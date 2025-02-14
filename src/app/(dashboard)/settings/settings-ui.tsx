@@ -18,9 +18,30 @@ export function SettingsUI() {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true)
   const [isPrivacyModeEnabled, setIsPrivacyModeEnabled] = useState(false)
 
-  const handleManualBackup = () => {
-    console.log(t("backup.manual.initiated"))
+  const handleManualBackup = async () => {
+    try {
+      const response = await fetch('/api/backup')
+      if (!response.ok) throw new Error('Backup failed')
+  
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+  
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `backup-${new Date().toISOString().replace(/[:.]/g, '-')}.sql`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+  
+      console.log(t("backup.manual.completed"))
+    } catch (error) {
+      console.error("❌ Error creating backup:", error)
+    }
   }
+  
+  
+  
 
   return (
     <div className="container flex flex-col gap-6">
