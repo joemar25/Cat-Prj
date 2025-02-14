@@ -2,7 +2,6 @@ import {
   Barangay,
   getAllProvinces,
   getBarangaysByLocation,
-  getBarangaysBySubMunicipality,
   getCachedCitySuggestions,
   LocationSuggestion,
   Province,
@@ -46,43 +45,31 @@ export const useLocationSelector = ({
   const [selectedBarangay, setSelectedBarangay] = useState<string>('');
   const [hoveredCity, setHoveredCity] = useState<string | null>(null);
 
+  // In NCR mode, use a static province. Otherwise, return all provinces.
   const provinces: Province[] = useMemo(() => {
-    const allProvinces = getAllProvinces();
     return isNCRMode
-      ? allProvinces.filter(
-          (p) => p.regionName === 'NATIONAL CAPITAL REGION (NCR)'
-        )
-      : allProvinces;
+      ? [
+          {
+            psgc_id: NCR_PROVINCE_ID,
+            name: NCR_PROVINCE_DISPLAY,
+            geographic_level: 'Region',
+          },
+        ]
+      : getAllProvinces();
   }, [isNCRMode]);
 
+  // Get municipality suggestions based on the selected province.
   const municipalities: LocationSuggestion[] = useMemo(() => {
     if (!selectedProvince) return [];
     return getCachedCitySuggestions(selectedProvince, isNCRMode);
   }, [selectedProvince, isNCRMode]);
 
+  // Get barangays based on the selected municipality.
   const barangays = useMemo((): { id: string; name: string }[] => {
     if (!selectedMunicipality) return [];
-    // Remove any prefix from the selected municipality suggestion ID.
-    let locationId = selectedMunicipality;
-    if (locationId.startsWith('ncr-city-')) {
-      locationId = locationId.replace('ncr-city-', '');
-    } else if (locationId.startsWith('non-ncr-city-')) {
-      locationId = locationId.replace('non-ncr-city-', '');
-    } else if (locationId.startsWith('ncr-mun-')) {
-      locationId = locationId.replace('ncr-mun-', '');
-    } else if (locationId.startsWith('non-ncr-mun-')) {
-      locationId = locationId.replace('non-ncr-mun-', '');
-    }
-    if (selectedMunicipality.includes(', ')) {
-      const [subMun, locationName] = selectedMunicipality.split(', ');
-      const result: Barangay[] = getBarangaysBySubMunicipality(
-        locationId,
-        subMun
-      );
-      return result.map((b) => ({ id: b.id, name: b.name }));
-    }
-    const result: Barangay[] = getBarangaysByLocation(locationId);
-    return result.map((b) => ({ id: b.id, name: b.name }));
+    // The helper returns barangays with their psgc_id and name.
+    const result: Barangay[] = getBarangaysByLocation(selectedMunicipality);
+    return result.map((b) => ({ id: b.psgc_id, name: b.name }));
   }, [selectedMunicipality]);
 
   useEffect(() => {
@@ -125,7 +112,7 @@ export const useLocationSelector = ({
     setSelectedBarangay('');
     const selectedProvinceName = isNCRMode
       ? NCR_PROVINCE_DISPLAY
-      : provinces.find((p) => p.id === value)?.name || '';
+      : provinces.find((p) => p.psgc_id === value)?.name || '';
     setValue(provinceFieldName, selectedProvinceName);
     setValue(municipalityFieldName, '');
     if (barangayFieldName) {

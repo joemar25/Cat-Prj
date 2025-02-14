@@ -66,17 +66,18 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     onBarangayChange,
   });
 
+  // For NCR mode, define a static province with proper keys.
   const provinceOptions = isNCRMode
     ? [
         {
-          id: 'metro-manila',
+          psgc_id: 'metro-manila',
           name: 'Metro Manila',
-          regionName: 'NATIONAL CAPITAL REGION (NCR)',
+          geographic_level: 'Region',
         },
       ]
     : provinces;
 
-  // Focus styling classes matching your other selects.
+  // Styling classes for select triggers.
   const selectTriggerClasses =
     'h-10 px-3 text-base md:text-sm rounded-md border border-input bg-background text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800';
 
@@ -95,10 +96,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               <Select
                 value={selectedProvince}
                 onValueChange={(value: string) => {
-                  // Update react-hook-form state and custom state
                   field.onChange(value);
                   handleProvinceChange(value);
-                  // Force immediate revalidation
                   trigger(provinceFieldName);
                 }}
                 disabled={isNCRMode}
@@ -112,7 +111,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   {provinceOptions.map((prov) => (
-                    <SelectItem key={prov.id} value={prov.id}>
+                    <SelectItem key={prov.psgc_id} value={prov.psgc_id}>
                       {isNCRMode ? 'Metro Manila' : prov.name}
                     </SelectItem>
                   ))}

@@ -2448,18 +2448,6 @@
         "status": ""
     },
     {
-        "psgc_id": "1380602000",
-        "name": "Binondo",
-        "correspondence_code": "133902000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 20,491 ",
-        "status": ""
-    },
-    {
         "psgc_id": "1004304000",
         "name": "Binuangan",
         "correspondence_code": "104304000",
@@ -4464,18 +4452,6 @@
         "status": ""
     },
     {
-        "psgc_id": "1380100000",
-        "name": "City of Caloocan",
-        "correspondence_code": "137501000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 1,661,584 ",
-        "status": ""
-    },
-    {
         "psgc_id": "0102906000",
         "name": "City of Candon",
         "correspondence_code": "012906000",
@@ -4920,18 +4896,6 @@
         "status": ""
     },
     {
-        "psgc_id": "1380200000",
-        "name": "City of Las Piñas",
-        "correspondence_code": "137601000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 606,293 ",
-        "status": ""
-    },
-    {
         "psgc_id": "0500506000",
         "name": "City of Legazpi ",
         "correspondence_code": "050506000",
@@ -4992,30 +4956,6 @@
         "status": "Capital"
     },
     {
-        "psgc_id": "1380300000",
-        "name": "City of Makati",
-        "correspondence_code": "137602000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 629,616 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1380400000",
-        "name": "City of Malabon",
-        "correspondence_code": "137502000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 380,522 ",
-        "status": ""
-    },
-    {
         "psgc_id": "1001312000",
         "name": "City of Malaybalay ",
         "correspondence_code": "101312000",
@@ -5040,18 +4980,6 @@
         "status": "Capital"
     },
     {
-        "psgc_id": "1380500000",
-        "name": "City of Mandaluyong",
-        "correspondence_code": "137401000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 425,758 ",
-        "status": ""
-    },
-    {
         "psgc_id": "0731300000",
         "name": "City of Mandaue",
         "correspondence_code": "072230000",
@@ -5061,18 +4989,6 @@
         "income_classification": "1st",
         "urban_rural": "",
         "population": " 364,116 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1380600000",
-        "name": "City of Manila",
-        "correspondence_code": "133900000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "Special",
-        "urban_rural": "",
-        "population": " 1,846,513 ",
         "status": ""
     },
     {
@@ -5086,18 +5002,6 @@
         "urban_rural": "",
         "population": " 207,010 ",
         "status": "Capital"
-    },
-    {
-        "psgc_id": "1380700000",
-        "name": "City of Marikina",
-        "correspondence_code": "137402000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 456,059 ",
-        "status": ""
     },
     {
         "psgc_id": "0504111000",
@@ -5136,18 +5040,6 @@
         "status": ""
     },
     {
-        "psgc_id": "1380800000",
-        "name": "City of Muntinlupa",
-        "correspondence_code": "137603000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 543,445 ",
-        "status": ""
-    },
-    {
         "psgc_id": "0501724000",
         "name": "City of Naga",
         "correspondence_code": "051724000",
@@ -5169,18 +5061,6 @@
         "income_classification": "5th",
         "urban_rural": "",
         "population": " 133,184 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1380900000",
-        "name": "City of Navotas",
-        "correspondence_code": "137503000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "2nd",
-        "urban_rural": "",
-        "population": " 247,543 ",
         "status": ""
     },
     {
@@ -5253,30 +5133,6 @@
         "income_classification": "3rd",
         "urban_rural": "",
         "population": " 209,230 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1381000000",
-        "name": "City of Parañaque",
-        "correspondence_code": "137604000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 689,992 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1381200000",
-        "name": "City of Pasig",
-        "correspondence_code": "137403000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 803,159 ",
         "status": ""
     },
     {
@@ -5385,18 +5241,6 @@
         "income_classification": "1st",
         "urban_rural": "",
         "population": " 651,813 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1381400000",
-        "name": "City of San Juan",
-        "correspondence_code": "137405000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 126,347 ",
         "status": ""
     },
     {
@@ -5580,18 +5424,6 @@
         "status": "Capital"
     },
     {
-        "psgc_id": "1381500000",
-        "name": "City of Taguig",
-        "correspondence_code": "137607000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 886,722 ",
-        "status": ""
-    },
-    {
         "psgc_id": "1102319000",
         "name": "City of Tagum ",
         "correspondence_code": "112319000",
@@ -5745,18 +5577,6 @@
         "income_classification": "2nd",
         "urban_rural": "",
         "population": " 216,546 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1381600000",
-        "name": "City of Valenzuela",
-        "correspondence_code": "137504000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 714,978 ",
         "status": ""
     },
     {
@@ -7056,18 +6876,6 @@
         "status": ""
     },
     {
-        "psgc_id": "1380608000",
-        "name": "Ermita",
-        "correspondence_code": "133908000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 19,189 ",
-        "status": ""
-    },
-    {
         "psgc_id": "0504109000",
         "name": "Esperanza",
         "correspondence_code": "054109000",
@@ -8133,18 +7941,6 @@
         "income_classification": "4th",
         "urban_rural": "",
         "population": " 21,389 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1380609000",
-        "name": "Intramuros",
-        "correspondence_code": "133909000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 6,103 ",
         "status": ""
     },
     {
@@ -11052,18 +10848,6 @@
         "status": ""
     },
     {
-        "psgc_id": "1380610000",
-        "name": "Malate",
-        "correspondence_code": "133910000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 99,257 ",
-        "status": ""
-    },
-    {
         "psgc_id": "0600412000",
         "name": "Malay",
         "correspondence_code": "060412000",
@@ -12888,18 +12672,6 @@
         "status": ""
     },
     {
-        "psgc_id": "1380611000",
-        "name": "Paco",
-        "correspondence_code": "133911000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 79,839 ",
-        "status": ""
-    },
-    {
         "psgc_id": "1102411000",
         "name": "Padada",
         "correspondence_code": "112411000",
@@ -13248,18 +13020,6 @@
         "status": ""
     },
     {
-        "psgc_id": "1380612000",
-        "name": "Pandacan",
-        "correspondence_code": "133912000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 84,769 ",
-        "status": ""
-    },
-    {
         "psgc_id": "1908818000",
         "name": "Pandag",
         "correspondence_code": "153833000",
@@ -13584,18 +13344,6 @@
         "status": ""
     },
     {
-        "psgc_id": "1381100000",
-        "name": "Pasay City",
-        "correspondence_code": "137605000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 440,656 ",
-        "status": ""
-    },
-    {
         "psgc_id": "1403208000",
         "name": "Pasil",
         "correspondence_code": "143208000",
@@ -13641,18 +13389,6 @@
         "income_classification": "5th",
         "urban_rural": "",
         "population": " 24,736 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1381701000",
-        "name": "Pateros",
-        "correspondence_code": "137606000",
-        "geographic_level": "Mun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "1st",
-        "urban_rural": "",
-        "population": " 65,227 ",
         "status": ""
     },
     {
@@ -14292,18 +14028,6 @@
         "status": ""
     },
     {
-        "psgc_id": "1380613000",
-        "name": "Port Area",
-        "correspondence_code": "133913000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 72,605 ",
-        "status": ""
-    },
-    {
         "psgc_id": "0603037000",
         "name": "Pototan",
         "correspondence_code": "063037000",
@@ -14577,30 +14301,6 @@
         "income_classification": "1st",
         "urban_rural": "",
         "population": " 109,624 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1381300000",
-        "name": "Quezon City",
-        "correspondence_code": "137404000",
-        "geographic_level": "City",
-        "old_names": "",
-        "city_class": "HUC",
-        "income_classification": "Special",
-        "urban_rural": "",
-        "population": " 2,960,048 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1380603000",
-        "name": "Quiapo",
-        "correspondence_code": "133903000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 29,846 ",
         "status": ""
     },
     {
@@ -15237,18 +14937,6 @@
         "income_classification": "5th",
         "urban_rural": "",
         "population": " 20,373 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1380606000",
-        "name": "Sampaloc",
-        "correspondence_code": "133906000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 388,305 ",
         "status": ""
     },
     {
@@ -16200,18 +15888,6 @@
         "status": ""
     },
     {
-        "psgc_id": "1380607000",
-        "name": "San Miguel",
-        "correspondence_code": "133907000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 18,599 ",
-        "status": ""
-    },
-    {
         "psgc_id": "0301421000",
         "name": "San Miguel",
         "correspondence_code": "031421000",
@@ -16317,18 +15993,6 @@
         "income_classification": "3rd",
         "urban_rural": "",
         "population": " 51,058 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1380604000",
-        "name": "San Nicolas",
-        "correspondence_code": "133904000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 42,957 ",
         "status": ""
     },
     {
@@ -16632,18 +16296,6 @@
         "status": ""
     },
     {
-        "psgc_id": "1380614000",
-        "name": "Santa Ana",
-        "correspondence_code": "133914000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 203,598 ",
-        "status": ""
-    },
-    {
         "psgc_id": "0201523000",
         "name": "Santa Ana",
         "correspondence_code": "021523000",
@@ -16713,18 +16365,6 @@
         "income_classification": "1st",
         "urban_rural": "",
         "population": " 77,501 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1380605000",
-        "name": "Santa Cruz",
-        "correspondence_code": "133905000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 126,735 ",
         "status": ""
     },
     {
@@ -19077,18 +18717,6 @@
         "income_classification": "5th",
         "urban_rural": "",
         "population": " 16,990 ",
-        "status": ""
-    },
-    {
-        "psgc_id": "1380601000",
-        "name": "Tondo I\/II",
-        "correspondence_code": "133901000",
-        "geographic_level": "SubMun",
-        "old_names": "",
-        "city_class": "",
-        "income_classification": "",
-        "urban_rural": "",
-        "population": " 654,220 ",
         "status": ""
     },
     {
