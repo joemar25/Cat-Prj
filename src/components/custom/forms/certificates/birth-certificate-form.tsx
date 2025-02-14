@@ -20,6 +20,7 @@ import { Save } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import ChildInformationCard from './form-cards/birth-cards/child-information-card';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 
 export default function BirthCertificateForm({
@@ -27,7 +28,9 @@ export default function BirthCertificateForm({
   onOpenChange,
   onCancel,
 }: BirthCertificateFormProps) {
+  // Use separate NCR mode state for registry and child sections.
   const [registryNCRMode, setRegistryNCRMode] = useState(false);
+  const [childNCRMode, setChildNCRMode] = useState(false);
 
   const formMethods = useForm<BirthCertificateFormValues>({
     resolver: zodResolver(birthCertificateFormSchema),
@@ -40,8 +43,8 @@ export default function BirthCertificateForm({
         firstName: '',
         middleName: '',
         lastName: '',
-        sex: 'Male',
-        dateOfBirth: '',
+        sex: undefined,
+        dateOfBirth: undefined,
         placeOfBirth: {
           hospital: '',
           cityMunicipality: '',
@@ -51,7 +54,6 @@ export default function BirthCertificateForm({
         birthOrder: '',
         weightAtBirth: '',
       },
-      // Add other default values as needed
       hasAffidavitOfPaternity: false,
       isDelayedRegistration: false,
       remarks: '',
@@ -75,7 +77,6 @@ export default function BirthCertificateForm({
       toast.error('Please check registry information');
       return;
     }
-    // Add other specific error checks
     toast.error('Please check form for errors');
   };
 
@@ -107,7 +108,10 @@ export default function BirthCertificateForm({
                       />
 
                       {/* Child Information Section */}
-                      {/* TODO: Add Child Information Component */}
+                      <ChildInformationCard
+                        isNCRMode={childNCRMode}
+                        setIsNCRMode={setChildNCRMode}
+                      />
 
                       {/* Mother Information Section */}
                       {/* TODO: Add Mother Information Component */}

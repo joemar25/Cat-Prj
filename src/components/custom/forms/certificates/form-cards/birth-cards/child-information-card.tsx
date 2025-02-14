@@ -18,7 +18,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-;
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
@@ -117,9 +116,15 @@ const ChildInformationCard: React.FC<ChildInformationCardProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Sex</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || ''}
+                    >
                       <FormControl>
-                        <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
+                        <SelectTrigger
+                          ref={field.ref}
+                          className='h-10 px-3 text-base md:text-sm'
+                        >
                           <SelectValue placeholder='Select sex' />
                         </SelectTrigger>
                       </FormControl>
@@ -132,6 +137,7 @@ const ChildInformationCard: React.FC<ChildInformationCardProps> = ({
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={control}
                 name='childInfo.weightAtBirth'
@@ -171,11 +177,12 @@ const ChildInformationCard: React.FC<ChildInformationCardProps> = ({
               render={({ field }) => (
                 <DatePickerField
                   field={{
-                    value: field.value ? new Date(field.value) : null,
+                    value: field.value,
                     onChange: field.onChange,
                   }}
                   label='Birth Date'
-                  placeholder='Select birth date'
+                  placeholder='Please select a date'
+                  ref={field.ref} // Forward ref for auto-focus
                 />
               )}
             />
@@ -207,16 +214,13 @@ const ChildInformationCard: React.FC<ChildInformationCardProps> = ({
                   </FormItem>
                 )}
               />
-
               <LocationSelector
                 provinceFieldName='childInfo.placeOfBirth.province'
                 municipalityFieldName='childInfo.placeOfBirth.cityMunicipality'
                 provinceLabel='Province'
                 municipalityLabel='City/Municipality'
-                selectTriggerClassName='h-10 px-3 text-base md:text-sm'
                 provincePlaceholder='Select province'
                 municipalityPlaceholder='Select city/municipality'
-                className='col-span-2 grid grid-cols-2 gap-4'
                 isNCRMode={isNCRMode}
               />
             </div>
@@ -238,7 +242,10 @@ const ChildInformationCard: React.FC<ChildInformationCardProps> = ({
                     <FormLabel>Type of Birth</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
+                        <SelectTrigger
+                          ref={field.ref}
+                          className='h-10 px-3 text-base md:text-sm'
+                        >
                           <SelectValue placeholder='Select type' />
                         </SelectTrigger>
                       </FormControl>
@@ -264,7 +271,10 @@ const ChildInformationCard: React.FC<ChildInformationCardProps> = ({
                       value={field.value || ''}
                     >
                       <FormControl>
-                        <SelectTrigger className='h-10 px-3 text-base md:text-sm'>
+                        <SelectTrigger
+                          ref={field.ref}
+                          className='h-10 px-3 text-base md:text-sm'
+                        >
                           <SelectValue placeholder='Select order' />
                         </SelectTrigger>
                       </FormControl>

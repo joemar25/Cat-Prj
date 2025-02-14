@@ -17,20 +17,30 @@ const childInformationSchema = z
     firstName: nameSchema.shape.first,
     middleName: nameSchema.shape.middle,
     lastName: nameSchema.shape.last,
-    sex: z.enum(['Male', 'Female']),
-    dateOfBirth: z
-      .string()
-      .min(1, 'Date of birth is required')
-      .superRefine((date, ctx) => {
-        const birthDate = new Date(date);
-        const today = new Date();
-        if (birthDate > today) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Birth date cannot be in the future',
-          });
-        }
+    sex: z
+      .preprocess(
+        (val) => (val === '' ? undefined : val),
+        z.enum(['Male', 'Female']).optional()
+      )
+      .refine((val) => val !== undefined, {
+        message: 'Sex is required',
       }),
+
+    dateOfBirth: z.preprocess(
+      (val) => {
+        if (val == null || val === '') return undefined; // convert null/'' → undefined
+        if (typeof val === 'string') {
+          const date = new Date(val);
+          return isNaN(date.getTime()) ? undefined : date;
+        }
+        return val; // if it's already a Date, just use it
+      },
+      z
+        .date({ required_error: 'Date of birth is required' })
+        .refine((d) => d <= new Date(), {
+          message: 'Birth date cannot be in the future',
+        })
+    ),
     placeOfBirth: z.object({
       hospital: z
         .string()

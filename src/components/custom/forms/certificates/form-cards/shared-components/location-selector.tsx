@@ -76,6 +76,10 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       ]
     : provinces;
 
+  // Focus styling classes matching your other selects.
+  const selectTriggerClasses =
+    'h-10 px-3 text-base md:text-sm rounded-md border border-input bg-background text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800';
+
   return (
     <>
       {/* Province/Region Field */}
@@ -99,7 +103,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 }}
                 disabled={isNCRMode}
               >
-                <SelectTrigger className='text-sm dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800'>
+                <SelectTrigger ref={field.ref} className={selectTriggerClasses}>
                   <SelectValue
                     placeholder={
                       isNCRMode ? 'Metro Manila' : provincePlaceholder
@@ -115,7 +119,6 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 </SelectContent>
               </Select>
             </FormControl>
-            {/* Render error message unconditionally */}
             <FormMessage>{fieldState.error?.message}</FormMessage>
           </FormItem>
         )}
@@ -140,7 +143,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 }}
                 disabled={!selectedProvince}
               >
-                <SelectTrigger className='text-sm dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800'>
+                <SelectTrigger ref={field.ref} className={selectTriggerClasses}>
                   <SelectValue placeholder={municipalityPlaceholder} />
                 </SelectTrigger>
                 <SelectContent>
@@ -177,7 +180,10 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                   }}
                   disabled={!selectedMunicipality}
                 >
-                  <SelectTrigger className='text-sm dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800'>
+                  <SelectTrigger
+                    ref={field.ref}
+                    className={selectTriggerClasses}
+                  >
                     <SelectValue placeholder={barangayPlaceholder} />
                   </SelectTrigger>
                   <SelectContent>
