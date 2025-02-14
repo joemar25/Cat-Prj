@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "prisma:seed": "prisma db seed",
-    "list-pages": "ts-node -P tsconfig.script.json -r tsconfig-paths/register src/utils/list-all-pages.ts"
+    "list-pages": "ts-node -P tsconfig.script.json -r tsconfig-paths/register src/utils/list-all-pages.ts",
+    "backup-db": "ts-node src/hooks/backup-database.ts"
   },
   "prisma": {
     "seed": "ts-node -r tsconfig-paths/register --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -46,6 +47,7 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
     "date-fns": "2.28.0",
+    "dotenv": "^16.4.7",
     "framer-motion": "^11.18.2",
     "html2canvas": "^1.4.1",
     "i18next": "^24.2.2",
@@ -84,6 +86,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
+    "@types/dotenv": "^6.1.1",
     "@types/i18next": "^12.1.0",
     "@types/lodash": "^4.17.15",
     "@types/node": "^20.17.17",
