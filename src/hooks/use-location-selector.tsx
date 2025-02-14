@@ -53,6 +53,13 @@ export const useLocationSelector = ({
             psgc_id: NCR_PROVINCE_ID,
             name: NCR_PROVINCE_DISPLAY,
             geographic_level: 'Region',
+            correspondence_code: '130000000',
+            old_names: '',
+            city_class: '',
+            income_classification: '',
+            urban_rural: '',
+            population: '',
+            status: '',
           },
         ]
       : getAllProvinces();

@@ -7,7 +7,7 @@ import provincesData from '@/lib/jsons/provinces.json';
 /**
  * Updated interfaces to match the PHP extractor output.
  */
-export interface NCRRegion {
+export interface BaseLocation {
   psgc_id: string;
   name: string;
   correspondence_code: string;
@@ -19,6 +19,8 @@ export interface NCRRegion {
   population: string;
   status: string;
 }
+
+export interface NCRRegion extends BaseLocation {}
 
 export interface NCRLocation {
   psgc_id: string;
@@ -32,17 +34,9 @@ export interface NCRData {
   cities: NCRLocation[];
 }
 
-export interface Province {
-  psgc_id: string;
-  name: string;
-  geographic_level: string;
-}
+export interface Province extends BaseLocation {}
 
-export interface City {
-  psgc_id: string;
-  name: string;
-  geographic_level: string;
-}
+export interface City extends BaseLocation {}
 
 export interface Barangay {
   psgc_id: string;
@@ -69,14 +63,6 @@ export function getAllProvinces(): Province[] {
   return provinces.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/**
- * Returns city/municipality suggestions based on the selected province.
- * For NCR mode, it uses the NCR data file; for non‑NCR provinces,
- * it filters the cities/municipalities based on a matching prefix.
- *
- * We assume that for non‑NCR provinces, the first 4 characters of the province psgc_id
- * should match the first 4 characters of the city/municipality psgc_id.
- */
 const suggestionCache: { [key: string]: LocationSuggestion[] } = {};
 
 export function getCachedCitySuggestions(
@@ -109,15 +95,29 @@ export function getCachedCitySuggestions(
             ? `${city.name}, Manila City` // Add "Manila City" to district names
             : city.name,
         geographic_level: city.geographic_level,
+        correspondence_code: city.correspondence_code,
+        old_names: '',
+        city_class: '',
+        income_classification: '',
+        urban_rural: '',
+        population: '',
+        status: '',
       }));
 
     filteredCities = [...ncrCities];
   } else {
-    // Non-NCR logic remains the same
-    const provincePrefix = provinceId.substring(0, 4);
-    filteredCities = citiesMunicipalities.filter((city) =>
-      city.psgc_id.startsWith(provincePrefix)
-    );
+    // Find the selected province to get its correspondence_code
+    const selectedProvince = provinces.find((p) => p.psgc_id === provinceId);
+    if (!selectedProvince) return [];
+
+    // Get the province correspondence code prefix (first 4 digits)
+    const provinceCorrespondencePrefix =
+      selectedProvince.correspondence_code.substring(0, 4);
+
+    // Filter cities based on correspondence_code matching
+    filteredCities = citiesMunicipalities.filter((city) => {
+      return city.correspondence_code.startsWith(provinceCorrespondencePrefix);
+    });
   }
 
   // Sort the suggestions by name
@@ -130,7 +130,6 @@ export function getCachedCitySuggestions(
 }
 
 // Get all cities/municipalities.
-// (Not used directly in the UI if filtering by province is desired.)
 export function getAllCitiesMunicipalities(isNCRMode: boolean = false): City[] {
   if (isNCRMode) {
     // If NCR, return the NCR cities from ncrData.
@@ -138,26 +137,22 @@ export function getAllCitiesMunicipalities(isNCRMode: boolean = false): City[] {
       psgc_id: city.psgc_id,
       name: city.name,
       geographic_level: city.geographic_level,
+      correspondence_code: city.correspondence_code,
+      old_names: '',
+      city_class: '',
+      income_classification: '',
+      urban_rural: '',
+      population: '',
+      status: '',
     }));
   }
   return citiesMunicipalities.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 // Get barangays filtered by the parent city/municipality ID.
-// We derive the parent ID by taking the first 7 digits of the city/municipality psgc_id and appending '000'.
 export function getBarangaysByLocation(cityId: string): Barangay[] {
   const parentId = cityId.substring(0, 7);
-
   return barangays.filter((barangay) => barangay.psgc_id.startsWith(parentId));
-}
-
-// (If needed) Dummy implementation for sub-municipality filtering.
-export function getBarangaysBySubMunicipality(
-  locationId: string,
-  subMun: string
-): Barangay[] {
-  // For now, fall back to filtering by locationId.
-  return getBarangaysByLocation(locationId);
 }
 
 // Format a city/municipality for display as a suggestion.
@@ -169,6 +164,8 @@ export function formatLocationForDisplay(location: City): LocationSuggestion {
     type:
       location.geographic_level.toLowerCase() === 'city'
         ? 'city'
+        : location.geographic_level.toLowerCase() === 'submun'
+        ? 'subMunicipality'
         : 'municipality',
   };
 }
