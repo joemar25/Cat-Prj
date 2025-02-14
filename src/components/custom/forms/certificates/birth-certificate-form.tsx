@@ -21,6 +21,7 @@ import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import ChildInformationCard from './form-cards/birth-cards/child-information-card';
+import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 
 export default function BirthCertificateForm({
@@ -53,6 +54,26 @@ export default function BirthCertificateForm({
         typeOfBirth: 'Single',
         birthOrder: '',
         weightAtBirth: '',
+      },
+      motherInfo: {
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        citizenship: '',
+        religion: '',
+        occupation: '',
+        age: '',
+        totalChildrenBornAlive: '',
+        childrenStillLiving: '',
+        childrenNowDead: '',
+        residence: {
+          houseNo: '',
+          st: '',
+          barangay: '',
+          cityMunicipality: '',
+          province: '',
+          country: '',
+        },
       },
       hasAffidavitOfPaternity: false,
       isDelayedRegistration: false,
@@ -114,7 +135,7 @@ export default function BirthCertificateForm({
                       />
 
                       {/* Mother Information Section */}
-                      {/* TODO: Add Mother Information Component */}
+                      <MotherInformationCard />
 
                       {/* Father Information Section */}
                       {/* TODO: Add Father Information Component */}

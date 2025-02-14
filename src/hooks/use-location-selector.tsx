@@ -31,6 +31,7 @@ export const useLocationSelector = ({
   municipalityFieldName,
   barangayFieldName,
   isNCRMode,
+  showBarangay,
   setValue,
   onProvinceChange,
   onMunicipalityChange,
@@ -61,19 +62,28 @@ export const useLocationSelector = ({
 
   const barangays = useMemo((): { id: string; name: string }[] => {
     if (!selectedMunicipality) return [];
+    // Remove any prefix from the selected municipality suggestion ID.
+    let locationId = selectedMunicipality;
+    if (locationId.startsWith('ncr-city-')) {
+      locationId = locationId.replace('ncr-city-', '');
+    } else if (locationId.startsWith('non-ncr-city-')) {
+      locationId = locationId.replace('non-ncr-city-', '');
+    } else if (locationId.startsWith('ncr-mun-')) {
+      locationId = locationId.replace('ncr-mun-', '');
+    } else if (locationId.startsWith('non-ncr-mun-')) {
+      locationId = locationId.replace('non-ncr-mun-', '');
+    }
     if (selectedMunicipality.includes(', ')) {
       const [subMun, locationName] = selectedMunicipality.split(', ');
       const result: Barangay[] = getBarangaysBySubMunicipality(
-        `${selectedProvince}-${locationName}`.toLowerCase(),
+        locationId,
         subMun
       );
       return result.map((b) => ({ id: b.id, name: b.name }));
     }
-    const result: Barangay[] = getBarangaysByLocation(
-      `${selectedProvince}-${selectedMunicipality}`.toLowerCase()
-    );
+    const result: Barangay[] = getBarangaysByLocation(locationId);
     return result.map((b) => ({ id: b.id, name: b.name }));
-  }, [selectedProvince, selectedMunicipality]);
+  }, [selectedMunicipality]);
 
   useEffect(() => {
     if (isNCRMode) {
