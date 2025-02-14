@@ -59,8 +59,8 @@ export function NavMain({ items }: NavMainProps) {
                     asChild
                     onClick={() => item.click?.()}
                     tooltip={item.title}
-                    className={`flex-1 flex items-center gap-2
-                      hover:bg-chart-1/20 active:scale-[0.98] py-5 px-4 hover:scale-105 duration-300 ease-in-out transition-all
+                    className={`flex-1 flex items-center gap-2 transition-all duration-150 ease-in-out 
+                      hover:bg-chart-1/20 active:scale-[0.98] py-5 px-4 
                       ${isActive ? 'bg-chart-2 text-accent dark:text-accent-foreground hover:text-muted-foreground font-medium' : ''}`}
                   >
                     <Link href={item.url} className='flex items-center gap-2 w-full text-accent'>
