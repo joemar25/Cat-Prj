@@ -21,15 +21,11 @@ import NCRModeSwitch from './ncr-mode-switch';
 interface RegistryInformationCardProps {
   formType: FormType;
   title?: string;
-  isNCRMode: boolean;
-  setIsNCRMode: (checked: boolean) => void;
 }
 
 const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
   formType,
   title = 'Registry Information',
-  isNCRMode,
-  setIsNCRMode,
 }) => {
   const { control, setValue, setError, clearErrors } = useFormContext();
   const [registryNumber, setRegistryNumber] = useState('');
@@ -39,6 +35,8 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
     exists: boolean | null;
     error: string | null;
   }>({ exists: null, error: null });
+
+  const [ncrMode, setNcrMode] = useState(false);
 
   // Set same min and max lengths for all form types.
   const minLength = 6;
@@ -173,7 +171,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
+        <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           <FormField
             control={control}
@@ -205,7 +203,7 @@ const RegistryInformationCard: React.FC<RegistryInformationCardProps> = ({
             )}
           />
 
-          <LocationSelector isNCRMode={isNCRMode} className='col-span-2' />
+          <LocationSelector isNCRMode={ncrMode} className='col-span-2' />
         </div>
       </CardContent>
     </Card>

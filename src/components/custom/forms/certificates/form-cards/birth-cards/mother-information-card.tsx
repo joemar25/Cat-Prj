@@ -15,6 +15,7 @@ import { useFormContext } from 'react-hook-form';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+import ReligionSelector from '../shared-components/religion-selector';
 
 const MotherInformationCard: React.FC = () => {
   const { control } = useFormContext<BirthCertificateFormValues>();
@@ -121,20 +122,23 @@ const MotherInformationCard: React.FC = () => {
               <FormField
                 control={control}
                 name='motherInfo.religion'
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel>Religion</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter religion'
-                        {...field}
+                      <ReligionSelector
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        ref={field.ref}
+                        placeholder='Select religion'
+                        name='motherInfo.religion'
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={control}
                 name='motherInfo.occupation'

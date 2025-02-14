@@ -1,3 +1,4 @@
+import { mainReligions } from '@/lib/constants/religions';
 import { z } from 'zod';
 
 // 1. Registry Number (Enforces "YYYY-numbers" and validates the year range)
@@ -57,8 +58,18 @@ export const citizenshipSchema = z.string().nonempty('Citizenship is required');
 
 // Religion/Religious Sect
 export const religionSchema = z
-  .string()
-  .nonempty('Religion/Religious Sect is required');
+  .preprocess(
+    (val) => (val === '' ? undefined : val), // Convert empty string to undefined
+    z
+      .union([
+        z.enum(mainReligions),
+        z.string().min(1, 'Please specify your religion').optional(), // For new or custom religions
+      ])
+      .optional()
+  )
+  .refine((val) => val !== undefined, {
+    message: 'Religion is required',
+  });
 
 // Residence (House No., Street, Barangay, City/Municipality, Province, Country)
 export const residenceSchema = z.object({

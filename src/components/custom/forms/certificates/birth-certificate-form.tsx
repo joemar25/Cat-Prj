@@ -17,10 +17,10 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormType } from '@prisma/client';
 import { Save } from 'lucide-react';
-import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import ChildInformationCard from './form-cards/birth-cards/child-information-card';
+import FatherInformationCard from './form-cards/birth-cards/father-information-card';
 import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 
@@ -30,8 +30,6 @@ export default function BirthCertificateForm({
   onCancel,
 }: BirthCertificateFormProps) {
   // Use separate NCR mode state for registry and child sections.
-  const [registryNCRMode, setRegistryNCRMode] = useState(false);
-  const [childNCRMode, setChildNCRMode] = useState(false);
 
   const formMethods = useForm<BirthCertificateFormValues>({
     resolver: zodResolver(birthCertificateFormSchema),
@@ -66,6 +64,24 @@ export default function BirthCertificateForm({
         totalChildrenBornAlive: '',
         childrenStillLiving: '',
         childrenNowDead: '',
+        residence: {
+          houseNo: '',
+          st: '',
+          barangay: '',
+          cityMunicipality: '',
+          province: '',
+          country: '',
+        },
+      },
+
+      fatherInfo: {
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        citizenship: '',
+        religion: '',
+        occupation: '',
+        age: '',
         residence: {
           houseNo: '',
           st: '',
@@ -122,23 +138,16 @@ export default function BirthCertificateForm({
                       className='space-y-6'
                     >
                       {/* Registry Information Section */}
-                      <RegistryInformationCard
-                        formType={FormType.BIRTH}
-                        isNCRMode={registryNCRMode}
-                        setIsNCRMode={setRegistryNCRMode}
-                      />
+                      <RegistryInformationCard formType={FormType.BIRTH} />
 
                       {/* Child Information Section */}
-                      <ChildInformationCard
-                        isNCRMode={childNCRMode}
-                        setIsNCRMode={setChildNCRMode}
-                      />
+                      <ChildInformationCard />
 
                       {/* Mother Information Section */}
                       <MotherInformationCard />
 
                       {/* Father Information Section */}
-                      {/* TODO: Add Father Information Component */}
+                      <FatherInformationCard />
 
                       {/* Marriage Information Section */}
                       {/* TODO: Add Marriage Information Component */}

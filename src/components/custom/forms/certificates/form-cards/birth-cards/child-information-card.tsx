@@ -18,20 +18,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
-interface ChildInformationCardProps {
-  isNCRMode: boolean;
-  setIsNCRMode: (value: boolean) => void;
-}
-
-const ChildInformationCard: React.FC<ChildInformationCardProps> = ({
-  isNCRMode,
-  setIsNCRMode,
-}) => {
+const ChildInformationCard: React.FC = () => {
   const { control } = useFormContext<BirthCertificateFormValues>();
+  const [ncrMode, setNcrMode] = useState(false);
 
   return (
     <Card>
@@ -195,7 +189,7 @@ const ChildInformationCard: React.FC<ChildInformationCardProps> = ({
             <h3 className='text-sm font-semibold'>Place of Birth</h3>
           </CardHeader>
           <CardContent>
-            <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
+            <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <FormField
                 control={control}
@@ -221,7 +215,7 @@ const ChildInformationCard: React.FC<ChildInformationCardProps> = ({
                 municipalityLabel='City/Municipality'
                 provincePlaceholder='Select province'
                 municipalityPlaceholder='Select city/municipality'
-                isNCRMode={isNCRMode}
+                isNCRMode={ncrMode}
               />
             </div>
           </CardContent>
