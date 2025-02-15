@@ -59,7 +59,6 @@ const ReceivedByCard = <T extends FieldValues = FieldValues>({
       (staff) => staff.name === selectedName
     );
     if (staff) {
-      // Cast staff.title to any to satisfy the setValue signature.
       setValue(titleFieldName, staff.title as any, {
         shouldValidate: isSubmitted,
         shouldDirty: true,
@@ -81,7 +80,13 @@ const ReceivedByCard = <T extends FieldValues = FieldValues>({
             <FormItem>
               <FormLabel>Signature</FormLabel>
               <FormControl>
-                <Input placeholder='Signature' {...field} className='h-10' />
+                <Input
+                  placeholder='Signature'
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  ref={field.ref}
+                  className='h-10'
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -96,9 +101,12 @@ const ReceivedByCard = <T extends FieldValues = FieldValues>({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value ?? ''}
+                >
                   <FormControl>
-                    <SelectTrigger className='h-10'>
+                    <SelectTrigger className='h-10' ref={field.ref}>
                       <SelectValue placeholder='Select staff name' />
                     </SelectTrigger>
                   </FormControl>
@@ -124,7 +132,9 @@ const ReceivedByCard = <T extends FieldValues = FieldValues>({
                 <FormControl>
                   <Input
                     placeholder='Title will auto-fill'
-                    {...field}
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    ref={field.ref}
                     className='h-10'
                     disabled
                   />
@@ -142,11 +152,12 @@ const ReceivedByCard = <T extends FieldValues = FieldValues>({
           render={({ field }) => (
             <DatePickerField
               field={{
-                value: field.value,
+                value: field.value ?? null, // Ensure value is never undefined
                 onChange: field.onChange,
               }}
               label='Date'
               placeholder='Select date'
+              ref={field.ref}
             />
           )}
         />

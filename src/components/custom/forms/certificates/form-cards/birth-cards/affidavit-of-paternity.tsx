@@ -11,52 +11,52 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import React, { useEffect, useLayoutEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 import RegisteredAtOfficeCard from '../shared-components/registered-at-office-card';
 
-interface AffidavitOfPaternityFormProps {
-  adminOfficerAddressNcrMode?: boolean;
-  setAdminOfficerAddressNcrMode?: (value: boolean) => void;
-}
-
-const AffidavitOfPaternityForm: React.FC<AffidavitOfPaternityFormProps> = ({
-  adminOfficerAddressNcrMode = false,
-  setAdminOfficerAddressNcrMode = () => {},
-}) => {
+const AffidavitOfPaternityForm: React.FC = () => {
   const { control, watch, setValue } = useFormContext();
+
+  // Local state for NCR mode for the admin officer address.
+  const [ncrMode, setncrMode] = useState(false);
+
+  // Watch for the checkbox and nested affidavit details.
   const hasAffidavitOfPaternity = watch('hasAffidavitOfPaternity');
   const affidavitDetails = watch('affidavitOfPaternityDetails');
 
-  // When the checkbox is checked and the nested object is not yet initialized,
-  // set it to the default values.
+  // When checkbox is checked and nested details are not initialized, initialize them.
   useLayoutEffect(() => {
     if (hasAffidavitOfPaternity && !affidavitDetails) {
       setValue('affidavitOfPaternityDetails', {
-        father: { signature: '', name: '', title: '' },
-        mother: { signature: '', name: '', title: '' },
-        dateSworn: new Date(), // Ensures a valid Date value is set
+        father: { signature: '', name: '' },
+        mother: { signature: '', name: '' },
+        dateSworn: undefined,
         adminOfficer: {
           signature: '',
           name: '',
           position: '',
           address: {
-            houseNumber: '',
-            street: '',
+            houseNo: '',
+            st: '',
             barangay: '',
             cityMunicipality: '',
             province: '',
             country: '',
           },
         },
-        ctcInfo: { number: '', dateIssued: new Date(), placeIssued: '' },
+        ctcInfo: {
+          number: '',
+          dateIssued: undefined,
+          placeIssued: '',
+        },
       });
     }
   }, [hasAffidavitOfPaternity, affidavitDetails, setValue]);
 
-  // When the user unchecks the checkbox, reset the nested affidavit details.
+  // Reset the nested affidavit details when the checkbox is unchecked.
   useEffect(() => {
     if (!hasAffidavitOfPaternity) {
       setValue('affidavitOfPaternityDetails', null);
@@ -72,6 +72,7 @@ const AffidavitOfPaternityForm: React.FC<AffidavitOfPaternityFormProps> = ({
       </CardHeader>
       <CardContent>
         <div className='space-y-4'>
+          {/* Checkbox to include the affidavit details */}
           <FormField
             control={control}
             name='hasAffidavitOfPaternity'
@@ -90,152 +91,26 @@ const AffidavitOfPaternityForm: React.FC<AffidavitOfPaternityFormProps> = ({
             )}
           />
 
-          {/* Render nested fields only when the checkbox is checked and the nested object exists */}
-          {hasAffidavitOfPaternity ? (
-            affidavitDetails ? (
-              <>
-                {/* Parental Details */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Parental Details</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                      {/* Father's Details */}
-                      <div className='space-y-4'>
-                        <FormField
-                          control={control}
-                          name='affidavitOfPaternityDetails.father.name'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Father&apos;s Name</FormLabel>
-                              <FormControl>
-                                <Input {...field} value={field.value ?? ''} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={control}
-                          name='affidavitOfPaternityDetails.father.signature'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Father&apos;s Signature</FormLabel>
-                              <FormControl>
-                                <Input {...field} value={field.value ?? ''} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      {/* Mother's Details */}
-                      <div className='space-y-4'>
-                        <FormField
-                          control={control}
-                          name='affidavitOfPaternityDetails.mother.name'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Mother&apos;s Name</FormLabel>
-                              <FormControl>
-                                <Input {...field} value={field.value ?? ''} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={control}
-                          name='affidavitOfPaternityDetails.mother.signature'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Mother&apos;s Signature</FormLabel>
-                              <FormControl>
-                                <Input {...field} value={field.value ?? ''} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Administering Officer */}
-                <RegisteredAtOfficeCard
-                  fieldPrefix='affidavitOfPaternityDetails.adminOfficer'
-                  cardTitle='Administering Officer'
-                  hideDate={true}
-                  showSignature={true}
-                />
-
-                {/* Admin Officer Address */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Admin Officer Address</CardTitle>
-                  </CardHeader>
-                  <CardContent>
+          {/* Render the nested affidavit fields if the checkbox is checked */}
+          {hasAffidavitOfPaternity && (
+            <>
+              {/* Parental Details */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Parental Details</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    {/* Father's Details */}
                     <div className='space-y-4'>
-                      <NCRModeSwitch
-                        isNCRMode={adminOfficerAddressNcrMode}
-                        setIsNCRMode={setAdminOfficerAddressNcrMode}
-                      />
-                      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                        <LocationSelector
-                          provinceFieldName='affidavitOfPaternityDetails.adminOfficer.address.province'
-                          municipalityFieldName='affidavitOfPaternityDetails.adminOfficer.address.cityMunicipality'
-                          barangayFieldName='affidavitOfPaternityDetails.adminOfficer.address.barangay'
-                          provinceLabel='Province'
-                          municipalityLabel='City/Municipality'
-                          selectTriggerClassName='h-10 px-3 text-base md:text-sm'
-                          provincePlaceholder='Select province'
-                          municipalityPlaceholder='Select city/municipality'
-                          className='grid grid-cols-2 gap-4'
-                          isNCRMode={adminOfficerAddressNcrMode}
-                          showBarangay={true}
-                          barangayLabel='Barangay'
-                          barangayPlaceholder='Select barangay'
-                        />
-                        <FormField
-                          control={control}
-                          name='affidavitOfPaternityDetails.adminOfficer.address.country'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Country</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  className='h-10'
-                                  value={field.value ?? ''}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* CTC Information */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>CTC Information</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                       <FormField
                         control={control}
-                        name='affidavitOfPaternityDetails.ctcInfo.number'
+                        name='affidavitOfPaternityDetails.father.name'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>CTC Number</FormLabel>
+                            <FormLabel>Father&apos;s Name</FormLabel>
                             <FormControl>
-                              <Input {...field} value={field.value ?? ''} />
+                              <Input {...field} value={field.value || ''} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -243,44 +118,165 @@ const AffidavitOfPaternityForm: React.FC<AffidavitOfPaternityFormProps> = ({
                       />
                       <FormField
                         control={control}
-                        name='affidavitOfPaternityDetails.ctcInfo.dateIssued'
+                        name='affidavitOfPaternityDetails.father.signature'
                         render={({ field }) => (
                           <FormItem>
+                            <FormLabel>Father&apos;s Signature</FormLabel>
                             <FormControl>
-                              <DatePickerField
-                                field={{
-                                  value: field.value ?? undefined,
-                                  onChange: field.onChange,
-                                }}
-                                label='Date Issued'
-                                placeholder='Select date issued'
+                              <Input {...field} value={field.value || ''} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Mother's Details */}
+                    <div className='space-y-4'>
+                      <FormField
+                        control={control}
+                        name='affidavitOfPaternityDetails.mother.name'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Mother&apos;s Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value || ''} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={control}
+                        name='affidavitOfPaternityDetails.mother.signature'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Mother&apos;s Signature</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value || ''} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Administering Officer Details */}
+              <RegisteredAtOfficeCard
+                fieldPrefix='affidavitOfPaternityDetails.adminOfficer'
+                cardTitle='Administering Officer'
+                hideDate={true}
+                showSignature={true}
+              />
+
+              {/* Admin Officer Address */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Admin Officer Address</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className='space-y-4'>
+                    <NCRModeSwitch
+                      isNCRMode={ncrMode}
+                      setIsNCRMode={setncrMode}
+                    />
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                      <LocationSelector
+                        provinceFieldName='affidavitOfPaternityDetails.adminOfficer.address.province'
+                        municipalityFieldName='affidavitOfPaternityDetails.adminOfficer.address.cityMunicipality'
+                        barangayFieldName='affidavitOfPaternityDetails.adminOfficer.address.barangay'
+                        provinceLabel='Province'
+                        municipalityLabel='City/Municipality'
+                        selectTriggerClassName='h-10 px-3 text-base md:text-sm'
+                        provincePlaceholder='Select province'
+                        municipalityPlaceholder='Select city/municipality'
+                        className='grid grid-cols-2 gap-4'
+                        isNCRMode={ncrMode}
+                        showBarangay={true}
+                        barangayLabel='Barangay'
+                        barangayPlaceholder='Select barangay'
+                      />
+                      <FormField
+                        control={control}
+                        name='affidavitOfPaternityDetails.adminOfficer.address.country'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Country</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                className='h-10'
+                                value={field.value || ''}
                               />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={control}
-                        name='affidavitOfPaternityDetails.ctcInfo.placeIssued'
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Place Issued</FormLabel>
-                            <FormControl>
-                              <Input {...field} value={field.value ?? ''} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                     </div>
-                  </CardContent>
-                </Card>
-              </>
-            ) : (
-              <div>Loading affidavit details...</div>
-            )
-          ) : null}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* CTC Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>CTC Information</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                    <FormField
+                      control={control}
+                      name='affidavitOfPaternityDetails.ctcInfo.number'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>CTC Number</FormLabel>
+                          <FormControl>
+                            <Input {...field} value={field.value || ''} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={control}
+                      name='affidavitOfPaternityDetails.ctcInfo.dateIssued'
+                      render={({ field }) => (
+                        <FormItem>
+                          <DatePickerField
+                            field={{
+                              value: field.value ?? null,
+                              onChange: field.onChange,
+                            }}
+                            label='Date Issued'
+                            placeholder='Select date issued'
+                            ref={field.ref}
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={control}
+                      name='affidavitOfPaternityDetails.ctcInfo.placeIssued'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Place Issued</FormLabel>
+                          <FormControl>
+                            <Input {...field} value={field.value || ''} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>

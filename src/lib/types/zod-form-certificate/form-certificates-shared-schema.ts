@@ -24,6 +24,28 @@ export const cityMunicipalitySchema = z
   .string()
   .nonempty('City/Municipality is required');
 
+export const createDateFieldSchema = (options?: {
+  requiredError?: string;
+  futureError?: string;
+}) => {
+  const requiredError = options?.requiredError || 'This date is required';
+  const futureError = options?.futureError || 'Date cannot be in the future';
+
+  return z.preprocess(
+    (val) => {
+      if (val == null || val === '') return undefined; // Convert null/empty → undefined
+      if (typeof val === 'string') {
+        const date = new Date(val);
+        return isNaN(date.getTime()) ? undefined : date;
+      }
+      return val; // Use the value if it's already a Date
+    },
+    z
+      .date({ required_error: requiredError })
+      .refine((d) => d <= new Date(), { message: futureError })
+  );
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // PROCESSING DETAILS: "Prepared By", "Received By", "Registered By"
 // Each has Signature, Name in Print, Title/Position, and Date
@@ -32,16 +54,18 @@ export const signatoryDetailsSchema = z.object({
   signature: z.string().nonempty('Signature is required'),
   nameInPrint: z.string().nonempty('Name in print is required'),
   titleOrPosition: z.string().nonempty('Title or position is required'),
-  date: z.string().nonempty('Date is required'),
+  date: createDateFieldSchema({
+    requiredError: 'Date is required',
+    futureError: 'Date cannot be in the future',
+  }),
 });
 
-// If you want a single object that includes all three sets (Prepared, Received, Registered):
+// Use the same schema for each of the three sets.
 export const processingDetailsSchema = z.object({
   preparedBy: signatoryDetailsSchema,
   receivedBy: signatoryDetailsSchema,
   registeredBy: signatoryDetailsSchema,
 });
-
 // ─────────────────────────────────────────────────────────────────────────────
 // COMMON PERSONAL DATA FIELDS
 // ─────────────────────────────────────────────────────────────────────────────
@@ -105,25 +129,3 @@ export const lateRegistrationOptionSchema = z.boolean().optional();
 export const documentStatusSchema = z
   .string()
   .nonempty('Document status is required');
-
-export const createDateFieldSchema = (options?: {
-  requiredError?: string;
-  futureError?: string;
-}) => {
-  const requiredError = options?.requiredError || 'This date is required';
-  const futureError = options?.futureError || 'Date cannot be in the future';
-
-  return z.preprocess(
-    (val) => {
-      if (val == null || val === '') return undefined; // Convert null/empty → undefined
-      if (typeof val === 'string') {
-        const date = new Date(val);
-        return isNaN(date.getTime()) ? undefined : date;
-      }
-      return val; // Use the value if it's already a Date
-    },
-    z
-      .date({ required_error: requiredError })
-      .refine((d) => d <= new Date(), { message: futureError })
-  );
-};

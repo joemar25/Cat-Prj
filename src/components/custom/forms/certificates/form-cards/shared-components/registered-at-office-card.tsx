@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FieldValues, Path, useFormContext } from 'react-hook-form';
 
 export interface RegisteredAtOfficeCardProps<
@@ -47,7 +47,7 @@ export interface RegisteredAtOfficeCardProps<
   hideDate?: boolean;
   /**
    * When true, displays a signature field.
-   * @default false - To maintain backward compatibility
+   * @default false
    */
   showSignature?: boolean;
 }
@@ -57,7 +57,7 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
   cardTitle = 'Registered at the Office of Civil Registrar',
   staffOptions = CIVIL_REGISTRAR_STAFF,
   hideDate = false,
-  showSignature = false, // Default to false for backward compatibility
+  showSignature = false,
 }: RegisteredAtOfficeCardProps<T>) => {
   const {
     control,
@@ -65,25 +65,23 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
     setValue,
     formState: { isSubmitted },
   } = useFormContext<T>();
+  const [localState] = useState({}); // (You can add additional local state if needed)
 
   // Watch the staff name (e.g., "registeredByOffice.name")
   const selectedName = watch(`${fieldPrefix}.name` as Path<T>);
 
-  // Field names for auto-filled fields
+  // Create constants for auto-filled fields.
   const titleFieldName = `${fieldPrefix}.title` as Path<T>;
   const signatureFieldName = `${fieldPrefix}.signature` as Path<T>;
 
-  // Auto-fill the title and signature when a staff name is selected
+  // Auto-fill title and (optionally) signature when a staff name is selected.
   useEffect(() => {
     const staff = staffOptions.find((staff) => staff.name === selectedName);
     if (staff) {
-      // Update title
       setValue(titleFieldName, staff.title as any, {
         shouldValidate: isSubmitted,
         shouldDirty: true,
       });
-
-      // Update signature if needed
       if (showSignature) {
         setValue(signatureFieldName, staff.name as any, {
           shouldValidate: isSubmitted,
@@ -101,11 +99,11 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
     showSignature,
   ]);
 
-  // Determine grid columns based on which fields are visible
+  // Determine grid columns based on visible fields.
   const getGridCols = () => {
-    let baseCols = 2; // Name and title fields
-    if (showSignature) baseCols++; // Add column for signature
-    if (!hideDate) baseCols++; // Add column for date if visible
+    let baseCols = 2; // Name and Title
+    if (showSignature) baseCols++;
+    if (!hideDate) baseCols++;
     return `md:grid-cols-${baseCols}`;
   };
 
@@ -128,7 +126,7 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
                   value={field.value ?? ''}
                 >
                   <FormControl>
-                    <SelectTrigger className='h-10'>
+                    <SelectTrigger className='h-10' ref={field.ref}>
                       <SelectValue placeholder='Select staff name' />
                     </SelectTrigger>
                   </FormControl>
@@ -159,6 +157,7 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
                     onChange={field.onChange}
                     className='h-10'
                     disabled
+                    ref={field.ref}
                   />
                 </FormControl>
                 <FormMessage />
@@ -166,7 +165,7 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
             )}
           />
 
-          {/* Signature Field - Only rendered if showSignature is true */}
+          {/* Signature Field (if enabled) */}
           {showSignature && (
             <FormField
               control={control}
@@ -181,6 +180,7 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
                       onChange={field.onChange}
                       className='h-10'
                       disabled
+                      ref={field.ref}
                     />
                   </FormControl>
                   <FormMessage />
@@ -189,7 +189,7 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
             />
           )}
 
-          {/* Date Field - Rendered only if hideDate is false */}
+          {/* Date Field (if not hidden) */}
           {!hideDate && (
             <FormField
               control={control}
@@ -202,6 +202,7 @@ const RegisteredAtOfficeCard = <T extends FieldValues = FieldValues>({
                   }}
                   label='Date'
                   placeholder='Select date'
+                  ref={field.ref}
                 />
               )}
             />

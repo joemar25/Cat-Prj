@@ -19,30 +19,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
-interface DelayedRegistrationFormProps {
-  affiantAddressNcrMode: boolean;
-  setAffiantAddressNcrMode: (value: boolean) => void;
-  adminOfficerAddressNcrMode: boolean;
-  setAdminOfficerAddressNcrMode: (value: boolean) => void;
-}
-
-const DelayedRegistrationForm: React.FC<DelayedRegistrationFormProps> = ({
-  affiantAddressNcrMode,
-  setAffiantAddressNcrMode,
-  adminOfficerAddressNcrMode,
-  setAdminOfficerAddressNcrMode,
-}) => {
+const DelayedRegistrationForm: React.FC = () => {
   const { control, watch, setValue, getValues } = useFormContext();
   const isDelayedRegistration = watch('isDelayedRegistration');
 
+  // Local state for Affiant Address NCR mode.
+  const [affiantAddressNcrMode, setAffiantAddressNcrMode] = useState(false);
+
   // When delayed registration is toggled on, ensure the nested object is initialized.
   useEffect(() => {
-    // Use getValues to fetch the current value.
     const currentDelayedReg = getValues('affidavitOfDelayedRegistration');
     if (isDelayedRegistration && currentDelayedReg === null) {
       setValue('affidavitOfDelayedRegistration', {
@@ -51,8 +41,8 @@ const DelayedRegistrationForm: React.FC<DelayedRegistrationFormProps> = ({
           citizenship: '',
           civilStatus: '',
           address: {
-            houseNumber: '',
-            street: '',
+            houseNo: '',
+            st: '',
             barangay: '',
             cityMunicipality: '',
             province: '',
@@ -60,23 +50,18 @@ const DelayedRegistrationForm: React.FC<DelayedRegistrationFormProps> = ({
           },
         },
         registrationType: '',
-        parentMaritalStatus: '',
         reasonForDelay: '',
-        dateSworn: new Date(),
+        dateSworn: '',
         adminOfficer: {
+          signature: '',
           name: '',
           position: '',
-          signature: '',
-          address: {
-            houseNumber: '',
-            street: '',
-            barangay: '',
-            cityMunicipality: '',
-            province: '',
-            country: '',
-          },
         },
-        ctcInfo: { number: '', dateIssued: new Date(), placeIssued: '' },
+        ctcInfo: {
+          number: '',
+          dateIssued: '',
+          placeIssued: '',
+        },
       });
     }
   }, [isDelayedRegistration, setValue, getValues]);
@@ -170,36 +155,36 @@ const DelayedRegistrationForm: React.FC<DelayedRegistrationFormProps> = ({
                 />
               </div>
 
-              {/* Admin Officer Address Section (Copied from AffidavitOfPaternityForm) */}
+              {/* Affiant Address */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Admin Officer Address</CardTitle>
+                  <CardTitle>Affiant Address</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className='space-y-4'>
                     <NCRModeSwitch
-                      isNCRMode={adminOfficerAddressNcrMode}
-                      setIsNCRMode={setAdminOfficerAddressNcrMode}
+                      isNCRMode={affiantAddressNcrMode}
+                      setIsNCRMode={setAffiantAddressNcrMode}
                     />
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                       <LocationSelector
-                        provinceFieldName='affidavitOfDelayedRegistration.adminOfficer.address.province'
-                        municipalityFieldName='affidavitOfDelayedRegistration.adminOfficer.address.cityMunicipality'
-                        barangayFieldName='affidavitOfDelayedRegistration.adminOfficer.address.barangay'
+                        provinceFieldName='affidavitOfDelayedRegistration.affiant.address.province'
+                        municipalityFieldName='affidavitOfDelayedRegistration.affiant.address.cityMunicipality'
+                        barangayFieldName='affidavitOfDelayedRegistration.affiant.address.barangay'
                         provinceLabel='Province'
                         municipalityLabel='City/Municipality'
                         selectTriggerClassName='h-10 px-3 text-base md:text-sm'
                         provincePlaceholder='Select province'
                         municipalityPlaceholder='Select city/municipality'
                         className='grid grid-cols-2 gap-4'
-                        isNCRMode={adminOfficerAddressNcrMode}
+                        isNCRMode={affiantAddressNcrMode}
                         showBarangay={true}
                         barangayLabel='Barangay'
                         barangayPlaceholder='Select barangay'
                       />
                       <FormField
                         control={control}
-                        name='affidavitOfDelayedRegistration.adminOfficer.address.country'
+                        name='affidavitOfDelayedRegistration.affiant.address.country'
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Country</FormLabel>
@@ -215,11 +200,40 @@ const DelayedRegistrationForm: React.FC<DelayedRegistrationFormProps> = ({
                         )}
                       />
                     </div>
+                    {/* Additional Address Fields */}
+                    <div className='grid grid-cols-2 gap-4'>
+                      <FormField
+                        control={control}
+                        name='affidavitOfDelayedRegistration.affiant.address.houseNo'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>House No.</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value ?? ''} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={control}
+                        name='affidavitOfDelayedRegistration.affiant.address.st'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Street</FormLabel>
+                            <FormControl>
+                              <Input {...field} value={field.value ?? ''} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Registration Type and Parent Status */}
+              {/* Registration Type */}
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <FormField
                   control={control}
@@ -245,32 +259,6 @@ const DelayedRegistrationForm: React.FC<DelayedRegistrationFormProps> = ({
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={control}
-                  name='affidavitOfDelayedRegistration.parentMaritalStatus'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Parent&apos;s Marital Status</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value ?? ''}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder='Select status' />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value='MARRIED'>Married</SelectItem>
-                          <SelectItem value='NOT_MARRIED'>
-                            Not Married
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
               {/* Reason for Delay */}
@@ -288,6 +276,26 @@ const DelayedRegistrationForm: React.FC<DelayedRegistrationFormProps> = ({
                         placeholder='Enter the reason for delayed registration...'
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Date Sworn */}
+              <FormField
+                control={control}
+                name='affidavitOfDelayedRegistration.dateSworn'
+                render={({ field }) => (
+                  <FormItem>
+                    <DatePickerField
+                      field={{
+                        value: field.value || '',
+                        onChange: field.onChange,
+                      }}
+                      label='Date Sworn'
+                      placeholder='Select date sworn'
+                      ref={field.ref} // Forward ref for auto-focus
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -356,16 +364,15 @@ const DelayedRegistrationForm: React.FC<DelayedRegistrationFormProps> = ({
                   name='affidavitOfDelayedRegistration.ctcInfo.dateIssued'
                   render={({ field }) => (
                     <FormItem>
-                      <FormControl>
-                        <DatePickerField
-                          field={{
-                            value: field.value,
-                            onChange: field.onChange,
-                          }}
-                          label='Date Issued'
-                          placeholder='Select date issued'
-                        />
-                      </FormControl>
+                      <DatePickerField
+                        field={{
+                          value: field.value || '',
+                          onChange: field.onChange,
+                        }}
+                        label='Date Issued'
+                        placeholder='Select date issued'
+                        ref={field.ref} // Forward ref for auto-focus
+                      />
                       <FormMessage />
                     </FormItem>
                   )}

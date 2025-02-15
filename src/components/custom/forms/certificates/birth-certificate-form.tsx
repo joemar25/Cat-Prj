@@ -19,6 +19,8 @@ import { FormType } from '@prisma/client';
 import { Save } from 'lucide-react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+
+// Existing form components:
 import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
 import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
 import ChildInformationCard from './form-cards/birth-cards/child-information-card';
@@ -27,13 +29,19 @@ import MarriageInformationCard from './form-cards/birth-cards/marriage-parents-c
 import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 
+// Reusable processing details components:
+import AffidavitOfPaternityForm from './form-cards/birth-cards/affidavit-of-paternity';
+import PreparedByCard from './form-cards/shared-components/prepared-by-card';
+import ReceivedByCard from './form-cards/shared-components/received-by-card';
+import RegisteredAtOfficeCard from './form-cards/shared-components/registered-at-office-card';
+import RemarksCard from './form-cards/shared-components/remarks-card';
+import DelayedRegistrationForm from './form-cards/birth-cards/affidavit-for-delayed-registration';
+
 export default function BirthCertificateForm({
   open,
   onOpenChange,
   onCancel,
 }: BirthCertificateFormProps) {
-  // Use separate NCR mode state for registry and child sections.
-
   const formMethods = useForm<BirthCertificateFormValues>({
     resolver: zodResolver(birthCertificateFormSchema),
     mode: 'onChange',
@@ -77,7 +85,6 @@ export default function BirthCertificateForm({
           country: '',
         },
       },
-
       fatherInfo: {
         firstName: '',
         middleName: '',
@@ -107,7 +114,7 @@ export default function BirthCertificateForm({
         },
       },
       attendant: {
-        type: undefined, // Will be preprocessed to undefined if empty, then refined as required.
+        type: undefined,
         certification: {
           time: undefined,
           signature: '',
@@ -115,7 +122,7 @@ export default function BirthCertificateForm({
           title: '',
           address: {
             houseNo: '',
-            st: '', // Using "st" (not "street")
+            st: '',
             barangay: '',
             cityMunicipality: '',
             province: '',
@@ -138,7 +145,25 @@ export default function BirthCertificateForm({
         },
         date: undefined,
       },
-
+      // Processing details using our updated processingDetailsSchema:
+      preparedBy: {
+        signature: '',
+        nameInPrint: '',
+        titleOrPosition: '',
+        date: undefined,
+      },
+      receivedBy: {
+        signature: '',
+        nameInPrint: '',
+        titleOrPosition: '',
+        date: undefined,
+      },
+      registeredByOffice: {
+        signature: '',
+        nameInPrint: '',
+        titleOrPosition: '',
+        date: undefined,
+      },
       hasAffidavitOfPaternity: false,
       isDelayedRegistration: false,
       remarks: '',
@@ -206,11 +231,30 @@ export default function BirthCertificateForm({
                       {/* Certification of Informant Section */}
                       <CertificationOfInformantCard />
 
-                      {/* Processing Section */}
-                      {/* TODO: Add Processing Component */}
+                      {/* Processing Details */}
+                      <PreparedByCard<BirthCertificateFormValues>
+                        fieldPrefix='preparedBy'
+                        cardTitle='Prepared By'
+                      />
+                      <ReceivedByCard<BirthCertificateFormValues>
+                        fieldPrefix='receivedBy'
+                        cardTitle='Received By'
+                      />
+                      <RegisteredAtOfficeCard<BirthCertificateFormValues>
+                        fieldPrefix='registeredByOffice'
+                        cardTitle='Registered at the Office of Civil Registrar'
+                      />
 
-                      {/* Affidavit Section */}
-                      {/* TODO: Add Affidavit Component */}
+                      {/* Remarks Section */}
+                      <RemarksCard<BirthCertificateFormValues>
+                        fieldName='remarks'
+                        cardTitle='Birth Certificate Remarks'
+                        label='Additional Remarks'
+                        placeholder='Enter any additional remarks or annotations'
+                      />
+
+                      <AffidavitOfPaternityForm />
+                      <DelayedRegistrationForm />
 
                       <DialogFooter>
                         <Button

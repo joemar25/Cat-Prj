@@ -25,16 +25,22 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
   const {
     affidavitOfDelayedRegistration,
     affidavitOfPaternityDetails,
-
     childInfo,
+    motherInfo,
+    fatherInfo,
+    parentMarriage,
+    attendant,
+    informant,
+    preparedBy,
+    receivedBy,
+    registeredByOffice,
   } = data;
-
   // For date fields that require splitting into month/day/year (child date of birth, parent marriage date)
   const childDOB = childInfo?.dateOfBirth
     ? new Date(childInfo.dateOfBirth)
     : null;
-  const parentMarriageDate = data.parentMarriage?.date
-    ? new Date(data.parentMarriage.date)
+  const parentMarriageDate = parentMarriage?.date
+    ? new Date(parentMarriage.date)
     : null;
 
   return (
@@ -63,6 +69,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </Text>
             </View>
           </View>
+
           {/* Registry Information */}
           <View>
             <View style={styles.gridContainer}>
@@ -230,13 +237,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   </View>
                   <View style={styles.nameInputContainer}>
                     <Text style={styles.nameInput}>
-                      {data.motherInfo?.firstName || ''}
+                      {motherInfo?.firstName || ''}
                     </Text>
                     <Text style={styles.nameInput}>
-                      {data.motherInfo?.middleName || ''}
+                      {motherInfo?.middleName || ''}
                     </Text>
                     <Text style={styles.nameInput}>
-                      {data.motherInfo?.lastName || ''}
+                      {motherInfo?.lastName || ''}
                     </Text>
                   </View>
                 </View>
@@ -257,7 +264,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Citizenship:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.citizenship || ''}
+                        {motherInfo?.citizenship || ''}
                       </Text>
                     </View>
                   </View>
@@ -270,7 +277,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Religion:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.religion || ''}
+                        {motherInfo?.religion || ''}
                       </Text>
                     </View>
                   </View>
@@ -294,7 +301,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         Total Children Born Alive:
                       </Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.totalChildrenBornAlive || ''}
+                        {motherInfo?.totalChildrenBornAlive || ''}
                       </Text>
                     </View>
                   </View>
@@ -307,7 +314,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Children Now Dead:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.childrenNowDead || ''}
+                        {motherInfo?.childrenNowDead || ''}
                       </Text>
                     </View>
                   </View>
@@ -320,7 +327,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Occupation:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.occupation || ''}
+                        {motherInfo?.occupation || ''}
                       </Text>
                     </View>
                   </View>
@@ -334,9 +341,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       <Text style={styles.label}>
                         Age at time of this birth(completed years):
                       </Text>
-                      <Text style={styles.value}>
-                        {data.motherInfo?.age || ''}
-                      </Text>
+                      <Text style={styles.value}>{motherInfo?.age || ''}</Text>
                     </View>
                   </View>
                 </View>
@@ -352,9 +357,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={[styles.label]}>Residence:</Text>
                       <Text style={styles.value}>
-                        {`${data.motherInfo?.residence?.houseNumber || ''} ${
-                          data.motherInfo?.residence?.street || ''
-                        }, Brgy. ${data.motherInfo?.residence?.barangay || ''}`}
+                        {`${motherInfo?.residence?.houseNumber || ''} ${
+                          motherInfo?.residence?.street || ''
+                        }, Brgy. ${motherInfo?.residence?.barangay || ''}`}
                       </Text>
                     </View>
                   </View>
@@ -367,7 +372,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>City/Municipality:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.residence?.cityMunicipality || ''}
+                        {motherInfo?.residence?.cityMunicipality || ''}
                       </Text>
                     </View>
                   </View>
@@ -380,7 +385,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Province:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.residence?.province || ''}
+                        {motherInfo?.residence?.province || ''}
                       </Text>
                     </View>
                   </View>
@@ -393,7 +398,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Country:</Text>
                       <Text style={styles.value}>
-                        {data.motherInfo?.residence?.country || ''}
+                        {motherInfo?.residence?.country || ''}
                       </Text>
                     </View>
                   </View>
@@ -421,13 +426,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   </View>
                   <View style={styles.nameInputContainer}>
                     <Text style={styles.nameInput}>
-                      {data.fatherInfo?.firstName || ''}
+                      {fatherInfo?.firstName || ''}
                     </Text>
                     <Text style={styles.nameInput}>
-                      {data.fatherInfo?.middleName || ''}
+                      {fatherInfo?.middleName || ''}
                     </Text>
                     <Text style={styles.nameInput}>
-                      {data.fatherInfo?.lastName || ''}
+                      {fatherInfo?.lastName || ''}
                     </Text>
                   </View>
                 </View>
@@ -448,7 +453,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Citizenship:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.citizenship || ''}
+                        {fatherInfo?.citizenship || ''}
                       </Text>
                     </View>
                   </View>
@@ -461,7 +466,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Religion:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.religion || ''}
+                        {fatherInfo?.religion || ''}
                       </Text>
                     </View>
                   </View>
@@ -474,7 +479,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Occupation:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.occupation || ''}
+                        {fatherInfo?.occupation || ''}
                       </Text>
                     </View>
                   </View>
@@ -488,9 +493,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       <Text style={styles.label}>
                         Age at time of this birth(completed years):
                       </Text>
-                      <Text style={styles.value}>
-                        {data.fatherInfo?.age || ''}
-                      </Text>
+                      <Text style={styles.value}>{fatherInfo?.age || ''}</Text>
                     </View>
                   </View>
                 </View>
@@ -511,9 +514,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={[styles.label]}>Residence:</Text>
                       <Text style={styles.value}>
-                        {`${data.fatherInfo?.residence?.houseNumber || ''} ${
-                          data.fatherInfo?.residence?.street || ''
-                        }, ${data.fatherInfo?.residence?.barangay || ''}`}
+                        {`${fatherInfo?.residence?.houseNumber || ''} ${
+                          fatherInfo?.residence?.street || ''
+                        }, ${fatherInfo?.residence?.barangay || ''}`}
                       </Text>
                     </View>
                   </View>
@@ -526,7 +529,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>City/Municipality:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.residence?.cityMunicipality || ''}
+                        {fatherInfo?.residence?.cityMunicipality || ''}
                       </Text>
                     </View>
                   </View>
@@ -539,7 +542,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Province:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.residence?.province || ''}
+                        {fatherInfo?.residence?.province || ''}
                       </Text>
                     </View>
                   </View>
@@ -552,371 +555,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Country:</Text>
                       <Text style={styles.value}>
-                        {data.fatherInfo?.residence?.country || ''}
+                        {fatherInfo?.residence?.country || ''}
                       </Text>
                     </View>
                   </View>
                 </View>
               </View>
             </View>
-          </View>
-
-          {/* Marriage of Parents */}
-          <View style={styles.sectionGrid}>
-            <Text style={[styles.title, { padding: 5 }]}>
-              Marriage of Parents
-            </Text>
-            <View style={[styles.marriageGridContainer]}>
-              {/* Left Grid: Date */}
-              <View style={[styles.marriageLeftGrid, { padding: 5 }]}>
-                <Text style={styles.label}>Date:</Text>
-                <View style={[styles.dateInputContainer]}>
-                  <Text style={styles.dateInput}>(Month)</Text>
-                  <Text style={styles.dateInput}>(Day)</Text>
-                  <Text style={styles.dateInput}>(Year)</Text>
-                </View>
-                <View style={[styles.dateInputContainer]}>
-                  <Text style={styles.dateInput}>
-                    {parentMarriageDate
-                      ? parentMarriageDate.getMonth() + 1
-                      : ''}
-                  </Text>
-                  <Text style={styles.dateInput}>
-                    {parentMarriageDate ? parentMarriageDate.getDate() : ''}
-                  </Text>
-                  <Text style={styles.dateInput}>
-                    {parentMarriageDate ? parentMarriageDate.getFullYear() : ''}
-                  </Text>
-                </View>
-              </View>
-
-              {/* Right Grid: Place */}
-              <View style={[styles.marriageRightGrid, { padding: 5 }]}>
-                <Text style={styles.label}>Place:</Text>
-                <View style={[styles.dateInputContainer]}>
-                  <Text style={styles.dateInput}>(City/Municipality)</Text>
-                  <Text style={styles.dateInput}>(Province)</Text>
-                  <Text style={styles.dateInput}>(Country)</Text>
-                </View>
-                <View style={[styles.dateInputContainer]}>
-                  <Text style={styles.dateInput}>
-                    {data.parentMarriage?.place?.cityMunicipality || ''}
-                  </Text>
-                  <Text style={styles.dateInput}>
-                    {data.parentMarriage?.place?.province || ''}
-                  </Text>
-                  <Text style={styles.dateInput}>
-                    {data.parentMarriage?.place?.country || ''}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          {/* Attendant */}
-          <View style={styles.sectionGrid}>
-            <Text style={styles.label}>Attendant:</Text>
-            <Text style={styles.value}>
-              {data.attendant?.type || ''} -{' '}
-              {data.attendant?.certification?.name || ''}
-            </Text>
-          </View>
-
-          {/* Certification of Attendant at Birth */}
-          <View style={[styles.sectionGrid, { padding: 3 }]}>
-            <Text style={[styles.label, { fontSize: 10 }]}>
-              CERTIFICATION OF ATTENDANT AT BIRTH
-            </Text>
-            <Text style={[styles.value, { fontSize: 10 }]}>
-              I hereby certify that I attended the birth of the child who was
-              born alive at{' '}
-              <Text style={{ textDecoration: 'underline' }}>
-                {data.attendant?.certification?.time
-                  ? new Intl.DateTimeFormat('en-US', {
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true,
-                    }).format(new Date(data.attendant.certification.time))
-                  : ''}
-              </Text>{' '}
-              on the date of birth specified above.
-            </Text>
-            <View style={{ flexDirection: 'row', marginTop: 3 }}>
-              <View style={{ width: '50%' }}>
-                <Text style={[styles.label, { fontSize: 10 }]}>Signature:</Text>
-                <Text style={[styles.value, { fontSize: 10 }]}>
-                  <Text style={{ textDecoration: 'underline' }}>
-                    {data.attendant?.certification?.signature || ''}
-                  </Text>
-                </Text>
-              </View>
-              <View style={{ width: '50%' }}>
-                <Text style={[styles.label, { fontSize: 10 }]}>Address:</Text>
-                <Text style={[styles.value, { fontSize: 10 }]}>
-                  {`${
-                    data.attendant?.certification?.address?.houseNumber || ''
-                  } ${data.attendant?.certification?.address?.street || ''}, ${
-                    data.attendant?.certification?.address?.barangay || ''
-                  }, ${
-                    data.attendant?.certification?.address?.cityMunicipality ||
-                    ''
-                  }, ${
-                    data.attendant?.certification?.address?.province || ''
-                  }, ${data.attendant?.certification?.address?.country || ''}`}
-                </Text>
-              </View>
-            </View>
-            <View style={{ flexDirection: 'row', marginTop: 3 }}>
-              <View style={{ width: '50%' }}>
-                <Text style={[styles.label, { fontSize: 10 }]}>
-                  Name in Print:
-                </Text>
-                <Text style={[styles.value, { fontSize: 10 }]}>
-                  {data.attendant?.certification?.name || ''}
-                </Text>
-              </View>
-              <View style={{ width: '50%' }}>
-                <Text style={[styles.label, { fontSize: 10 }]}>
-                  Title or Position:
-                </Text>
-                <Text style={[styles.value, { fontSize: 10 }]}>
-                  {data.attendant?.certification?.title || ''}
-                </Text>
-              </View>
-            </View>
-            <View style={{ flexDirection: 'row', marginTop: 3 }}>
-              <View style={{ width: '50%' }}>
-                <Text style={[styles.label, { fontSize: 10 }]}>Date:</Text>
-                <Text style={[styles.value, { fontSize: 10 }]}>
-                  {data.attendant?.certification?.date
-                    ? formatDateTime(data.attendant.certification.date, {
-                        monthFormat: 'numeric',
-                        dayFormat: 'numeric',
-                        yearFormat: 'numeric',
-                      })
-                    : ''}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Certification Informant and Prepared By */}
-          <View style={{ flexDirection: 'row' }}>
-            {/* Certification Informant */}
-            <View
-              style={[
-                styles.sectionGrid,
-                { width: '50%', borderRight: '1px solid #000', padding: 3 },
-              ]}
-            >
-              <Text style={[styles.label, { fontSize: 10 }]}>
-                CERTIFICATION INFORMAT
-              </Text>
-              <Text style={[styles.value, { fontSize: 10 }]}>
-                I hereby certify that all information supplied are true and
-                correct to my own knowledge and belief.
-              </Text>
-              <View style={{ flexDirection: 'row', marginTop: 3 }}>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>
-                    Signature:
-                  </Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    <Text style={{ textDecoration: 'underline' }}>
-                      {data.informant?.signature || ''}
-                    </Text>
-                  </Text>
-                </View>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>
-                    Name in Print:
-                  </Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {data.informant?.name || ''}
-                  </Text>
-                </View>
-              </View>
-              <View style={{ flexDirection: 'row', marginTop: 3 }}>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>
-                    Relationship to the Child:
-                  </Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {data.informant?.relationship || ''}
-                  </Text>
-                </View>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>Address:</Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {`${data.informant?.address?.houseNumber || ''} ${
-                      data.informant?.address?.street || ''
-                    }, ${data.informant?.address?.barangay || ''}, ${
-                      data.informant?.address?.cityMunicipality || ''
-                    }, ${data.informant?.address?.province || ''}, ${
-                      data.informant?.address?.country || ''
-                    }`}
-                  </Text>
-                </View>
-              </View>
-              <View style={{ flexDirection: 'row', marginTop: 3 }}>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>Date:</Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {data.informant?.date
-                      ? formatDateTime(data.informant.date, {
-                          monthFormat: 'numeric',
-                        })
-                      : ''}
-                  </Text>
-                </View>
-              </View>
-            </View>
-            {/* Prepared By */}
-            <View style={[styles.sectionGrid, { width: '50%', padding: 3 }]}>
-              <Text style={[styles.label, { fontSize: 10 }]}>PREPARED BY</Text>
-              <View style={{ flexDirection: 'row', marginTop: 3 }}>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>
-                    Signature:
-                  </Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    <Text style={{ textDecoration: 'underline' }}>
-                      {data.preparedBy?.signature || ''}
-                    </Text>
-                  </Text>
-                </View>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>
-                    Name in Print:
-                  </Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {data.preparedBy?.name || ''}
-                  </Text>
-                </View>
-              </View>
-              <View style={{ flexDirection: 'row', marginTop: 3 }}>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>
-                    Title or Position:
-                  </Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {data.preparedBy?.title || ''}
-                  </Text>
-                </View>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>Date:</Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {data.preparedBy?.date
-                      ? formatDateTime(data.preparedBy.date, {
-                          monthFormat: 'numeric',
-                        })
-                      : ''}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          {/* Received By and Registered At Grids */}
-          <View style={{ flexDirection: 'row' }}>
-            {/* Received By */}
-            <View style={[styles.sectionGrid, styles.receivedByGrid]}>
-              <Text style={[styles.label, { fontSize: 10 }]}>RECEIVED BY</Text>
-              <View style={{ flexDirection: 'row', marginTop: 3 }}>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>
-                    Signature:
-                  </Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    <Text style={{ textDecoration: 'underline' }}>
-                      {data.receivedBy?.signature || ''}
-                    </Text>
-                  </Text>
-                </View>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>
-                    Name in Print:
-                  </Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {data.receivedBy?.name || ''}
-                  </Text>
-                </View>
-              </View>
-              <View style={{ flexDirection: 'row', marginTop: 3 }}>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>
-                    Title or Position:
-                  </Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {data.receivedBy?.title || ''}
-                  </Text>
-                </View>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>Date:</Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {data.receivedBy?.date
-                      ? formatDateTime(data.receivedBy.date, {
-                          monthFormat: 'numeric',
-                        })
-                      : ''}
-                  </Text>
-                </View>
-              </View>
-            </View>
-            {/* Registered At the Office of the Civil Registrar */}
-            <View style={[styles.sectionGrid, styles.registeredAtGrid]}>
-              <Text style={[styles.label, { fontSize: 10 }]}>
-                REGISTERED AT THE OFFICE OF THE CIVIL REGISTRAR
-              </Text>
-              <View style={{ flexDirection: 'row', marginTop: 3 }}>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>
-                    Signature:
-                  </Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    <Text style={{ textDecoration: 'underline' }}>
-                      {data.registeredByOffice?.signature || ''}
-                    </Text>
-                  </Text>
-                </View>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>
-                    Name in Print:
-                  </Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {data.registeredByOffice?.name || ''}
-                  </Text>
-                </View>
-              </View>
-              <View style={{ flexDirection: 'row', marginTop: 3 }}>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>
-                    Title or Position:
-                  </Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {data.registeredByOffice?.title || ''}
-                  </Text>
-                </View>
-                <View style={{ width: '50%' }}>
-                  <Text style={[styles.label, { fontSize: 10 }]}>Date:</Text>
-                  <Text style={[styles.value, { fontSize: 10 }]}>
-                    {data.registeredByOffice?.date
-                      ? formatDateTime(data.registeredByOffice.date, {
-                          monthFormat: 'numeric',
-                        })
-                      : ''}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          {/* Remarks Grid */}
-          <View style={[styles.sectionGrid, styles.remarksGrid]}>
-            <Text style={[styles.label, { fontSize: 10 }]}>Remarks:</Text>
-            <Text style={[styles.value, { fontSize: 10 }]}>
-              {data.remarks || ''}
-            </Text>
           </View>
         </View>
       </Page>
