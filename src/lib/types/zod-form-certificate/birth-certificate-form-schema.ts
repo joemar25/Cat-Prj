@@ -251,6 +251,7 @@ const delayedRegistrationAffidavitSchema = z.object({
     dateIssued: z.string().min(1, 'Date issued is required'),
     placeIssued: z.string().min(1, 'Place issued is required'),
   }),
+  parentMaritalStatus: z.enum(['MARRIED', 'NOT_MARRIED']).optional(),
 });
 
 // Main Birth Certificate Schema

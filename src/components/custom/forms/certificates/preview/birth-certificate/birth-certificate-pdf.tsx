@@ -23,8 +23,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
 
   // Destructure nested objects for convenience
   const {
-    affidavitOfDelayedRegistration,
-    affidavitOfPaternityDetails,
+    registryNumber,
+    province,
+    cityMunicipality,
     childInfo,
     motherInfo,
     fatherInfo,
@@ -34,7 +35,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
     preparedBy,
     receivedBy,
     registeredByOffice,
+    hasAffidavitOfPaternity,
+    affidavitOfPaternityDetails,
+    isDelayedRegistration,
+    affidavitOfDelayedRegistration,
+    remarks,
   } = data;
+
   // For date fields that require splitting into month/day/year (child date of birth, parent marriage date)
   const childDOB = childInfo?.dateOfBirth
     ? new Date(childInfo.dateOfBirth)
@@ -69,7 +76,6 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </Text>
             </View>
           </View>
-
           {/* Registry Information */}
           <View>
             <View style={styles.gridContainer}>
@@ -77,13 +83,13 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <View style={styles.leftGrid}>
                 <View style={styles.fieldContainer}>
                   <Text style={styles.label}>Province:</Text>
-                  <Text style={styles.value}>{data.province || ''}</Text>
+                  <Text style={styles.value}>
+                    {province === 'Metro Manila' ? '' : province || ''}
+                  </Text>
                 </View>
                 <View style={styles.fieldContainer}>
                   <Text style={styles.label}>City/Municipality:</Text>
-                  <Text style={styles.value}>
-                    {data.cityMunicipality || ''}
-                  </Text>
+                  <Text style={styles.value}>{cityMunicipality || ''}</Text>
                 </View>
               </View>
 
@@ -91,7 +97,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               <View style={styles.rightGrid}>
                 <View style={styles.registryNoContainer}>
                   <Text style={styles.label}>Registry No.:</Text>
-                  <Text style={styles.value}>{data.registryNumber || ''}</Text>
+                  <Text style={styles.value}>{registryNumber || ''}</Text>
                 </View>
               </View>
             </View>
@@ -148,13 +154,19 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       </View>
                       <View style={styles.dateInputContainer}>
                         <Text style={styles.dateInput}>
-                          {childDOB ? childDOB.getMonth() + 1 : ''}
+                          {childInfo?.dateOfBirth
+                            ? new Date(childInfo.dateOfBirth).getMonth() + 1
+                            : ''}
                         </Text>
                         <Text style={styles.dateInput}>
-                          {childDOB ? childDOB.getDate() : ''}
+                          {childInfo?.dateOfBirth
+                            ? new Date(childInfo.dateOfBirth).getDate()
+                            : ''}
                         </Text>
                         <Text style={styles.dateInput}>
-                          {childDOB ? childDOB.getFullYear() : ''}
+                          {childInfo?.dateOfBirth
+                            ? new Date(childInfo.dateOfBirth).getFullYear()
+                            : ''}
                         </Text>
                       </View>
                     </View>
@@ -180,7 +192,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   <View style={styles.placeOfBirthColumn}>
                     <Text style={styles.placeOfBirthLabel}>Province:</Text>
                     <Text style={styles.placeOfBirthValue}>
-                      {childInfo?.placeOfBirth?.province || ''}
+                      {childInfo?.placeOfBirth?.province === 'Metro Manila'
+                        ? ''
+                        : childInfo?.placeOfBirth?.province || ''}
                     </Text>
                   </View>
                 </View>
@@ -357,8 +371,8 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={[styles.label]}>Residence:</Text>
                       <Text style={styles.value}>
-                        {`${motherInfo?.residence?.houseNumber || ''} ${
-                          motherInfo?.residence?.street || ''
+                        {`${motherInfo?.residence?.houseNo || ''} ${
+                          motherInfo?.residence?.st || ''
                         }, Brgy. ${motherInfo?.residence?.barangay || ''}`}
                       </Text>
                     </View>
@@ -385,7 +399,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Province:</Text>
                       <Text style={styles.value}>
-                        {motherInfo?.residence?.province || ''}
+                        {motherInfo?.residence?.province === 'Metro Manila'
+                          ? ''
+                          : motherInfo?.residence?.province || ''}
                       </Text>
                     </View>
                   </View>
@@ -514,8 +530,8 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={[styles.label]}>Residence:</Text>
                       <Text style={styles.value}>
-                        {`${fatherInfo?.residence?.houseNumber || ''} ${
-                          fatherInfo?.residence?.street || ''
+                        {`${fatherInfo?.residence?.houseNo || ''} ${
+                          fatherInfo?.residence?.st || ''
                         }, ${fatherInfo?.residence?.barangay || ''}`}
                       </Text>
                     </View>
@@ -542,7 +558,9 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     >
                       <Text style={styles.label}>Province:</Text>
                       <Text style={styles.value}>
-                        {fatherInfo?.residence?.province || ''}
+                        {fatherInfo?.residence?.province === 'Metro Manila'
+                          ? ''
+                          : fatherInfo?.residence?.province || ''}
                       </Text>
                     </View>
                   </View>
@@ -562,6 +580,364 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 </View>
               </View>
             </View>
+          </View>
+
+          {/* Marriage of Parents */}
+          <View style={styles.sectionGrid}>
+            <Text style={[styles.title, { padding: 5 }]}>
+              Marriage of Parents
+            </Text>
+            <View style={[styles.marriageGridContainer]}>
+              {/* Left Grid: Date */}
+              <View style={[styles.marriageLeftGrid, { padding: 5 }]}>
+                <Text style={styles.label}>Date:</Text>
+                <View style={[styles.dateInputContainer]}>
+                  <Text style={styles.dateInput}>(Month)</Text>
+                  <Text style={styles.dateInput}>(Day)</Text>
+                  <Text style={styles.dateInput}>(Year)</Text>
+                </View>
+                <View style={[styles.dateInputContainer]}>
+                  <Text style={styles.dateInput}>
+                    {parentMarriage?.date
+                      ? parentMarriage.date.getMonth() + 1
+                      : ''}
+                  </Text>
+                  <Text style={styles.dateInput}>
+                    {parentMarriage?.date ? parentMarriage.date.getDate() : ''}
+                  </Text>
+                  <Text style={styles.dateInput}>
+                    {parentMarriage?.date
+                      ? parentMarriage.date.getFullYear()
+                      : ''}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Right Grid: Place */}
+              <View style={[styles.marriageRightGrid, { padding: 5 }]}>
+                <Text style={styles.label}>Place:</Text>
+                <View style={[styles.dateInputContainer]}>
+                  <Text style={styles.dateInput}>(City/Municipality)</Text>
+                  <Text style={styles.dateInput}>(Province)</Text>
+                  <Text style={styles.dateInput}>(Country)</Text>
+                </View>
+                <View style={[styles.dateInputContainer]}>
+                  <Text style={styles.dateInput}>
+                    {parentMarriage?.place?.cityMunicipality || ''}
+                  </Text>
+                  <Text style={styles.dateInput}>
+                    {parentMarriage?.place?.province || ''}
+                  </Text>
+                  <Text style={styles.dateInput}>
+                    {parentMarriage?.place?.country || ''}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Attendant */}
+          <View style={styles.sectionGrid}>
+            <Text style={styles.label}>Attendant:</Text>
+            <Text style={styles.value}>
+              {attendant?.type || ''} - {attendant?.certification?.name || ''}
+            </Text>
+          </View>
+
+          {/* Certification of Attendant at Birth */}
+          <View style={[styles.sectionGrid, { padding: 3 }]}>
+            <Text style={[styles.label, { fontSize: 10 }]}>
+              CERTIFICATION OF ATTENDANT AT BIRTH
+            </Text>
+            <Text style={[styles.value, { fontSize: 10 }]}>
+              I hereby certify that I attended the birth of the child who was
+              born alive at{' '}
+              <Text style={{ textDecoration: 'underline' }}>
+                {attendant?.certification?.time
+                  ? new Intl.DateTimeFormat('en-US', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                    }).format(new Date(attendant.certification.time))
+                  : ''}
+              </Text>{' '}
+              on the date of birth specified above.
+            </Text>
+            <View style={{ flexDirection: 'row', marginTop: 3 }}>
+              <View style={{ width: '50%' }}>
+                <Text style={[styles.label, { fontSize: 10 }]}>Signature:</Text>
+                <Text style={[styles.value, { fontSize: 10 }]}>
+                  <Text style={{ textDecoration: 'underline' }}>
+                    {attendant?.certification?.signature || ''}
+                  </Text>
+                </Text>
+              </View>
+              <View style={{ width: '50%' }}>
+                <Text style={[styles.label, { fontSize: 10 }]}>Address:</Text>
+                <Text style={[styles.value, { fontSize: 10 }]}>
+                  {`${attendant?.certification?.address?.houseNo || ''} ${
+                    attendant?.certification?.address?.st || ''
+                  }, ${attendant?.certification?.address?.barangay || ''}, ${
+                    attendant?.certification?.address?.cityMunicipality || ''
+                  }, ${attendant?.certification?.address?.province || ''}, ${
+                    attendant?.certification?.address?.country || ''
+                  }`}
+                </Text>
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', marginTop: 3 }}>
+              <View style={{ width: '50%' }}>
+                <Text style={[styles.label, { fontSize: 10 }]}>
+                  Name in Print:
+                </Text>
+                <Text style={[styles.value, { fontSize: 10 }]}>
+                  {attendant?.certification?.name || ''}
+                </Text>
+              </View>
+              <View style={{ width: '50%' }}>
+                <Text style={[styles.label, { fontSize: 10 }]}>
+                  Title or Position:
+                </Text>
+                <Text style={[styles.value, { fontSize: 10 }]}>
+                  {attendant?.certification?.title || ''}
+                </Text>
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', marginTop: 3 }}>
+              <View style={{ width: '50%' }}>
+                <Text style={[styles.label, { fontSize: 10 }]}>Date:</Text>
+                <Text style={[styles.value, { fontSize: 10 }]}>
+                  {attendant?.certification?.date
+                    ? formatDateTime(attendant.certification.date, {
+                        monthFormat: 'numeric',
+                        dayFormat: 'numeric',
+                        yearFormat: 'numeric',
+                      })
+                    : ''}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Certification Informant and Prepared By */}
+          <View style={{ flexDirection: 'row' }}>
+            {/* Certification Informant */}
+            <View
+              style={[
+                styles.sectionGrid,
+                { width: '50%', borderRight: '1px solid #000', padding: 3 },
+              ]}
+            >
+              <Text style={[styles.label, { fontSize: 10 }]}>
+                CERTIFICATION INFORMAT
+              </Text>
+              <Text style={[styles.value, { fontSize: 10 }]}>
+                I hereby certify that all information supplied are true and
+                correct to my own knowledge and belief.
+              </Text>
+              <View style={{ flexDirection: 'row', marginTop: 3 }}>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>
+                    Signature:
+                  </Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    <Text style={{ textDecoration: 'underline' }}>
+                      {informant?.signature || ''}
+                    </Text>
+                  </Text>
+                </View>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>
+                    Name in Print:
+                  </Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {informant?.name || ''}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ flexDirection: 'row', marginTop: 3 }}>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>
+                    Relationship to the Child:
+                  </Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {informant?.relationship || ''}
+                  </Text>
+                </View>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>Address:</Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {`${informant?.address?.houseNo || ''} ${
+                      informant?.address?.st || ''
+                    }, ${informant?.address?.barangay || ''}, ${
+                      informant?.address?.cityMunicipality || ''
+                    }, ${informant?.address?.province || ''}, ${
+                      informant?.address?.country || ''
+                    }`}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ flexDirection: 'row', marginTop: 3 }}>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>Date:</Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {informant?.date
+                      ? formatDateTime(informant.date, {
+                          monthFormat: 'numeric',
+                        })
+                      : ''}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Prepared By */}
+            <View style={[styles.sectionGrid, { width: '50%', padding: 3 }]}>
+              <Text style={[styles.label, { fontSize: 10 }]}>PREPARED BY</Text>
+              <View style={{ flexDirection: 'row', marginTop: 3 }}>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>
+                    Signature:
+                  </Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    <Text style={{ textDecoration: 'underline' }}>
+                      {preparedBy?.signature || ''}
+                    </Text>
+                  </Text>
+                </View>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>
+                    Name in Print:
+                  </Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {preparedBy?.nameInPrint || ''}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ flexDirection: 'row', marginTop: 3 }}>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>
+                    Title or Position:
+                  </Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {preparedBy?.titleOrPosition || ''}
+                  </Text>
+                </View>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>Date:</Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {preparedBy?.date
+                      ? formatDateTime(preparedBy.date, {
+                          monthFormat: 'numeric',
+                        })
+                      : ''}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Received By and Registered At Grids */}
+          <View style={{ flexDirection: 'row' }}>
+            {/* Received By */}
+            <View style={[styles.sectionGrid, styles.receivedByGrid]}>
+              <Text style={[styles.label, { fontSize: 10 }]}>RECEIVED BY</Text>
+              <View style={{ flexDirection: 'row', marginTop: 3 }}>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>
+                    Signature:
+                  </Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    <Text style={{ textDecoration: 'underline' }}>
+                      {receivedBy?.signature || ''}
+                    </Text>
+                  </Text>
+                </View>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>
+                    Name in Print:
+                  </Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {receivedBy?.nameInPrint || ''}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ flexDirection: 'row', marginTop: 3 }}>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>
+                    Title or Position:
+                  </Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {receivedBy?.titleOrPosition || ''}
+                  </Text>
+                </View>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>Date:</Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {receivedBy?.date
+                      ? formatDateTime(receivedBy.date, {
+                          monthFormat: 'numeric',
+                        })
+                      : ''}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Registered At the Office of the Civil Registrar */}
+            <View style={[styles.sectionGrid, styles.registeredAtGrid]}>
+              <Text style={[styles.label, { fontSize: 10 }]}>
+                REGISTERED AT THE OFFICE OF THE CIVIL REGISTRAR
+              </Text>
+              <View style={{ flexDirection: 'row', marginTop: 3 }}>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>
+                    Signature:
+                  </Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    <Text style={{ textDecoration: 'underline' }}>
+                      {registeredByOffice?.signature || ''}
+                    </Text>
+                  </Text>
+                </View>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>
+                    Name in Print:
+                  </Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {registeredByOffice?.nameInPrint || ''}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ flexDirection: 'row', marginTop: 3 }}>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>
+                    Title or Position:
+                  </Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {registeredByOffice?.titleOrPosition || ''}
+                  </Text>
+                </View>
+                <View style={{ width: '50%' }}>
+                  <Text style={[styles.label, { fontSize: 10 }]}>Date:</Text>
+                  <Text style={[styles.value, { fontSize: 10 }]}>
+                    {registeredByOffice?.date
+                      ? formatDateTime(registeredByOffice.date, {
+                          monthFormat: 'numeric',
+                        })
+                      : ''}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Remarks Grid */}
+          <View style={[styles.sectionGrid, styles.remarksGrid]}>
+            <Text style={[styles.label, { fontSize: 10 }]}>Remarks:</Text>
+            <Text style={[styles.value, { fontSize: 10 }]}>
+              {remarks || ''}
+            </Text>
           </View>
         </View>
       </Page>
@@ -604,6 +980,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               </Text>
               <Text style={[back.textStyle]}>,</Text>
             </View>
+
             <View style={back.formRow}>
               <Text style={[back.textStyle, { marginRight: 12 }]}>
                 of legal age, am/are the natural mother and/or father of:
@@ -616,6 +993,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               ,
               <Text style={[back.textStyle, { marginLeft: 12 }]}>who was </Text>
             </View>
+
             <View style={back.formRow}>
               <Text style={[back.textStyle, { marginRight: 12 }]}>
                 born on:
@@ -636,6 +1014,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   .join(', ')}
               </Text>
             </View>
+
             <View
               style={{
                 display: 'flex',
@@ -651,6 +1030,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 of acknowledgement of my/our child.
               </Text>
             </View>
+
             <View style={[back.rowContainer, { marginTop: 15 }]}>
               <View style={back.signatureBlock}>
                 <Text style={[back.textStyle, back.signatureText]}>
@@ -669,6 +1049,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 </Text>
               </View>
             </View>
+
             <View style={[back.formRow, { marginTop: 15 }]}>
               <Text
                 style={[back.textStyle, { marginRight: 20, marginLeft: 40 }]}
@@ -719,6 +1100,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   : ''}
               </Text>
             </View>
+
             <View style={back.formRow}>
               <Text style={[back.textStyle]}>
                 <Text style={[back.textStyle]}>by </Text>
@@ -743,6 +1125,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 who exhibited to me his/her
               </Text>
             </View>
+
             <View style={back.formRow}>
               <Text style={[back.textStyle]}>CTC/valid ID: </Text>
               <Text
@@ -763,6 +1146,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   : ''}
               </Text>
             </View>
+
             <View style={back.formRow}>
               <Text style={[back.textStyle]}>at </Text>
               <Text
@@ -771,6 +1155,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 {affidavitOfPaternityDetails?.ctcInfo?.placeIssued || ''}
               </Text>
             </View>
+
             <View style={[back.rowContainer, { marginTop: 30 }]}>
               <View style={back.signatureBlock}>
                 <Text style={[back.textStyle, back.signatureText]}>
@@ -789,6 +1174,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 </Text>
               </View>
             </View>
+
             <View style={[back.rowContainer, { marginTop: 30 }]}>
               <View style={back.signatureBlock}>
                 <Text style={[back.textStyle, back.signatureText]}>
@@ -831,6 +1217,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 old or over.)
               </Text>
             </View>
+
             <View style={[back.formRow, { marginTop: 15 }]}>
               <Text style={[back.textStyle, { marginLeft: 40 }]}>I </Text>
               <Text style={[back.textStyle, back.formField]}>
@@ -840,10 +1227,11 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                 of legal age,{' '}
                 {affidavitOfDelayedRegistration?.affiant?.civilStatus
                   ? affidavitOfDelayedRegistration.affiant.civilStatus.toLowerCase()
-                  : ''}
+                  : ''}{' '}
                 , with
               </Text>
             </View>
+
             <View style={back.formRow}>
               <Text style={[back.textStyle, { paddingRight: 10 }]}>
                 residence and postal address at
@@ -857,11 +1245,10 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
               >
                 {affidavitOfDelayedRegistration?.affiant?.address
                   ? `${
-                      affidavitOfDelayedRegistration.affiant.address
-                        .houseNumber || ''
-                    } ${
-                      affidavitOfDelayedRegistration.affiant.address.street ||
+                      affidavitOfDelayedRegistration.affiant.address.houseNo ||
                       ''
+                    } ${
+                      affidavitOfDelayedRegistration.affiant.address.st || ''
                     }, ${
                       affidavitOfDelayedRegistration.affiant.address.barangay ||
                       ''
@@ -878,12 +1265,14 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                   : ''}
               </Text>
             </View>
+
             <View style={back.formRow}>
               <Text style={[back.textStyle, { paddingRight: 12 }]}>
                 after having been duly sworn in accordance with law, do hereby
                 depose and say:
               </Text>
             </View>
+
             <View
               style={[
                 back.columnContainer,
@@ -947,6 +1336,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       : null}
                   </Text>
                 </View>
+
                 <View style={[back.formRow, { marginLeft: 20 }]}>
                   <View style={back.radio}>
                     {affidavitOfDelayedRegistration?.registrationType ===
@@ -987,6 +1377,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     {childInfo?.placeOfBirth?.cityMunicipality || ''}
                   </Text>
                 </View>
+
                 <View style={[back.formRow, { marginLeft: 20 }]}>
                   <Text style={[back.textStyle, { paddingRight: 12 }]}>on</Text>
                   <Text
@@ -1006,6 +1397,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       : ''}
                   </Text>
                 </View>
+
                 <View
                   style={[
                     back.formRow,
@@ -1022,9 +1414,10 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       { marginLeft: 12, width: '55%', paddingRight: 12 },
                     ]}
                   >
-                    {data.attendant?.certification?.name || ''}
+                    {attendant?.certification?.name || ''}
                   </Text>
                 </View>
+
                 <View
                   style={[back.formRow, { flexWrap: 'wrap', paddingLeft: 20 }]}
                 >
@@ -1036,24 +1429,18 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       { marginLeft: 12, width: '60%', paddingRight: 12 },
                     ]}
                   >
-                    {data.attendant?.certification?.address
-                      ? `${
-                          data.attendant.certification.address.houseNumber || ''
-                        } ${
-                          data.attendant.certification.address.street || ''
-                        }, ${
-                          data.attendant.certification.address.barangay || ''
-                        }, ${
-                          data.attendant.certification.address
-                            .cityMunicipality || ''
-                        }, ${
-                          data.attendant.certification.address.province || ''
-                        }, ${
-                          data.attendant.certification.address.country || ''
+                    {attendant?.certification?.address
+                      ? `${attendant.certification.address.houseNo || ''} ${
+                          attendant.certification.address.st || ''
+                        }, ${attendant.certification.address.barangay || ''}, ${
+                          attendant.certification.address.cityMunicipality || ''
+                        }, ${attendant.certification.address.province || ''}, ${
+                          attendant.certification.address.country || ''
                         }`
                       : ''}
                   </Text>
                 </View>
+
                 <View
                   style={[
                     back.formRow,
@@ -1073,6 +1460,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     {affidavitOfDelayedRegistration?.affiant?.citizenship || ''}
                   </Text>
                 </View>
+
                 <View style={[back.formRow, { flexWrap: 'wrap' }]}>
                   <Text style={[back.textStyle]}>
                     4. That my/his/her parents were
@@ -1100,8 +1488,8 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         { marginLeft: 12, flexWrap: 'wrap', width: '35%' },
                       ]}
                     >
-                      {data.parentMarriage?.date
-                        ? formatDateTime(data.parentMarriage.date, {
+                      {parentMarriage?.date
+                        ? formatDateTime(parentMarriage.date, {
                             monthFormat: '2-digit',
                             dayFormat: '2-digit',
                             yearFormat: 'numeric',
@@ -1124,9 +1512,10 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         },
                       ]}
                     >
-                      {data.parentMarriage?.place?.cityMunicipality || ''}
+                      {parentMarriage?.place?.cityMunicipality || ''}
                     </Text>
                   </View>
+
                   <View style={[back.formRow, { marginLeft: 20 }]}>
                     <View style={back.radio}>
                       {affidavitOfDelayedRegistration?.parentMaritalStatus ===
@@ -1147,6 +1536,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       by my/his/her{' '}
                     </Text>
                   </View>
+
                   <View style={[back.formRow, { marginLeft: 20 }]}>
                     <Text style={[back.textStyle, { paddingRight: 12 }]}>
                       father whose name is
@@ -1158,11 +1548,12 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         { flexWrap: 'wrap', width: '70%' },
                       ]}
                     >
-                      {`${data.fatherInfo?.firstName || ''} ${
-                        data.fatherInfo?.lastName || ''
+                      {`${fatherInfo?.firstName || ''} ${
+                        fatherInfo?.lastName || ''
                       }`}
                     </Text>
                   </View>
+
                   <View
                     style={[
                       back.formRow,
@@ -1187,6 +1578,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       {affidavitOfDelayedRegistration?.reasonForDelay || ''}
                     </Text>
                   </View>
+
                   <View
                     style={[
                       back.formRow,
@@ -1203,9 +1595,10 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         { marginLeft: 12, width: '45%' },
                       ]}
                     >
-                      {affidavitOfDelayedRegistration?.spouseName || ''}
+                      {'Need Fixing here '}
                     </Text>
                   </View>
+
                   <View
                     style={[
                       back.formRow,
@@ -1227,11 +1620,11 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         { marginLeft: 12, width: '30%' },
                       ]}
                     >
-                      {affidavitOfDelayedRegistration?.applicantRelationship ||
-                        ''}
+                      {'Need Fixing here '}
                     </Text>
                     <Text style={[back.textStyle]}>of the said person.</Text>
                   </View>
+
                   <View
                     style={[
                       back.formRow,
@@ -1249,6 +1642,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     </Text>
                     <Text style={back.textStyle}>intents and purposes.</Text>
                   </View>
+
                   <View
                     style={[
                       back.formRow,
@@ -1307,6 +1701,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                     </Text>
                     <Text style={[back.textStyle]}>, Philippines.</Text>
                   </View>
+
                   <View
                     style={[
                       back.formRow,
@@ -1353,6 +1748,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       </Text>
                     </View>
                   </View>
+
                   <View
                     style={[
                       back.formRow,
@@ -1414,6 +1810,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                       C.T.C/valid ID
                     </Text>
                   </View>
+
                   <View
                     style={[
                       back.formRow,
@@ -1456,6 +1853,7 @@ const BirthCertificatePDF: React.FC<BirthCertificatePDFProps> = ({ data }) => {
                         ''}
                     </Text>
                   </View>
+
                   <View
                     style={[
                       back.formRow,

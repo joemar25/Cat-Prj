@@ -30,12 +30,14 @@ import MotherInformationCard from './form-cards/birth-cards/mother-information-c
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 
 // Reusable processing details components:
+import { PDFViewer } from '@react-pdf/renderer';
+import DelayedRegistrationForm from './form-cards/birth-cards/affidavit-for-delayed-registration';
 import AffidavitOfPaternityForm from './form-cards/birth-cards/affidavit-of-paternity';
 import PreparedByCard from './form-cards/shared-components/prepared-by-card';
 import ReceivedByCard from './form-cards/shared-components/received-by-card';
 import RegisteredAtOfficeCard from './form-cards/shared-components/registered-at-office-card';
 import RemarksCard from './form-cards/shared-components/remarks-card';
-import DelayedRegistrationForm from './form-cards/birth-cards/affidavit-for-delayed-registration';
+import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
 
 export default function BirthCertificateForm({
   open,
@@ -279,7 +281,9 @@ export default function BirthCertificateForm({
             {/* Right Side - Preview */}
             <div className='w-1/2'>
               <div className='h-[calc(95vh-120px)] p-6'>
-                {/* PDF Preview will be added here later */}
+                <PDFViewer width='100%' height='100%'>
+                  <BirthCertificatePDF data={formMethods.watch()} />
+                </PDFViewer>
               </div>
             </div>
           </div>
