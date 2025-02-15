@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
@@ -18,8 +18,42 @@ import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 import ReligionSelector from '../shared-components/religion-selector';
 
 const MotherInformationCard: React.FC = () => {
-  const { control } = useFormContext<BirthCertificateFormValues>();
+  const { control, watch, setError, clearErrors } =
+    useFormContext<BirthCertificateFormValues>();
   const [ncrMode, setNcrMode] = useState(false);
+
+  // Watch the three fields in real time
+  const total = watch('motherInfo.totalChildrenBornAlive');
+  const living = watch('motherInfo.childrenStillLiving');
+  const dead = watch('motherInfo.childrenNowDead');
+
+  // Run a side effect whenever these three fields change
+  useEffect(() => {
+    // If all three fields have some value (non-empty)
+    if (total.trim() !== '' && living.trim() !== '' && dead.trim() !== '') {
+      const totalNum = Number(total);
+      const livingNum = Number(living);
+      const deadNum = Number(dead);
+
+      // If they are valid numbers, check the sum
+      if (!isNaN(totalNum) && !isNaN(livingNum) && !isNaN(deadNum)) {
+        if (totalNum !== livingNum + deadNum) {
+          // Immediately set a manual error on totalChildrenBornAlive
+          setError('motherInfo.totalChildrenBornAlive', {
+            type: 'manual',
+            message:
+              'Total children born alive must equal sum of living and deceased children',
+          });
+        } else {
+          // Clear the error if they now match
+          clearErrors('motherInfo.totalChildrenBornAlive');
+        }
+      }
+    } else {
+      // If the user hasn't filled all three fields yet, clear the sum error
+      clearErrors('motherInfo.totalChildrenBornAlive');
+    }
+  }, [total, living, dead, setError, clearErrors]);
 
   return (
     <Card>
@@ -122,7 +156,7 @@ const MotherInformationCard: React.FC = () => {
               <FormField
                 control={control}
                 name='motherInfo.religion'
-                render={({ field, fieldState }) => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Religion</FormLabel>
                     <FormControl>
@@ -247,7 +281,6 @@ const MotherInformationCard: React.FC = () => {
             <CardTitle className='text-lg font-medium'>Residence</CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
-            {/* Basic Address Fields */}
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <FormField
                 control={control}
@@ -301,7 +334,6 @@ const MotherInformationCard: React.FC = () => {
                 )}
               />
             </div>
-            {/* Location Selector for Province, City/Municipality, and Barangay */}
             <div className='mt-4 space-y-2'>
               <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
               <LocationSelector

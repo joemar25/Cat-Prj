@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   citizenshipSchema,
   cityMunicipalitySchema,
+  createDateFieldSchema,
   nameSchema,
   processingDetailsSchema,
   provinceSchema,
@@ -26,21 +27,11 @@ const childInformationSchema = z
         message: 'Sex is required',
       }),
 
-    dateOfBirth: z.preprocess(
-      (val) => {
-        if (val == null || val === '') return undefined; // convert null/'' → undefined
-        if (typeof val === 'string') {
-          const date = new Date(val);
-          return isNaN(date.getTime()) ? undefined : date;
-        }
-        return val; // if it's already a Date, just use it
-      },
-      z
-        .date({ required_error: 'Date of birth is required' })
-        .refine((d) => d <= new Date(), {
-          message: 'Birth date cannot be in the future',
-        })
-    ),
+    // Updated to use the reusable date schema:
+    dateOfBirth: createDateFieldSchema({
+      requiredError: 'Date of birth is required',
+      futureError: 'Birth date cannot be in the future',
+    }),
     placeOfBirth: z.object({
       hospital: z
         .string()
@@ -113,16 +104,23 @@ const motherInformationSchema = z
     residence: residenceSchema,
   })
   .superRefine((data, ctx) => {
-    const total = Number(data.totalChildrenBornAlive);
-    const living = Number(data.childrenStillLiving);
-    const dead = Number(data.childrenNowDead);
-    if (total !== living + dead) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          'Total children born alive must equal sum of living and deceased children',
-        path: ['totalChildrenBornAlive'],
-      });
+    if (
+      data.totalChildrenBornAlive.trim() !== '' &&
+      data.childrenStillLiving.trim() !== '' &&
+      data.childrenNowDead.trim() !== ''
+    ) {
+      const total = Number(data.totalChildrenBornAlive);
+      const living = Number(data.childrenStillLiving);
+      const dead = Number(data.childrenNowDead);
+
+      if (total !== living + dead) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            'Total children born alive must equal sum of living and deceased children',
+          path: ['totalChildrenBornAlive'],
+        });
+      }
     }
   });
 
@@ -154,18 +152,11 @@ const fatherInformationSchema = z
 // Marriage Information Schema
 const marriageInformationSchema = z
   .object({
-    date: z
-      .string()
-      .min(1, 'Date is required')
-      .superRefine((date, ctx) => {
-        const marriageDate = new Date(date);
-        if (marriageDate > new Date()) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Marriage date cannot be in the future',
-          });
-        }
-      }),
+    // Updated to use the reusable date schema:
+    date: createDateFieldSchema({
+      requiredError: 'Marriage date is required',
+      futureError: 'Marriage date cannot be in the future',
+    }),
     place: residenceSchema,
   })
   .optional();
@@ -179,18 +170,11 @@ const attendantInformationSchema = z.object({
     name: z.string().min(1, 'Name is required'),
     title: z.string().min(1, 'Title is required'),
     address: residenceSchema,
-    date: z
-      .string()
-      .min(1, 'Date is required')
-      .superRefine((date, ctx) => {
-        const certDate = new Date(date);
-        if (certDate > new Date()) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Certification date cannot be in the future',
-          });
-        }
-      }),
+    // Updated to use the reusable date schema:
+    date: createDateFieldSchema({
+      requiredError: 'Certification date is required',
+      futureError: 'Certification date cannot be in the future',
+    }),
   }),
 });
 

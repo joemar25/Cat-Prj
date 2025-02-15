@@ -1,6 +1,5 @@
 'use client';
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
@@ -11,101 +10,106 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-;
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 
-interface MarriageOfParentsCardProps {
-  parentMarriagePlaceNcrMode: boolean;
-  setParentMarriagePlaceNcrMode: (value: boolean) => void;
-}
-
-const MarriageOfParentsCard: React.FC<MarriageOfParentsCardProps> = ({
-  parentMarriagePlaceNcrMode,
-  setParentMarriagePlaceNcrMode,
-}) => {
+export default function MarriageInformationCard() {
   const { control } = useFormContext<BirthCertificateFormValues>();
+  const [ncrMode, setNcrMode] = useState(false);
 
   return (
-    <Card>
+    <Card className='mb-6'>
       <CardHeader>
-        <CardTitle>Marriage of Parents</CardTitle>
+        <CardTitle className='text-2xl font-semibold'>
+          Marriage Information
+        </CardTitle>
       </CardHeader>
       <CardContent className='space-y-6'>
-        {/* Marriage Date Section */}
-        <Card>
-          <CardHeader className='pb-3'>
-            <h3 className='text-sm font-semibold'>Date of Marriage</h3>
-          </CardHeader>
-          <CardContent>
-            <FormField
-              control={control}
-              name='parentMarriage.date'
-              render={({ field }) => (
-                <DatePickerField
-                  field={{
-                    value: field.value,
-                    onChange: field.onChange,
-                  }}
-                  label='Marriage Date'
-                  placeholder='Select marriage date'
-                />
-              )}
+        {/* Marriage Date */}
+        <FormField
+          control={control}
+          name='parentMarriage.date'
+          render={({ field }) => (
+            <DatePickerField
+              field={field}
+              label='Marriage Date'
+              placeholder='Select marriage date'
             />
-          </CardContent>
-        </Card>
+          )}
+        />
 
-        {/* Marriage Place Section */}
-        <Card>
-          <CardHeader className='pb-3'>
-            <h3 className='text-sm font-semibold'>Place of Marriage</h3>
+        {/* Marriage Place */}
+        <Card className='border'>
+          <CardHeader>
+            <CardTitle className='text-lg font-medium'>
+              Marriage Place
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <NCRModeSwitch
-              isNCRMode={parentMarriagePlaceNcrMode}
-              setIsNCRMode={setParentMarriagePlaceNcrMode}
-            />
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-              <LocationSelector
-                provinceFieldName='parentMarriage.place.province'
-                municipalityFieldName='parentMarriage.place.cityMunicipality'
-                provinceLabel='Province'
-                municipalityLabel='City/Municipality'
-                selectTriggerClassName='h-10 px-3 text-base md:text-sm'
-                formItemClassName=''
-                formLabelClassName=''
-                selectContentClassName=''
-                selectItemClassName=''
-                provincePlaceholder='Select province'
-                municipalityPlaceholder='Select city/municipality'
-                className='col-span-2 grid grid-cols-2 gap-4'
-                isNCRMode={parentMarriagePlaceNcrMode}
-              />
-
+          <CardContent className='space-y-4'>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <FormField
                 control={control}
-                name='parentMarriage.place.country'
+                name='parentMarriage.place.houseNo'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Country</FormLabel>
+                    <FormLabel>House No.</FormLabel>
                     <FormControl>
-                      <Input
-                        className='h-10'
-                        placeholder='Enter country'
-                        {...field}
-                      />
+                      <Input placeholder='Enter house number' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name='parentMarriage.place.st'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Street</FormLabel>
+                    <FormControl>
+                      <Input placeholder='Enter street' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
+
+            {/* NCR Mode Switch & Location Selector */}
+            <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setNcrMode} />
+            <LocationSelector
+              provinceFieldName='parentMarriage.place.province'
+              municipalityFieldName='parentMarriage.place.cityMunicipality'
+              barangayFieldName='parentMarriage.place.barangay'
+              provinceLabel='Province'
+              municipalityLabel='City/Municipality'
+              barangayLabel='Barangay'
+              isNCRMode={ncrMode}
+              showBarangay={true}
+              provincePlaceholder='Select province'
+              municipalityPlaceholder='Select city/municipality'
+              barangayPlaceholder='Select barangay'
+            />
+
+            <FormField
+              control={control}
+              name='parentMarriage.place.country'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Country</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Enter country' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
       </CardContent>
     </Card>
   );
-};
-
-export default MarriageOfParentsCard;
+}

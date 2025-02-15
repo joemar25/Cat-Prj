@@ -105,3 +105,25 @@ export const lateRegistrationOptionSchema = z.boolean().optional();
 export const documentStatusSchema = z
   .string()
   .nonempty('Document status is required');
+
+export const createDateFieldSchema = (options?: {
+  requiredError?: string;
+  futureError?: string;
+}) => {
+  const requiredError = options?.requiredError || 'This date is required';
+  const futureError = options?.futureError || 'Date cannot be in the future';
+
+  return z.preprocess(
+    (val) => {
+      if (val == null || val === '') return undefined; // Convert null/empty → undefined
+      if (typeof val === 'string') {
+        const date = new Date(val);
+        return isNaN(date.getTime()) ? undefined : date;
+      }
+      return val; // Use the value if it's already a Date
+    },
+    z
+      .date({ required_error: requiredError })
+      .refine((d) => d <= new Date(), { message: futureError })
+  );
+};
