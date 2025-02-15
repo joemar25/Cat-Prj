@@ -148,6 +148,24 @@ const AttendantInformationCard: React.FC = () => {
                     </FormItem>
                   )}
                 />
+                {/* Signature field */}
+                <FormField
+                  control={control}
+                  name='attendant.certification.signature'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Signature</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='Enter signature'
+                          {...field}
+                          className='h-10'
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={control}

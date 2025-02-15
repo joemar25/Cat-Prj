@@ -15,7 +15,7 @@ import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
-import RegisteredAtOfficeCard from '../shared-components/registered-at-office-card';
+import { RegisteredAtOfficeCard } from '../shared-components/processing-details-cards';
 
 const AffidavitOfPaternityForm: React.FC = () => {
   const { control, watch, setValue } = useFormContext();
@@ -170,6 +170,8 @@ const AffidavitOfPaternityForm: React.FC = () => {
                 cardTitle='Administering Officer'
                 hideDate={true}
                 showSignature={true}
+                showNameInPrint={true}
+                showTitleOrPosition={true}
               />
 
               {/* Admin Officer Address */}

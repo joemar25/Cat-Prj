@@ -2,16 +2,12 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import {
-  BirthCertificateResponse,
-  DeathCertificateResponse,
-} from '@/lib/types/form-certificates-types/types';
+import { DeathCertificateResponse } from '@/lib/types/form-certificates-types/types';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
-import { formatAddress } from '@/lib/utils/location-helpers';
 import { isValidDate } from '@/utils/certificate-helper-functions';
-import { FormType, Sex } from '@prisma/client';
+import { DocumentStatus, FormType, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 // ----------------------------END OF HELPER FUNCTION----------------------------------------//
@@ -471,305 +467,6 @@ export async function createDeathCertificate(
 }
 // ------------------------------- Birth Certificate Server Action -------------------------------//
 
-export async function createBirthCertificate(
-  data: BirthCertificateFormValues,
-  ignoreDuplicateChild: boolean = false
-): Promise<BirthCertificateResponse> {
-  try {
-    // Data sanitization
-    const sanitizedData = {
-      ...data,
-      registryNumber: data.registryNumber.trim(),
-      province: data.province.trim(),
-      cityMunicipality: data.cityMunicipality.trim(),
-      childInfo: {
-        ...data.childInfo,
-        firstName: data.childInfo.firstName.trim(),
-        middleName: data.childInfo.middleName?.trim() || '',
-        lastName: data.childInfo.lastName.trim(),
-        placeOfBirth: {
-          hospital: data.childInfo.placeOfBirth.hospital.trim(),
-          cityMunicipality: data.childInfo.placeOfBirth.cityMunicipality.trim(),
-          province: data.childInfo.placeOfBirth.province.trim(),
-        },
-      },
-      motherInfo: {
-        ...data.motherInfo,
-        firstName: data.motherInfo.firstName.trim(),
-        middleName: data.motherInfo.middleName?.trim() || '',
-        lastName: data.motherInfo.lastName.trim(),
-        citizenship: data.motherInfo.citizenship.trim(),
-        religion: data.motherInfo.religion?.trim(),
-        occupation: data.motherInfo.occupation?.trim(),
-      },
-      fatherInfo: {
-        ...data.fatherInfo,
-        firstName: data.fatherInfo.firstName.trim(),
-        middleName: data.fatherInfo.middleName?.trim() || '',
-        lastName: data.fatherInfo.lastName.trim(),
-        citizenship: data.fatherInfo.citizenship.trim(),
-        religion: data.fatherInfo.religion?.trim(),
-        occupation: data.fatherInfo.occupation?.trim(),
-      },
-    };
-
-    // Validate registry number format (expects YYYY-#####)
-    if (!/\d{4}-\d+/.test(sanitizedData.registryNumber)) {
-      return {
-        success: false,
-        error: 'Invalid registry number format',
-        message: 'Registry number must be in format: YYYY-numbers',
-      };
-    }
-
-    // Use transaction for atomicity
-    const result = await prisma.$transaction(async (tx) => {
-      // Check for existing registry number
-      const existingRegistry = await tx.baseRegistryForm.findFirst({
-        where: {
-          registryNumber: sanitizedData.registryNumber,
-          formType: FormType.BIRTH,
-        },
-      });
-
-      if (existingRegistry) {
-        throw new Error(
-          'Registry number already exists. Please use a different number.'
-        );
-      }
-
-      // Check for duplicate child if not ignoring
-      if (!ignoreDuplicateChild && sanitizedData.childInfo.dateOfBirth) {
-        const existingChild = await tx.birthCertificateForm.findFirst({
-          where: {
-            AND: [
-              {
-                childName: {
-                  path: ['firstName'],
-                  string_contains: sanitizedData.childInfo.firstName,
-                },
-              },
-              {
-                childName: {
-                  path: ['lastName'],
-                  string_contains: sanitizedData.childInfo.lastName,
-                },
-              },
-              { dateOfBirth: sanitizedData.childInfo.dateOfBirth },
-              {
-                placeOfBirth: {
-                  path: ['hospital'],
-                  string_contains:
-                    sanitizedData.childInfo.placeOfBirth.hospital,
-                },
-              },
-              {
-                placeOfBirth: {
-                  path: ['cityMunicipality'],
-                  string_contains:
-                    sanitizedData.childInfo.placeOfBirth.cityMunicipality,
-                },
-              },
-              {
-                placeOfBirth: {
-                  path: ['province'],
-                  string_contains:
-                    sanitizedData.childInfo.placeOfBirth.province,
-                },
-              },
-            ],
-          },
-        });
-
-        if (existingChild) {
-          return {
-            success: false,
-            error: '',
-            warning: true,
-            message:
-              'Child information already exists in the database. Do you want to proceed with saving this record?',
-          };
-        }
-      }
-
-      // Validate that the preparer exists
-      const user = await tx.user.findFirst({
-        where: {
-          name: sanitizedData.preparedBy.name,
-        },
-      });
-
-      if (!user) {
-        throw new Error('Preparer not found');
-      }
-
-      // Build optional payloads.
-      const affidavitOfPaternityPayload =
-        sanitizedData.hasAffidavitOfPaternity &&
-        sanitizedData.affidavitOfPaternityDetails !== null
-          ? {
-              affidavitOfPaternityDetails:
-                sanitizedData.affidavitOfPaternityDetails,
-            }
-          : {};
-
-      const delayedRegistrationPayload =
-        sanitizedData.isDelayedRegistration &&
-        sanitizedData.affidavitOfDelayedRegistration !== null
-          ? {
-              reasonForDelay:
-                sanitizedData.affidavitOfDelayedRegistration.reasonForDelay,
-              affidavitOfDelayedRegistration:
-                sanitizedData.affidavitOfDelayedRegistration,
-            }
-          : {};
-
-      // Create the base registry form with nested birth certificate
-      const baseForm = await tx.baseRegistryForm.create({
-        data: {
-          formNumber: '102',
-          formType: FormType.BIRTH,
-          registryNumber: sanitizedData.registryNumber,
-          province: sanitizedData.province,
-          cityMunicipality: sanitizedData.cityMunicipality,
-          pageNumber: '1',
-          bookNumber: '1',
-          dateOfRegistration: new Date(),
-          status: 'PENDING',
-          preparedBy: {
-            connect: { id: user.id },
-          },
-          birthCertificateForm: {
-            create: {
-              childName: {
-                firstName: sanitizedData.childInfo.firstName,
-                middleName: sanitizedData.childInfo.middleName,
-                lastName: sanitizedData.childInfo.lastName,
-              },
-              sex: sanitizedData.childInfo.sex as Sex,
-              dateOfBirth: sanitizedData.childInfo.dateOfBirth || new Date(),
-              placeOfBirth: sanitizedData.childInfo.placeOfBirth,
-              typeOfBirth: sanitizedData.childInfo.typeOfBirth,
-              multipleBirthOrder: sanitizedData.childInfo.multipleBirthOrder,
-              birthOrder: sanitizedData.childInfo.birthOrder,
-              weightAtBirth: parseFloat(sanitizedData.childInfo.weightAtBirth),
-              motherMaidenName: {
-                firstName: sanitizedData.motherInfo.firstName,
-                middleName: sanitizedData.motherInfo.middleName,
-                lastName: sanitizedData.motherInfo.lastName,
-              },
-              motherCitizenship: sanitizedData.motherInfo.citizenship,
-              motherReligion: sanitizedData.motherInfo.religion,
-              motherOccupation: sanitizedData.motherInfo.occupation,
-              motherAge: parseInt(sanitizedData.motherInfo.age),
-              motherResidence: formatAddress(
-                sanitizedData.motherInfo.residence
-              ),
-              totalChildrenBornAlive: parseInt(
-                sanitizedData.motherInfo.totalChildrenBornAlive
-              ),
-              childrenStillLiving: parseInt(
-                sanitizedData.motherInfo.childrenStillLiving
-              ),
-              childrenNowDead: parseInt(
-                sanitizedData.motherInfo.childrenNowDead
-              ),
-              fatherName: {
-                firstName: sanitizedData.fatherInfo.firstName,
-                middleName: sanitizedData.fatherInfo.middleName,
-                lastName: sanitizedData.fatherInfo.lastName,
-              },
-              fatherCitizenship: sanitizedData.fatherInfo.citizenship,
-              fatherReligion: sanitizedData.fatherInfo.religion,
-              fatherOccupation: sanitizedData.fatherInfo.occupation,
-              fatherAge: parseInt(sanitizedData.fatherInfo.age),
-              fatherResidence: formatAddress(
-                sanitizedData.fatherInfo.residence
-              ),
-              parentMarriage: {
-                date: sanitizedData.parentMarriage.date || new Date(),
-                place: sanitizedData.parentMarriage.place,
-              },
-              attendant: {
-                type: sanitizedData.attendant.type,
-                certification: {
-                  time:
-                    sanitizedData.attendant.certification.time || new Date(),
-                  signature:
-                    sanitizedData.attendant.certification.signature || '',
-                  name: sanitizedData.attendant.certification.name.trim(),
-                  title: sanitizedData.attendant.certification.title.trim(),
-                  address: formatAddress(
-                    sanitizedData.attendant.certification.address
-                  ),
-                  date:
-                    sanitizedData.attendant.certification.date || new Date(),
-                },
-              },
-              informant: {
-                signature: sanitizedData.informant.signature || '',
-                name: sanitizedData.informant.name,
-                relationship: sanitizedData.informant.relationship,
-                address: formatAddress(sanitizedData.informant.address),
-                date: sanitizedData.informant.date || new Date(),
-              },
-              preparer: {
-                signature: sanitizedData.preparedBy.signature || '',
-                name: sanitizedData.preparedBy.name.trim(),
-                title: sanitizedData.preparedBy.title.trim(),
-                date: sanitizedData.preparedBy.date || new Date(),
-              },
-              hasAffidavitOfPaternity: sanitizedData.hasAffidavitOfPaternity,
-              ...affidavitOfPaternityPayload,
-              isDelayedRegistration: sanitizedData.isDelayedRegistration,
-              ...delayedRegistrationPayload,
-            },
-          },
-          receivedBy: sanitizedData.receivedBy.name,
-          receivedByPosition: sanitizedData.receivedBy.title,
-          receivedDate: sanitizedData.receivedBy.date || new Date(),
-          registeredBy: sanitizedData.registeredByOffice.name,
-          registeredByPosition: sanitizedData.registeredByOffice.title,
-          registrationDate: sanitizedData.registeredByOffice.date || new Date(),
-          remarks: sanitizedData.remarks?.trim() || null,
-        },
-      });
-
-      return {
-        success: true,
-        data: baseForm,
-        message: 'Birth certificate created successfully',
-      };
-    });
-
-    await revalidatePath('/civil-registry');
-    if (result.success) {
-      return {
-        success: true,
-        data: result.data,
-        message: result.message,
-      };
-    } else {
-      return {
-        success: false,
-        error: '', // when returning a failure with warning, ensure an error field exists
-        warning: result.warning,
-        message: result.message,
-      };
-    }
-  } catch (error) {
-    console.error('Error creating birth certificate:', error);
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : 'Failed to create birth certificate',
-      message: '',
-    };
-  }
-}
-
 export async function checkRegistryNumberExists(
   registryNumber: string,
   formType: FormType
@@ -797,299 +494,231 @@ export async function checkRegistryNumberExists(
   }
 }
 
-// // export async function createBirthCertificate(
-//   data: BirthCertificateFormValues,
-//   ignoreDuplicateChild: boolean = false
-// ): Promise<BirthCertificateResponse> {
-//   try {
-//     // Data sanitization
-//     const sanitizedData = {
-//       ...data,
-//       registryNumber: data.registryNumber.trim(),
-//       province: data.province.trim(),
-//       cityMunicipality: data.cityMunicipality.trim(),
-//       childInfo: {
-//         ...data.childInfo,
-//         firstName: data.childInfo.firstName.trim(),
-//         middleName: data.childInfo.middleName?.trim() || '',
-//         lastName: data.childInfo.lastName.trim(),
-//         placeOfBirth: {
-//           hospital: data.childInfo.placeOfBirth.hospital.trim(),
-//           cityMunicipality: data.childInfo.placeOfBirth.cityMunicipality.trim(),
-//           province: data.childInfo.placeOfBirth.province.trim(),
-//         },
-//       },
-//       motherInfo: {
-//         ...data.motherInfo,
-//         firstName: data.motherInfo.firstName.trim(),
-//         middleName: data.motherInfo.middleName?.trim() || '',
-//         lastName: data.motherInfo.lastName.trim(),
-//         citizenship: data.motherInfo.citizenship.trim(),
-//         religion: data.motherInfo.religion?.trim(),
-//         occupation: data.motherInfo.occupation?.trim(),
-//       },
-//       fatherInfo: {
-//         ...data.fatherInfo,
-//         firstName: data.fatherInfo.firstName.trim(),
-//         middleName: data.fatherInfo.middleName?.trim() || '',
-//         lastName: data.fatherInfo.lastName.trim(),
-//         citizenship: data.fatherInfo.citizenship.trim(),
-//         religion: data.fatherInfo.religion?.trim(),
-//         occupation: data.fatherInfo.occupation?.trim(),
-//       },
-//     };
+const PAGES_PER_BOOK = 100;
 
-//     // Validate registry number format (expects YYYY-#####)
-//     if (!/\d{4}-\d+/.test(sanitizedData.registryNumber)) {
-//       return {
-//         success: false,
-//         error: 'Registry number must be in format: YYYY-numbers',
-//       };
-//     }
+export async function submitBirthCertificateForm(
+  formData: BirthCertificateFormValues
+) {
+  try {
+    if (!formData) {
+      throw new Error('No form data provided');
+    }
 
-//     // Use transaction for atomicity
-//     const result = await prisma.$transaction(async (tx) => {
-//       // Check for existing registry number
-//       const existingRegistry = await tx.baseRegistryForm.findFirst({
-//         where: {
-//           registryNumber: sanitizedData.registryNumber,
-//           formType: FormType.BIRTH,
-//         },
-//       });
+    return await prisma.$transaction(
+      async (tx) => {
+        // Find the user by name
+        const preparedByUser = await tx.user.findFirst({
+          where: {
+            name: formData.preparedBy.nameInPrint,
+          },
+        });
 
-//       if (existingRegistry) {
-//         throw new Error(
-//           'Registry number already exists. Please use a different number.'
-//         );
-//       }
+        if (!preparedByUser) {
+          throw new Error(
+            `No user found with name: ${formData.preparedBy.nameInPrint}`
+          );
+        }
 
-//       // Check for duplicate child if not ignoring
-//       if (!ignoreDuplicateChild && sanitizedData.childInfo.dateOfBirth) {
-//         const existingChild = await tx.birthCertificateForm.findFirst({
-//           where: {
-//             AND: [
-//               {
-//                 childName: {
-//                   path: ['firstName'],
-//                   string_contains: sanitizedData.childInfo.firstName,
-//                 },
-//               },
-//               {
-//                 childName: {
-//                   path: ['lastName'],
-//                   string_contains: sanitizedData.childInfo.lastName,
-//                 },
-//               },
-//               { dateOfBirth: sanitizedData.childInfo.dateOfBirth },
-//               {
-//                 placeOfBirth: {
-//                   path: ['hospital'],
-//                   string_contains:
-//                     sanitizedData.childInfo.placeOfBirth.hospital,
-//                 },
-//               },
-//               {
-//                 placeOfBirth: {
-//                   path: ['cityMunicipality'],
-//                   string_contains:
-//                     sanitizedData.childInfo.placeOfBirth.cityMunicipality,
-//                 },
-//               },
-//               {
-//                 placeOfBirth: {
-//                   path: ['province'],
-//                   string_contains:
-//                     sanitizedData.childInfo.placeOfBirth.province,
-//                 },
-//               },
-//             ],
-//           },
-//         });
+        // Get the latest book and page numbers with collision checking
+        async function getNextBookAndPage(): Promise<{
+          bookNumber: string;
+          pageNumber: string;
+        }> {
+          const latestForm = await tx.baseRegistryForm.findFirst({
+            where: {
+              formType: FormType.BIRTH,
+              province: formData.province,
+              cityMunicipality: formData.cityMunicipality,
+            },
+            orderBy: [{ bookNumber: 'desc' }, { pageNumber: 'desc' }],
+          });
 
-//         if (existingChild) {
-//           return {
-//             success: false,
-//             warning: true,
-//             message:
-//               'Child information already exists in the database. Do you want to proceed with saving this record?',
-//           };
-//         }
-//       }
+          if (!latestForm) {
+            return { bookNumber: '1', pageNumber: '1' };
+          }
 
-//       // Validate that the preparer exists
-//       const user = await tx.user.findFirst({
-//         where: {
-//           name: sanitizedData.preparedBy.name,
-//         },
-//       });
+          let currentPage = parseInt(latestForm.pageNumber);
+          let currentBook = parseInt(latestForm.bookNumber);
 
-//       if (!user) {
-//         throw new Error('Preparer not found');
-//       }
+          if (currentPage >= PAGES_PER_BOOK) {
+            currentBook++;
+            currentPage = 1;
+          } else {
+            currentPage++;
+          }
 
-//       // Build optional payloads.
-//       // Only include the nested object if it is not null.
-//       const affidavitOfPaternityPayload =
-//         sanitizedData.hasAffidavitOfPaternity &&
-//         sanitizedData.affidavitOfPaternityDetails !== null
-//           ? {
-//               affidavitOfPaternityDetails:
-//                 sanitizedData.affidavitOfPaternityDetails,
-//             }
-//           : {};
+          // Check for collision
+          const existingEntry = await tx.baseRegistryForm.findFirst({
+            where: {
+              formType: FormType.BIRTH,
+              province: formData.province,
+              cityMunicipality: formData.cityMunicipality,
+              bookNumber: currentBook.toString(),
+              pageNumber: currentPage.toString(),
+            },
+          });
 
-//       const delayedRegistrationPayload =
-//         sanitizedData.isDelayedRegistration &&
-//         sanitizedData.affidavitOfDelayedRegistration !== null
-//           ? {
-//               reasonForDelay:
-//                 sanitizedData.affidavitOfDelayedRegistration.reasonForDelay,
-//               affidavitOfDelayedRegistration:
-//                 sanitizedData.affidavitOfDelayedRegistration,
-//             }
-//           : {};
+          if (existingEntry) {
+            currentPage++;
+            if (currentPage > PAGES_PER_BOOK) {
+              currentBook++;
+              currentPage = 1;
+            }
+            return getNextBookAndPage();
+          }
 
-//       // Create the base registry form with nested birth certificate
-//       const baseForm = await tx.baseRegistryForm.create({
-//         data: {
-//           formNumber: '102',
-//           formType: FormType.BIRTH,
-//           registryNumber: sanitizedData.registryNumber,
-//           province: sanitizedData.province,
-//           cityMunicipality: sanitizedData.cityMunicipality,
-//           pageNumber: '1',
-//           bookNumber: '1',
-//           dateOfRegistration: new Date(),
-//           status: 'PENDING',
-//           preparedBy: {
-//             connect: { id: user.id },
-//           },
-//           birthCertificateForm: {
-//             create: {
-//               childName: {
-//                 firstName: sanitizedData.childInfo.firstName,
-//                 middleName: sanitizedData.childInfo.middleName,
-//                 lastName: sanitizedData.childInfo.lastName,
-//               },
-//               sex: sanitizedData.childInfo.sex as Sex,
-//               dateOfBirth: sanitizedData.childInfo.dateOfBirth || new Date(),
-//               placeOfBirth: sanitizedData.childInfo.placeOfBirth,
-//               typeOfBirth: sanitizedData.childInfo.typeOfBirth,
-//               multipleBirthOrder: sanitizedData.childInfo.multipleBirthOrder,
-//               birthOrder: sanitizedData.childInfo.birthOrder,
-//               weightAtBirth: parseFloat(sanitizedData.childInfo.weightAtBirth),
-//               motherMaidenName: {
-//                 firstName: sanitizedData.motherInfo.firstName,
-//                 middleName: sanitizedData.motherInfo.middleName,
-//                 lastName: sanitizedData.motherInfo.lastName,
-//               },
-//               motherCitizenship: sanitizedData.motherInfo.citizenship,
-//               motherReligion: sanitizedData.motherInfo.religion,
-//               motherOccupation: sanitizedData.motherInfo.occupation,
-//               motherAge: parseInt(sanitizedData.motherInfo.age),
-//               motherResidence: formatAddress(
-//                 sanitizedData.motherInfo.residence
-//               ),
-//               totalChildrenBornAlive: parseInt(
-//                 sanitizedData.motherInfo.totalChildrenBornAlive
-//               ),
-//               childrenStillLiving: parseInt(
-//                 sanitizedData.motherInfo.childrenStillLiving
-//               ),
-//               childrenNowDead: parseInt(
-//                 sanitizedData.motherInfo.childrenNowDead
-//               ),
-//               fatherName: {
-//                 firstName: sanitizedData.fatherInfo.firstName,
-//                 middleName: sanitizedData.fatherInfo.middleName,
-//                 lastName: sanitizedData.fatherInfo.lastName,
-//               },
-//               fatherCitizenship: sanitizedData.fatherInfo.citizenship,
-//               fatherReligion: sanitizedData.fatherInfo.religion,
-//               fatherOccupation: sanitizedData.fatherInfo.occupation,
-//               fatherAge: parseInt(sanitizedData.fatherInfo.age),
-//               fatherResidence: formatAddress(
-//                 sanitizedData.fatherInfo.residence
-//               ),
-//               parentMarriage: {
-//                 date: sanitizedData.parentMarriage.date || new Date(),
-//                 place: sanitizedData.parentMarriage.place,
-//               },
-//               attendant: {
-//                 type: sanitizedData.attendant.type,
-//                 certification: {
-//                   time:
-//                     sanitizedData.attendant.certification.time || new Date(),
-//                   signature:
-//                     sanitizedData.attendant.certification.signature || '',
-//                   name: sanitizedData.attendant.certification.name.trim(),
-//                   title: sanitizedData.attendant.certification.title.trim(),
-//                   address: formatAddress(
-//                     sanitizedData.attendant.certification.address
-//                   ),
-//                   date:
-//                     sanitizedData.attendant.certification.date || new Date(),
-//                 },
-//               },
-//               informant: {
-//                 signature: sanitizedData.informant.signature || '',
-//                 name: sanitizedData.informant.name,
-//                 relationship: sanitizedData.informant.relationship,
-//                 address: formatAddress(sanitizedData.informant.address),
-//                 date: sanitizedData.informant.date || new Date(),
-//               },
-//               preparer: {
-//                 signature: sanitizedData.preparedBy.signature || '',
-//                 name: sanitizedData.preparedBy.name.trim(),
-//                 title: sanitizedData.preparedBy.title.trim(),
-//                 date: sanitizedData.preparedBy.date || new Date(),
-//               },
-//               hasAffidavitOfPaternity: sanitizedData.hasAffidavitOfPaternity,
-//               ...affidavitOfPaternityPayload,
-//               isDelayedRegistration: sanitizedData.isDelayedRegistration,
-//               ...delayedRegistrationPayload,
-//             },
-//           },
-//           receivedBy: sanitizedData.receivedBy.name,
-//           receivedByPosition: sanitizedData.receivedBy.title,
-//           receivedDate: sanitizedData.receivedBy.date || new Date(),
-//           registeredBy: sanitizedData.registeredByOffice.name,
-//           registeredByPosition: sanitizedData.registeredByOffice.title,
-//           registrationDate: sanitizedData.registeredByOffice.date || new Date(),
-//           remarks: sanitizedData.remarks?.trim() || null,
-//         },
-//       });
+          return {
+            bookNumber: currentBook.toString(),
+            pageNumber: currentPage.toString(),
+          };
+        }
 
-//       return {
-//         success: true,
-//         data: baseForm,
-//         message: 'Birth certificate created successfully',
-//       };
-//     });
+        const { bookNumber, pageNumber } = await getNextBookAndPage();
 
-//     // Revalidate after successful transaction
-//     await revalidatePath('/civil-registry');
-//     if (result.success) {
-//       return {
-//         success: true,
-//         data: result.data,
-//         message: result.message,
-//       };
-//     } else {
-//       return {
-//         success: false,
-//         warning: result.warning,
-//         message: result.message,
-//       };
-//     }
-//   } catch (error) {
-//     console.error('Error creating birth certificate:', error);
-//     return {
-//       success: false,
-//       error:
-//         error instanceof Error
-//           ? error.message
-//           : 'Failed to create birth certificate',
-//     };
-//   }
-// }
+        // Create the BaseRegistryForm record
+        const baseForm = await tx.baseRegistryForm.create({
+          data: {
+            formNumber: '102',
+            formType: FormType.BIRTH,
+            registryNumber: formData.registryNumber,
+            province: formData.province,
+            cityMunicipality: formData.cityMunicipality,
+            pageNumber,
+            bookNumber,
+            dateOfRegistration: new Date(),
+            isLateRegistered: formData.isDelayedRegistration,
+            status: DocumentStatus.PENDING,
+            preparedById: preparedByUser.id,
+            verifiedById: null,
+            preparedByName: formData.preparedBy.nameInPrint,
+            verifiedByName: null,
+            receivedBy: formData.receivedBy.nameInPrint,
+            receivedByPosition: formData.receivedBy.titleOrPosition,
+            receivedDate: formData.receivedBy.date,
+            registeredBy: formData.registeredByOffice.nameInPrint,
+            registeredByPosition: formData.registeredByOffice.titleOrPosition,
+            registrationDate: formData.registeredByOffice.date,
+            remarks: formData.remarks,
+          },
+        });
+
+        // Helper function to convert Date to ISO string for JSON
+        const dateToJSON = (date: Date) => date.toISOString();
+
+        // Create the BirthCertificateForm record
+        await tx.birthCertificateForm.create({
+          data: {
+            baseFormId: baseForm.id,
+            childName: {
+              first: formData.childInfo.firstName,
+              middle: formData.childInfo.middleName || '',
+              last: formData.childInfo.lastName,
+            } as Prisma.JsonObject,
+            sex: formData.childInfo.sex,
+            dateOfBirth: formData.childInfo.dateOfBirth,
+            placeOfBirth: formData.childInfo.placeOfBirth as Prisma.JsonObject,
+            typeOfBirth: formData.childInfo.typeOfBirth,
+            multipleBirthOrder: formData.childInfo.multipleBirthOrder || '',
+            birthOrder: formData.childInfo.birthOrder,
+            weightAtBirth: parseFloat(formData.childInfo.weightAtBirth),
+            motherMaidenName: {
+              first: formData.motherInfo.firstName,
+              middle: formData.motherInfo.middleName || '',
+              last: formData.motherInfo.lastName,
+            } as Prisma.JsonObject,
+            motherCitizenship: formData.motherInfo.citizenship,
+            motherReligion: formData.motherInfo.religion || '',
+            motherOccupation: formData.motherInfo.occupation,
+            motherAge: parseInt(formData.motherInfo.age),
+            motherResidence: formData.motherInfo.residence as Prisma.JsonObject,
+            totalChildrenBornAlive: parseInt(
+              formData.motherInfo.totalChildrenBornAlive
+            ),
+            childrenStillLiving: parseInt(
+              formData.motherInfo.childrenStillLiving
+            ),
+            childrenNowDead: parseInt(formData.motherInfo.childrenNowDead),
+            fatherName: !formData.fatherInfo
+              ? Prisma.JsonNull
+              : ({
+                  first: formData.fatherInfo.firstName,
+                  middle: formData.fatherInfo.middleName || '',
+                  last: formData.fatherInfo.lastName,
+                } as Prisma.JsonObject),
+            fatherCitizenship: formData.fatherInfo?.citizenship || '',
+            fatherReligion: formData.fatherInfo?.religion || '',
+            fatherOccupation: formData.fatherInfo?.occupation || '',
+            fatherAge: formData.fatherInfo
+              ? parseInt(formData.fatherInfo.age)
+              : 0,
+            fatherResidence: !formData.fatherInfo
+              ? Prisma.JsonNull
+              : (formData.fatherInfo.residence as Prisma.JsonObject),
+            parentMarriage: !formData.parentMarriage
+              ? Prisma.JsonNull
+              : ({
+                  date: dateToJSON(formData.parentMarriage.date),
+                  place: formData.parentMarriage.place,
+                } as Prisma.JsonObject),
+            attendant: {
+              type: formData.attendant.type,
+              certification: {
+                ...formData.attendant.certification,
+                time: dateToJSON(formData.attendant.certification.time),
+                date: dateToJSON(formData.attendant.certification.date),
+              },
+            } as Prisma.JsonObject,
+            informant: {
+              ...formData.informant,
+              date: dateToJSON(formData.informant.date),
+            } as Prisma.JsonObject,
+            preparer: {
+              ...formData.preparedBy,
+              date: dateToJSON(formData.preparedBy.date),
+            } as Prisma.JsonObject,
+            hasAffidavitOfPaternity: formData.hasAffidavitOfPaternity,
+            affidavitOfPaternityDetails:
+              !formData.hasAffidavitOfPaternity ||
+              !formData.affidavitOfPaternityDetails
+                ? Prisma.JsonNull
+                : (formData.affidavitOfPaternityDetails as Prisma.JsonObject),
+            isDelayedRegistration: formData.isDelayedRegistration,
+            affidavitOfDelayedRegistration:
+              !formData.isDelayedRegistration ||
+              !formData.affidavitOfDelayedRegistration
+                ? Prisma.JsonNull
+                : (formData.affidavitOfDelayedRegistration as Prisma.JsonObject),
+            reasonForDelay:
+              (formData.isDelayedRegistration &&
+                formData.affidavitOfDelayedRegistration?.reasonForDelay) ||
+              '',
+          },
+        });
+
+        // Revalidate the path
+        revalidatePath('/civil-registry');
+
+        return {
+          success: true,
+          message: 'Birth certificate submitted successfully',
+          data: {
+            baseFormId: baseForm.id,
+            bookNumber,
+            pageNumber,
+          },
+        };
+      },
+      {
+        maxWait: 10000,
+        timeout: 30000,
+      }
+    );
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to submit birth certificate form',
+    };
+  }
+}
