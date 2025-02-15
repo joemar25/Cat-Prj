@@ -24,6 +24,7 @@ import FatherInformationCard from './form-cards/birth-cards/father-information-c
 import MarriageInformationCard from './form-cards/birth-cards/marriage-parents-card';
 import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
+import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
 
 export default function BirthCertificateForm({
   open,
@@ -104,6 +105,24 @@ export default function BirthCertificateForm({
           country: '',
         },
       },
+      attendant: {
+        type: undefined, // Will be preprocessed to undefined if empty, then refined as required.
+        certification: {
+          time: undefined,
+          signature: '',
+          name: '',
+          title: '',
+          address: {
+            houseNo: '',
+            st: '', // Using "st" (not "street")
+            barangay: '',
+            cityMunicipality: '',
+            province: '',
+            country: '',
+          },
+          date: undefined,
+        },
+      },
       hasAffidavitOfPaternity: false,
       isDelayedRegistration: false,
       remarks: '',
@@ -166,7 +185,7 @@ export default function BirthCertificateForm({
                       <MarriageInformationCard />
 
                       {/* Attendant Information Section */}
-                      {/* TODO: Add Attendant Information Component */}
+                      <AttendantInformationCard />
 
                       {/* Informant Section */}
                       {/* TODO: Add Informant Component */}

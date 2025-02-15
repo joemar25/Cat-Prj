@@ -19,16 +19,9 @@ import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
-interface AttendantInformationCardProps {
-  attendantAddressNcrMode: boolean;
-  setAttendantAddressNcrMode: (value: boolean) => void;
-}
-
-const AttendantInformationCard: React.FC<AttendantInformationCardProps> = ({
-  attendantAddressNcrMode,
-  setAttendantAddressNcrMode,
-}) => {
+const AttendantInformationCard: React.FC = () => {
   const { control } = useFormContext<BirthCertificateFormValues>();
+  const [attendantAddressNcrMode, setAttendantAddressNcrMode] = useState(false);
   const [showOtherInput, setShowOtherInput] = useState(false);
 
   return (
@@ -37,7 +30,7 @@ const AttendantInformationCard: React.FC<AttendantInformationCardProps> = ({
         <CardTitle>Attendant Information</CardTitle>
       </CardHeader>
       <CardContent className='space-y-6'>
-        {/* Type of Attendant Card */}
+        {/* Type of Attendant */}
         <Card>
           <CardHeader className='pb-3'>
             <h3 className='text-sm font-semibold'>Type of Attendant</h3>
@@ -89,7 +82,7 @@ const AttendantInformationCard: React.FC<AttendantInformationCardProps> = ({
           </CardContent>
         </Card>
 
-        {/* Certification Details Card */}
+        {/* Certification Details */}
         <Card>
           <CardHeader className='pb-3'>
             <h3 className='text-sm font-semibold'>Certification Details</h3>
@@ -112,6 +105,7 @@ const AttendantInformationCard: React.FC<AttendantInformationCardProps> = ({
                         <TimePicker
                           value={field.value}
                           onChange={(value) => field.onChange(value)}
+                          ref={field.ref} // Forward ref for auto-focus
                         />
                       </FormControl>
                       <FormMessage />
@@ -119,7 +113,7 @@ const AttendantInformationCard: React.FC<AttendantInformationCardProps> = ({
                   )}
                 />
 
-                {/* Date */}
+                {/* Certification Date */}
                 <FormField
                   control={control}
                   name='attendant.certification.date'
@@ -129,8 +123,9 @@ const AttendantInformationCard: React.FC<AttendantInformationCardProps> = ({
                         value: field.value,
                         onChange: field.onChange,
                       }}
-                      label='Date'
+                      label='Certification Date'
                       placeholder='Select date'
+                      ref={field.ref} // Forward ref for auto-focus
                     />
                   )}
                 />
@@ -175,7 +170,7 @@ const AttendantInformationCard: React.FC<AttendantInformationCardProps> = ({
                 {/* House Number and Street */}
                 <FormField
                   control={control}
-                  name='attendant.certification.address.houseNumber'
+                  name='attendant.certification.address.houseNo'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>House Number</FormLabel>
@@ -193,7 +188,7 @@ const AttendantInformationCard: React.FC<AttendantInformationCardProps> = ({
 
                 <FormField
                   control={control}
-                  name='attendant.certification.address.street'
+                  name='attendant.certification.address.st'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Street</FormLabel>
@@ -209,7 +204,7 @@ const AttendantInformationCard: React.FC<AttendantInformationCardProps> = ({
                   )}
                 />
 
-                {/* Location Selector - Spans 2 columns */}
+                {/* Location Selector – spans two columns */}
                 <LocationSelector
                   provinceFieldName='attendant.certification.address.province'
                   municipalityFieldName='attendant.certification.address.cityMunicipality'
@@ -217,10 +212,6 @@ const AttendantInformationCard: React.FC<AttendantInformationCardProps> = ({
                   provinceLabel='Province'
                   municipalityLabel='City/Municipality'
                   selectTriggerClassName='h-10 px-3 text-base md:text-sm'
-                  formItemClassName=''
-                  formLabelClassName=''
-                  selectContentClassName=''
-                  selectItemClassName=''
                   provincePlaceholder='Select province'
                   municipalityPlaceholder='Select city/municipality'
                   className='col-span-2 grid grid-cols-2 gap-4'

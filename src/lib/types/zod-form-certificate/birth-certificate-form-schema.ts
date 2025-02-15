@@ -163,14 +163,30 @@ const marriageInformationSchema = z
 
 // Attendant Information Schema
 const attendantInformationSchema = z.object({
-  type: z.enum(['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others']),
+  type: z
+    .preprocess(
+      (val) => (val === '' ? undefined : val),
+      z.enum(['Physician', 'Nurse', 'Midwife', 'Hilot', 'Others']).optional()
+    )
+    .refine((val) => val !== undefined, {
+      message: 'Attendant type is required',
+    }),
   certification: z.object({
-    time: z.string().min(1, 'Time is required'),
+    time: z.preprocess((val) => {
+      if (val == null || val === '') return undefined;
+      if (typeof val === 'string') {
+        // Assume time string is in HH:MM format.
+        const [hours, minutes] = val.split(':');
+        const date = new Date();
+        date.setHours(Number(hours), Number(minutes), 0, 0);
+        return date;
+      }
+      return val;
+    }, z.date({ required_error: 'Time is required' })),
     signature: z.string().min(1, 'Signature is required'),
     name: z.string().min(1, 'Name is required'),
     title: z.string().min(1, 'Title is required'),
     address: residenceSchema,
-    // Updated to use the reusable date schema:
     date: createDateFieldSchema({
       requiredError: 'Certification date is required',
       futureError: 'Certification date cannot be in the future',

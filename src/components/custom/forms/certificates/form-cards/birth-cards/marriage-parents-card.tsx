@@ -1,5 +1,6 @@
 'use client';
 
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
@@ -14,7 +15,6 @@ import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 
 export default function MarriageInformationCard() {
   const { control } = useFormContext<BirthCertificateFormValues>();
@@ -34,9 +34,13 @@ export default function MarriageInformationCard() {
           name='parentMarriage.date'
           render={({ field }) => (
             <DatePickerField
-              field={field}
+              field={{
+                value: field.value,
+                onChange: field.onChange,
+              }}
               label='Marriage Date'
               placeholder='Select marriage date'
+              ref={field.ref}
             />
           )}
         />
