@@ -19,12 +19,13 @@ import { FormType } from '@prisma/client';
 import { Save } from 'lucide-react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
+import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
 import ChildInformationCard from './form-cards/birth-cards/child-information-card';
 import FatherInformationCard from './form-cards/birth-cards/father-information-card';
 import MarriageInformationCard from './form-cards/birth-cards/marriage-parents-card';
 import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
-import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
 
 export default function BirthCertificateForm({
   open,
@@ -123,6 +124,21 @@ export default function BirthCertificateForm({
           date: undefined,
         },
       },
+      informant: {
+        signature: '',
+        name: '',
+        relationship: '',
+        address: {
+          houseNo: '',
+          st: '',
+          barangay: '',
+          cityMunicipality: '',
+          province: '',
+          country: '',
+        },
+        date: undefined,
+      },
+
       hasAffidavitOfPaternity: false,
       isDelayedRegistration: false,
       remarks: '',
@@ -187,8 +203,8 @@ export default function BirthCertificateForm({
                       {/* Attendant Information Section */}
                       <AttendantInformationCard />
 
-                      {/* Informant Section */}
-                      {/* TODO: Add Informant Component */}
+                      {/* Certification of Informant Section */}
+                      <CertificationOfInformantCard />
 
                       {/* Processing Section */}
                       {/* TODO: Add Processing Component */}

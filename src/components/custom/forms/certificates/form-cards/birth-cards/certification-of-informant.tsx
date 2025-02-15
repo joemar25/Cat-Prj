@@ -11,20 +11,14 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-;
+import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
-interface CertificationOfInformantCardProps {
-  informantAddressNcrMode: boolean;
-  setInformantAddressNcrMode: (value: boolean) => void;
-}
-
-const CertificationOfInformantCard: React.FC<
-  CertificationOfInformantCardProps
-> = ({ informantAddressNcrMode, setInformantAddressNcrMode }) => {
+const CertificationOfInformantCard: React.FC = () => {
   const { control } = useFormContext<BirthCertificateFormValues>();
+  const [ncrMode, setncrMode] = useState(false);
 
   return (
     <Card>
@@ -32,13 +26,10 @@ const CertificationOfInformantCard: React.FC<
         <CardTitle>Certification of Informant</CardTitle>
       </CardHeader>
       <CardContent>
-        <NCRModeSwitch
-          isNCRMode={informantAddressNcrMode}
-          setIsNCRMode={setInformantAddressNcrMode}
-        />
+        <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setncrMode} />
         <div className='space-y-4'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            {/* Signature and Date */}
+            {/* Signature */}
             <FormField
               control={control}
               name='informant.signature'
@@ -49,6 +40,7 @@ const CertificationOfInformantCard: React.FC<
                     <Input
                       placeholder='Signature'
                       {...field}
+                      ref={field.ref}
                       className='h-10'
                     />
                   </FormControl>
@@ -57,6 +49,7 @@ const CertificationOfInformantCard: React.FC<
               )}
             />
 
+            {/* Date */}
             <FormField
               control={control}
               name='informant.date'
@@ -68,11 +61,12 @@ const CertificationOfInformantCard: React.FC<
                   }}
                   label='Date'
                   placeholder='Select date'
+                  ref={field.ref} // Forward ref for auto-focus
                 />
               )}
             />
 
-            {/* Name and Relationship */}
+            {/* Name in Print */}
             <FormField
               control={control}
               name='informant.name'
@@ -83,6 +77,7 @@ const CertificationOfInformantCard: React.FC<
                     <Input
                       placeholder='Enter name'
                       {...field}
+                      ref={field.ref}
                       className='h-10'
                     />
                   </FormControl>
@@ -91,6 +86,7 @@ const CertificationOfInformantCard: React.FC<
               )}
             />
 
+            {/* Relationship */}
             <FormField
               control={control}
               name='informant.relationship'
@@ -101,6 +97,7 @@ const CertificationOfInformantCard: React.FC<
                     <Input
                       placeholder='Enter relationship'
                       {...field}
+                      ref={field.ref}
                       className='h-10'
                     />
                   </FormControl>
@@ -109,10 +106,10 @@ const CertificationOfInformantCard: React.FC<
               )}
             />
 
-            {/* House Number and Street */}
+            {/* House Number */}
             <FormField
               control={control}
-              name='informant.address.houseNumber'
+              name='informant.address.houseNo'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>House Number</FormLabel>
@@ -120,6 +117,7 @@ const CertificationOfInformantCard: React.FC<
                     <Input
                       placeholder='Enter house number'
                       {...field}
+                      ref={field.ref}
                       className='h-10'
                     />
                   </FormControl>
@@ -128,9 +126,10 @@ const CertificationOfInformantCard: React.FC<
               )}
             />
 
+            {/* Street */}
             <FormField
               control={control}
-              name='informant.address.street'
+              name='informant.address.st'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Street</FormLabel>
@@ -138,6 +137,7 @@ const CertificationOfInformantCard: React.FC<
                     <Input
                       placeholder='Enter street name'
                       {...field}
+                      ref={field.ref}
                       className='h-10'
                     />
                   </FormControl>
@@ -146,7 +146,7 @@ const CertificationOfInformantCard: React.FC<
               )}
             />
 
-            {/* Location Selector - Spans 2 columns */}
+            {/* Location Selector – spans two columns */}
             <LocationSelector
               provinceFieldName='informant.address.province'
               municipalityFieldName='informant.address.cityMunicipality'
@@ -154,14 +154,10 @@ const CertificationOfInformantCard: React.FC<
               provinceLabel='Province'
               municipalityLabel='City/Municipality'
               selectTriggerClassName='h-10 px-3 text-base md:text-sm'
-              formItemClassName=''
-              formLabelClassName=''
-              selectContentClassName=''
-              selectItemClassName=''
               provincePlaceholder='Select province'
               municipalityPlaceholder='Select city/municipality'
               className='col-span-2 grid grid-cols-2 gap-4'
-              isNCRMode={informantAddressNcrMode}
+              isNCRMode={ncrMode}
               showBarangay={true}
               barangayLabel='Barangay'
               barangayPlaceholder='Select barangay'
@@ -178,6 +174,7 @@ const CertificationOfInformantCard: React.FC<
                     <Input
                       placeholder='Enter country'
                       {...field}
+                      ref={field.ref}
                       className='h-10'
                     />
                   </FormControl>

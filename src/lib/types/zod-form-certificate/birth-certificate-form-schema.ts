@@ -200,7 +200,10 @@ const informantSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   relationship: z.string().min(1, 'Relationship is required'),
   address: residenceSchema,
-  date: z.string().min(1, 'Date is required'),
+  date: createDateFieldSchema({
+    requiredError: 'Date is required',
+    futureError: 'Informant date cannot be in the future',
+  }),
 });
 
 // Affidavit of Paternity Schema
