@@ -1,401 +1,321 @@
-// // src/lib/types/zod-form-certificate/death-certificate-form-schema.ts
-// import { z } from 'zod';
-// import {
-//   addressSchema,
-//   cityMunicipalitySchema,
-//   dateSchema,
-//   nameSchema,
-//   provinceSchema,
-//   registryNumberSchema,
-//   WithNullableDates,
-// } from './form-certificates-shared-schema';
+import { z } from 'zod';
+import {
+  citizenshipSchema,
+  cityMunicipalitySchema,
+  nameSchema,
+  parentInfoSchema,
+  processingDetailsSchema,
+  provinceSchema,
+  registryNumberSchema,
+  religionSchema,
+  remarksAnnotationsSchema,
+  residenceSchema,
+} from './form-certificates-shared-schema';
 
-// /**
-//  * Factory function that creates the death certificate schema.
-//  * The boolean flags allow you to control whether province is optional in certain address fields.
-//  */
-// export const createDeathCertificateSchema = (
-//   registryNCRMode: boolean,
-//   deceasedResidenceNcrMode: boolean,
-//   certifierAddressNcrMode: boolean,
-//   informantAddressNcrMode: boolean
-// ) =>
-//   z.object({
-//     // Registry Information
-//     registryNumber: registryNumberSchema,
-//     province: provinceSchema(registryNCRMode),
-//     cityMunicipality: cityMunicipalitySchema,
+// For children aged 0 to 7 days section
+const infantDetailsSchema = z.object({
+  ageOfMother: z.string().nonempty('Age of mother is required'),
+  methodOfDelivery: z.string().nonempty('Method of delivery is required'),
+  lengthOfPregnancy: z.string().nonempty('Length of pregnancy is required'),
+  typeOfBirth: z.string().nonempty('Type of birth is required'),
+  multipleBirthOrder: z.string().optional(),
+});
 
-//     // Deceased Information
-//     deceasedInfo: z.object({
-//       deceasedName: nameSchema, // expects { firstName, middleName?, lastName }
-//       sex: z.enum(['Male', 'Female']),
-//       dateOfDeath: dateSchema,
-//       dateOfBirth: dateSchema.nullable(),
-//       placeOfDeath: addressSchema(deceasedResidenceNcrMode),
-//       placeOfBirth: addressSchema(deceasedResidenceNcrMode),
-//       civilStatus: z.string().min(1, 'Civil status is required'),
-//       religion: z.string().optional(),
-//       citizenship: z.string().min(1, 'Citizenship is required'),
-//       residence: addressSchema(deceasedResidenceNcrMode),
-//       occupation: z.string().optional(),
-//       pregnancy: z.boolean().optional(),
-//     }),
+// Medical Certificate section for infants (0-7 days)
+const infantCausesOfDeathSchema = z.object({
+  mainDiseaseOfInfant: z
+    .string()
+    .nonempty('Main disease/condition is required'),
+  otherDiseasesOfInfant: z.string().optional(),
+  mainMaternalDisease: z.string().optional(),
+  otherMaternalDisease: z.string().optional(),
+  otherRelevantCircumstances: z.string().optional(),
+});
 
-//     // Family Information
-//     familyInfo: z.object({
-//       nameOfFather: nameSchema,
-//       nameOfMother: nameSchema,
-//     }),
+// Medical Certificate section for regular deaths (8 days and over)
+const regularCausesOfDeathSchema = z.object({
+  immediate: z.object({
+    cause: z.string().nonempty('Immediate cause is required'),
+    interval: z.string().nonempty('Interval is required'),
+  }),
+  antecedent: z.object({
+    cause: z.string().optional(),
+    interval: z.string().optional(),
+  }),
+  underlying: z.object({
+    cause: z.string().optional(),
+    interval: z.string().optional(),
+  }),
+  otherSignificantConditions: z.string().optional(),
+});
 
-//     // Medical Information
-//     medicalInfo: z.object({
-//       causesOfDeath: z.object({
-//         immediate: z.string().min(1, 'Immediate cause is required'),
-//         antecedent: z.string().min(1, 'Antecedent cause is required'),
-//         underlying: z.string().min(1, 'Underlying cause is required'),
-//         contributingConditions: z.string().optional(),
-//       }),
-//       deathInterval: z.object({
-//         duration: z.string().min(1, 'Death interval is required'),
-//       }),
-//       maternalCondition: z
-//         .object({
-//           condition: z.string().optional(),
-//         })
-//         .nullable(),
-//       autopsyPerformed: z.boolean().optional(),
-//     }),
+// Postmortem Certificate
+const postmortemCertificateSchema = z
+  .object({
+    causeOfDeath: z.string().nonempty('Cause of death is required'),
+    signature: z.string().nonempty('Signature is required'),
+    nameInPrint: z.string().nonempty('Name is required'),
+    date: z.string().nonempty('Date is required'),
+    titleDesignation: z.string().nonempty('Title/Designation is required'),
+    address: z.string().nonempty('Address is required'),
+  })
+  .optional();
 
-//     // Attendance Information
-//     attendance: z.object({
-//       attendedByPhysician: z.boolean(),
-//       attendanceDuration: z
-//         .object({
-//           from: dateSchema,
-//           to: dateSchema,
-//         })
-//         .nullable(),
-//     }),
+// Certification of Embalmer
+const embalmerCertificationSchema = z
+  .object({
+    nameOfDeceased: z.string().nonempty('Name of deceased is required'),
+    signature: z.string().nonempty('Signature is required'),
+    nameInPrint: z.string().nonempty('Name is required'),
+    address: z.string().nonempty('Address is required'),
+    titleDesignation: z.string().nonempty('Title/Designation is required'),
+    licenseNo: z.string().nonempty('License number is required'),
+    issuedOn: z.string().nonempty('Issue date is required'),
+    issuedAt: z.string().nonempty('Issue location is required'),
+    expiryDate: z.string().nonempty('Expiry date is required'),
+  })
+  .optional();
 
-//     // External Causes
-//     externalCauses: z.object({
-//       mannerOfDeath: z.string().optional(),
-//       externalCause: z.string().optional(),
-//       placeOfOccurrence: z.string().optional(),
-//     }),
+// Affidavit for Delayed Registration
+const delayedRegistrationSchema = z
+  .object({
+    affiant: z.object({
+      name: z.string().nonempty('Name is required'),
+      civilStatus: z.enum([
+        'Single',
+        'Married',
+        'Divorced',
+        'Widow',
+        'Widower',
+      ]),
+      residenceAddress: z.string().nonempty('Address is required'),
+    }),
+    deceased: z.object({
+      name: z.string().nonempty('Name is required'),
+      dateOfDeath: z.string().nonempty('Date of death is required'),
+      placeOfDeath: z.string().nonempty('Place of death is required'),
+      burialInfo: z.object({
+        date: z.string().nonempty('Burial date is required'),
+        place: z.string().nonempty('Burial place is required'),
+      }),
+    }),
+    attendance: z.object({
+      wasAttended: z.boolean(),
+      attendedBy: z.string().optional(),
+    }),
+    causeOfDeath: z.string().nonempty('Cause of death is required'),
+    reasonForDelay: z.string().nonempty('Reason for delay is required'),
+    affidavitDate: z.object({
+      day: z.string().nonempty('Day is required'),
+      month: z.string().nonempty('Month is required'),
+      year: z.string().nonempty('Year is required'),
+      place: z.string().nonempty('Place is required'),
+    }),
+    adminOfficer: z.object({
+      signature: z.string().nonempty('Signature is required'),
+      position: z.string().nonempty('Position is required'),
+    }),
+    ctcInfo: z.object({
+      number: z.string().nonempty('CTC number is required'),
+      issuedOn: z.string().nonempty('Date issued is required'),
+      issuedAt: z.string().nonempty('Place issued is required'),
+    }),
+  })
+  .optional();
 
-//     // Certification Information
-//     certification: z.object({
-//       certificationType: z.string().min(1, 'Certification type is required'),
-//       certifier: z.object({
-//         signature: z.string().optional(),
-//         name: z.string().min(1, 'Certifier name is required'),
-//         title: z.string().min(1, 'Certifier title is required'),
-//         date: dateSchema,
-//         address: addressSchema(certifierAddressNcrMode),
-//       }),
-//     }),
+// Main Death Certificate Schema
+export const deathCertificateFormSchema = z
+  .object({
+    // Header Information
+    registryNumber: registryNumberSchema,
+    province: provinceSchema,
+    cityMunicipality: cityMunicipalitySchema,
 
-//     // Disposal Information
-//     disposal: z.object({
-//       disposalDetails: z.any().optional(),
-//       burialPermit: z
-//         .object({
-//           number: z.string().min(1, 'Burial permit number is required'),
-//           dateIssued: dateSchema,
-//         })
-//         .nullable(),
-//       transferPermit: z
-//         .object({
-//           number: z.string().optional(),
-//           dateIssued: dateSchema.nullable(),
-//         })
-//         .nullable(),
-//       cemeteryDetails: z
-//         .object({
-//           address: z.string().min(1, 'Cemetery address is required'),
-//         })
-//         .nullable(),
-//     }),
+    // Deceased Information
+    name: nameSchema,
+    sex: z.enum(['Male', 'Female']),
+    dateOfDeath: z.string().nonempty('Date of death is required'),
+    dateOfBirth: z.string().nonempty('Date of birth is required'),
+    ageAtDeath: z.object({
+      years: z.string().optional(),
+      months: z.string().optional(),
+      days: z.string().optional(),
+      hours: z.string().optional(),
+    }),
+    placeOfDeath: residenceSchema,
+    civilStatus: z.string().nonempty('Civil status is required'),
+    religion: religionSchema,
+    citizenship: citizenshipSchema,
+    residence: residenceSchema,
+    occupation: z.string().nonempty('Occupation is required'),
 
-//     // Additional Details
-//     additionalDetails: z.object({
-//       postmortemDetails: z
-//         .object({
-//           performed: z.boolean().optional(),
-//           remarks: z.string().optional(),
-//         })
-//         .nullable(),
-//       embalmerDetails: z
-//         .object({
-//           name: z.string().min(1, 'Embalmer name is required'),
-//           licenseNumber: z.string().optional(),
-//         })
-//         .nullable(),
-//       infantDeathDetails: z
-//         .object({
-//           birthWeight: z.string().optional(),
-//           gestationalAge: z.string().optional(),
-//         })
-//         .nullable(),
-//     }),
+    // Parent Information
+    parents: parentInfoSchema,
 
-//     // Delayed Registration
-//     delayedRegistration: z
-//       .object({
-//         reason: z.string().min(1, 'Reason for delay is required'),
-//         dateSworn: dateSchema,
-//         adminOfficer: z.object({
-//           signature: z.string().min(1, 'Officer signature is required'),
-//           name: z.string().min(1, 'Officer name is required'),
-//           position: z.string().min(1, 'Position is required'),
-//         }),
-//         ctcInfo: z.object({
-//           number: z.string().min(1, 'CTC number is required'),
-//           dateIssued: dateSchema,
-//           placeIssued: z.string().min(1, 'Place issued is required'),
-//         }),
-//       })
-//       .nullable(),
+    // Medical Certificate
+    medicalCertificate: z.object({
+      // For ages 0-7 days
+      infantDeathDetails: infantDetailsSchema.optional(),
+      // Causes of death - either infant or regular
+      causesOfDeath: z.union([
+        infantCausesOfDeathSchema,
+        regularCausesOfDeathSchema,
+      ]),
+      // Maternal condition
+      maternalCondition: z
+        .object({
+          pregnantNotInLabor: z.boolean().optional(),
+          pregnantInLabor: z.boolean().optional(),
+          lessThan42Days: z.boolean().optional(),
+          daysTo1Year: z.boolean().optional(),
+          noneOfTheAbove: z.boolean().optional(),
+        })
+        .optional(),
+      // External causes
+      externalCauses: z.object({
+        mannerOfDeath: z.string().optional(),
+        placeOfOccurrence: z.string().optional(),
+      }),
+      // Attendant
+      attendant: z.object({
+        privatePhysician: z.boolean(),
+        publicHealthOfficer: z.boolean(),
+        hospitalAuthority: z.boolean(),
+        none: z.boolean(),
+        others: z.boolean(),
+        othersSpecify: z.string().optional(),
+        duration: z
+          .object({
+            from: z.string().optional(),
+            to: z.string().optional(),
+          })
+          .optional(),
+      }),
+      autopsy: z.boolean().default(false),
+    }),
 
-//     // New Fields (optional)
-//     ageAtDeath: z
-//       .object({
-//         years: z.string().min(1, 'Years is required'),
-//         months: z.string().optional(),
-//         days: z.string().optional(),
-//         hours: z.string().optional(),
-//       })
-//       .nullable(),
-//     reviewedBy: z
-//       .object({
-//         name: z.string().min(1, 'Reviewer name is required'),
-//         title: z.string().min(1, 'Reviewer title is required'),
-//         position: z.string().min(1, 'Reviewer position is required'),
-//         date: dateSchema,
-//       })
-//       .nullable(),
+    // Certification of Death
+    certificationOfDeath: z.object({
+      hasAttended: z.boolean(),
+      signature: z.string().nonempty('Signature is required'),
+      nameInPrint: z.string().nonempty('Name is required'),
+      titleOfPosition: z.string().nonempty('Title/Position is required'),
+      address: z.string().nonempty('Address is required'),
+      date: z.string().nonempty('Date is required'),
+    }),
 
-//     // Informant and Preparer Information
-//     informant: z.object({
-//       signature: z.string().optional(),
-//       name: z.string().min(1, 'Informant name is required'),
-//       relationship: z.string().min(1, 'Relationship is required'),
-//       address: addressSchema(informantAddressNcrMode),
-//       date: dateSchema,
-//     }),
-//     preparer: z.object({
-//       signature: z.string().optional(),
-//       name: z.string().min(1, 'Preparer name is required'),
-//       title: z.string().min(1, 'Preparer title is required'),
-//       date: dateSchema,
-//     }),
+    // Review
+    reviewedBy: z.object({
+      signature: z.string().nonempty('Signature is required'),
+      date: z.string().nonempty('Date is required'),
+    }),
 
-//     // Administrative Fields for BaseRegistryForm
-//     receivedBy: z.object({
-//       signature: z.string().optional(),
-//       name: z.string().min(1, 'Received by name is required'),
-//       title: z.string().min(1, 'Received by title is required'),
-//       date: dateSchema,
-//     }),
-//     registeredAtCivilRegistrar: z.object({
-//       signature: z.string().optional(),
-//       name: z.string().min(1, 'Registered by name is required'),
-//       title: z.string().min(1, 'Registered by title is required'),
-//       date: dateSchema,
-//     }),
-//     remarks: z.string().optional(),
-//   });
+    // Certificates
+    postmortemCertificate: postmortemCertificateSchema,
+    embalmerCertification: embalmerCertificationSchema,
+    delayedRegistration: delayedRegistrationSchema,
 
-// export type DeathCertificateFormValues = WithNullableDates<
-//   z.infer<ReturnType<typeof createDeathCertificateSchema>>
-// >;
+    // Disposal Information
+    corpseDisposal: z.string().nonempty('Corpse disposal method is required'),
+    burialPermit: z.object({
+      number: z.string().nonempty('Permit number is required'),
+      dateIssued: z.string().nonempty('Date issued is required'),
+    }),
+    transferPermit: z
+      .object({
+        number: z.string().optional(),
+        dateIssued: z.string().optional(),
+      })
+      .optional(),
 
-// // Default values for testing or initial form state.
-// export const defaultDeathCertificateFormValues: DeathCertificateFormValues = {
-//   // Registry Information
-//   registryNumber: '2024-00001',
-//   province: 'Metro Manila',
-//   cityMunicipality: 'Quezon City',
+    cemeteryOrCrematory: z.object({
+      name: z.string().nonempty('Name is required'),
+      address: z.string().nonempty('Address is required'),
+    }),
 
-//   // Deceased Information
-//   deceasedInfo: {
-//     deceasedName: {
-//       firstName: 'Juan',
-//       middleName: 'Santos',
-//       lastName: 'Dela Cruz',
-//     },
-//     sex: 'Male',
-//     dateOfDeath: new Date('2024-01-20'),
-//     dateOfBirth: new Date('1950-05-15'),
-//     placeOfDeath: {
-//       houseNumber: '',
-//       street: "St. Luke's Medical Center, E Rodriguez Sr. Ave",
-//       barangay: '',
-//       cityMunicipality: 'Quezon City',
-//       province: 'Metro Manila',
-//       country: 'Philippines',
-//     },
-//     placeOfBirth: {
-//       houseNumber: '456',
-//       street: 'Some Street',
-//       barangay: 'Barangay 123',
-//       cityMunicipality: 'Quezon City',
-//       province: 'Metro Manila',
-//       country: 'Philippines',
-//     },
-//     civilStatus: 'Married',
-//     religion: 'Roman Catholic',
-//     citizenship: 'Filipino',
-//     residence: {
-//       houseNumber: '123',
-//       street: 'Maginhawa Street, Teachers Village',
-//       barangay: '',
-//       cityMunicipality: 'Quezon City',
-//       province: 'Metro Manila',
-//       country: 'Philippines',
-//     },
-//     occupation: 'Retired Teacher',
-//     pregnancy: false,
-//   },
+    // Informant
+    informant: z.object({
+      signature: z.string().nonempty('Signature is required'),
+      nameInPrint: z.string().nonempty('Name is required'),
+      relationshipToDeceased: z.string().nonempty('Relationship is required'),
+      address: z.string().nonempty('Address is required'),
+      date: z.string().nonempty('Date is required'),
+    }),
 
-//   // Family Information
-//   familyInfo: {
-//     nameOfFather: {
-//       firstName: 'Pedro',
-//       middleName: 'Martinez',
-//       lastName: 'Dela Cruz',
-//     },
-//     nameOfMother: {
-//       firstName: 'Maria',
-//       middleName: 'Santos',
-//       lastName: 'Garcia',
-//     },
-//   },
+    // Processing Information
+    preparedBy: processingDetailsSchema.shape.preparedBy,
+    receivedBy: processingDetailsSchema.shape.receivedBy,
+    registeredByOffice: processingDetailsSchema.shape.registeredBy,
 
-//   // Medical Information
-//   medicalInfo: {
-//     causesOfDeath: {
-//       immediate: 'Cardiac Arrest',
-//       antecedent: 'Acute Myocardial Infarction',
-//       underlying: 'Coronary Artery Disease',
-//       contributingConditions: 'Diabetes Mellitus, Type 2',
-//     },
-//     deathInterval: {
-//       duration: '2 hours',
-//     },
-//     maternalCondition: null,
-//     autopsyPerformed: true,
-//   },
+    remarks: remarksAnnotationsSchema,
+  })
+  .superRefine((data, ctx) => {
+    // Essential business logic validations
 
-//   // Attendance Information
-//   attendance: {
-//     attendedByPhysician: true,
-//     attendanceDuration: {
-//       from: new Date('2024-01-18'),
-//       to: new Date('2024-01-20'),
-//     },
-//   },
+    // 1. Validate infant details requirement for deaths within 7 days
+    if (data.ageAtDeath.days && parseInt(data.ageAtDeath.days) <= 7) {
+      if (!data.medicalCertificate.infantDeathDetails) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            'Infant details are required for deaths within 7 days of birth',
+          path: ['medicalCertificate.infantDeathDetails'],
+        });
+      }
+    }
 
-//   // External Causes
-//   externalCauses: {
-//     mannerOfDeath: 'Natural',
-//     externalCause: 'None',
-//     placeOfOccurrence: 'Hospital',
-//   },
+    // 2. Validate maternal condition for females of reproductive age
+    if (data.sex === 'Female' && data.ageAtDeath.years) {
+      const age = parseInt(data.ageAtDeath.years);
+      if (
+        age >= 15 &&
+        age <= 49 &&
+        !data.medicalCertificate.maternalCondition
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Maternal condition is required for females aged 15-49',
+          path: ['medicalCertificate.maternalCondition'],
+        });
+      }
+    }
 
-//   // Certification Information
-//   certification: {
-//     certificationType: 'Physician',
-//     certifier: {
-//       signature: 'DrSantos',
-//       name: 'Dr. Ana Santos',
-//       title: 'Attending Physician',
-//       date: new Date('2024-01-20'),
-//       address: {
-//         houseNumber: '',
-//         street: "St. Luke's Medical Center, E Rodriguez Sr. Ave",
-//         barangay: '',
-//         cityMunicipality: 'Quezon City',
-//         province: 'Metro Manila',
-//         country: 'Philippines',
-//       },
-//     },
-//   },
+    // 3. Validate postmortem certificate requirement
+    if (data.medicalCertificate.autopsy && !data.postmortemCertificate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Postmortem certificate is required when autopsy is performed',
+        path: ['postmortemCertificate'],
+      });
+    }
 
-//   // Disposal Information
-//   disposal: {
-//     disposalDetails: undefined,
-//     burialPermit: {
-//       number: 'BP-2024-001',
-//       dateIssued: new Date('2024-01-21'),
-//     },
-//     transferPermit: {
-//       number: '',
-//       dateIssued: null,
-//     },
-//     cemeteryDetails: {
-//       address: 'Himlayang Pilipino Memorial Park, Quezon City',
-//     },
-//   },
+    // 4. Validate transfer permit requirement
+    if (
+      data.placeOfDeath.cityMunicipality !== data.cemeteryOrCrematory.address
+    ) {
+      if (!data.transferPermit) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            'Transfer permit is required when burial location differs from place of death',
+          path: ['transferPermit'],
+        });
+      }
+    }
 
-//   // Additional Details
-//   additionalDetails: {
-//     postmortemDetails: null,
-//     embalmerDetails: null,
-//     infantDeathDetails: null,
-//   },
+    // 5. Validate attendant duration if specified
+    if (data.medicalCertificate.attendant.duration) {
+      const { from, to } = data.medicalCertificate.attendant.duration;
+      if ((from && !to) || (!from && to)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Both from and to dates are required for attendant duration',
+          path: ['medicalCertificate.attendant.duration'],
+        });
+      }
+    }
+  });
 
-//   // Delayed Registration
-//   delayedRegistration: null,
-
-//   // New Fields
-//   ageAtDeath: null,
-//   reviewedBy: null,
-
-//   // Informant Information
-//   informant: {
-//     signature: 'MCruz',
-//     name: 'Maria Cruz',
-//     relationship: 'Spouse',
-//     address: {
-//       houseNumber: '',
-//       street: '123 Maginhawa Street, Teachers Village',
-//       barangay: '',
-//       cityMunicipality: 'Quezon City',
-//       province: 'Metro Manila',
-//       country: 'Philippines',
-//     },
-//     date: new Date('2024-01-20'),
-//   },
-
-//   // Preparer Information
-//   preparer: {
-//     signature: 'Staff3',
-//     name: 'Staff User 3',
-//     title: 'Registration Officer',
-//     date: new Date('2024-01-21'),
-//   },
-
-//   // Administrative Fields for BaseRegistryForm
-//   receivedBy: {
-//     signature: 'Staff4',
-//     name: 'Staff User 4',
-//     title: 'Document Processing Officer',
-//     date: new Date('2024-01-21'),
-//   },
-//   registeredAtCivilRegistrar: {
-//     signature: 'Admin1',
-//     name: 'Admin User 1',
-//     title: 'Civil Registrar',
-//     date: new Date('2024-01-21'),
-//   },
-//   remarks: 'Document processed and verified.',
-// };
-
-// export interface DeathCertificateFormProps {
-//   open: boolean;
-//   onOpenChange: (open: boolean) => void;
-//   onCancel: () => void;
-// }
+export type DeathCertificateFormValues = z.infer<
+  typeof deathCertificateFormSchema
+>;

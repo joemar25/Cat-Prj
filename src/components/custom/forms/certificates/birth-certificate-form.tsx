@@ -22,8 +22,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { submitBirthCertificateForm } from '@/hooks/form-certificate-actions';
-import DelayedRegistrationForm from './form-cards/birth-cards/affidavit-for-delayed-registration';
-import AffidavitOfPaternityForm from './form-cards/birth-cards/affidavit-of-paternity';
 import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
 import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
 import ChildInformationCard from './form-cards/birth-cards/child-information-card';
@@ -295,7 +293,6 @@ export default function BirthCertificateForm({
 
   const onSubmit = async (data: BirthCertificateFormValues) => {
     try {
-      console.log('Submitting form data:', JSON.stringify(data, null, 2));
       const result = await submitBirthCertificateForm(data);
 
       if ('data' in result) {
@@ -304,7 +301,6 @@ export default function BirthCertificateForm({
           `Birth certificate submitted successfully (Book ${result.data.bookNumber}, Page ${result.data.pageNumber})`
         );
         onOpenChange?.(false);
-        formMethods.reset();
       } else if ('error' in result) {
         console.log('Submission error:', result.error);
         const errorMessage = result.error.includes('No user found with name')
@@ -312,6 +308,7 @@ export default function BirthCertificateForm({
           : result.error;
         toast.error(errorMessage);
       }
+      formMethods.reset();
     } catch (error) {
       console.error('Form submission error:', error);
       toast.error('An unexpected error occurred while submitting the form');
@@ -328,7 +325,6 @@ export default function BirthCertificateForm({
         cityMunicipality: errors.cityMunicipality?.message,
       });
       toast.error('Please check registry information');
-      return;
     }
 
     if (errors.childInfo) {
@@ -399,8 +395,8 @@ export default function BirthCertificateForm({
                         label='Additional Remarks'
                         placeholder='Enter any additional remarks or annotations'
                       />
-                      <AffidavitOfPaternityForm />
-                      <DelayedRegistrationForm />
+                      {/* <AffidavitOfPaternityForm />
+                      <DelayedRegistrationForm /> */}
 
                       <DialogFooter>
                         <Button
