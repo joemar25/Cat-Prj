@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next'; // Import useTranslation hook
 
 import BirthCertificateForm from '@/components/custom/forms/certificates/birth-certificate-form';
+import DeathCertificateForm from '../../forms/certificates/death-certificate-form';
 
 export function AddCivilRegistryFormDialog() {
   const { t } = useTranslation(); // Initialize translation hook
@@ -127,14 +128,14 @@ export function AddCivilRegistryFormDialog() {
         }}
       />
 
-      {/* <DeathCertificateForm
+      <DeathCertificateForm
         open={deathCertificateOpen}
         onOpenChange={setDeathCertificateOpen}
         onCancel={() => {
-          setDeathCertificateOpen(false)
-          setTimeout(() => setOpen(true), 0)
+          setDeathCertificateOpen(false);
+          setTimeout(() => setOpen(true), 0);
         }}
-      /> */}
+      />
     </>
   );
 }

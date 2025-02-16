@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-;
 import { useFormContext } from 'react-hook-form';
 
 const AttendantInformationCard: React.FC = () => {
@@ -32,49 +31,78 @@ const AttendantInformationCard: React.FC = () => {
         {/* Type of Attendant */}
         <FormField
           control={control}
-          name='attendant.type' // Correct path
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Type of Attendant</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+          name='medicalCertificate.attendant'
+          render={({ field }) => {
+            // Derive a string value from the attendant object for display.
+            let currentValue: string | undefined;
+            const val = field.value;
+            if (val) {
+              if (val.privatePhysician) currentValue = 'Private Physician';
+              else if (val.publicHealthOfficer)
+                currentValue = 'Public Health Officer';
+              else if (val.hospitalAuthority)
+                currentValue = 'Hospital Authority';
+              else if (val.none) currentValue = 'None';
+              else if (val.others) currentValue = 'Others';
+            }
+            return (
+              <FormItem>
+                <FormLabel>Type of Attendant</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select attendant type' />
-                  </SelectTrigger>
+                  <Select
+                    onValueChange={(selected: string) => {
+                      // Build a new attendant object with the selected type.
+                      const newAttendant = {
+                        privatePhysician: selected === 'Private Physician',
+                        publicHealthOfficer:
+                          selected === 'Public Health Officer',
+                        hospitalAuthority: selected === 'Hospital Authority',
+                        none: selected === 'None',
+                        others: selected === 'Others',
+                        othersSpecify: '',
+                        duration: field.value?.duration || { from: '', to: '' },
+                      };
+                      field.onChange(newAttendant);
+                    }}
+                    value={currentValue || ''}
+                    defaultValue={currentValue}
+                  >
+                    <SelectTrigger ref={field.ref} className='h-10'>
+                      <SelectValue placeholder='Select attendant type' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='Private Physician'>
+                        Private Physician
+                      </SelectItem>
+                      <SelectItem value='Public Health Officer'>
+                        Public Health Officer
+                      </SelectItem>
+                      <SelectItem value='Hospital Authority'>
+                        Hospital Authority
+                      </SelectItem>
+                      <SelectItem value='None'>None</SelectItem>
+                      <SelectItem value='Others'>Others</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </FormControl>
-                <SelectContent>
-                  <SelectItem value='Private Physician'>
-                    Private Physician
-                  </SelectItem>
-                  <SelectItem value='Public Health Officer'>
-                    Public Health Officer
-                  </SelectItem>
-                  <SelectItem value='Hospital Authority'>
-                    Hospital Authority
-                  </SelectItem>
-                  <SelectItem value='None'>None</SelectItem>
-                  <SelectItem value='Others'>Others</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
+
         {/* Attendance Duration Section */}
         <div className='grid grid-cols-2 gap-4'>
           {/* From Date */}
           <FormField
             control={control}
-            name='attendant.attendance.from'
+            name='medicalCertificate.attendant.duration.from'
             render={({ field }) => (
               <FormItem>
                 <DatePickerField
-                  field={{
-                    value: field.value,
-                    onChange: field.onChange,
-                  }}
+                  field={{ value: field.value ?? '', onChange: field.onChange }}
                   label='From'
-                  placeholder='Select start date'
+                  placeholder='Select end date'
                 />
               </FormItem>
             )}
@@ -83,14 +111,11 @@ const AttendantInformationCard: React.FC = () => {
           {/* To Date */}
           <FormField
             control={control}
-            name='attendant.attendance.to'
+            name='medicalCertificate.attendant.duration.to'
             render={({ field }) => (
               <FormItem>
                 <DatePickerField
-                  field={{
-                    value: field.value,
-                    onChange: field.onChange,
-                  }}
+                  field={{ value: field.value ?? '', onChange: field.onChange }}
                   label='To'
                   placeholder='Select end date'
                 />

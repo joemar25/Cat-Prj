@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
@@ -8,7 +10,6 @@ import {
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-;
 import { useFormContext } from 'react-hook-form';
 
 const DeathByExternalCausesCard: React.FC = () => {
@@ -23,7 +24,7 @@ const DeathByExternalCausesCard: React.FC = () => {
         {/* Manner of Death */}
         <FormField
           control={control}
-          name='medicalCertificate.externalCauses.mannerOfDeath' // Updated path
+          name='medicalCertificate.externalCauses.mannerOfDeath'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Manner of Death</FormLabel>
@@ -31,6 +32,7 @@ const DeathByExternalCausesCard: React.FC = () => {
                 <Textarea
                   {...field}
                   placeholder='Homicide, Suicide, Accident, Legal Intervention, etc.'
+                  ref={field.ref}
                 />
               </FormControl>
               <FormMessage />
@@ -41,14 +43,15 @@ const DeathByExternalCausesCard: React.FC = () => {
         {/* Place of Occurrence */}
         <FormField
           control={control}
-          name='medicalCertificate.externalCauses.placeOfOccurrence' // Updated path
+          name='medicalCertificate.externalCauses.placeOfOccurrence'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Place of Occurrence</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
-                  placeholder='home, farm, factory, street, sea, etc.'
+                  placeholder='Home, farm, factory, street, sea, etc.'
+                  ref={field.ref}
                 />
               </FormControl>
               <FormMessage />

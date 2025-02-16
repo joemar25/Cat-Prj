@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-;
 import { useFormContext } from 'react-hook-form';
 
 const CausesOfDeathCard: React.FC = () => {
@@ -23,7 +22,7 @@ const CausesOfDeathCard: React.FC = () => {
         {/* Immediate Cause */}
         <FormField
           control={control}
-          name='medicalCertificate.causesOfDeath.immediate'
+          name='medicalCertificate.causesOfDeath.immediate.cause'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Immediate Cause</FormLabel>
@@ -41,7 +40,7 @@ const CausesOfDeathCard: React.FC = () => {
         {/* Antecedent Cause */}
         <FormField
           control={control}
-          name='medicalCertificate.causesOfDeath.antecedent'
+          name='medicalCertificate.causesOfDeath.antecedent.cause'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Antecedent Cause</FormLabel>
@@ -59,7 +58,7 @@ const CausesOfDeathCard: React.FC = () => {
         {/* Underlying Cause */}
         <FormField
           control={control}
-          name='medicalCertificate.causesOfDeath.underlying'
+          name='medicalCertificate.causesOfDeath.underlying.cause'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Underlying Cause</FormLabel>
@@ -74,10 +73,10 @@ const CausesOfDeathCard: React.FC = () => {
           )}
         />
 
-        {/* Contributing Conditions */}
+        {/* Other Significant Conditions */}
         <FormField
           control={control}
-          name='medicalCertificate.causesOfDeath.contributingConditions'
+          name='medicalCertificate.causesOfDeath.otherSignificantConditions'
           render={({ field }) => (
             <FormItem>
               <FormLabel>

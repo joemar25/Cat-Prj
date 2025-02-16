@@ -21,7 +21,7 @@ import {
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { useFormContext } from 'react-hook-form';
 
-const DeceasedInformationCard = () => {
+const DeceasedInformationCard: React.FC = () => {
   const { control } = useFormContext<DeathCertificateFormValues>();
 
   return (
@@ -41,7 +41,7 @@ const DeceasedInformationCard = () => {
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <FormField
                 control={control}
-                name='deceasedInfo.deceasedName.firstName'
+                name='name.first'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
@@ -58,7 +58,7 @@ const DeceasedInformationCard = () => {
               />
               <FormField
                 control={control}
-                name='deceasedInfo.deceasedName.middleName'
+                name='name.middle'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Middle Name</FormLabel>
@@ -75,7 +75,7 @@ const DeceasedInformationCard = () => {
               />
               <FormField
                 control={control}
-                name='deceasedInfo.deceasedName.lastName'
+                name='name.last'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
@@ -105,13 +105,16 @@ const DeceasedInformationCard = () => {
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <FormField
                 control={control}
-                name='deceasedInfo.sex'
+                name='sex'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Sex</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || ''}
+                    >
                       <FormControl>
-                        <SelectTrigger className='h-10'>
+                        <SelectTrigger ref={field.ref} className='h-10'>
                           <SelectValue placeholder='Select sex' />
                         </SelectTrigger>
                       </FormControl>
@@ -126,13 +129,16 @@ const DeceasedInformationCard = () => {
               />
               <FormField
                 control={control}
-                name='deceasedInfo.civilStatus'
+                name='civilStatus'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Civil Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || ''}
+                    >
                       <FormControl>
-                        <SelectTrigger className='h-10'>
+                        <SelectTrigger ref={field.ref} className='h-10'>
                           <SelectValue placeholder='Select civil status' />
                         </SelectTrigger>
                       </FormControl>
@@ -151,7 +157,7 @@ const DeceasedInformationCard = () => {
           </CardContent>
         </Card>
 
-        {/* Dates Section */}
+        {/* Dates & Time Section */}
         <Card>
           <CardHeader>
             <CardTitle className='text-sm font-semibold'>
@@ -160,53 +166,56 @@ const DeceasedInformationCard = () => {
           </CardHeader>
           <CardContent className='space-y-4'>
             <div className='grid grid-cols-2 gap-4'>
-              <div className='space-y-4'>
-                {/* Date of Death */}
-                <FormField
-                  control={control}
-                  name='deceasedInfo.dateOfDeath'
-                  render={({ field }) => (
-                    <FormItem>
-                      <DatePickerField
-                        field={{ value: field.value, onChange: field.onChange }}
-                        label='Date of Death'
-                        placeholder='Select date of death'
-                      />
-                    </FormItem>
-                  )}
-                />
-                {/* Time of Death */}
-                <FormField
-                  control={control}
-                  name='timeOfDeath'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Time of Death</FormLabel>
-                      <FormControl>
-                        <TimePicker
-                          value={field.value}
-                          onChange={(value) => field.onChange(value)}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
+              {/* Date of Death */}
+              <FormField
+                control={control}
+                name='dateOfDeath'
+                render={({ field }) => (
+                  <FormItem>
+                    <DatePickerField
+                      field={{ value: field.value, onChange: field.onChange }}
+                      label='Date of Death'
+                      placeholder='Select date of death'
+                      ref={field.ref}
+                    />
+                  </FormItem>
+                )}
+              />
               {/* Date of Birth */}
               <FormField
                 control={control}
-                name='deceasedInfo.dateOfBirth'
+                name='dateOfBirth'
                 render={({ field }) => (
                   <FormItem>
                     <DatePickerField
                       field={{ value: field.value, onChange: field.onChange }}
                       label='Date of Birth'
                       placeholder='Select date of birth'
+                      ref={field.ref}
                     />
                   </FormItem>
                 )}
               />
             </div>
+
+            {/* Time of Death */}
+            <FormField
+              control={control}
+              name='timeOfDeath'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Time of Death</FormLabel>
+                  <FormControl>
+                    <TimePicker
+                      value={field.value}
+                      onChange={(value) => field.onChange(value)}
+                      ref={field.ref}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
 
@@ -219,7 +228,6 @@ const DeceasedInformationCard = () => {
           </CardHeader>
           <CardContent>
             <div className='grid grid-cols-4 gap-4'>
-              {/* Years */}
               <FormField
                 control={control}
                 name='ageAtDeath.years'
@@ -234,7 +242,6 @@ const DeceasedInformationCard = () => {
                         className='h-10 pr-8'
                         placeholder='Years'
                         inputMode='numeric'
-                        maxLength={3}
                         onChange={(e) => {
                           const value = e.target.value;
                           field.onChange(value === '' ? '' : value);
@@ -246,7 +253,6 @@ const DeceasedInformationCard = () => {
                   </FormItem>
                 )}
               />
-              {/* Months */}
               <FormField
                 control={control}
                 name='ageAtDeath.months'
@@ -261,7 +267,6 @@ const DeceasedInformationCard = () => {
                         className='h-10 pr-8'
                         placeholder='Months'
                         inputMode='numeric'
-                        maxLength={2}
                         onChange={(e) => {
                           const value = e.target.value;
                           field.onChange(value === '' ? '' : value);
@@ -273,7 +278,6 @@ const DeceasedInformationCard = () => {
                   </FormItem>
                 )}
               />
-              {/* Days */}
               <FormField
                 control={control}
                 name='ageAtDeath.days'
@@ -288,7 +292,6 @@ const DeceasedInformationCard = () => {
                         className='h-10 pr-8'
                         placeholder='Days'
                         inputMode='numeric'
-                        maxLength={2}
                         onChange={(e) => {
                           const value = e.target.value;
                           field.onChange(value === '' ? '' : value);
@@ -300,7 +303,6 @@ const DeceasedInformationCard = () => {
                   </FormItem>
                 )}
               />
-              {/* Hours */}
               <FormField
                 control={control}
                 name='ageAtDeath.hours'
@@ -315,7 +317,6 @@ const DeceasedInformationCard = () => {
                         className='h-10 pr-8'
                         placeholder='Hours'
                         inputMode='numeric'
-                        maxLength={2}
                         onChange={(e) => {
                           const value = e.target.value;
                           field.onChange(value === '' ? '' : value);
