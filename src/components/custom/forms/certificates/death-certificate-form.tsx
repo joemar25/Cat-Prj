@@ -23,6 +23,10 @@ import DeceasedInformationCard from './form-cards/death-cards/deceased-informati
 import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
 import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
 
+import CausesOfDeath19aCard from './form-cards/death-cards/causes-of-death19a';
+import AffidavitDelayedRegistrationCard from './form-cards/death-cards/death-affidavit-elayed-registration-card';
+import EmbalmerCertificationCard from './form-cards/death-cards/embalmer-certification-card';
+import PostmortemCertificateCard from './form-cards/death-cards/postmortem-certificate-card';
 import {
   PreparedByCard,
   ReceivedByCard,
@@ -61,10 +65,14 @@ export default function DeathCertificateForm({
                     >
                       <RegistryInformationCard formType={FormType.DEATH} />
                       <DeceasedInformationCard />
+                      <CausesOfDeath19aCard />
                       <CausesOfDeath19bCard />
                       <MaternalConditionCard />
                       <DeathByExternalCausesCard />
                       <AttendantInformationCard />
+                      <EmbalmerCertificationCard />
+                      <PostmortemCertificateCard />
+                      <AffidavitDelayedRegistrationCard />
                       <CertificationOfDeathCard />
                       <DisposalInformationCard />
                       <CertificationInformantCard />

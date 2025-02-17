@@ -30,6 +30,7 @@ export function useDeathCertificateForm({
       sex: undefined,
       dateOfDeath: undefined,
       timeOfDeath: undefined,
+      dateOfBirth: undefined,
       ageAtDeath: {
         years: '',
         months: '',
@@ -56,6 +57,14 @@ export function useDeathCertificateForm({
         country: '',
       },
       occupation: '',
+      // Birth Information
+      birthInformation: {
+        ageOfMother: '',
+        methodOfDelivery: 'Normal spontaneous vertex',
+        lengthOfPregnancy: undefined,
+        typeOfBirth: 'Single',
+        birthOrder: undefined,
+      },
       // Parent Information
       parents: {
         fatherName: {
@@ -69,7 +78,6 @@ export function useDeathCertificateForm({
           last: '',
         },
       },
-
       // Causes of Death 19b (8 days and over)
       causesOfDeath19b: {
         immediate: {
@@ -88,14 +96,24 @@ export function useDeathCertificateForm({
       },
       // Medical Certificate
       medicalCertificate: {
-        infantDeathDetails: undefined,
         causesOfDeath: {
+          mainDiseaseOfInfant: '',
+          otherDiseasesOfInfant: '',
+          mainMaternalDisease: '',
+          otherMaternalDisease: '',
+          otherRelevantCircumstances: '',
           immediate: { cause: '', interval: '' },
           antecedent: { cause: '', interval: '' },
           underlying: { cause: '', interval: '' },
           otherSignificantConditions: '',
         },
-        maternalCondition: undefined,
+        maternalCondition: {
+          pregnantNotInLabor: false,
+          pregnantInLabor: false,
+          lessThan42Days: false,
+          daysTo1Year: false,
+          noneOfTheAbove: false,
+        },
         externalCauses: {
           mannerOfDeath: '',
           placeOfOccurrence: '',
@@ -125,7 +143,6 @@ export function useDeathCertificateForm({
         healthOfficerSignature: '',
         healthOfficerNameInPrint: '',
       },
-
       // Review
       reviewedBy: {
         signature: '',
@@ -134,7 +151,45 @@ export function useDeathCertificateForm({
       // Certificates
       postmortemCertificate: undefined,
       embalmerCertification: undefined,
-      delayedRegistration: undefined,
+
+      // Delayed Registration - now pre-filled with blank defaults
+      delayedRegistration: {
+        affiant: {
+          name: '',
+          civilStatus: 'Single',
+          residenceAddress: '',
+          age: '',
+          signature: '',
+        },
+        deceased: {
+          name: '',
+          dateOfDeath: '',
+          placeOfDeath: '',
+          burialInfo: {
+            date: '',
+            place: '',
+            method: undefined,
+          },
+        },
+        attendance: {
+          wasAttended: false,
+          attendedBy: '',
+        },
+        causeOfDeath: '',
+        reasonForDelay: '',
+        affidavitDate: undefined,
+        affidavitDatePlace: '',
+        adminOfficer: {
+          signature: '',
+          position: '',
+        },
+        ctcInfo: {
+          number: '',
+          issuedOn: '',
+          issuedAt: '',
+        },
+      },
+
       // Disposal Information
       corpseDisposal: '',
       burialPermit: {
@@ -148,8 +203,8 @@ export function useDeathCertificateForm({
           houseNo: '',
           st: '',
           barangay: '',
-          cityMunicipality: '', // Ensure this matches the expected type (string or an object) as per your cityMunicipalitySchema.
-          province: '', // Same for provinceSchema.
+          cityMunicipality: '',
+          province: '',
           country: '',
         },
       },
@@ -162,8 +217,8 @@ export function useDeathCertificateForm({
           houseNo: '',
           st: '',
           barangay: '',
-          cityMunicipality: '', // Ensure this matches the expected type (string or an object) as per your cityMunicipalitySchema.
-          province: '', // Same for provinceSchema.
+          cityMunicipality: '',
+          province: '',
           country: '',
         },
         date: undefined,
@@ -191,7 +246,6 @@ export function useDeathCertificateForm({
     },
   });
 
-  // For now, simply log the data on valid submission.
   const onSubmit = async (data: DeathCertificateFormValues) => {
     console.log('Valid submission:', data);
     toast.success('Form validated successfully');

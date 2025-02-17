@@ -5,6 +5,7 @@ import TimePicker from '@/components/custom/time/time-picker';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -18,11 +19,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import { useFormContext } from 'react-hook-form';
+import { InfoCircledIcon } from '@radix-ui/react-icons';
+import { differenceInDays } from 'date-fns';
+import { useMemo } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 const DeceasedInformationCard: React.FC = () => {
-  const { control } = useFormContext<DeathCertificateFormValues>();
+  const { control, setValue } = useFormContext<DeathCertificateFormValues>();
+
+  // Watch fields for overall business logic
+  const dateOfBirth = useWatch({ control, name: 'dateOfBirth' });
+  const dateOfDeath = useWatch({ control, name: 'dateOfDeath' });
+  const sex = useWatch({ control, name: 'sex' });
+  const ageAtDeath = useWatch({ control, name: 'ageAtDeath' });
+  const typeOfBirth = useWatch({
+    control,
+    name: 'birthInformation.typeOfBirth',
+  });
+
+  // Determine whether to show birth information
+  const shouldShowBirthInfo = useMemo(() => {
+    if (!dateOfBirth || !dateOfDeath) return false;
+
+    const daysBetween = differenceInDays(dateOfDeath, dateOfBirth);
+    const isInfantDeath = daysBetween <= 7;
+    const isMaternal =
+      sex === 'Female' &&
+      Number(ageAtDeath.years) > 10 &&
+      Number(ageAtDeath.years) < 50;
+
+    return isInfantDeath || isMaternal;
+  }, [dateOfBirth, dateOfDeath, sex, ageAtDeath]);
 
   return (
     <Card className='w-full'>
@@ -331,6 +365,183 @@ const DeceasedInformationCard: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Birth Information Section - Conditionally Rendered */}
+        {shouldShowBirthInfo && (
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between'>
+              <CardTitle className='text-sm font-semibold'>
+                Birth Information
+              </CardTitle>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <InfoCircledIcon className='h-4 w-4 text-muted-foreground' />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      Required for infant deaths (0-7 days) and maternal cases
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </CardHeader>
+            <CardContent>
+              <div className='space-y-4'>
+                {/* For female cases, show Age of Mother */}
+                {sex === 'Female' && (
+                  <FormField
+                    control={control}
+                    name='birthInformation.ageOfMother'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Age of Mother</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type='number'
+                            min={10}
+                            max={65}
+                            className='h-10'
+                            placeholder="Enter mother's age"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {/* Method of Delivery */}
+                <FormField
+                  control={control}
+                  name='birthInformation.methodOfDelivery'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Method of Delivery</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value || ''}
+                      >
+                        <FormControl>
+                          <SelectTrigger ref={field.ref} className='h-10'>
+                            <SelectValue placeholder='Select delivery method' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value='Normal spontaneous vertex'>
+                            Normal spontaneous vertex
+                          </SelectItem>
+                          <SelectItem value='Caesarean section'>
+                            Caesarean section
+                          </SelectItem>
+                          <SelectItem value='Forceps'>Forceps</SelectItem>
+                          <SelectItem value='Vacuum extraction'>
+                            Vacuum extraction
+                          </SelectItem>
+                          <SelectItem value='Others'>Others</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className='grid grid-cols-2 gap-4'>
+                  {/* Length of Pregnancy */}
+                  <FormField
+                    control={control}
+                    name='birthInformation.lengthOfPregnancy'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Length of Pregnancy (weeks)</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type='number'
+                            min={20}
+                            max={45}
+                            className='h-10'
+                            placeholder='Enter weeks'
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Normal range: 37-42 weeks
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Type of Birth */}
+                  <FormField
+                    control={control}
+                    name='birthInformation.typeOfBirth'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Type of Birth</FormLabel>
+                        <Select
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            // Reset birth order if type is Single
+                            if (value === 'Single') {
+                              setValue(
+                                'birthInformation.birthOrder',
+                                undefined
+                              );
+                            }
+                          }}
+                          value={field.value || 'Single'}
+                        >
+                          <FormControl>
+                            <SelectTrigger ref={field.ref} className='h-10'>
+                              <SelectValue placeholder='Select type of birth' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value='Single'>Single</SelectItem>
+                            <SelectItem value='Twin'>Twin</SelectItem>
+                            <SelectItem value='Triplet'>Triplet</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Only show Birth Order for multiple births */}
+                {typeOfBirth !== 'Single' && (
+                  <FormField
+                    control={control}
+                    name='birthInformation.birthOrder'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Birth Order</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger ref={field.ref} className='h-10'>
+                              <SelectValue placeholder='Select birth order' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value='First'>First</SelectItem>
+                            <SelectItem value='Second'>Second</SelectItem>
+                            <SelectItem value='Third'>Third</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </CardContent>
     </Card>
   );
