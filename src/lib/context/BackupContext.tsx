@@ -17,11 +17,13 @@ export const BackupProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const storedValue = localStorage.getItem("isBackupEnabled") === "true";
     setIsBackupEnabled(storedValue);
+    // console.log("📡 Backup status loaded from localStorage:", storedValue);
   }, []);
 
   useEffect(() => {
     if (isBackupEnabled !== null) {
       localStorage.setItem("isBackupEnabled", isBackupEnabled.toString());
+      // console.log("📡 Backup status saved to localStorage:", isBackupEnabled);
     }
   }, [isBackupEnabled]);
 
