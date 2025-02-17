@@ -21,7 +21,7 @@ import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
 import { useEffect } from 'react';
 import { FieldValues, Path, useFormContext } from 'react-hook-form';
 
-interface ProcessingCardProps<T extends FieldValues = FieldValues> {
+export interface ProcessingCardProps<T extends FieldValues = FieldValues> {
   fieldPrefix: string;
   cardTitle: string;
   hideDate?: boolean;
@@ -168,6 +168,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
 }
 
 // Export specialized versions
+
 export function PreparedByCard<T extends FieldValues = FieldValues>(
   props: Omit<ProcessingCardProps<T>, 'fieldPrefix' | 'cardTitle'>
 ) {

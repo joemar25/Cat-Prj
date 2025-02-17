@@ -24,23 +24,23 @@ export type RegularCity = {
 
 export type Region =
   | {
-      id: string;
-      name: string;
-      provinces: null;
-      citiesMunicipalities: (
-        | CityWithDirectBarangays
-        | CityWithSubMunicipalities
-      )[];
-    }
+    id: string;
+    name: string;
+    provinces: null;
+    citiesMunicipalities: (
+      | CityWithDirectBarangays
+      | CityWithSubMunicipalities
+    )[];
+  }
   | {
+    id: string;
+    name: string;
+    provinces: {
       id: string;
       name: string;
-      provinces: {
-        id: string;
-        name: string;
-        citiesMunicipalities: RegularCity[];
-      }[];
-    };
+      citiesMunicipalities: RegularCity[];
+    }[];
+  };
 
 export type Province = {
   id: string;

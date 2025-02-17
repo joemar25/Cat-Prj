@@ -30,6 +30,7 @@ export function useDeathCertificateForm({
       sex: undefined,
       dateOfDeath: undefined,
       timeOfDeath: undefined,
+      dateOfBirth: undefined,
       ageAtDeath: {
         years: '',
         months: '',
@@ -56,6 +57,14 @@ export function useDeathCertificateForm({
         country: '',
       },
       occupation: '',
+      // Birth Information
+      birthInformation: {
+        ageOfMother: '',
+        methodOfDelivery: 'Normal spontaneous vertex',
+        lengthOfPregnancy: undefined,
+        typeOfBirth: 'Single',
+        birthOrder: undefined,
+      },
       // Parent Information
       parents: {
         fatherName: {
@@ -69,28 +78,50 @@ export function useDeathCertificateForm({
           last: '',
         },
       },
+      // Causes of Death 19b (8 days and over)
+      causesOfDeath19b: {
+        immediate: {
+          cause: '',
+          interval: '',
+        },
+        antecedent: {
+          cause: '',
+          interval: '',
+        },
+        underlying: {
+          cause: '',
+          interval: '',
+        },
+        otherSignificantConditions: '',
+      },
       // Medical Certificate
       medicalCertificate: {
-        infantDeathDetails: undefined,
         causesOfDeath: {
+          mainDiseaseOfInfant: '',
+          otherDiseasesOfInfant: '',
+          mainMaternalDisease: '',
+          otherMaternalDisease: '',
+          otherRelevantCircumstances: '',
           immediate: { cause: '', interval: '' },
           antecedent: { cause: '', interval: '' },
           underlying: { cause: '', interval: '' },
           otherSignificantConditions: '',
         },
-        maternalCondition: undefined,
+        maternalCondition: {
+          pregnantNotInLabor: false,
+          pregnantInLabor: false,
+          lessThan42Days: false,
+          daysTo1Year: false,
+          noneOfTheAbove: false,
+        },
         externalCauses: {
           mannerOfDeath: '',
           placeOfOccurrence: '',
         },
         attendant: {
-          privatePhysician: false,
-          publicHealthOfficer: false,
-          hospitalAuthority: false,
-          none: false,
-          others: false,
+          type: undefined,
           othersSpecify: '',
-          duration: { from: '', to: '' },
+          duration: { from: undefined, to: undefined },
         },
         autopsy: false,
       },
@@ -100,8 +131,17 @@ export function useDeathCertificateForm({
         signature: '',
         nameInPrint: '',
         titleOfPosition: '',
-        address: '',
+        address: {
+          houseNo: '',
+          st: '',
+          barangay: '',
+          cityMunicipality: '',
+          province: '',
+          country: '',
+        },
         date: undefined,
+        healthOfficerSignature: '',
+        healthOfficerNameInPrint: '',
       },
       // Review
       reviewedBy: {
@@ -111,7 +151,45 @@ export function useDeathCertificateForm({
       // Certificates
       postmortemCertificate: undefined,
       embalmerCertification: undefined,
-      delayedRegistration: undefined,
+
+      // Delayed Registration - now pre-filled with blank defaults
+      delayedRegistration: {
+        affiant: {
+          name: '',
+          civilStatus: 'Single',
+          residenceAddress: '',
+          age: '',
+          signature: '',
+        },
+        deceased: {
+          name: '',
+          dateOfDeath: '',
+          placeOfDeath: '',
+          burialInfo: {
+            date: '',
+            place: '',
+            method: undefined,
+          },
+        },
+        attendance: {
+          wasAttended: false,
+          attendedBy: '',
+        },
+        causeOfDeath: '',
+        reasonForDelay: '',
+        affidavitDate: undefined,
+        affidavitDatePlace: '',
+        adminOfficer: {
+          signature: '',
+          position: '',
+        },
+        ctcInfo: {
+          number: '',
+          issuedOn: '',
+          issuedAt: '',
+        },
+      },
+
       // Disposal Information
       corpseDisposal: '',
       burialPermit: {
@@ -121,14 +199,28 @@ export function useDeathCertificateForm({
       transferPermit: undefined,
       cemeteryOrCrematory: {
         name: '',
-        address: '',
+        address: {
+          houseNo: '',
+          st: '',
+          barangay: '',
+          cityMunicipality: '',
+          province: '',
+          country: '',
+        },
       },
       // Informant
       informant: {
         signature: '',
         nameInPrint: '',
         relationshipToDeceased: '',
-        address: '',
+        address: {
+          houseNo: '',
+          st: '',
+          barangay: '',
+          cityMunicipality: '',
+          province: '',
+          country: '',
+        },
         date: undefined,
       },
       // Processing Information
@@ -154,7 +246,6 @@ export function useDeathCertificateForm({
     },
   });
 
-  // For now, simply log the data on valid submission.
   const onSubmit = async (data: DeathCertificateFormValues) => {
     console.log('Valid submission:', data);
     toast.success('Form validated successfully');

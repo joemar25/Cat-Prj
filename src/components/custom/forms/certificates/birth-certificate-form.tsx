@@ -31,8 +31,8 @@ import RemarksCard from './form-cards/shared-components/remarks-card';
 
 import { FormType } from '@prisma/client';
 
-import type { BirthCertificateFormProps } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { useBirthCertificateForm } from '@/hooks/form-certificates-hooks/useBirthCertificateForm';
+import type { BirthCertificateFormProps } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { PDFViewer } from '@react-pdf/renderer';
 import BirthCertificatePDF from './preview/birth-certificate/birth-certificate-pdf';
 
@@ -77,6 +77,7 @@ export default function BirthCertificateForm({
                         fieldPrefix='registeredByOffice'
                         cardTitle='Registered at the Office of Civil Registrar'
                       />
+
                       <RemarksCard
                         fieldName='remarks'
                         cardTitle='Birth Certificate Remarks'

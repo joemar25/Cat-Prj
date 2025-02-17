@@ -14,11 +14,26 @@ import type { DeathCertificateFormProps } from '@/lib/types/zod-form-certificate
 import { FormType } from '@prisma/client';
 import { FormProvider } from 'react-hook-form';
 import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
-import CausesOfDeathCard from './form-cards/death-cards/causes-of-death';
+
+import CausesOfDeath19bCard from './form-cards/death-cards/causes-of-death19b';
+import CertificationOfDeathCard from './form-cards/death-cards/certification-of-death-card';
+import CertificationInformantCard from './form-cards/death-cards/certification-of-informant-card';
 import DeathByExternalCausesCard from './form-cards/death-cards/death-by-external-causes';
 import DeceasedInformationCard from './form-cards/death-cards/deceased-information-card';
+import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
 import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
+
+import CausesOfDeath19aCard from './form-cards/death-cards/causes-of-death19a';
+import AffidavitDelayedRegistrationCard from './form-cards/death-cards/death-affidavit-elayed-registration-card';
+import EmbalmerCertificationCard from './form-cards/death-cards/embalmer-certification-card';
+import PostmortemCertificateCard from './form-cards/death-cards/postmortem-certificate-card';
+import {
+  PreparedByCard,
+  ReceivedByCard,
+  RegisteredAtOfficeCard,
+} from './form-cards/shared-components/processing-details-cards';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
+import RemarksCard from './form-cards/shared-components/remarks-card';
 
 export default function DeathCertificateForm({
   open,
@@ -50,10 +65,31 @@ export default function DeathCertificateForm({
                     >
                       <RegistryInformationCard formType={FormType.DEATH} />
                       <DeceasedInformationCard />
-                      <CausesOfDeathCard />
+                      <CausesOfDeath19aCard />
+                      <CausesOfDeath19bCard />
                       <MaternalConditionCard />
                       <DeathByExternalCausesCard />
                       <AttendantInformationCard />
+                      <EmbalmerCertificationCard />
+                      <PostmortemCertificateCard />
+                      <AffidavitDelayedRegistrationCard />
+                      <CertificationOfDeathCard />
+                      <DisposalInformationCard />
+                      <CertificationInformantCard />
+                      <PreparedByCard />
+                      <ReceivedByCard />
+                      <RegisteredAtOfficeCard
+                        fieldPrefix='registeredByOffice'
+                        cardTitle='Registered at the Office of Civil Registrar'
+                      />
+
+                      <RemarksCard
+                        fieldName='remarks'
+                        cardTitle='Death Certificate Remarks'
+                        label='Additional Remarks'
+                        placeholder='Enter any additional remarks or annotations'
+                      />
+
                       <DialogFooter>
                         <Button
                           type='button'

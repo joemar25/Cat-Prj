@@ -12,11 +12,31 @@ import { Textarea } from '@/components/ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ProfileWithUser } from '@/types/user-profile'
 import { OCCUPATIONS } from '@/lib/constants/occupations'
-import { Province, City, Barangay } from '@/lib/constants/locations'
 import { ProfileFormValues, profileFormSchema } from '@/lib/validation/profile/profile-form'
-import { PROVINCES, CITIES, BARANGAYS, COUNTRY } from '@/lib/constants/locations'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
+
+// Import our location helpers and types.
+import {
+    COUNTRY,
+    getAllProvinces,
+    getCachedCitySuggestions,
+    getBarangaysByLocation,
+} from '@/lib/utils/location-helpers'
+import type { Province, LocationSuggestion, Barangay } from '@/lib/utils/location-helpers'
 
 interface ProfileFormProps {
     profile: ProfileWithUser
@@ -50,13 +70,13 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
         },
     })
 
+    // Replace raw arrays with helper-driven suggestions.
     const [provinceSuggestions, setProvinceSuggestions] = useState<Province[]>([])
-    const [citySuggestions, setCitySuggestions] = useState<City[]>([])
+    const [citySuggestions, setCitySuggestions] = useState<LocationSuggestion[]>([])
     const [barangaySuggestions, setBarangaySuggestions] = useState<Barangay[]>([])
     const [occupationSuggestions, setOccupationSuggestions] = useState<string[]>([])
 
     type AddressField = 'state' | 'city' | 'address'
-
 
     const handleOccupationChange = (value: string) => {
         const filteredOccupations = OCCUPATIONS.filter(occupation =>
@@ -72,24 +92,47 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
 
     const handleInputChange = (value: string, type: AddressField) => {
         if (type === 'state') {
-            const filteredProvinces = PROVINCES.filter(province =>
+            // Use the helper to get all provinces and filter by name.
+            const allProvinces = getAllProvinces()
+            const filteredProvinces = allProvinces.filter(province =>
                 province.name.toLowerCase().includes(value.toLowerCase())
             )
             setProvinceSuggestions(filteredProvinces)
         } else if (type === 'city') {
-            const selectedProvince = form.watch('state')
-            const filteredCities = CITIES.filter(city =>
-                city.name.toLowerCase().includes(value.toLowerCase()) &&
-                (!selectedProvince || city.province === selectedProvince)
+            // Get the selected province from the form.
+            const selectedProvinceName = form.watch('state')
+            const allProvinces = getAllProvinces()
+            const selectedProvince = allProvinces.find(province =>
+                province.name.toLowerCase() === selectedProvinceName?.toLowerCase()
             )
-            setCitySuggestions(filteredCities)
+            if (selectedProvince) {
+                // Get city suggestions from the helper based on the province psgc_id.
+                const cities = getCachedCitySuggestions(selectedProvince.psgc_id, false)
+                // Filter the cities by the typed value.
+                const filteredCities = cities.filter(city =>
+                    city.displayName.toLowerCase().includes(value.toLowerCase())
+                )
+                setCitySuggestions(filteredCities)
+            } else {
+                setCitySuggestions([])
+            }
         } else if (type === 'address') {
-            const selectedCity = form.watch('city')
-            const filteredBarangays = BARANGAYS.filter(barangay =>
-                barangay.name.toLowerCase().includes(value.toLowerCase()) &&
-                (!selectedCity || barangay.city === selectedCity)
+            // Get the selected city from the form.
+            const selectedCityName = form.watch('city')
+            // Find the selected city from our current citySuggestions.
+            const selectedCity = citySuggestions.find(city =>
+                city.displayName.toLowerCase() === selectedCityName?.toLowerCase()
             )
-            setBarangaySuggestions(filteredBarangays)
+            if (selectedCity) {
+                // Get barangays based on the city psgc_id.
+                const barangays = getBarangaysByLocation(selectedCity.psgc_id)
+                const filteredBarangays = barangays.filter(barangay =>
+                    barangay.name.toLowerCase().includes(value.toLowerCase())
+                )
+                setBarangaySuggestions(filteredBarangays)
+            } else {
+                setBarangaySuggestions([])
+            }
         }
     }
 
@@ -149,7 +192,6 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <div className="grid grid-cols-1 gap-8">
-
                     {/* Personal Information Section */}
                     <div className="p-6 shadow rounded-2xl">
                         <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
@@ -272,7 +314,6 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                     <div className="p-6 shadow rounded-2xl">
                         <h2 className="text-xl font-semibold mb-4">Address Information</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
                             {/* Province (Autocomplete) */}
                             <FormField
                                 control={form.control}
@@ -293,10 +334,10 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                             />
                                         </FormControl>
                                         {provinceSuggestions.length > 0 && (
-                                            <div className="absolute z-10 bg-white border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
+                                            <div className="absolute z-10  bg-white text-black border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
                                                 {provinceSuggestions.map((province) => (
                                                     <div
-                                                        key={`${province.name}-${province.region}`}
+                                                        key={`${province.psgc_id}`}
                                                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                                         onClick={() => handleSuggestionClick(province.name, 'state')}
                                                     >
@@ -330,14 +371,14 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                             />
                                         </FormControl>
                                         {citySuggestions.length > 0 && (
-                                            <div className="absolute z-10 bg-white border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
+                                            <div className="absolute z-10  bg-white text-black border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
                                                 {citySuggestions.map((city) => (
                                                     <div
-                                                        key={`${city.name}-${city.province ?? ''}`}
+                                                        key={city.psgc_id}
                                                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                        onClick={() => handleSuggestionClick(city.name, 'city')}
+                                                        onClick={() => handleSuggestionClick(city.displayName, 'city')}
                                                     >
-                                                        {city.name}
+                                                        {city.displayName}
                                                     </div>
                                                 ))}
                                             </div>
@@ -367,10 +408,10 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                             />
                                         </FormControl>
                                         {barangaySuggestions.length > 0 && (
-                                            <div className="absolute z-10 bg-white border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
+                                            <div className="absolute z-10  bg-white text-black border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
                                                 {barangaySuggestions.map((barangay) => (
                                                     <div
-                                                        key={`${barangay.name}-${barangay.city ?? ''}-${barangay.municipality ?? ''}`}
+                                                        key={barangay.psgc_id}
                                                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                                         onClick={() => handleSuggestionClick(barangay.name, 'address')}
                                                     >
@@ -442,7 +483,7 @@ export function ProfileForm({ profile, isEditing, isLoading, onEditingChangeActi
                                             />
                                         </FormControl>
                                         {occupationSuggestions.length > 0 && (
-                                            <div className="absolute z-10 bg-white border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
+                                            <div className="absolute z-10  bg-white text-black border rounded-md shadow-lg w-full max-h-40 overflow-y-auto">
                                                 {occupationSuggestions.map((occupation, index) => (
                                                     <div
                                                         key={index}

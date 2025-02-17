@@ -2,6 +2,7 @@
 
 import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 import TimePicker from '@/components/custom/time/time-picker';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
@@ -13,15 +14,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import LocationSelector from '../shared-components/location-selector';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
 
 const CertificationOfDeathCard: React.FC = () => {
-  const { control, setValue, watch } =
-    useFormContext<DeathCertificateFormValues>();
-
-  // NOTE: The revised schema no longer includes additional "reviewedBy" fields
-  // such as name, title, and position. Therefore, the auto-fill logic is removed.
+  const { control, watch } = useFormContext<DeathCertificateFormValues>();
+  const [isNCRMode, setIsNCRMode] = useState(false);
 
   return (
     <Card>
@@ -95,7 +95,11 @@ const CertificationOfDeathCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Name in Print</FormLabel>
                 <FormControl>
-                  <Input className='h-10' placeholder='Enter name' {...field} />
+                  <Input
+                    className='h-10'
+                    placeholder='Enter name in print'
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -103,18 +107,37 @@ const CertificationOfDeathCard: React.FC = () => {
           />
         </div>
 
-        {/* Title and Address */}
+        {/* Title or Position */}
+        <FormField
+          control={control}
+          name='certificationOfDeath.titleOfPosition'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Title or Position</FormLabel>
+              <FormControl>
+                <Input
+                  className='h-10'
+                  placeholder='Enter title or position'
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Health Officer Details */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <FormField
             control={control}
-            name='certificationOfDeath.titleOfPosition'
+            name='certificationOfDeath.healthOfficerSignature'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Title or Position</FormLabel>
+                <FormLabel>Health Officer Signature</FormLabel>
                 <FormControl>
                   <Input
                     className='h-10'
-                    placeholder='Enter title'
+                    placeholder='Enter health officer signature'
                     {...field}
                   />
                 </FormControl>
@@ -124,14 +147,14 @@ const CertificationOfDeathCard: React.FC = () => {
           />
           <FormField
             control={control}
-            name='certificationOfDeath.address'
+            name='certificationOfDeath.healthOfficerNameInPrint'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Address</FormLabel>
+                <FormLabel>Health Officer Name in Print</FormLabel>
                 <FormControl>
                   <Input
                     className='h-10'
-                    placeholder='Enter full address'
+                    placeholder='Enter health officer name in print'
                     {...field}
                   />
                 </FormControl>
@@ -139,6 +162,74 @@ const CertificationOfDeathCard: React.FC = () => {
               </FormItem>
             )}
           />
+        </div>
+
+        {/* NCR Mode Switch */}
+        <NCRModeSwitch isNCRMode={isNCRMode} setIsNCRMode={setIsNCRMode} />
+
+        {/* Address Section */}
+        <div className='space-y-4'>
+          {/* Location Selector for Province, City/Municipality, and Barangay */}
+          <LocationSelector
+            provinceFieldName='certificationOfDeath.address.province'
+            municipalityFieldName='certificationOfDeath.address.cityMunicipality'
+            barangayFieldName='certificationOfDeath.address.barangay'
+            provinceLabel='Province'
+            municipalityLabel='City/Municipality'
+            barangayLabel='Barangay'
+            isNCRMode={isNCRMode}
+            showBarangay={true}
+            provincePlaceholder='Select province'
+            municipalityPlaceholder='Select city/municipality'
+            barangayPlaceholder='Select barangay'
+          />
+
+          {/* Additional Address Details */}
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+            <FormField
+              control={control}
+              name='certificationOfDeath.address.houseNo'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>House No.</FormLabel>
+                  <FormControl>
+                    <Input
+                      className='h-10'
+                      placeholder='House No.'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name='certificationOfDeath.address.st'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Street</FormLabel>
+                  <FormControl>
+                    <Input className='h-10' placeholder='Street' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name='certificationOfDeath.address.country'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Country</FormLabel>
+                  <FormControl>
+                    <Input className='h-10' placeholder='Country' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
         {/* Certification Date */}
@@ -152,14 +243,12 @@ const CertificationOfDeathCard: React.FC = () => {
                   value: field.value ?? '',
                   onChange: field.onChange,
                 }}
-                label='Date'
-                placeholder='Select date'
+                label='Certification Date'
+                placeholder='Select certification date'
               />
             </FormItem>
           )}
         />
-
-        {/* Reviewed By Section Removed */}
       </CardContent>
     </Card>
   );
