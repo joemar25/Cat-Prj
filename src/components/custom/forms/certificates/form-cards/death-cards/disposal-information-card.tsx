@@ -10,31 +10,30 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-;
 import { useFormContext } from 'react-hook-form';
+import LocationSelector from '../shared-components/location-selector';
 
 const DisposalInformationCard: React.FC = () => {
   const { control } = useFormContext<DeathCertificateFormValues>();
 
   return (
     <Card>
-      <CardHeader className='pb-3'>
-        <h3 className='text-sm font-semibold'>Disposal Information</h3>
+      <CardHeader className="pb-3">
+        <h3 className="text-sm font-semibold">Disposal Information</h3>
       </CardHeader>
-      <CardContent className='space-y-4'>
-        {/* Method of Disposal */}
+      <CardContent className="space-y-6">
+        {/* Disposal Method */}
         <FormField
           control={control}
-          name='disposal.method'
+          name="corpseDisposal"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Method of Disposal</FormLabel>
+              <FormLabel>Corpse Disposal Method</FormLabel>
               <FormControl>
                 <Input
-                  className='h-10'
-                  placeholder='Burial, Cremation, etc.'
+                  className="h-10"
+                  placeholder="Burial, Cremation, etc."
                   {...field}
                 />
               </FormControl>
@@ -44,19 +43,19 @@ const DisposalInformationCard: React.FC = () => {
         />
 
         {/* Burial/Cremation Permit Section */}
-        <div className='grid grid-cols-2 gap-4'>
-          <div className='space-y-4'>
-            <h4 className='text-sm font-medium'>Burial/Cremation Permit</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium">Burial/Cremation Permit</h4>
             <FormField
               control={control}
-              name='disposal.burialPermit.number'
+              name="burialPermit.number"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Permit Number</FormLabel>
                   <FormControl>
                     <Input
-                      className='h-10'
-                      placeholder='Enter permit number'
+                      className="h-10"
+                      placeholder="Enter permit number"
                       {...field}
                     />
                   </FormControl>
@@ -64,10 +63,9 @@ const DisposalInformationCard: React.FC = () => {
                 </FormItem>
               )}
             />
-            {/* Burial Permit Date Issued */}
             <FormField
               control={control}
-              name='disposal.burialPermit.dateIssued'
+              name="burialPermit.dateIssued"
               render={({ field }) => (
                 <FormItem>
                   <DatePickerField
@@ -75,8 +73,9 @@ const DisposalInformationCard: React.FC = () => {
                       value: field.value,
                       onChange: field.onChange,
                     }}
-                    label='Date Issued'
-                    placeholder='Select date issued'
+                    label="Date Issued"
+                    ref={field.ref}
+                    placeholder="Select date issued"
                   />
                 </FormItem>
               )}
@@ -84,18 +83,18 @@ const DisposalInformationCard: React.FC = () => {
           </div>
 
           {/* Transfer Permit Section */}
-          <div className='space-y-4'>
-            <h4 className='text-sm font-medium'>Transfer Permit</h4>
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium">Transfer Permit (if applicable)</h4>
             <FormField
               control={control}
-              name='disposal.transferPermit.number'
+              name="transferPermit.number"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Permit Number</FormLabel>
                   <FormControl>
                     <Input
-                      className='h-10'
-                      placeholder='Enter permit number'
+                      className="h-10"
+                      placeholder="Enter permit number"
                       {...field}
                     />
                   </FormControl>
@@ -103,19 +102,19 @@ const DisposalInformationCard: React.FC = () => {
                 </FormItem>
               )}
             />
-            {/* Transfer Permit Date Issued */}
             <FormField
               control={control}
-              name='disposal.transferPermit.dateIssued'
+              name="transferPermit.dateIssued"
               render={({ field }) => (
                 <FormItem>
                   <DatePickerField
                     field={{
-                      value: field.value ?? null, // Convert undefined to null
-                      onChange: (date) => field.onChange(date),
+                      value: field.value ?? null,
+                      onChange: field.onChange,
                     }}
-                    label='Date Issued'
-                    placeholder='Select date issued'
+                    label="Date Issued"
+                    placeholder="Select date issued"
+                    ref={field.ref}
                   />
                   <FormMessage />
                 </FormItem>
@@ -125,23 +124,42 @@ const DisposalInformationCard: React.FC = () => {
         </div>
 
         {/* Cemetery or Crematory Information */}
-        <FormField
-          control={control}
-          name='disposal.cemeteryAddress'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name and Address of Cemetery or Crematory</FormLabel>
-              <FormControl>
-                <Textarea
-                  className='h-20'
-                  placeholder='Enter name and address'
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="space-y-4">
+          <h4 className="text-sm font-medium">Cemetery or Crematory Information</h4>
+          <FormField
+            control={control}
+            name="cemeteryOrCrematory.name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input
+                    className="h-10"
+                    placeholder="Enter cemetery or crematory name"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Use LocationSelector for the cemetery/crematory address */}
+          <LocationSelector
+     
+            provinceFieldName="cemeteryOrCrematory.address.province"
+            municipalityFieldName="cemeteryOrCrematory.address.cityMunicipality"
+            barangayFieldName="cemeteryOrCrematory.address.barangay"
+            provinceLabel="Province"
+            municipalityLabel="City/Municipality"
+            barangayLabel="Barangay"
+            provincePlaceholder="Select province..."
+            municipalityPlaceholder="Select city/municipality..."
+            barangayPlaceholder="Select barangay..."
+            showBarangay={true}
+            isNCRMode={false}
+          />
+        </div>
       </CardContent>
     </Card>
   );

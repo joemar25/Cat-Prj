@@ -69,6 +69,23 @@ export function useDeathCertificateForm({
           last: '',
         },
       },
+
+      // Causes of Death 19b (8 days and over)
+      causesOfDeath19b: {
+        immediate: {
+          cause: '',
+          interval: '',
+        },
+        antecedent: {
+          cause: '',
+          interval: '',
+        },
+        underlying: {
+          cause: '',
+          interval: '',
+        },
+        otherSignificantConditions: '',
+      },
       // Medical Certificate
       medicalCertificate: {
         infantDeathDetails: undefined,
@@ -84,13 +101,9 @@ export function useDeathCertificateForm({
           placeOfOccurrence: '',
         },
         attendant: {
-          privatePhysician: false,
-          publicHealthOfficer: false,
-          hospitalAuthority: false,
-          none: false,
-          others: false,
+          type: undefined,
           othersSpecify: '',
-          duration: { from: '', to: '' },
+          duration: { from: undefined, to: undefined },
         },
         autopsy: false,
       },
@@ -100,9 +113,19 @@ export function useDeathCertificateForm({
         signature: '',
         nameInPrint: '',
         titleOfPosition: '',
-        address: '',
+        address: {
+          houseNo: '',
+          st: '',
+          barangay: '',
+          cityMunicipality: '',
+          province: '',
+          country: '',
+        },
         date: undefined,
+        healthOfficerSignature: '',
+        healthOfficerNameInPrint: '',
       },
+
       // Review
       reviewedBy: {
         signature: '',
@@ -121,14 +144,28 @@ export function useDeathCertificateForm({
       transferPermit: undefined,
       cemeteryOrCrematory: {
         name: '',
-        address: '',
+        address: {
+          houseNo: '',
+          st: '',
+          barangay: '',
+          cityMunicipality: '', // Ensure this matches the expected type (string or an object) as per your cityMunicipalitySchema.
+          province: '', // Same for provinceSchema.
+          country: '',
+        },
       },
       // Informant
       informant: {
         signature: '',
         nameInPrint: '',
         relationshipToDeceased: '',
-        address: '',
+        address: {
+          houseNo: '',
+          st: '',
+          barangay: '',
+          cityMunicipality: '', // Ensure this matches the expected type (string or an object) as per your cityMunicipalitySchema.
+          province: '', // Same for provinceSchema.
+          country: '',
+        },
         date: undefined,
       },
       // Processing Information
