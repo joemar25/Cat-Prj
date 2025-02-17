@@ -69,8 +69,10 @@ const medicalCertificateSchema = z.object({
       multipleBirthOrder: z.string().optional(),
     })
     .optional(),
+
   // Causes of death — choose infant or regular details
   causesOfDeath: z.union([
+    // Infant-style cause of death
     z.object({
       mainDiseaseOfInfant: z
         .string()
@@ -80,6 +82,7 @@ const medicalCertificateSchema = z.object({
       otherMaternalDisease: z.string().optional(),
       otherRelevantCircumstances: z.string().optional(),
     }),
+    // Standard cause of death
     z.object({
       immediate: z.object({
         cause: z.string().nonempty('Immediate cause is required'),
@@ -96,6 +99,7 @@ const medicalCertificateSchema = z.object({
       otherSignificantConditions: z.string().optional(),
     }),
   ]),
+
   // Maternal condition (optional)
   maternalCondition: z
     .object({
@@ -106,26 +110,81 @@ const medicalCertificateSchema = z.object({
       noneOfTheAbove: z.boolean().optional(),
     })
     .optional(),
+
   // External causes (optional)
   externalCauses: z.object({
     mannerOfDeath: z.string().optional(),
     placeOfOccurrence: z.string().optional(),
   }),
-  // Attendant details
-  attendant: z.object({
-    privatePhysician: z.boolean(),
-    publicHealthOfficer: z.boolean(),
-    hospitalAuthority: z.boolean(),
-    none: z.boolean(),
-    others: z.boolean(),
-    othersSpecify: z.string().optional(),
-    duration: z
-      .object({
-        from: z.string().optional(),
-        to: z.string().optional(),
-      })
-      .optional(),
-  }),
+
+  // Attendant details (ENUM approach)
+  attendant: z
+    .object({
+      type: z
+        .preprocess(
+          (val) => (val === '' ? undefined : val), // Treat empty string as undefined
+          z
+            .enum([
+              'PRIVATE_PHYSICIAN',
+              'PUBLIC_HEALTH_OFFICER',
+              'HOSPITAL_AUTHORITY',
+              'NONE',
+              'OTHERS',
+            ])
+            .optional() // Enum with optional value
+        )
+        .refine((val) => val !== undefined, {
+          message: 'Please select an attendant type', // User-friendly error message
+        }),
+      othersSpecify: z.string().optional(),
+      duration: z
+        .object({
+          from: createDateFieldSchema({
+            requiredError: 'Start date is required',
+            futureError: 'Start date cannot be in the future',
+          }),
+          to: createDateFieldSchema({
+            requiredError: 'End date is required',
+            futureError: 'End date cannot be in the future',
+          }),
+        })
+        .optional(),
+    })
+    .superRefine((data, ctx) => {
+      // If "OTHERS" is selected, must specify
+      if (data.type === 'OTHERS' && !data.othersSpecify) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Please specify the other attendant type',
+          path: ['othersSpecify'],
+        });
+      }
+
+      // If type is not "NONE", duration should be provided
+      if (data.type !== 'NONE') {
+        if (!data.duration || !data.duration.from || !data.duration.to) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Please provide the duration for the selected attendant',
+            path: ['duration'],
+          });
+        }
+      }
+
+      // If both dates are present, ensure `to` >= `from`
+      if (
+        data.duration?.from &&
+        data.duration?.to &&
+        new Date(data.duration.to) < new Date(data.duration.from)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'End date must be after start date',
+          path: ['duration', 'to'],
+        });
+      }
+    }),
+
   autopsy: z.boolean().default(false),
 });
 
@@ -135,11 +194,17 @@ const certificationOfDeathSchema = z.object({
   signature: z.string().nonempty('Signature is required'),
   nameInPrint: z.string().nonempty('Name is required'),
   titleOfPosition: z.string().nonempty('Title/Position is required'),
-  address: z.string().nonempty('Address is required'),
+  address: residenceSchema,
   date: createDateFieldSchema({
     requiredError: 'Certification date is required',
     futureError: 'Certification date cannot be in the future',
   }),
+  healthOfficerSignature: z
+    .string()
+    .nonempty('Health officer signature is required'),
+  healthOfficerNameInPrint: z
+    .string()
+    .nonempty('Health officer name is required'),
 });
 
 // --- Review Schema ---
@@ -244,7 +309,7 @@ const disposalInformationSchema = z.object({
     .optional(),
   cemeteryOrCrematory: z.object({
     name: z.string().nonempty('Name is required'),
-    address: z.string().nonempty('Address is required'),
+    address: residenceSchema,
   }),
 });
 
@@ -253,11 +318,28 @@ const informantSchema = z.object({
   signature: z.string().nonempty('Signature is required'),
   nameInPrint: z.string().nonempty('Name is required'),
   relationshipToDeceased: z.string().nonempty('Relationship is required'),
-  address: z.string().nonempty('Address is required'),
+  address: residenceSchema,
   date: createDateFieldSchema({
     requiredError: 'Informant date is required',
     futureError: 'Informant date cannot be in the future',
   }),
+});
+
+// Zod schema for Section 19b - Causes of Death (8 days and over)
+const causesOfDeath19bSchema = z.object({
+  immediate: z.object({
+    cause: z.string().nonempty('Immediate cause is required'),
+    interval: z.string().nonempty('Interval is required'),
+  }),
+  antecedent: z.object({
+    cause: z.string().optional(),
+    interval: z.string().optional(),
+  }),
+  underlying: z.object({
+    cause: z.string().optional(),
+    interval: z.string().optional(),
+  }),
+  otherSignificantConditions: z.string().optional(),
 });
 
 // --- Main Death Certificate Schema ---
@@ -273,6 +355,9 @@ export const deathCertificateFormSchema = z
 
     // Parent Information
     parents: parentInfoSchema,
+
+    // Causes of Death 19b
+    causesOfDeath19b: causesOfDeath19bSchema,
 
     // Medical Certificate
     medicalCertificate: medicalCertificateSchema,
@@ -314,6 +399,7 @@ export const deathCertificateFormSchema = z
         });
       }
     }
+
     // 2. For females of reproductive age, maternal condition is required.
     if (data.sex === 'Female' && data.ageAtDeath.years) {
       const age = parseInt(data.ageAtDeath.years);
@@ -329,6 +415,7 @@ export const deathCertificateFormSchema = z
         });
       }
     }
+
     // 3. If autopsy is performed, postmortem certificate must be provided.
     if (data.medicalCertificate.autopsy && !data.postmortemCertificate) {
       ctx.addIssue({
@@ -337,9 +424,11 @@ export const deathCertificateFormSchema = z
         path: ['postmortemCertificate'],
       });
     }
+
     // 4. Validate transfer permit requirement when burial location differs from place of death.
     if (
-      data.placeOfDeath.cityMunicipality !== data.cemeteryOrCrematory.address &&
+      data.placeOfDeath.cityMunicipality !==
+        data.cemeteryOrCrematory.address.cityMunicipality &&
       !data.transferPermit
     ) {
       ctx.addIssue({
@@ -351,10 +440,12 @@ export const deathCertificateFormSchema = z
     }
   });
 
+// Export the Type
 export type DeathCertificateFormValues = z.infer<
   typeof deathCertificateFormSchema
 >;
 
+// Props interface (optional)
 export interface DeathCertificateFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

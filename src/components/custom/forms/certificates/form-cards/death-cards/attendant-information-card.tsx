@@ -9,6 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -20,109 +21,139 @@ import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/dea
 import { useFormContext } from 'react-hook-form';
 
 const AttendantInformationCard: React.FC = () => {
-  const { control } = useFormContext<DeathCertificateFormValues>();
+  const { control, watch } = useFormContext<DeathCertificateFormValues>();
+  const attendant = watch('medicalCertificate.attendant');
+
+  // Map the enum value to a select option value.
+  let currentValue: string = '';
+  if (attendant?.type) {
+    switch (attendant.type) {
+      case 'PRIVATE_PHYSICIAN':
+        currentValue = 'PRIVATE_PHYSICIAN';
+        break;
+      case 'PUBLIC_HEALTH_OFFICER':
+        currentValue = 'PUBLIC_HEALTH_OFFICER';
+        break;
+      case 'HOSPITAL_AUTHORITY':
+        currentValue = 'HOSPITAL_AUTHORITY';
+        break;
+      case 'NONE':
+        currentValue = 'NONE';
+        break;
+      case 'OTHERS':
+        currentValue = 'OTHERS';
+        break;
+      default:
+        currentValue = ''; // Default to empty if no value is found
+    }
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Attendant Information</CardTitle>
+        <CardTitle>21a. Attendant</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
         {/* Type of Attendant */}
         <FormField
           control={control}
-          name='medicalCertificate.attendant'
-          render={({ field }) => {
-            // Derive a string value from the attendant object for display.
-            let currentValue: string | undefined;
-            const val = field.value;
-            if (val) {
-              if (val.privatePhysician) currentValue = 'Private Physician';
-              else if (val.publicHealthOfficer)
-                currentValue = 'Public Health Officer';
-              else if (val.hospitalAuthority)
-                currentValue = 'Hospital Authority';
-              else if (val.none) currentValue = 'None';
-              else if (val.others) currentValue = 'Others';
-            }
-            return (
-              <FormItem>
-                <FormLabel>Type of Attendant</FormLabel>
+          name='medicalCertificate.attendant.type'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Attendant Type</FormLabel>
+              <Select
+                onValueChange={field.onChange} // Use onChange directly from field
+                value={field.value || ''} // Bind value to the form field value
+              >
                 <FormControl>
-                  <Select
-                    onValueChange={(selected: string) => {
-                      // Build a new attendant object with the selected type.
-                      const newAttendant = {
-                        privatePhysician: selected === 'Private Physician',
-                        publicHealthOfficer:
-                          selected === 'Public Health Officer',
-                        hospitalAuthority: selected === 'Hospital Authority',
-                        none: selected === 'None',
-                        others: selected === 'Others',
-                        othersSpecify: '',
-                        duration: field.value?.duration || { from: '', to: '' },
-                      };
-                      field.onChange(newAttendant);
-                    }}
-                    value={currentValue || ''}
-                    defaultValue={currentValue}
-                  >
-                    <SelectTrigger ref={field.ref} className='h-10'>
-                      <SelectValue placeholder='Select attendant type' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value='Private Physician'>
-                        Private Physician
-                      </SelectItem>
-                      <SelectItem value='Public Health Officer'>
-                        Public Health Officer
-                      </SelectItem>
-                      <SelectItem value='Hospital Authority'>
-                        Hospital Authority
-                      </SelectItem>
-                      <SelectItem value='None'>None</SelectItem>
-                      <SelectItem value='Others'>Others</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <SelectTrigger ref={field.ref} className='h-10'>
+                    <SelectValue placeholder='Select attendant type' />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value='PRIVATE_PHYSICIAN'>
+                    Private physician
+                  </SelectItem>
+                  <SelectItem value='PUBLIC_HEALTH_OFFICER'>
+                    Public health officer
+                  </SelectItem>
+                  <SelectItem value='HOSPITAL_AUTHORITY'>
+                    Hospital authority
+                  </SelectItem>
+                  <SelectItem value='NONE'>None</SelectItem>
+                  <SelectItem value='OTHERS'>Others</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Others Specify field - only show when "OTHERS" is selected */}
+        {attendant?.type === 'OTHERS' && (
+          <FormField
+            control={control}
+            name='medicalCertificate.attendant.othersSpecify'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Specify Other</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder='Specify other attendant type'
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
-            );
-          }}
-        />
-
-        {/* Attendance Duration Section */}
-        <div className='grid grid-cols-2 gap-4'>
-          {/* From Date */}
-          <FormField
-            control={control}
-            name='medicalCertificate.attendant.duration.from'
-            render={({ field }) => (
-              <FormItem>
-                <DatePickerField
-                  field={{ value: field.value ?? '', onChange: field.onChange }}
-                  label='From'
-                  placeholder='Select end date'
-                />
-              </FormItem>
             )}
           />
+        )}
 
-          {/* To Date */}
-          <FormField
-            control={control}
-            name='medicalCertificate.attendant.duration.to'
-            render={({ field }) => (
-              <FormItem>
-                <DatePickerField
-                  field={{ value: field.value ?? '', onChange: field.onChange }}
-                  label='To'
-                  placeholder='Select end date'
-                />
-              </FormItem>
-            )}
-          />
-        </div>
+        {/* Duration Section - shown when attendant type is not "NONE" */}
+        {attendant?.type !== 'NONE' && (
+          <div className='border-t pt-4'>
+            <h3 className='text-sm font-medium mb-4'>
+              21b. If attended, state duration (mm/dd/yy)
+            </h3>
+            <div className='grid grid-cols-2 gap-4'>
+              <FormField
+                control={control}
+                name='medicalCertificate.attendant.duration.from'
+                render={({ field }) => (
+                  <FormItem>
+                    <DatePickerField
+                      field={{
+                        value: field.value ?? '',
+                        onChange: field.onChange,
+                      }}
+                      label='From'
+                      placeholder='Select start date'
+                      ref={field.ref}
+                    />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={control}
+                name='medicalCertificate.attendant.duration.to'
+                render={({ field }) => (
+                  <FormItem>
+                    <DatePickerField
+                      field={{
+                        value: field.value ?? '',
+                        onChange: field.onChange,
+                      }}
+                      label='To'
+                      placeholder='Select end date'
+                      ref={field.ref}
+                    />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
