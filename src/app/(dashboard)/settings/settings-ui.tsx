@@ -1,54 +1,28 @@
 "use client";
-import { useState } from "react";
 import { Label } from "@/components/ui/label";
-import { Icons } from "@/components/ui/icons";
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { ThemeChange } from "@/components/theme/theme-change";
-import { Palette, Download, Save, Bell, Lock } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { LanguageSelector } from "@/components/custom/language/language-selector";
+import { Bell, Download, Palette, Save, Lock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useBackup } from "@/lib/context/BackupContext";
+import { LanguageSelector } from "@/components/custom/language/language-selector";
+import { ThemeChange } from "@/components/theme/theme-change";
+import { t } from "i18next";
+import { useState } from "react";
+
 
 export function SettingsUI() {
-  const { t } = useTranslation();
-  const [isBackupEnabled, setIsBackupEnabled] = useState(false);
-  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
+  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
   const [isPrivacyModeEnabled, setIsPrivacyModeEnabled] = useState(false);
+  const { isBackupEnabled, toggleBackup, triggerManualBackup } = useBackup();
 
-  const handleManualBackup = async () => {
-    try {
-      const response = await fetch('/api/backup');
-      if (!response.ok) throw new Error('Backup failed');
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `CRIS_BACKUP_DATA-${new Date().toISOString().replace(/[:.]/g, '-')}.sql`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-
-      console.log(t("backup.manual.completed"));
-    } catch (error) {
-      console.error("❌ Error creating backup:", error);
-    }
-  };
+  // Prevent hydration error by not rendering content until state is loaded
+  if (isBackupEnabled === null) {
+    return <p className="text-center text-sm text-muted-foreground">Loading backup settings...</p>;
+  }
 
   return (
     <div className="container flex flex-col gap-6">
-      <Alert>
-        <Icons.infoCircledIcon className="h-4 w-4" />
-        <AlertTitle>{t("settingsNoticeTitle", "Note:")}</AlertTitle>
-        <AlertDescription>
-          {t("settingsNoticeDescription", "These settings are for UI/UX demonstration purposes and are not final.")}
-        </AlertDescription>
-      </Alert>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Interface Settings */}
         <Card className="shadow-lg border border-border">
@@ -103,7 +77,7 @@ export function SettingsUI() {
         {/* Privacy Settings */}
         <Card className="shadow-lg border border-border">
           <CardHeader className="flex items-center gap-3 pb-4">
-            <Lock className="h-6 w-6 text-chart-1" />
+            <Lock className="h-6 w-6 text-chart-1" /> 
             <CardTitle className="text-lg font-semibold">{t("privacyTitle", "Privacy Settings")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -125,40 +99,41 @@ export function SettingsUI() {
             )}
           </CardContent>
         </Card>
-
         {/* Backup Settings */}
         <Card className="shadow-lg border border-border">
           <CardHeader className="flex items-center">
             <Download className="h-6 w-6 text-chart-1" />
-            <CardTitle className="text-lg font-semibold">{t("backupTitle")}</CardTitle>
+            <CardTitle className="text-lg font-semibold">Backup Settings</CardTitle>
           </CardHeader>
-          <CardContent className="">
+          <CardContent>
             <div>
               <div className="flex items-center justify-between">
                 <Label htmlFor="backup-mode" className="text-base font-medium">
-                  {isBackupEnabled ? t("backupEnabled") : t("backupDisabled")}
+                  {isBackupEnabled ? "Automatic backup enabled" : "Automatic backup disabled"}
                 </Label>
                 <Switch
                   id="backup-mode"
                   checked={isBackupEnabled}
-                  onCheckedChange={setIsBackupEnabled}
+                  onCheckedChange={toggleBackup}
                   className="scale-110"
                 />
               </div>
               {isBackupEnabled && (
                 <CardDescription className="text-sm text-muted-foreground">
-                  {t("backupAutoMessage")}
+                  Auto-backup is enabled. Backups will be created every minute.
                 </CardDescription>
               )}
             </div>
             <div>
-              <CardDescription className="text-sm mb-3">{t("backupManualDescription")}</CardDescription>
+              <CardDescription className="text-sm mb-3">
+                You can manually trigger a backup if needed.
+              </CardDescription>
               <Button
-                onClick={handleManualBackup}
+                onClick={triggerManualBackup}
                 className="w-full flex items-center gap-2 py-2 hover:bg-chart-1/90 transition"
               >
                 <Save className="h-5 w-5" />
-                {t("backupManualButton")}
+                Manual Backup
               </Button>
             </div>
           </CardContent>

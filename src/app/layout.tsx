@@ -6,6 +6,7 @@ import { Metadata } from 'next'
 import { Toaster } from 'sonner'
 import { SessionProvider } from 'next-auth/react'
 import { ThemeProvider } from '@/components/custom/provider/theme-provider'
+import { BackupProvider } from '@/lib/context/BackupContext'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -43,7 +44,9 @@ export default function RootLayout({
         >
 
           <SessionProvider>
-            {children}
+            <BackupProvider>
+              {children}
+            </BackupProvider>
           </SessionProvider>
 
           <Toaster
