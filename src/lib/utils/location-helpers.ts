@@ -1,92 +1,100 @@
-// Import JSON files directly
-import barangaysData from '@/lib/jsons/barangays.json';
-import citiesMunicipalitiesData from '@/lib/jsons/cities_municipalities.json';
-import ncrDataFile from '@/lib/jsons/ncr_data.json';
-import provincesData from '@/lib/jsons/provinces.json';
+// src\lib\utils\location-helpers.ts
+import ncrDataFile from '@/lib/jsons/ncr_data.json'
+import barangaysData from '@/lib/jsons/barangays.json'
+import provincesData from '@/lib/jsons/provinces.json'
+import citiesMunicipalitiesData from '@/lib/jsons/cities_municipalities.json'
+
+/**
+ * 
+ * Will always follow this order `${houseNo}, ${street}, ${barangay}, ${cityMunicipality}, ${province}, Philippines` as json file submission of addresses
+ * 
+ * */
+
+export const COUNTRY = 'Philippines'
 
 /**
  * Updated interfaces to match the PHP extractor output.
  */
 export interface BaseLocation {
-  psgc_id: string;
-  name: string;
-  correspondence_code: string;
-  geographic_level: string;
-  old_names: string;
-  city_class: string;
-  income_classification: string;
-  urban_rural: string;
-  population: string;
-  status: string;
+  psgc_id: string
+  name: string
+  correspondence_code: string
+  geographic_level: string
+  old_names: string
+  city_class: string
+  income_classification: string
+  urban_rural: string
+  population: string
+  status: string
 }
 
-export interface NCRRegion extends BaseLocation {}
+export interface NCRRegion extends BaseLocation { }
 
 export interface NCRLocation {
-  psgc_id: string;
-  name: string;
-  correspondence_code: string;
-  geographic_level: string;
+  psgc_id: string
+  name: string
+  correspondence_code: string
+  geographic_level: string
 }
 
 export interface NCRData {
-  region: NCRRegion;
-  cities: NCRLocation[];
+  region: NCRRegion
+  cities: NCRLocation[]
 }
 
-export interface Province extends BaseLocation {}
+export interface Province extends BaseLocation { }
 
-export interface City extends BaseLocation {}
+export interface City extends BaseLocation { }
 
 export interface Barangay {
-  psgc_id: string;
-  name: string;
-  geographic_level: string;
-  old_names: string | null;
+  psgc_id: string
+  name: string
+  geographic_level: string
+  old_names: string | null
 }
 
 export interface LocationSuggestion {
-  id: string;
-  displayName: string;
-  psgc_id: string;
-  type: 'city' | 'municipality' | 'subMunicipality';
+  id: string
+  displayName: string
+  psgc_id: string
+  type: 'city' | 'municipality' | 'subMunicipality'
 }
 
 // Cast the imported data to their proper types
-const provinces = provincesData as Province[];
-const citiesMunicipalities = citiesMunicipalitiesData as City[];
-const barangays = barangaysData as Barangay[];
-const ncrData = ncrDataFile as NCRData;
+const provinces = provincesData as Province[]
+const citiesMunicipalities = citiesMunicipalitiesData as City[]
+const barangays = barangaysData as Barangay[]
+const ncrData = ncrDataFile as NCRData
 
 // Get all provinces sorted by name
 export function getAllProvinces(): Province[] {
-  return provinces.sort((a, b) => a.name.localeCompare(b.name));
+  return provinces.sort((a, b) => a.name.localeCompare(b.name))
 }
 
-const suggestionCache: { [key: string]: LocationSuggestion[] } = {};
+const suggestionCache: { [key: string]: LocationSuggestion[] } = {}
 
 export function getCachedCitySuggestions(
   provinceId: string,
   isNCRMode: boolean
 ): LocationSuggestion[] {
-  const cacheKey = `${provinceId}-${isNCRMode ? 'ncr' : 'non-ncr'}`;
+  const cacheKey = `${provinceId}-${isNCRMode ? 'ncr' : 'non-ncr'}`
   if (suggestionCache[cacheKey]) {
-    return suggestionCache[cacheKey];
+    return suggestionCache[cacheKey]
   }
 
-  let filteredCities: City[] = [];
+  let filteredCities: City[] = []
   if (isNCRMode) {
     // In NCR mode, get cities and districts
     const ncrCities = ncrData.cities
       .filter((city) => {
         // Include all cities except City of Manila, but include its districts
-        if (city.psgc_id === '1380600000') return false; // Exclude City of Manila
+        if (city.psgc_id === '1380600000') return false // Exclude City of Manila
         if (city.geographic_level === 'SubMun') {
           // Include districts of Manila
-          return city.psgc_id.startsWith('138060');
+          return city.psgc_id.startsWith('138060')
         }
         // Include other NCR cities
-        return city.geographic_level === 'City';
+        return city.geographic_level === 'City'
       })
       .map((city) => ({
         psgc_id: city.psgc_id,
@@ -102,31 +110,31 @@ export function getCachedCitySuggestions(
         urban_rural: '',
         population: '',
         status: '',
-      }));
+      }))
 
-    filteredCities = [...ncrCities];
+    filteredCities = [...ncrCities]
   } else {
     // Find the selected province to get its correspondence_code
-    const selectedProvince = provinces.find((p) => p.psgc_id === provinceId);
-    if (!selectedProvince) return [];
+    const selectedProvince = provinces.find((p) => p.psgc_id === provinceId)
+    if (!selectedProvince) return []
 
     // Get the province correspondence code prefix (first 4 digits)
     const provinceCorrespondencePrefix =
-      selectedProvince.correspondence_code.substring(0, 4);
+      selectedProvince.correspondence_code.substring(0, 4)
 
     // Filter cities based on correspondence_code matching
     filteredCities = citiesMunicipalities.filter((city) => {
-      return city.correspondence_code.startsWith(provinceCorrespondencePrefix);
-    });
+      return city.correspondence_code.startsWith(provinceCorrespondencePrefix)
+    })
   }
 
   // Sort the suggestions by name
   const suggestions = filteredCities
     .sort((a, b) => a.name.localeCompare(b.name))
-    .map((city) => formatLocationForDisplay(city));
+    .map((city) => formatLocationForDisplay(city))
 
-  suggestionCache[cacheKey] = suggestions;
-  return suggestions;
+  suggestionCache[cacheKey] = suggestions
+  return suggestions
 }
 
 // Get all cities/municipalities.
@@ -144,15 +152,15 @@ export function getAllCitiesMunicipalities(isNCRMode: boolean = false): City[] {
       urban_rural: '',
       population: '',
       status: '',
-    }));
+    }))
   }
-  return citiesMunicipalities.sort((a, b) => a.name.localeCompare(b.name));
+  return citiesMunicipalities.sort((a, b) => a.name.localeCompare(b.name))
 }
 
 // Get barangays filtered by the parent city/municipality ID.
 export function getBarangaysByLocation(cityId: string): Barangay[] {
-  const parentId = cityId.substring(0, 7);
-  return barangays.filter((barangay) => barangay.psgc_id.startsWith(parentId));
+  const parentId = cityId.substring(0, 7)
+  return barangays.filter((barangay) => barangay.psgc_id.startsWith(parentId))
 }
 
 // Format a city/municipality for display as a suggestion.
@@ -165,7 +173,7 @@ export function formatLocationForDisplay(location: City): LocationSuggestion {
       location.geographic_level.toLowerCase() === 'city'
         ? 'city'
         : location.geographic_level.toLowerCase() === 'submun'
-        ? 'subMunicipality'
-        : 'municipality',
-  };
+          ? 'subMunicipality'
+          : 'municipality',
+  }
 }

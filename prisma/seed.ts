@@ -252,7 +252,11 @@ async function main() {
   // ----------------------------
   // Generate Additional Test Data
   // ----------------------------
-  await generateTestData(prisma, userIds)
+  if (process.env.NEXT_PUBLIC_NODE_ENV !== 'production') {
+    await generateTestData(prisma, userIds)
+  } else {
+    console.log('Production environment detected. Skipping test data generation.')
+  }
 
   console.log('Seeding completed successfully!')
 }
