@@ -33,7 +33,7 @@ export async function handleCredentialsSignin({
 
     // Deny access if the user is not found or if all assigned roles have the name "User"
     // (meaning regular users are not allowed to sign in).
-    if (!user || user.roles.every((ur) => ur.role.name === 'User')) {
+    if (!user || user.roles.every((ur) => ur.role?.name === 'User')) {
       return {
         success: false,
         message: 'Access denied. Regular users are not allowed to log in.',

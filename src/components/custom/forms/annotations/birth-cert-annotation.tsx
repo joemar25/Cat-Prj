@@ -33,7 +33,7 @@ import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-interface ExtendedBirthAnnotationFormProps extends BirthAnnotationFormProps {
+export interface ExtendedBirthAnnotationFormProps extends BirthAnnotationFormProps {
   formData?: BaseRegistryFormWithRelations;
 }
 

@@ -3,6 +3,14 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import {
     Attachment,
     BirthCertificateForm,
     CertifiedCopy,
@@ -45,6 +53,9 @@ import MarriageAnnotationForm from '@/components/custom/forms/annotations/marria
 import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { useUser } from '@/context/user-context'
 import { hasPermission } from '@/types/auth'
+import BirthCertificateFormCTC from '../../forms/requests/birth-request-form'
+import MarriageCertificateFormCTC from '../../forms/requests/marriage-request-form'
+import DeathCertificateFormCTC from '../../forms/requests/death-request-form'
 
 // Extend Attachment to include certifiedCopies.
 export interface AttachmentWithCertifiedCopies extends Attachment {
@@ -108,6 +119,8 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
             toast.error(errMsg)
         }
     }
+
+
 
     const handleExport = async (attachment: AttachmentWithCertifiedCopies) => {
         try {
@@ -284,8 +297,37 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                     size="sm"
                                                 >
                                                     <Icons.files className="mr-2 h-4 w-4" />
-                                                    {t('issueCertificate')}
+                                                    {t('issueCertificateAno')}
                                                 </Button>
+
+
+
+
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <Button variant="outline">Issue Certificate</Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="max-w-4xl w-[90vw] max-h-[80vh] overflow-y-auto">
+                                                        <DialogHeader>
+                                                            <DialogTitle></DialogTitle>
+                                                        </DialogHeader>
+                                                        <div className="w-full">
+                                                            {formType === 'BIRTH' && (
+                                                                <BirthCertificateFormCTC
+                                                                formData={formData!}
+                                                                
+                                                                />
+                                                            )}
+                                                            {formType === 'DEATH' && (
+                                                                <DeathCertificateFormCTC />
+                                                            )}
+                                                            {formType === 'MARRIAGE' && (
+                                                                <MarriageCertificateFormCTC />
+                                                            )}
+                                                        </div>
+                                                    </DialogContent>
+                                                </Dialog>
+
                                             </div>
                                         </TableCell>
                                     </TableRow>
