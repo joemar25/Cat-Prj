@@ -291,17 +291,6 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                     </Button>
                                                 )}
 
-                                                <Button
-                                                    onClick={() => handleIssueCertificate()}
-                                                    variant="secondary"
-                                                    size="sm"
-                                                >
-                                                    <Icons.files className="mr-2 h-4 w-4" />
-                                                    {t('issueCertificateAno')}
-                                                </Button>
-
-
-
 
                                                 <Dialog>
                                                     <DialogTrigger asChild>
@@ -327,6 +316,17 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                         </div>
                                                     </DialogContent>
                                                 </Dialog>
+
+
+                                                <Button
+                                                    onClick={() => handleIssueCertificate()}
+                                                    variant="secondary"
+                                                    size="sm"
+                                                >
+                                                    <Icons.files className="mr-2 h-4 w-4" />
+                                                    {t('issueCertificateAno')}
+                                                </Button>
+
 
                                             </div>
                                         </TableCell>
