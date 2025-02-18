@@ -8,9 +8,10 @@ import { DataTable } from '@/components/custom/users/data-table'
 
 interface UsersTableClientProps {
     users: UserWithRoleAndProfile[]
+    role?: string
 }
 
-export function UsersTableClient({ users: initialUsers }: UsersTableClientProps) {
+export function UsersTableClient({ users: initialUsers, role }: UsersTableClientProps) {
     const { data: session } = useSession()
     const [users, setUsers] = useState<UserWithRoleAndProfile[]>(initialUsers)
 
@@ -29,5 +30,5 @@ export function UsersTableClient({ users: initialUsers }: UsersTableClientProps)
     // Pass both callbacks into your columns or row actions
     const columns = createColumns(session ?? null, handleUserUpdate, handleUserDelete)
 
-    return <DataTable data={users} columns={columns} selection={false} />
+    return <DataTable data={users} columns={columns} selection={false} role={role} />
 }

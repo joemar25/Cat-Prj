@@ -41,6 +41,7 @@ import { Permission } from '@prisma/client'
 
 interface AddUserDialogProps {
   onSuccess?: () => void
+  role?: string
 }
 
 function generateSecurePassword() {
@@ -65,7 +66,7 @@ function generateSecurePassword() {
   return password.split('').sort(() => Math.random() - 0.5).join('')
 }
 
-export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
+export function AddUserDialog({ onSuccess, role }: AddUserDialogProps) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -80,7 +81,7 @@ export function AddUserDialog({ onSuccess }: AddUserDialogProps) {
       email: '',
       password: '',
       confirmPassword: '',
-      roleId: undefined,
+      roleId: role || undefined,
       dateOfBirth: '',
       phoneNumber: '',
       address: '',

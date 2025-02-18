@@ -110,7 +110,7 @@ export const ReportComponent = <T extends ReportData[number]>({
                         renderTableRowAction={renderTableRowAction}
                     />
                 ) : (
-                    <CardContent className=" text-yellow-600 bg-yellow-50 rounded-md">
+                    <CardContent className="my-4 rounded-md">
                         No data found for the selected period.
                     </CardContent>
                 )}

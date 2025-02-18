@@ -42,6 +42,7 @@ interface DataTableProps<TData extends User> {
     data: TData[]
     searchKey?: string
     selection?: boolean
+    role?: string
 }
 
 // Update the DataTable component to use the constrained generic type
@@ -49,6 +50,7 @@ export function DataTable<TData extends User>({
     columns,
     data,
     selection = true,
+    role,
 }: DataTableProps<TData>) {
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -79,7 +81,7 @@ export function DataTable<TData extends User>({
 
     return (
         <div className='space-y-4'>
-            <DataTableToolbar table={table} />
+            <DataTableToolbar table={table} role={role} />
             <div className='rounded-md border bg-popover shadow-md'>
                 <Table>
                     <TableHeader>

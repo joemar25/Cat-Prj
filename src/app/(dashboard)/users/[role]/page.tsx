@@ -105,6 +105,12 @@ export default async function UsersPage({ params }: { params: { role: string } }
     )
   }
 
+  // Retrieve the role id based on the role name
+  const roleData = await prisma.role.findUnique({
+    where: { name: roleName }
+  })
+  const roleId = roleData?.id || ''
+
   return (
     <>
       <DashboardHeader
@@ -116,7 +122,7 @@ export default async function UsersPage({ params }: { params: { role: string } }
 
       <div className="flex flex-1 flex-col gap-4 p-4">
         <Suspense fallback={<UsersTableSkeleton />}>
-          <UsersTableClient users={users} />
+          <UsersTableClient users={users} role={roleId} />
         </Suspense>
       </div>
     </>

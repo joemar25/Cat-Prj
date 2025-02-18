@@ -2,23 +2,22 @@
 
 import { useCallback } from 'react'
 import { User } from '@prisma/client'
+import { Permission } from '@prisma/client'
+import { hasPermission } from '@/types/auth'
 import { Icons } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { Table } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import { useUser } from '@/context/user-context'
 import { Cross2Icon } from '@radix-ui/react-icons'
+import { AddUserDialog } from './actions/add-user-dialog'
 import { DataTableViewOptions } from '@/components/custom/table/data-table-view-options'
 import { DataTableFacetedFilter } from '@/components/custom/table/data-table-faceted-filter'
-import { useTranslation } from 'react-i18next'
-import { AddUserDialog } from './actions/add-user-dialog'
-import { useUser } from '@/context/user-context'
-import { hasPermission } from '@/types/auth'
-import { Permission } from '@prisma/client'
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
-import * as Tooltip from '@radix-ui/react-tooltip'
 
 interface DataTableToolbarProps<TData extends User> {
   table: Table<TData>
+  role?: string
 }
 
 const verificationStatus = [
@@ -27,7 +26,7 @@ const verificationStatus = [
 ]
 
 export function DataTableToolbar<TData extends User>({
-  table,
+  table, role
 }: DataTableToolbarProps<TData>) {
   const { t } = useTranslation()
   const { permissions } = useUser()
@@ -54,23 +53,6 @@ export function DataTableToolbar<TData extends User>({
 
   return (
     <div className='relative'>
-      <Tooltip.Provider>
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <Icons.infoCircledIcon className="h-5 w-5 cursor-pointer left-2 -top-7 absolute" />
-          </Tooltip.Trigger>
-          <Tooltip.Content 
-            className="bg-white dark:bg-muted p-4 rounded shadow-lg max-w-md mt-20 z-50" 
-            side="right"
-          >
-            <AlertTitle>{t('summary_view_user')}</AlertTitle> {/* Translated title */}
-            <AlertDescription>
-              {t('dashboard_description_user')} {/* Translated description */}
-            </AlertDescription>
-          </Tooltip.Content>
-        </Tooltip.Root>
-      </Tooltip.Provider>
-
       <div className="flex items-center justify-between mt-4">
         <div className="flex flex-1 items-center space-x-4">
           <div className="relative">
@@ -116,6 +98,7 @@ export function DataTableToolbar<TData extends User>({
                 table.resetColumnFilters()
                 table.resetSorting()
               }}
+              role={role}
             />
           )}
 

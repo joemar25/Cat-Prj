@@ -1,9 +1,14 @@
 // prisma/seed.ts
 import { hash } from 'bcryptjs'
 import { generateTestData } from './seed-data'
-import { Permission, PrismaClient } from '@prisma/client'
+import { Permission, PrismaClient, Prisma } from '@prisma/client'
 
 const prisma = new PrismaClient()
+
+// Define a type alias for users that include their roles.
+type UserWithRole = Prisma.UserGetPayload<{
+  include: { roles: { include: { role: true } } }
+}>
 
 async function main() {
   console.log('Starting database seeding...')
@@ -11,6 +16,7 @@ async function main() {
   // ----------------------------
   // Seed Roles & Permissions
   // ----------------------------
+  // Base roles always created (production & development)
   const roleConfigs = [
     {
       name: 'Super Admin',
@@ -66,41 +72,46 @@ async function main() {
         Permission.FEEDBACK_EXPORT,
       ],
     },
-    {
-      name: 'Registrar Officer',
-      description: 'Handles document registration and verification',
-      permissions: [
-        Permission.DOCUMENT_CREATE,
-        Permission.DOCUMENT_READ,
-        Permission.DOCUMENT_UPDATE,
-        Permission.DOCUMENT_VERIFY,
-        Permission.DOCUMENT_EXPORT,
-        Permission.REPORT_READ,
-      ],
-    },
-    {
-      name: 'Records Officer',
-      description: 'Manages document archiving and retrieval',
-      permissions: [
-        Permission.DOCUMENT_READ,
-        Permission.DOCUMENT_UPDATE,
-        Permission.REPORT_READ,
-      ],
-    },
-    {
-      name: 'Verification Officer',
-      description: 'Handles document verification and authentication',
-      permissions: [Permission.DOCUMENT_VERIFY, Permission.REPORT_READ],
-    },
-    {
-      name: 'Clerk',
-      description: 'Performs data entry and administrative support',
-      permissions: [Permission.DOCUMENT_READ, Permission.REPORT_READ],
-    },
   ]
 
+  // In non-production environments, add additional roles.
+  if (process.env.NEXT_PUBLIC_NODE_ENV !== 'production') {
+    roleConfigs.push(
+      {
+        name: 'Registrar Officer',
+        description: 'Handles document registration and verification',
+        permissions: [
+          Permission.DOCUMENT_CREATE,
+          Permission.DOCUMENT_READ,
+          Permission.DOCUMENT_UPDATE,
+          Permission.DOCUMENT_VERIFY,
+          Permission.DOCUMENT_EXPORT,
+          Permission.REPORT_READ,
+        ],
+      },
+      {
+        name: 'Records Officer',
+        description: 'Manages document archiving and retrieval',
+        permissions: [
+          Permission.DOCUMENT_READ,
+          Permission.DOCUMENT_UPDATE,
+          Permission.REPORT_READ,
+        ],
+      },
+      {
+        name: 'Verification Officer',
+        description: 'Handles document verification and authentication',
+        permissions: [Permission.DOCUMENT_VERIFY, Permission.REPORT_READ],
+      },
+      {
+        name: 'Clerk',
+        description: 'Performs data entry and administrative support',
+        permissions: [Permission.DOCUMENT_READ, Permission.REPORT_READ],
+      }
+    )
+  }
+
   // Upsert each role with its permissions.
-  // Note: We now pass both "permission" and the required "roleName"
   for (const config of roleConfigs) {
     await prisma.role.upsert({
       where: { name: config.name },
@@ -137,9 +148,7 @@ async function main() {
   })
 
   if (existingUsers.length > 0) {
-    console.log(
-      `Found ${existingUsers.length} existing users. Reusing them...`
-    )
+    console.log(`Found ${existingUsers.length} existing users. Reusing them...`)
     existingUsers.forEach((user) => userIds.push(user.id))
   } else {
     // Helper function to create users for a given role.
@@ -148,7 +157,7 @@ async function main() {
       roleName: string,
       emailPrefix: string,
       domain: string
-    ) => {
+    ): Promise<UserWithRole[]> => {
       return Promise.all(
         Array(count)
           .fill(null)
@@ -162,7 +171,7 @@ async function main() {
                 name: `${roleName} ${index + 1}`,
                 emailVerified: true,
                 active: true,
-                // Use non-null assertion because we throw error if required roles are missing.
+                // Non-null assertion is safe here because we throw if required roles are missing.
                 roles: { create: { roleId: roleMap[roleName]! } },
                 username: `${emailPrefix}${index + 1}`,
                 accounts: {
@@ -183,42 +192,35 @@ async function main() {
       )
     }
 
-    const superAdmins = await createUsers(
-      2,
-      'Super Admin',
-      'superadmin',
-      'gov.ph'
-    )
-    const admins = await createUsers(3, 'Admin', 'admin', 'gov.ph')
-    const registrars = await createUsers(
-      3,
-      'Registrar Officer',
-      'registrar',
-      'gov.ph'
-    )
-    const recordsOfficers = await createUsers(
-      3,
-      'Records Officer',
-      'records',
-      'gov.ph'
-    )
-    const verificationOfficers = await createUsers(
-      3,
-      'Verification Officer',
-      'verification',
-      'gov.ph'
-    )
-    const clerks = await createUsers(3, 'Clerk', 'clerk', 'gov.ph')
+    // Create users for the core roles.
+    const superAdmins = await createUsers(1, 'Super Admin', 'superadmin', 'gov.ph')
+    const admins = await createUsers(2, 'Admin', 'admin', 'gov.ph')
 
-    console.log('Created new users:');
-    [
+    // Declare arrays for additional roles with explicit types.
+    let registrars: UserWithRole[] = []
+    let recordsOfficers: UserWithRole[] = []
+    let verificationOfficers: UserWithRole[] = []
+    let clerks: UserWithRole[] = []
+
+    if (process.env.NEXT_PUBLIC_NODE_ENV !== 'production') {
+      registrars = await createUsers(3, 'Registrar Officer', 'registrar', 'gov.ph')
+      recordsOfficers = await createUsers(3, 'Records Officer', 'records', 'gov.ph')
+      verificationOfficers = await createUsers(3, 'Verification Officer', 'verification', 'gov.ph')
+      clerks = await createUsers(3, 'Clerk', 'clerk', 'gov.ph')
+    }
+
+    // Combine all newly created users for logging.
+    const allUsers: UserWithRole[] = [
       ...superAdmins,
       ...admins,
       ...registrars,
       ...recordsOfficers,
       ...verificationOfficers,
       ...clerks,
-    ].forEach((user) => {
+    ]
+
+    console.log('Created new users:')
+    allUsers.forEach((user) => {
       console.log(
         `- ${user.roles[0]?.role?.name ?? 'No Role'}: ${user.email} / password`
       )
@@ -237,9 +239,9 @@ async function main() {
     userId: user.id,
     dateOfBirth: new Date('1990-01-01'),
     phoneNumber: '+639123456789',
-    address: 'Manila City Hall',
-    city: 'Manila',
-    state: 'Metro Manila',
+    address: 'Legazpi City',
+    city: 'Legazpi City',
+    state: 'Legazpi City',
     country: 'Philippines',
     postalCode: '1000',
     occupation: user.roles[0]?.role?.name ?? '',

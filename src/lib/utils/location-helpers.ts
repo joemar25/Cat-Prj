@@ -1,14 +1,14 @@
-// src\lib\utils\location-helpers.ts
+// src/lib/utils/location-helpers.ts
 import ncrDataFile from '@/lib/jsons/ncr_data.json'
 import barangaysData from '@/lib/jsons/barangays.json'
 import provincesData from '@/lib/jsons/provinces.json'
 import citiesMunicipalitiesData from '@/lib/jsons/cities_municipalities.json'
 
 /**
- * 
- * Will always follow this order `${houseNo}, ${street}, ${barangay}, ${cityMunicipality}, ${province}, Philippines` as json file submission of addresses
- * 
- * */
+ * Will always follow this order:
+ * `${houseNo}, ${street}, ${barangay}, ${cityMunicipality}, ${province}, Philippines`
+ * as json file submission of addresses.
+ */
 
 export const COUNTRY = 'Philippines'
 
@@ -87,8 +87,8 @@ export function getCachedCitySuggestions(
     // In NCR mode, get cities and districts
     const ncrCities = ncrData.cities
       .filter((city) => {
-        // Include all cities except City of Manila, but include its districts
-        if (city.psgc_id === '1380600000') return false // Exclude City of Manila
+        // Exclude City of Manila but include its districts
+        if (city.psgc_id === '1380600000') return false
         if (city.geographic_level === 'SubMun') {
           // Include districts of Manila
           return city.psgc_id.startsWith('138060')
@@ -100,10 +100,10 @@ export function getCachedCitySuggestions(
         psgc_id: city.psgc_id,
         name:
           city.geographic_level === 'SubMun'
-            ? `${city.name}, Manila City` // Add "Manila City" to district names
+            ? `${city.name}, Manila City`
             : city.name,
-        geographic_level: city.geographic_level,
         correspondence_code: city.correspondence_code,
+        geographic_level: city.geographic_level,
         old_names: '',
         city_class: '',
         income_classification: '',
@@ -123,12 +123,12 @@ export function getCachedCitySuggestions(
       selectedProvince.correspondence_code.substring(0, 4)
 
     // Filter cities based on correspondence_code matching
-    filteredCities = citiesMunicipalities.filter((city) => {
-      return city.correspondence_code.startsWith(provinceCorrespondencePrefix)
-    })
+    filteredCities = citiesMunicipalities.filter((city) =>
+      city.correspondence_code.startsWith(provinceCorrespondencePrefix)
+    )
   }
 
-  // Sort the suggestions by name
+  // Sort the suggestions by name and format for display
   const suggestions = filteredCities
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((city) => formatLocationForDisplay(city))
@@ -161,6 +161,33 @@ export function getAllCitiesMunicipalities(isNCRMode: boolean = false): City[] {
 export function getBarangaysByLocation(cityId: string): Barangay[] {
   const parentId = cityId.substring(0, 7)
   return barangays.filter((barangay) => barangay.psgc_id.startsWith(parentId))
+}
+
+// Cache for barangay suggestions based on cityId and search term.
+const barangayCache: { [key: string]: Barangay[] } = {}
+
+/**
+ * Get cached barangay suggestions for a specific city and search term.
+ * @param cityId The selected city's psgc_id.
+ * @param searchTerm The search term to filter barangays.
+ * @returns A list of matching Barangays.
+ */
+export function getCachedBarangaySuggestions(
+  cityId: string,
+  searchTerm: string = ''
+): Barangay[] {
+  const cacheKey = `${cityId}-${searchTerm.toLowerCase()}`
+  if (barangayCache[cacheKey]) {
+    return barangayCache[cacheKey]
+  }
+  // Get all barangays for the given city.
+  const allBarangays = getBarangaysByLocation(cityId)
+  // Filter by the search term.
+  const suggestions = allBarangays.filter((barangay) =>
+    barangay.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  barangayCache[cacheKey] = suggestions
+  return suggestions
 }
 
 // Format a city/municipality for display as a suggestion.
