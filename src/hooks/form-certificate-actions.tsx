@@ -3,6 +3,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
+import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { DocumentStatus, FormType, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
@@ -715,6 +716,220 @@ export async function submitBirthCertificateForm(
         error instanceof Error
           ? error.message
           : 'Failed to submit birth certificate form',
+    };
+  }
+}
+
+export async function submitDeathCertificateForm(
+  formData: DeathCertificateFormValues
+) {
+  try {
+    if (!formData) {
+      throw new Error('No form data provided');
+    }
+
+    return await prisma.$transaction(
+      async (tx) => {
+        // 1. Find the preparedBy user by name.
+        const preparedByUser = await tx.user.findFirst({
+          where: {
+            name: formData.preparedBy.nameInPrint,
+          },
+        });
+
+        if (!preparedByUser) {
+          throw new Error(
+            `No user found with name: ${formData.preparedBy.nameInPrint}`
+          );
+        }
+
+        // 2. Generate the next book and page numbers with collision checking.
+        async function getNextBookAndPage(): Promise<{
+          bookNumber: string;
+          pageNumber: string;
+        }> {
+          const latestForm = await tx.baseRegistryForm.findFirst({
+            where: {
+              formType: FormType.DEATH,
+              province: formData.province,
+              cityMunicipality: formData.cityMunicipality,
+            },
+            orderBy: [{ bookNumber: 'desc' }, { pageNumber: 'desc' }],
+          });
+
+          if (!latestForm) {
+            return { bookNumber: '1', pageNumber: '1' };
+          }
+
+          let currentPage = parseInt(latestForm.pageNumber, 10);
+          let currentBook = parseInt(latestForm.bookNumber, 10);
+
+          if (currentPage >= PAGES_PER_BOOK) {
+            currentBook++;
+            currentPage = 1;
+          } else {
+            currentPage++;
+          }
+
+          // Collision check:
+          const existingEntry = await tx.baseRegistryForm.findFirst({
+            where: {
+              formType: FormType.DEATH,
+              province: formData.province,
+              cityMunicipality: formData.cityMunicipality,
+              bookNumber: currentBook.toString(),
+              pageNumber: currentPage.toString(),
+            },
+          });
+
+          if (existingEntry) {
+            return getNextBookAndPage();
+          }
+
+          return {
+            bookNumber: currentBook.toString(),
+            pageNumber: currentPage.toString(),
+          };
+        }
+
+        const { bookNumber, pageNumber } = await getNextBookAndPage();
+
+        // 3. Create the BaseRegistryForm record.
+        const baseForm = await tx.baseRegistryForm.create({
+          data: {
+            formNumber: '103', // For death certificates.
+            formType: FormType.DEATH,
+            registryNumber: formData.registryNumber,
+            province: formData.province,
+            cityMunicipality: formData.cityMunicipality,
+            pageNumber,
+            bookNumber,
+            dateOfRegistration: new Date(),
+            isLateRegistered: false, // Or use a form value if available.
+            status: DocumentStatus.PENDING,
+            preparedById: preparedByUser.id,
+            verifiedById: null,
+            preparedByName: formData.preparedBy.nameInPrint,
+            verifiedByName: null,
+            receivedBy: formData.receivedBy.nameInPrint,
+            receivedByPosition: formData.receivedBy.titleOrPosition,
+            receivedDate: formData.receivedBy.date,
+            registeredBy: formData.registeredByOffice.nameInPrint,
+            registeredByPosition: formData.registeredByOffice.titleOrPosition,
+            registrationDate: formData.registeredByOffice.date,
+            remarks: formData.remarks,
+          },
+        });
+
+        // 4. Narrow the union type for causesOfDeath.
+        const causes = formData.medicalCertificate.causesOfDeath;
+        const standardCauses = 'immediate' in causes ? causes : undefined;
+        const deathIntervalValue = standardCauses
+          ? standardCauses.immediate
+          : undefined;
+        const infantDeathDetailsValue =
+          'mainDiseaseOfInfant' in causes ? causes : undefined;
+
+        // 5. Create the DeathCertificateForm record.
+        await tx.deathCertificateForm.create({
+          data: {
+            baseFormId: baseForm.id,
+            // Deceased Information
+            deceasedName: formData.name,
+            sex: formData.sex,
+            dateOfDeath: formData.dateOfDeath,
+            placeOfDeath: formData.placeOfDeath,
+            dateOfBirth: formData.dateOfBirth || null,
+            placeOfBirth: {}, // Adjust if needed.
+            civilStatus: formData.civilStatus,
+            religion: formData.religion || null,
+            citizenship: formData.citizenship,
+            residence: formData.residence,
+            occupation: formData.occupation || null,
+
+            // Parent Information
+            nameOfFather: formData.parents.fatherName,
+            nameOfMother: formData.parents.motherName,
+
+            // Causes of Death (from section 19b)
+            causesOfDeath: {
+              immediate: formData.causesOfDeath19b.immediate,
+              antecedent: formData.causesOfDeath19b.antecedent,
+              underlying: formData.causesOfDeath19b.underlying,
+              otherSignificantConditions:
+                formData.causesOfDeath19b.otherSignificantConditions,
+            },
+            // Use the narrowed value for deathInterval.
+            deathInterval:
+              deathIntervalValue !== undefined
+                ? deathIntervalValue
+                : Prisma.JsonNull,
+            pregnancy: null, // Adjust if your form includes this.
+            attendedByPhysician:
+              formData.medicalCertificate.attendant.type &&
+              formData.medicalCertificate.attendant.type !== 'NONE',
+            attendanceDuration: formData.medicalCertificate.attendant.duration,
+            mannerOfDeath:
+              formData.medicalCertificate.externalCauses.mannerOfDeath || null,
+            autopsyPerformed: formData.medicalCertificate.autopsy,
+            externalCause:
+              formData.medicalCertificate.externalCauses.placeOfOccurrence ||
+              null,
+            placeOfOccurrence:
+              formData.medicalCertificate.externalCauses.placeOfOccurrence ||
+              null,
+            certificationType: 'Standard', // Adjust if needed.
+            certifier: formData.certificationOfDeath,
+
+            // Disposal Information
+            disposalDetails: {
+              corpseDisposal: formData.corpseDisposal,
+              cemeteryOrCrematory: formData.cemeteryOrCrematory,
+            },
+
+            // Other Sections (stored as JSON)
+            informant: formData.informant,
+            preparer: formData.preparedBy,
+            burialPermit: formData.burialPermit,
+            transferPermit: formData.transferPermit,
+            cemeteryDetails: formData.cemeteryOrCrematory,
+            postmortemDetails: formData.postmortemCertificate,
+            embalmerDetails: formData.embalmerCertification,
+            infantDeathDetails:
+              infantDeathDetailsValue !== undefined
+                ? infantDeathDetailsValue
+                : Prisma.JsonNull,
+            maternalCondition: formData.medicalCertificate.maternalCondition,
+            delayedRegistration: formData.delayedRegistration,
+            ageAtDeath: formData.ageAtDeath, // Now stored in your model.
+            reviewedBy: formData.reviewedBy,
+          },
+        });
+
+        // 6. Revalidate the path (if using ISR).
+        revalidatePath('/civil-registry');
+
+        return {
+          success: true,
+          message: 'Death certificate submitted successfully',
+          data: {
+            baseFormId: baseForm.id,
+            bookNumber,
+            pageNumber,
+          },
+        };
+      },
+      {
+        maxWait: 10000,
+        timeout: 30000,
+      }
+    );
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to submit death certificate form',
     };
   }
 }

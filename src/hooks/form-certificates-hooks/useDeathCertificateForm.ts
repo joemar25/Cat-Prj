@@ -1,3 +1,4 @@
+import { submitDeathCertificateForm } from '@/hooks/form-certificate-actions';
 import {
   DeathCertificateFormValues,
   deathCertificateFormSchema,
@@ -151,8 +152,7 @@ export function useDeathCertificateForm({
       // Certificates
       postmortemCertificate: undefined,
       embalmerCertification: undefined,
-
-      // Delayed Registration - now pre-filled with blank defaults
+      // Delayed Registration - pre-filled with blank defaults
       delayedRegistration: {
         affiant: {
           name: '',
@@ -189,7 +189,6 @@ export function useDeathCertificateForm({
           issuedAt: '',
         },
       },
-
       // Disposal Information
       corpseDisposal: '',
       burialPermit: {
@@ -247,13 +246,16 @@ export function useDeathCertificateForm({
   });
 
   const onSubmit = async (data: DeathCertificateFormValues) => {
-    console.log('Valid submission:', data);
-    toast.success('Form validated successfully');
-    onOpenChange?.(false);
+    try {
+      await submitDeathCertificateForm(data);
+      toast.success('Form submitted successfully');
+      onOpenChange?.(false);
+    } catch {
+      toast.error('Submission failed, please try again');
+    }
   };
 
   const handleError = (errors: any) => {
-    console.log('Form Validation Errors:', JSON.stringify(errors, null, 2));
     toast.error('Please check form for errors');
   };
 
