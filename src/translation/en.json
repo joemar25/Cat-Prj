@@ -2,6 +2,7 @@
   "summary_view": "Summary View",
   "dashboard_description": "This dashboard provides a summary of the charts and metrics. For more detailed reports or to generate custom reports, navigate to the",
   "reports_section": "Reports section",
+  "No forms have been added yet": "No forms have been added yet",
   "metrics": {
     "total_registrations": "Total Registrations",
     "birth_certificates": "Birth Certificates",
@@ -242,6 +243,16 @@
     "username": "Username",
     "id": "ID",
     "no_username": "No username",
+    "selected_rows": "{{selected}} of {{total}} row(s) selected.",
+    "no_rows_selected": "No rows selected.",
+    "rows_per_page": "Rows per page",
+    "page_info": "Page {{current}} of {{total}}",
+    "go_to_first_page": "Go to first page",
+    "go_to_previous_page": "Go to previous page",
+    "go_to_next_page": "Go to next page",
+    "go_to_last_page": "Go to last page"
+  },
+  "datatable": {
     "selected_rows": "{{selected}} of {{total}} row(s) selected.",
     "no_rows_selected": "No rows selected.",
     "rows_per_page": "Rows per page",

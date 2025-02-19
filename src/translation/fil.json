@@ -2,6 +2,7 @@
   "summary_view": "Buod ng Tanawin",
   "dashboard_description": "Ang dashboard na ito ay nagbibigay ng buod ng mga tsart at metrics. Para sa mas detalyadong mga ulat o upang makabuo ng mga pasadyang ulat, pumunta sa",
   "reports_section": "Seksyon ng Mga Ulat",
+  "No forms have been added yet": "Wala pang naidagdag na mga form",
   "metrics": {
     "total_registrations": "Kabuuang Mga Rehistro",
     "birth_certificates": "Mga Sertipiko ng Kapanganakan",
@@ -227,6 +228,16 @@
     "scan": "I-scan",
     "upload": "I-upload",
     "export": "I-export"
+  },
+  "datatable": {
+    "selected_rows": " {{selected}} ng {{total}} na mga hilera ang napili.",
+    "no_rows_selected": "Walang napiling hilera.",
+    "rows_per_page": "Mga hilera bawat pahina",
+    "page_info": "Pahina {{current}} ng {{total}}",
+    "go_to_first_page": "Pumunta sa unang pahina",
+    "go_to_previous_page": "Pumunta sa nakaraang pahina",
+    "go_to_next_page": "Pumunta sa susunod na pahina",
+    "go_to_last_page": "Pumunta sa huling pahina"
   },
   "dataTable": {
     "user": "User",
