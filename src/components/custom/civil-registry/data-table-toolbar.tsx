@@ -3,18 +3,19 @@
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { ComponentType } from "react"
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { DateRange } from "react-day-picker"
 import { hasPermission } from "@/types/auth"
 import { Icons } from "@/components/ui/icons"
 import { Table } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label" // <-- Make sure you have this component available
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@/context/user-context"
 import { Cross2Icon } from "@radix-ui/react-icons"
-import { CardContent } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Calendar } from "@/components/ui/calendar"
 import { ExtendedBaseRegistryForm } from "./columns"
 import { FormType, Permission } from "@prisma/client"
@@ -54,7 +55,6 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const [middleNameSearch, setMiddleNameSearch] = useState<string>("")
   const [lastNameSearch, setLastNameSearch] = useState<string>("")
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
-  const [activeTab, setActiveTab] = useState<string | null>(null)
 
   const formTypeColumn = table.getColumn("formType")
   const preparedByColumn = table.getColumn("preparedBy")
@@ -66,17 +66,18 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const detailsColumn = table.getColumn("details")
   const canAdd = hasPermission(permissions, Permission.DOCUMENT_CREATE)
 
+  // Control which columns are visible by default
   useEffect(() => {
     const defaultVisibleColumns = [
-      'formType',
-      'registryDetails',
-      'details',
-      'preparedBy',
-      'verifiedBy',
-      'registeredBy',
-      'status',
-      'createdAt',
-      'hasCTC',
+      "formType",
+      "registryDetails",
+      "details",
+      "preparedBy",
+      "verifiedBy",
+      "registeredBy",
+      "status",
+      "createdAt",
+      "hasCTC",
     ]
 
     table.getAllColumns().forEach((column) => {
@@ -88,6 +89,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     })
   }, [table])
 
+  // Collect unique years from the table data
   useEffect(() => {
     const rows = table.getFilteredRowModel().rows
     const uniqueYears = new Set<number>()
@@ -141,6 +143,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     icon: Icons.user,
   }))
 
+  // Handlers for search fields
   const handlePageSearch = (value: string) => {
     setPageSearch(value)
     if (registryDetailsColumn) {
@@ -161,6 +164,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     }
   }
 
+  // For date range filtering
   const handleDateRangeSelect = (range: DateRange | undefined) => {
     setDateRange(range)
     if (createdAtColumn) {
@@ -172,17 +176,18 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     }
   }
 
+  // Reset all filters
   const handleReset = () => {
     table.resetColumnFilters()
     setDateRange(undefined)
     setPageSearch("")
     setBookSearch("")
+    setFirstNameSearch("")
+    setMiddleNameSearch("")
+    setLastNameSearch("")
   }
 
-  const handleToggleTab = (tab: string) => {
-    setActiveTab((prev) => (prev === tab ? null : tab))
-  }
-
+  // Refresh the page (or re-fetch data)
   const handleRefresh = () => {
     setIsRefreshing(true)
     router.refresh()
@@ -193,107 +198,148 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 
   return (
     <div className="space-y-4 relative">
+      <Card>
+        <CardContent className="space-y-6">
+          {/* SEARCH FIELDS */}
+          <div className="w-full max-w-5xl py-4 mx-auto">
+            <div className="grid grid-cols-3 gap-4">
+              {/* Global Search */}
+              <div className="flex flex-col">
+                <Label htmlFor="globalSearch" className="text-sm font-medium">
+                  {t("Global Search")}
+                </Label>
+                <div className="relative mt-1">
+                  <Icons.search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="globalSearch"
+                    placeholder={t("Search forms...")}
+                    className="pl-8"
+                    onChange={(e) => table.setGlobalFilter(e.target.value)}
+                  />
+                </div>
+              </div>
 
-      <div className="flex flex-col sm:flex-row">
-        <div className="flex-1">
-          <CardContent className="p-2.5">
-            <div className="flex items-center justify-center w-full">
-              <div className={`flex gap-6 justify-center w-full max-w-[1000px] ${activeTab === null ? "" : "h-12"}`}>
-                <button
-                  className={`hover:border-chart-2/50 dark:hover:border-chart-3 w-full max-h-9 flex items-center justify-center text-center rounded-lg p-2 transition-all
-        ${activeTab === "basic" ? "rounded-md bg-chart-3 text-white border border-chart-2/50 dark:border-chart-3" : "border"}`}
-                  onClick={() => handleToggleTab("basic")}
-                >
-                  {t("Basic Search")}
-                </button>
-                <button
-                  className={`hover:border-chart-2/50 dark:hover:border-chart-3 w-full max-h-9 flex items-center justify-center text-center rounded-lg p-2 transition-all
-        ${activeTab === "advanced" ? "rounded-md bg-chart-3 text-white border border-chart-2/50 dark:border-chart-3" : "border"}`}
-                  onClick={() => handleToggleTab("advanced")}
-                >
-                  {t("Name Search")}
-                </button>
+              {/* Page Number */}
+              <div className="flex flex-col">
+                <Label htmlFor="pageNumber" className="text-sm font-medium">
+                  {t("Page number")}
+                </Label>
+                <div className="relative mt-1">
+                  <Icons.hash className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="pageNumber"
+                    placeholder={t("Enter page #")}
+                    className="pl-8"
+                    value={pageSearch}
+                    onChange={(e) => handlePageSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Book Number */}
+              <div className="flex flex-col">
+                <Label htmlFor="bookNumber" className="text-sm font-medium">
+                  {t("Book number")}
+                </Label>
+                <div className="relative mt-1">
+                  <Icons.book className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="bookNumber"
+                    placeholder={t("Enter book #")}
+                    className="pl-8"
+                    value={bookSearch}
+                    onChange={(e) => handleBookSearch(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Basic Search Input Fields */}
-            {activeTab === "basic" && (
-              <div className="grid gap-4 md:grid-cols-3">
-                <Input
-                  placeholder={t("Search forms...")}
-                  onChange={(event) => table.setGlobalFilter(event.target.value)}
-                  className="w-full h-8.5"
-                />
-                <Input
-                  placeholder={t("Page number...")}
-                  value={pageSearch}
-                  onChange={(event) => handlePageSearch(event.target.value)}
-                  className="w-full h-8.5"
-                />
-                <Input
-                  placeholder={t("Book number...")}
-                  value={bookSearch}
-                  onChange={(event) => handleBookSearch(event.target.value)}
-                  className="w-full h-8.5"
-                />
+            <div className="grid grid-cols-3 gap-4 mt-4">
+              {/* First Name */}
+              <div className="flex flex-col">
+                <Label htmlFor="firstName" className="text-sm font-medium">
+                  {t("First name")}
+                </Label>
+                <div className="relative mt-1">
+                  <Icons.user className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="firstName"
+                    placeholder={t("Enter first name")}
+                    className="pl-8"
+                    value={firstNameSearch}
+                    onChange={(e) => {
+                      setFirstNameSearch(e.target.value)
+                      if (detailsColumn) {
+                        detailsColumn.setFilterValue([
+                          e.target.value,
+                          middleNameSearch,
+                          lastNameSearch,
+                        ])
+                      }
+                    }}
+                  />
+                </div>
               </div>
-            )}
 
-            {/* Advanced Search Input Fields */}
-            {activeTab === "advanced" && (
-              <div className="grid gap-4 md:grid-cols-3">
-                <Input
-                  placeholder={t("First name")}
-                  value={firstNameSearch}
-                  onChange={(event) => {
-                    setFirstNameSearch(event.target.value)
-                    if (detailsColumn) {
-                      detailsColumn.setFilterValue([
-                        event.target.value,
-                        middleNameSearch,
-                        lastNameSearch,
-                      ])
-                    }
-                  }}
-                  className="w-full h-8.5"
-                />
-                <Input
-                  placeholder={t("Middle name")}
-                  value={middleNameSearch}
-                  onChange={(event) => {
-                    setMiddleNameSearch(event.target.value)
-                    if (detailsColumn) {
-                      detailsColumn.setFilterValue([
-                        firstNameSearch,
-                        event.target.value,
-                        lastNameSearch,
-                      ])
-                    }
-                  }}
-                  className="w-full h-8.5"
-                />
-                <Input
-                  placeholder={t("Last name")}
-                  value={lastNameSearch}
-                  onChange={(event) => {
-                    setLastNameSearch(event.target.value)
-                    if (detailsColumn) {
-                      detailsColumn.setFilterValue([
-                        firstNameSearch,
-                        middleNameSearch,
-                        event.target.value,
-                      ])
-                    }
-                  }}
-                  className="w-full h-8.5"
-                />
+              {/* Middle Name */}
+              <div className="flex flex-col">
+                <Label htmlFor="middleName" className="text-sm font-medium">
+                  {t("Middle name")}
+                </Label>
+                <div className="relative mt-1">
+                  <Icons.user className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="middleName"
+                    placeholder={t("Enter middle name")}
+                    className="pl-8"
+                    value={middleNameSearch}
+                    onChange={(e) => {
+                      setMiddleNameSearch(e.target.value)
+                      if (detailsColumn) {
+                        detailsColumn.setFilterValue([
+                          firstNameSearch,
+                          e.target.value,
+                          lastNameSearch,
+                        ])
+                      }
+                    }}
+                  />
+                </div>
               </div>
-            )}
-          </CardContent>
-        </div>
-      </div>
 
+              {/* Last Name */}
+              <div className="flex flex-col">
+                <Label htmlFor="lastName" className="text-sm font-medium">
+                  {t("Last name")}
+                </Label>
+                <div className="relative mt-1">
+                  <Icons.user className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="lastName"
+                    placeholder={t("Enter last name")}
+                    className="pl-8"
+                    value={lastNameSearch}
+                    onChange={(e) => {
+                      setLastNameSearch(e.target.value)
+                      if (detailsColumn) {
+                        detailsColumn.setFilterValue([
+                          firstNameSearch,
+                          middleNameSearch,
+                          e.target.value,
+                        ])
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* FACETED FILTERS AND CONTROLS */}
       <div className="flex flex-wrap gap-2 justify-between items-center">
+        {/* LEFT SIDE: Faceted filters */}
         <div className="flex flex-wrap gap-2">
           {formTypeColumn && (
             <DataTableFacetedFilter
@@ -339,6 +385,8 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               options={verifierOptions}
             />
           )}
+
+          {/* DATE RANGE PICKER */}
           <div className="flex gap-2 items-start">
             <Popover>
               <PopoverTrigger asChild>
@@ -376,6 +424,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               </PopoverContent>
             </Popover>
 
+            {/* RESET BUTTON (only visible if filters are applied) */}
             {isFiltered && (
               <Button variant="ghost" onClick={handleReset} size="sm">
                 {t("Reset")}
@@ -385,6 +434,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
           </div>
         </div>
 
+        {/* RIGHT SIDE: Add, View options, and Refresh */}
         <div className="flex items-center gap-4">
           {canAdd && (
             <div className="flex items-center gap-2">
@@ -396,7 +446,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 
           <Button variant="outline" onClick={handleRefresh}>
             <Icons.refresh
-              className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+              className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
             />
           </Button>
         </div>
