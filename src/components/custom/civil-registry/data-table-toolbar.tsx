@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { ComponentType } from "react"
+import { useRouter } from 'next/navigation'
 import { useState, useEffect } from "react"
 import { DateRange } from "react-day-picker"
 import { hasPermission } from "@/types/auth"
@@ -17,12 +18,10 @@ import { CardContent } from "@/components/ui/card"
 import { Calendar } from "@/components/ui/calendar"
 import { ExtendedBaseRegistryForm } from "./columns"
 import { FormType, Permission } from "@prisma/client"
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { DataTableViewOptions } from "@/components/custom/table/data-table-view-options"
 import { DataTableFacetedFilter } from "@/components/custom/table/data-table-faceted-filter"
 import { AddCivilRegistryFormDialog } from "@/components/custom/civil-registry/actions/add-form-dialog"
-import * as Tooltip from "@radix-ui/react-tooltip"
 
 interface DataTableToolbarProps {
   table: Table<ExtendedBaseRegistryForm>
@@ -37,7 +36,10 @@ const formTypes = [
 export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const { t } = useTranslation()
   const { permissions } = useUser()
+
+  const router = useRouter()
   const isFiltered = table.getState().columnFilters.length > 0
+
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [availableYears, setAvailableYears] = useState<
     Array<{
@@ -51,6 +53,8 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const [firstNameSearch, setFirstNameSearch] = useState<string>("")
   const [middleNameSearch, setMiddleNameSearch] = useState<string>("")
   const [lastNameSearch, setLastNameSearch] = useState<string>("")
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
+  const [activeTab, setActiveTab] = useState<string | null>(null)
 
   const formTypeColumn = table.getColumn("formType")
   const preparedByColumn = table.getColumn("preparedBy")
@@ -61,8 +65,6 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const registryDetailsColumn = table.getColumn("registryDetails")
   const detailsColumn = table.getColumn("details")
   const canAdd = hasPermission(permissions, Permission.DOCUMENT_CREATE)
-
-  const [activeTab, setActiveTab] = useState<string | null>(null)
 
   useEffect(() => {
     const defaultVisibleColumns = [
@@ -181,25 +183,16 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     setActiveTab((prev) => (prev === tab ? null : tab))
   }
 
+  const handleRefresh = () => {
+    setIsRefreshing(true)
+    router.refresh()
+    setTimeout(() => {
+      setIsRefreshing(false)
+    }, 1000)
+  }
+
   return (
     <div className="space-y-4 relative">
-      <Tooltip.Provider>
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <Icons.infoCircledIcon className="h-5 w-5 cursor-pointer absolute -top-2 left-2" />
-          </Tooltip.Trigger>
-          <Tooltip.Content
-            className="bg-white dark:bg-muted p-4 rounded shadow-lg max-w-md z-50 mt-20"
-            side="right"
-          >
-            <AlertTitle>{t('summary_view_civil')}</AlertTitle>
-            <AlertDescription>
-              {t('dashboard_description_civil')}
-            </AlertDescription>
-          </Tooltip.Content>
-        </Tooltip.Root>
-      </Tooltip.Provider>
-
 
       <div className="flex flex-col sm:flex-row">
         <div className="flex-1">
@@ -400,6 +393,12 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
           )}
 
           <DataTableViewOptions table={table} />
+
+          <Button variant="outline" onClick={handleRefresh}>
+            <Icons.refresh
+              className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+            />
+          </Button>
         </div>
       </div>
     </div>

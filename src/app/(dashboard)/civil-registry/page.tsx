@@ -1,16 +1,15 @@
-import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header'
-import { DataTable } from '@/components/custom/civil-registry/data-table'
-import { columns } from '@/components/custom/civil-registry/columns'
+import { CivilRegistryDataTable } from '@/components/custom/civil-registry/civil-registry-data-table-client';
+import { DashboardHeader } from '@/components/custom/dashboard/dashboard-header';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { prisma } from '@/lib/prisma'
-import { Suspense } from 'react'
+} from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { prisma } from '@/lib/prisma';
+import { Suspense } from 'react';
 
 async function getCivilRegistryForms() {
   try {
@@ -28,23 +27,23 @@ async function getCivilRegistryForms() {
           include: {
             attachments: {
               include: { certifiedCopies: true },
-              orderBy: { updatedAt: 'desc' }, // Ensures latest attachment is first
+              orderBy: { updatedAt: 'desc' },
             },
           },
         },
       },
-    })
+    });
 
     // Safely check for certified copies
-    return forms.map(form => {
-      const latestAttachment = form.document?.attachments?.[0]
-      const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0
+    return forms.map((form) => {
+      const latestAttachment = form.document?.attachments?.[0];
+      const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0;
 
-      return { ...form, hasCTC }
-    })
+      return { ...form, hasCTC };
+    });
   } catch (error) {
-    console.error('Error fetching civil registry forms:', error)
-    return []
+    console.error('Error fetching civil registry forms:', error);
+    return [];
   }
 }
 
@@ -67,26 +66,26 @@ function CivilRegistryFormsTableSkeleton() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export default async function CivilRegistryPage() {
-  const forms = await getCivilRegistryForms()
+  const forms = await getCivilRegistryForms();
 
   return (
     <>
       <DashboardHeader
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard', active: false },
-          { label: 'Civil Registry', href: '/civil-registry', active: true }
+          { label: 'Civil Registry', href: '/civil-registry', active: true },
         ]}
       />
 
       <div className='flex flex-1 flex-col gap-4 p-4'>
         <Suspense fallback={<CivilRegistryFormsTableSkeleton />}>
-          <DataTable data={forms} columns={columns} selection={false} />
+          <CivilRegistryDataTable forms={forms} />
         </Suspense>
       </div>
     </>
-  )
+  );
 }

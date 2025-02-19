@@ -1,6 +1,5 @@
 'use client'
 
-
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -28,13 +27,14 @@ import {
 
 import { DataTablePagination } from '@/components/custom/table/data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
-import { Card, CardContent } from '@/components/ui/card'
-import { Icons } from '@/components/ui/icons'
+import { CardContent } from '@/components/ui/card'
 import { useTranslation } from 'react-i18next'
 import { useUser } from '@/context/user-context'
 import { hasPermission } from '@/types/auth'
 import { columns } from './columns'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import Lottie from 'lottie-react'
+import certificateAnimation from '@lottie/blue.json'
 
 type RoleValue = string | number | boolean | Date | null | undefined
 
@@ -50,12 +50,20 @@ export function DataTable<TData extends Role & { permissions: Permission[]; user
 }: DataTableProps<TData>) {
     const { t } = useTranslation()
     const { permissions } = useUser()
-    const [rowSelection, setRowSelection] = React.useState({})
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-    const [sorting, setSorting] = React.useState<SortingState>([])
+    const [rowSelection, setRowSelection] = useState({})
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+    const [sorting, setSorting] = useState<SortingState>([])
+    const [shake, setShake] = useState(false)
 
-    // Filter out the actions column if user doesn't have permission
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setShake((prev) => !prev)
+        }, 3000)
+
+        return () => clearInterval(interval)
+    }, [])
+
     const canViewDetails = hasPermission(permissions ?? [], Permission.ROLE_READ)
     const canEdit = hasPermission(permissions ?? [], Permission.ROLE_UPDATE)
     const canDelete = hasPermission(permissions ?? [], Permission.ROLE_DELETE)
@@ -129,12 +137,16 @@ export function DataTable<TData extends Role & { permissions: Permission[]; user
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={filteredColumns.length} className="h-24 text-center">
-                                    <Card className="mx-auto max-w-md">
+                                    <div className="mx-auto max-w-lg">
                                         <CardContent className="flex flex-col items-center space-y-4 p-6">
-                                            <div className="rounded-full bg-muted p-3">
-                                                <Icons.search className="h-6 w-6" />
+                                            <div className="w-40 h-40">
+                                                <Lottie animationData={certificateAnimation} loop autoplay className="w-full h-full" />
                                             </div>
-                                            <p className="text-lg font-semibold">
+                                            <p
+                                                className={`text-lg font-semibold transition-transform ${
+                                                    shake ? 'animate-[wiggle_0.4s_ease-in-out]' : ''
+                                                }`}
+                                            >
                                                 {t('No results found')}
                                             </p>
                                             <p className="text-sm text-muted-foreground">
@@ -143,7 +155,7 @@ export function DataTable<TData extends Role & { permissions: Permission[]; user
                                                     : t('No roles have been created yet')}
                                             </p>
                                         </CardContent>
-                                    </Card>
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         )}

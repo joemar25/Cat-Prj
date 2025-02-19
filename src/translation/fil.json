@@ -2,6 +2,7 @@
   "summary_view": "Buod ng Tanawin",
   "dashboard_description": "Ang dashboard na ito ay nagbibigay ng buod ng mga tsart at metrics. Para sa mas detalyadong mga ulat o upang makabuo ng mga pasadyang ulat, pumunta sa",
   "reports_section": "Seksyon ng Mga Ulat",
+  "No forms have been added yet": "Wala pang naidagdag na mga form",
   "metrics": {
     "total_registrations": "Kabuuang Mga Rehistro",
     "birth_certificates": "Mga Sertipiko ng Kapanganakan",
@@ -11,7 +12,7 @@
     "fetch_error": "Nabigo na makuha ang data ng metrics"
   },
   "greeting": {
-    "morning": "Magandang umage",
+    "morning": "Magandang umaga",
     "afternoon": "Magandang hapon",
     "evening": "Magandang gabi"
   },
@@ -147,16 +148,6 @@
     "registryNo": "Numero ng Rehistro",
     "status": "Katayuan"
   },
-  "datatable": {
-    "selected_rows": "{{selected}} ng {{total}} na hilera ang napili.",
-    "no_rows_selected": "Walang napiling hilera.",
-    "rows_per_page": "Mga hilera bawat pahina",
-    "page_info": "Pahina {{current}} ng {{total}}",
-    "go_to_first_page": "Pumunta sa unang pahina",
-    "go_to_previous_page": "Pumunta sa nakaraang pahina",
-    "go_to_next_page": "Pumunta sa susunod na pahina",
-    "go_to_last_page": "Pumunta sa huling pahina"
-  },
   "User": "Gumagamit",
   "user": "gumagamit",
   "Feedback": "Puna",
@@ -238,6 +229,16 @@
     "upload": "I-upload",
     "export": "I-export"
   },
+  "datatable": {
+    "selected_rows": " {{selected}} ng {{total}} na mga hilera ang napili.",
+    "no_rows_selected": "Walang napiling hilera.",
+    "rows_per_page": "Mga hilera bawat pahina",
+    "page_info": "Pahina {{current}} ng {{total}}",
+    "go_to_first_page": "Pumunta sa unang pahina",
+    "go_to_previous_page": "Pumunta sa nakaraang pahina",
+    "go_to_next_page": "Pumunta sa susunod na pahina",
+    "go_to_last_page": "Pumunta sa huling pahina"
+  },
   "dataTable": {
     "user": "User",
     "contact": "Kontak",
@@ -246,15 +247,23 @@
     "noPermissions": "Walang mga Pahintulot",
     "status": "Status",
     "activity": "Aktibidad",
-    "verified": "Naka-verify",
-    "unverified": "Hindi naka-verify",
+    "verified": "Naka-enabled",
+    "unverified": "Hindi naka-enabled",
     "created": "Nilikha",
     "updated": "Na-update",
     "morePermissions": "+{{count}} pang mga pahintulot",
     "allPermissions": "Lahat ng mga Pahintulot",
     "username": "Pangalan ng gumagamit",
     "id": "ID",
-    "no_username": "Walang username"
+    "no_username": "Walang username",
+    "selected_rows": "{{selected}} ng {{total}} na hilera ang napili.",
+    "no_rows_selected": "Walang napiling hilera.",
+    "rows_per_page": "Mga hilera bawat pahina",
+    "page_info": "Pahina {{current}} ng {{total}}",
+    "go_to_first_page": "Pumunta sa unang pahina",
+    "go_to_previous_page": "Pumunta sa nakaraang pahina",
+    "go_to_next_page": "Pumunta sa susunod na pahina",
+    "go_to_last_page": "Pumunta sa huling pahina"
   },
   "formSelection": {
     "issueCertificate": "Mag-isyu ng Sertipiko",

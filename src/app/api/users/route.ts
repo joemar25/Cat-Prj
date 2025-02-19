@@ -1,6 +1,6 @@
 // src/app/api/users/route.ts
-import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { NextResponse } from "next/server"
 
 export async function GET() {
     try {
@@ -9,13 +9,33 @@ export async function GET() {
                 id: true,
                 name: true,
                 email: true,
-                active: true
+                image: true,
+                username: true,
+                emailVerified: true,
+                active: true,
+                createdAt: true,
+                updatedAt: true,
+                roles: {
+                    select: {
+                        role: {
+                            select: {
+                                id: true,
+                                name: true,
+                                permissions: {
+                                    select: {
+                                        permission: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             },
             where: {
                 active: true
             },
             orderBy: {
-                name: 'asc'
+                updatedAt: 'desc'
             }
         })
 
@@ -28,4 +48,3 @@ export async function GET() {
         )
     }
 }
-

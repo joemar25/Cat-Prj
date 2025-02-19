@@ -126,7 +126,7 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
               {t('notifications')}
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem
+          {/* <DropdownMenuItem
             className="text-destructive focus:text-destructive cursor-pointer"
             onSelect={(e) => {
               e.preventDefault()
@@ -135,7 +135,7 @@ export function UserHeaderNav({ user }: UserHeaderNavProps) {
           >
             <Icons.logout className="mr-2 h-4 w-4" />
             {t('sign_out')}
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
 

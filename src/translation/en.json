@@ -2,6 +2,7 @@
   "summary_view": "Summary View",
   "dashboard_description": "This dashboard provides a summary of the charts and metrics. For more detailed reports or to generate custom reports, navigate to the",
   "reports_section": "Reports section",
+  "No forms have been added yet": "No forms have been added yet",
   "metrics": {
     "total_registrations": "Total Registrations",
     "birth_certificates": "Birth Certificates",
@@ -157,16 +158,6 @@
     "loadingForms": "Loading Forms",
     "fetchingForms": "Please wait while we fetch the civil registry forms..."
   },
-  "datatable": {
-    "selected_rows": "{{selected}} of {{total}} row(s) selected.",
-    "no_rows_selected": "No rows selected.",
-    "rows_per_page": "Rows per page",
-    "page_info": "Page {{current}} of {{total}}",
-    "go_to_first_page": "Go to first page",
-    "go_to_previous_page": "Go to previous page",
-    "go_to_next_page": "Go to next page",
-    "go_to_last_page": "Go to last page"
-  },
   "No results found": "No results found",
   "Try adjusting your filters or search terms": "Try adjusting your filters or search terms",
   "No requests have been added yet": "No requests have been added yet",
@@ -243,15 +234,33 @@
     "noPermissions": "No Permissions",
     "status": "Status",
     "activity": "Activity",
-    "verified": "Verified",
-    "unverified": "Unverified",
+    "verified": "Activated",
+    "unverified": "Inactive",
     "created": "Created",
     "updated": "Updated",
     "morePermissions": "+{{count}} more permissions",
     "allPermissions": "All Permissions",
     "username": "Username",
     "id": "ID",
-    "no_username": "No username"
+    "no_username": "No username",
+    "selected_rows": "{{selected}} of {{total}} row(s) selected.",
+    "no_rows_selected": "No rows selected.",
+    "rows_per_page": "Rows per page",
+    "page_info": "Page {{current}} of {{total}}",
+    "go_to_first_page": "Go to first page",
+    "go_to_previous_page": "Go to previous page",
+    "go_to_next_page": "Go to next page",
+    "go_to_last_page": "Go to last page"
+  },
+  "datatable": {
+    "selected_rows": "{{selected}} of {{total}} row(s) selected.",
+    "no_rows_selected": "No rows selected.",
+    "rows_per_page": "Rows per page",
+    "page_info": "Page {{current}} of {{total}}",
+    "go_to_first_page": "Go to first page",
+    "go_to_previous_page": "Go to previous page",
+    "go_to_next_page": "Go to next page",
+    "go_to_last_page": "Go to last page"
   },
   "formSelection": {
     "issueCertificate": "Issue Certificate",

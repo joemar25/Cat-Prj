@@ -3,10 +3,7 @@ import './globals.css'
 import localFont from 'next/font/local'
 
 import { Metadata } from 'next'
-import { Toaster } from 'sonner'
-import { SessionProvider } from 'next-auth/react'
-import { ThemeProvider } from '@/components/custom/provider/theme-provider'
-import { BackupProvider } from '@/lib/context/BackupContext'
+import { Providers } from '@/components/custom/provider/providers'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -22,41 +19,17 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: 'Legazpi City Civil Registry',
-  description: '',
-  icons: {
-    icon: '/logo.png',
-  },
+  description: 'The official civil registry for Legazpi City.',
+  icons: { icon: '/logo.png' },
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang='en' className={`${geistSans.className} ${geistMono.variable} antialiased`} suppressHydrationWarning>
-      <body className='text-foreground'>
-        <ThemeProvider
-          attribute='class'
-          defaultTheme='light'
-          enableSystem
-          disableTransitionOnChange
-        >
-
-          <SessionProvider>
-            <BackupProvider>
-              {children}
-            </BackupProvider>
-          </SessionProvider>
-
-          <Toaster
-            position='bottom-right'
-            richColors
-            closeButton
-            theme='system'
-            className='toaster-override'
-          />
-        </ThemeProvider>
+    <html lang="en" className={`${geistSans.className} ${geistMono.variable} antialiased`} suppressHydrationWarning>
+      <body className="text-foreground" data-theme="light">
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   )

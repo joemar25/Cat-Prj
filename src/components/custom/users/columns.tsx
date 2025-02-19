@@ -168,7 +168,7 @@ export const createColumns = (
                         <Badge
                             variant={isVerified ? "default" : "secondary"}
                             className={`font-normal ${isVerified ? 'bg-primary hover:bg-primary/50 text-accent dark:text-accent-foreground' : 'bg-gray-300'
-                            }`}
+                                }`}
                         >
                             {isVerified ? t('dataTable.verified') : t('dataTable.unverified')}
                         </Badge>

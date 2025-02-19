@@ -1,14 +1,12 @@
 'use client';
 
+import StatusDropdown from '@/components/custom/civil-registry/components/status-dropdown';
 import { DataTableColumnHeader } from '@/components/custom/table/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
-import { useTranslation } from 'react-i18next';
 import { DataTableRowActions } from './data-table-row-actions';
-
-import StatusDropdown from '@/components/custom/civil-registry/components/status-dropdown';
 
 import {
   Attachment,
@@ -47,14 +45,16 @@ const formTypeVariants: Record<
   DEATH: { label: 'Death', variant: 'default' },
 };
 
-export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
+/**
+ * Create your columns by passing the translation function `t` (from useTranslation).
+ */
+export const getColumns = (
+  t: (key: string) => string
+): ColumnDef<ExtendedBaseRegistryForm>[] => [
   {
     accessorKey: 'formType',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('formType')}
-      />
+      <DataTableColumnHeader column={column} title={t('formType')} />
     ),
     cell: ({ row }) => {
       const formType = row.getValue('formType') as FormType;
@@ -62,23 +62,21 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
       return (
         <Badge
           variant={formTypeInfo.variant}
-          className={`font-medium ${formTypeInfo.label.toLowerCase() === 'marriage'
+          className={`font-medium ${
+            formTypeInfo.label.toLowerCase() === 'marriage'
               ? 'bg-blue-500/30 dark:bg-blue-500/50 dark:text-accent-foreground text-blue-500 hover:bg-blue-500/30'
               : formTypeInfo.label.toLowerCase() === 'death'
-                ? 'bg-muted text-accent-foreground hover:bg-muted'
-                : formTypeInfo.label.toLowerCase() === 'birth'
-                  ? 'bg-green-500/30 dark:bg-green-500/50 text-green-500  dark:text-accent-foreground hover:bg-green-500/30'
-                  : ''
-            }`}
+              ? 'bg-muted text-accent-foreground hover:bg-muted'
+              : formTypeInfo.label.toLowerCase() === 'birth'
+              ? 'bg-green-500/30 dark:bg-green-500/50 text-green-500 dark:text-accent-foreground hover:bg-green-500/30'
+              : ''
+          }`}
         >
-          {useTranslation().t(formTypeInfo.label.toLowerCase())}
+          {t(formTypeInfo.label.toLowerCase())}
         </Badge>
-
-      )
+      );
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
+    filterFn: (row, id, value) => value.includes(row.getValue(id)),
   },
   {
     accessorFn: (row) => {
@@ -90,10 +88,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     },
     id: 'registryDetails',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('registryDetails')}
-      />
+      <DataTableColumnHeader column={column} title={t('registryDetails')} />
     ),
     cell: ({ row }) => {
       const details = JSON.parse(row.getValue('registryDetails')) as {
@@ -101,25 +96,22 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
         pageNumber: string;
         bookNumber: string;
       };
-
       return (
         <div className='flex flex-col space-y-2'>
           <div className='flex items-center gap-2'>
-            <span className='font-medium'>
-              {useTranslation().t('registry')}:
-            </span>
+            <span className='font-medium'>{t('registry')}:</span>
             <span className='text-sm text-muted-foreground'>
               {details.registryNumber}
             </span>
           </div>
           <div className='flex items-center gap-2'>
-            <span className='font-medium'>{useTranslation().t('page')}:</span>
+            <span className='font-medium'>{t('page')}:</span>
             <span className='text-sm text-muted-foreground'>
               {details.pageNumber}
             </span>
           </div>
           <div className='flex items-center gap-2'>
-            <span className='font-medium'>{useTranslation().t('book')}:</span>
+            <span className='font-medium'>{t('book')}:</span>
             <span className='text-sm text-muted-foreground'>
               {details.bookNumber}
             </span>
@@ -198,10 +190,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     },
     id: 'details',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('details')}
-      />
+      <DataTableColumnHeader column={column} title={t('details')} />
     ),
     cell: ({ row }) => {
       const details = JSON.parse(row.getValue('details')) as {
@@ -222,7 +211,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
         <div className='space-y-2'>
           {(details.firstName || details.middleName || details.lastName) && (
             <div className='flex items-center space-x-2'>
-              <span className='font-medium'>{useTranslation().t('name')}:</span>
+              <span className='font-medium'>{t('name')}:</span>
               <span>{`${details.firstName || ''} ${details.middleName || ''} ${
                 details.lastName || ''
               }`}</span>
@@ -230,31 +219,25 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
           )}
           {details.sex && (
             <div className='flex items-center space-x-2'>
-              <span className='font-medium'>{useTranslation().t('sex')}:</span>
+              <span className='font-medium'>{t('sex')}:</span>
               <span>{details.sex}</span>
             </div>
           )}
           {details.dateOfBirth && (
             <div className='flex items-center space-x-2'>
-              <span className='font-medium'>
-                {useTranslation().t('dateOfBirth')}:
-              </span>
+              <span className='font-medium'>{t('dateOfBirth')}:</span>
               <span>{details.dateOfBirth}</span>
             </div>
           )}
           {details.dateOfDeath && (
             <div className='flex items-center space-x-2'>
-              <span className='font-medium'>
-                {useTranslation().t('dateOfDeath')}:
-              </span>
+              <span className='font-medium'>{t('dateOfDeath')}:</span>
               <span>{details.dateOfDeath}</span>
             </div>
           )}
           {(details.husbandFirstName || details.husbandLastName) && (
             <div className='flex items-center space-x-2'>
-              <span className='font-medium'>
-                {useTranslation().t('husband')}:
-              </span>
+              <span className='font-medium'>{t('husband')}:</span>
               <span>{`${details.husbandFirstName || ''} ${
                 details.husbandLastName || ''
               }`}</span>
@@ -262,7 +245,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
           )}
           {(details.wifeFirstName || details.wifeLastName) && (
             <div className='flex items-center space-x-2'>
-              <span className='font-medium'>{useTranslation().t('wife')}:</span>
+              <span className='font-medium'>{t('wife')}:</span>
               <span>{`${details.wifeFirstName || ''} ${
                 details.wifeLastName || ''
               }`}</span>
@@ -270,9 +253,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
           )}
           {details.dateOfMarriage && (
             <div className='flex items-center space-x-2'>
-              <span className='font-medium'>
-                {useTranslation().t('dateOfMarriage')}:
-              </span>
+              <span className='font-medium'>{t('dateOfMarriage')}:</span>
               <span>{details.dateOfMarriage}</span>
             </div>
           )}
@@ -300,12 +281,10 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
           string
         ];
 
-        // If no search terms are provided, return true
         if (!firstNameSearch && !middleNameSearch && !lastNameSearch) {
           return true;
         }
 
-        // For birth/death certificates
         if (details.firstName || details.middleName || details.lastName) {
           const firstMatch =
             !firstNameSearch ||
@@ -325,7 +304,6 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
           return firstMatch && middleMatch && lastMatch;
         }
 
-        // For marriage certificates
         const husbandFirstMatch =
           !firstNameSearch ||
           (details.husbandFirstName?.toLowerCase() || '').includes(
@@ -352,8 +330,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
           (wifeFirstMatch && wifeLastMatch)
         );
       } catch (error) {
-        // If there's any error parsing the JSON or processing the filter, return true
-        console.log(error);
+        console.error(error);
         return true;
       }
     },
@@ -362,19 +339,15 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     accessorFn: (row) => `${row.province}, ${row.cityMunicipality}`,
     id: 'location',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('location')}
-      />
+      <DataTableColumnHeader column={column} title={t('location')} />
     ),
     cell: ({ row }) => {
       const location = row.getValue('location') as string;
+      const [province, city] = location.split(', ');
       return (
         <div className='flex flex-col space-y-1'>
-          <span className='font-medium'>{location.split(', ')[0]}</span>
-          <span className='text-sm text-muted-foreground'>
-            {location.split(', ')[1]}
-          </span>
+          <span className='font-medium'>{province}</span>
+          <span className='text-sm text-muted-foreground'>{city}</span>
         </div>
       );
     },
@@ -390,10 +363,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     id: 'preparedBy',
     accessorFn: (row) => row.preparedBy?.name,
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('preparedBy')}
-      />
+      <DataTableColumnHeader column={column} title={t('preparedBy')} />
     ),
     cell: ({ row }) => {
       const preparedBy = row.original.preparedBy?.name || 'N/A';
@@ -413,10 +383,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     id: 'verifiedBy',
     accessorFn: (row) => row.verifiedBy?.name,
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('verifiedBy')}
-      />
+      <DataTableColumnHeader column={column} title={t('verifiedBy')} />
     ),
     cell: ({ row }) => {
       const verifiedBy = row.original.verifiedBy?.name || 'N/A';
@@ -444,19 +411,15 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     },
     id: 'received',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('received')}
-      />
+      <DataTableColumnHeader column={column} title={t('received')} />
     ),
     cell: ({ row }) => {
       const received = row.getValue('received') as string;
+      const [by, date] = received.split(' - ');
       return (
         <div className='flex flex-col space-y-1'>
-          <span className='font-medium'>{received.split(' - ')[0]}</span>
-          <span className='text-sm text-muted-foreground'>
-            {received.split(' - ')[1]}
-          </span>
+          <span className='font-medium'>{by}</span>
+          <span className='text-sm text-muted-foreground'>{date}</span>
         </div>
       );
     },
@@ -473,18 +436,16 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
       `${row.registeredBy || ''} ${row.registeredByPosition || ''}`.trim(),
     id: 'registeredBy',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('registeredBy')}
-      />
+      <DataTableColumnHeader column={column} title={t('registeredBy')} />
     ),
     cell: ({ row }) => {
       const registeredBy = row.getValue('registeredBy') as string;
+      const [name, ...rest] = registeredBy.split(' ');
       return (
         <div className='flex flex-col space-y-1'>
-          <span className='font-medium'>{registeredBy.split(' ')[0]}</span>
+          <span className='font-medium'>{name}</span>
           <span className='text-sm text-muted-foreground'>
-            {registeredBy.split(' ').slice(1).join(' ')}
+            {rest.join(' ')}
           </span>
         </div>
       );
@@ -504,10 +465,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
       return new Date(date).getFullYear().toString();
     },
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('year')}
-      />
+      <DataTableColumnHeader column={column} title={t('year')} />
     ),
     cell: ({ row }) => {
       const year = row.getValue('year') as string;
@@ -522,10 +480,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
   {
     accessorKey: 'status',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('status')}
-      />
+      <DataTableColumnHeader column={column} title={t('status')} />
     ),
     cell: ({ row }) => {
       const status = row.getValue('status') as DocumentStatus;
@@ -539,53 +494,12 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
         />
       );
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
+    filterFn: (row, id, value) => value.includes(row.getValue(id)),
   },
-  // {
-  //   id: 'hasCTC',
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader
-  //       column={column}
-  //       title={useTranslation().t('For Release?')}
-  //     />
-  //   ),
-  //   cell: ({ row }) => {
-  //     const attachments = row.original.document?.attachments || [];
-
-  //     // Safely get the latest attachment
-  //     const latestAttachment = attachments[0];
-
-  //     // Ensure TypeScript safety with optional chaining and nullish coalescing
-  //     const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0;
-
-  //     return (
-  //       <Badge
-  //         variant={hasCTC ? 'default' : 'secondary'}
-  //         className='font-medium'
-  //       >
-  //         {hasCTC ? useTranslation().t('Yes') : useTranslation().t('No')}
-  //       </Badge>
-  //     );
-  //   },
-  //   filterFn: (row, id, value) => {
-  //     const attachments = row.original.document?.attachments || [];
-  //     const latestAttachment = attachments[0];
-
-  //     // Apply safe check for certified copies
-  //     const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0;
-
-  //     return value === 'Yes' ? hasCTC : !hasCTC;
-  //   },
-  // },
   {
     accessorKey: 'createdAt',
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('createdAt')}
-      />
+      <DataTableColumnHeader column={column} title={t('createdAt')} />
     ),
     cell: ({ row }) => {
       const createdAt = row.getValue('createdAt') as Date;
@@ -627,10 +541,7 @@ export const columns: ColumnDef<ExtendedBaseRegistryForm>[] = [
     enableSorting: false,
     enableHiding: false,
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title={useTranslation().t('Actions')}
-      />
+      <DataTableColumnHeader column={column} title={t('Actions')} />
     ),
     cell: ({ row }) => {
       return <DataTableRowActions row={row} />;
