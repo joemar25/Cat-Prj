@@ -4,6 +4,7 @@
 import { prisma } from '@/lib/prisma';
 import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 import { DocumentStatus, FormType, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
@@ -462,6 +463,9 @@ import { revalidatePath } from 'next/cache';
 //     };
 //   }
 // }
+
+
+
 // ------------------------------- Birth Certificate Server Action -------------------------------//
 
 export async function checkRegistryNumberExists(
@@ -868,7 +872,7 @@ export async function submitDeathCertificateForm(
             attendedByPhysician:
               formData.medicalCertificate.attendant.type &&
               formData.medicalCertificate.attendant.type !== 'NONE',
-            attendanceDuration: formData.medicalCertificate.attendant.duration,
+            attendanceDuration: formData.medicalCertificate.attendant.duration as any, 
             mannerOfDeath:
               formData.medicalCertificate.externalCauses.mannerOfDeath || null,
             autopsyPerformed: formData.medicalCertificate.autopsy,
@@ -930,6 +934,26 @@ export async function submitDeathCertificateForm(
         error instanceof Error
           ? error.message
           : 'Failed to submit death certificate form',
+    };
+  }
+}
+
+
+export async function submitMarriageCertificateForm(
+  formData: MarriageCertificateFormValues
+) {
+  try {
+    if (!formData) {
+      throw new Error('No form data provided');
+    }
+    console.log(formData);
+
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to submit marriage certificate form',
     };
   }
 }

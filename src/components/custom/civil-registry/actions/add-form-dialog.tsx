@@ -13,8 +13,9 @@ import { Icons } from '@/components/ui/icons'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import BirthCertificateForm from '@/components/custom/forms/certificates/birth-certificate-form'
-import DeathCertificateForm from '../../forms/certificates/death-certificate-form'
+import BirthCertificateForm from '@/components/custom/forms/certificates/birth-certificate-form';
+import DeathCertificateForm from '@/components/custom/forms/certificates/death-certificate-form';
+import MarriageCertificateForm from '@/components/custom/forms/certificates/marriage-certificate-form';
 
 export function AddCivilRegistryFormDialog() {
   const { t } = useTranslation()
@@ -109,14 +110,14 @@ export function AddCivilRegistryFormDialog() {
         </DialogContent>
       </Dialog>
 
-      {/* <MarriageCertificateForm
+      <MarriageCertificateForm
         open={marriageCertificateOpen}
         onOpenChange={setMarriageCertificateOpen}
         onCancel={() => {
           setMarriageCertificateOpen(false)
           setTimeout(() => setOpen(true), 0)
         }}
-      /> */}
+      />
 
       <BirthCertificateForm
         open={birthCertificateFormOpen}

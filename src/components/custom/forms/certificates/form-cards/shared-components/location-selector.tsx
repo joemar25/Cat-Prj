@@ -79,7 +79,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 
   // Styling classes for select triggers.
   const selectTriggerClasses =
-    'h-10 px-3 text-base md:text-sm rounded-md border border-input bg-background text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800';
+    'h-10 px-3 text-base md:text-sm rounded-md border border-muted-foreground/90 bg-background text-sm ring-offset-background hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-950 dark:text-gray-100 dark:border-gray-800';
 
   return (
     <>
