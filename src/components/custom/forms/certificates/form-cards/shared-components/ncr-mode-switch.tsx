@@ -17,7 +17,7 @@ const NCRModeSwitch: React.FC<NCRModeSwitchProps> = ({
         id='ncr-mode'
         checked={isNCRMode}
         onCheckedChange={setIsNCRMode}
-        className='data-[state=checked]:bg-primary data-[state=unchecked]:bg-input'
+        className='data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground'
       />
       <Label
         htmlFor='ncr-mode'

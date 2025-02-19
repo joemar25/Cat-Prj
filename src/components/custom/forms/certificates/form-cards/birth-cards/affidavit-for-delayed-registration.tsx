@@ -67,7 +67,7 @@ const DelayedRegistrationForm: React.FC = () => {
   }, [isDelayedRegistration, setValue, getValues]);
 
   return (
-    <Card>
+    <Card >
       <CardHeader>
         <CardTitle>Affidavit for Delayed Registration</CardTitle>
       </CardHeader>

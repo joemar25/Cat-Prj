@@ -5,14 +5,8 @@ import {
   nameSchema,
   provinceSchema, // Factory function: provinceSchema(isOptional: boolean)
   registryNumberSchema,
+  residenceSchema,
 } from './form-certificates-shared-schema';
-
-
-export interface MarriageCertificateFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCancel: () => void;
-}
 
 /**
  * Helper schemas for common fields
@@ -41,12 +35,7 @@ const parentsSchema = z.object({
 
 // Marriage Details Schema
 const marriageDetailsSchema = z.object({
-  placeOfMarriage: z.object({
-    office: z.string().min(1, 'Place of marriage is required'),
-    region: z.string().min(1, 'Region is required'),
-    cityMunicipality: cityMunicipalitySchema,
-    province: provinceSchema,
-  }),
+  placeOfMarriage: residenceSchema,
   dateOfMarriage: z.date(),
   timeOfMarriage: z
     .string()
@@ -77,9 +66,9 @@ const signatureSchema = z.object({
 // Personal Information Schema
 const personalInformation = z.object({
   name: nameSchema,
-  age: z.number().min(18, 'Must be at least 18 years old'),
+  age: z.string(),
   birth: z.date(),
-  placeOfBirth: placeOfBirthSchema,
+  placeOfBirth: residenceSchema,
   sex: z.enum(['male', 'female']).default('male'),
   citizenship: z.string().min(1, 'Citizenship is required'),
   residence: z.string().min(1, 'Residence is required'),
@@ -87,9 +76,10 @@ const personalInformation = z.object({
   civilStatus: z.enum(['single', 'widowed', 'divorced']),
 });
 
-const contractingParties = z.object({
-  signature: signatureSchema,
-  agreement: agreementSchema
+const contractingPartiesSchema = z.object({
+  signature: z.string().optional(),
+  agreement: agreementSchema,
+  contractDay: z.date(),
 })
 
 const marriageLicenseSchema = z.object({
@@ -125,7 +115,7 @@ const solemnizingOfficerSchema = z.object({
   registryNoExpiryDate: z.string().min(1, 'Registry expiry date is required'),
 })
 
-export const residenceSchema = z.object({
+export const residenceSchemas = z.object({
   st: z.string().nonempty('Street is required'),
   barangay: z.string().nonempty('Barangay is required'),
   cityMunicipality: cityMunicipalitySchema, // Reuse shared city/municipality schema
@@ -140,7 +130,7 @@ const affidavitOfSolemnizingOfficerSchema = z.object({
     nameOfOfficer: z.string().min(1, 'Name of officer is required'),
     signatureOfOfficer: z.string().optional(),
     position: z.string().min(1, 'Position/Title/Designation is required'),
-    addressOfOfficer: residenceSchema
+    addressOfOfficer: residenceSchemas
   }),
   nameOfPlace: z.string().min(1, 'Name of place is required'),
   addressAt: z.string().min(1, 'Address at is required'),
@@ -161,11 +151,11 @@ const affidavitOfSolemnizingOfficerSchema = z.object({
   3: z.string().optional(),
   4: agreementSchema.extend({
     dayOf: z.date(),
-    atPlaceOfMarriage: residenceSchema,
+    atPlaceOfMarriage: residenceSchemas,
   }),
   dateSworn: agreementSchema.extend({
     dayOf: z.date(),
-    atPlaceOfSworn: residenceSchema,
+    atPlaceOfSworn: residenceSchemas,
     ctcInfo: z.object({
       number: z.string().min(1, 'CTC number is required'),
       dateIssued: z.string().min(1, 'Date issued is required'),
@@ -181,22 +171,22 @@ const affidavitForDelayedSchema = z.object({
     nameOfOfficer: z.string().min(1, 'Name of officer is required'),
     signatureOfOfficer: z.string().optional(),
     position: z.string().min(1, 'Position/Title/Designation is required'),
-    addressOfOfficer: residenceSchema
+    addressOfOfficer: residenceSchemas
   }),
   applicantInformation: z.object({
     nameOfApplicant: z.string().min(1, 'Name of Applicant is required'),
-    addressOfOfficer: residenceSchema
+    addressOfOfficer: residenceSchemas
   }),
   1: z.object({
     a: agreementSchema.extend({
       nameOfPartner: z.string().min(1, "Applicant's partner name is required"),
-      placeOfMarriage: residenceSchema,
+      placeOfMarriage: residenceSchemas,
       dateOfMarriage: z.date(),
     }),
     b: agreementSchema.extend({
       nameOfHusband: z.string().min(1, "Applicant's partner name is required"),
       nameOfWife: z.string().min(1, "Applicant's partner name is required"),
-      placeOfMarriage: residenceSchema,
+      placeOfMarriage: residenceSchemas,
       dateOfMarriage: z.date(),
     })
   }),
@@ -213,7 +203,7 @@ const affidavitForDelayedSchema = z.object({
     a: agreementSchema.extend({
       licenseNo: z.number().min(1, 'License No. is required'),
       dateIssued: z.date(),
-      placeOfSolemnizedMarriage: residenceSchema,
+      placeOfSolemnizedMarriage: residenceSchemas,
     }),
     b: agreementSchema.extend({
       underArticle: z.string().optional()
@@ -226,11 +216,11 @@ const affidavitForDelayedSchema = z.object({
   5: z.string().min(1, ''),
   6: agreementSchema.extend({
     date: z.date().optional(),
-    place: residenceSchema
+    place: residenceSchemas
   }),
   dateSworn: agreementSchema.extend({
     dayOf: z.date(),
-    atPlaceOfSworn: residenceSchema,
+    atPlaceOfSworn: residenceSchemas,
     ctcInfo: z.object({
       number: z.string().min(1, 'CTC number is required'),
       dateIssued: z.string().min(1, 'Date issued is required'),
@@ -273,11 +263,15 @@ export const marriageCertificateSchema = z.object({
 
 
   //Contracting parties
-  husbandContractParty: contractingParties,
-  wifeContractParty: contractingParties,
+  husbandContractParty: z.object({
+    contractingParties: contractingPartiesSchema
+  }),
+  wifeContractParty: z.object({
+    contractingParties: contractingPartiesSchema
+  }),
 
   // Marriage License Details a.
-  marriageLicenseDetails: marriageLicenseSchema,
+  marriageLicenseDetails: residenceSchema,
 
   //marriage article schema b.
   marriageArticle: marriageArticleSchema,

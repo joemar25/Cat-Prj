@@ -47,23 +47,24 @@ export default function BirthCertificateForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0'>
-        <div className='h-full flex flex-col'>
-          <DialogHeader>
-            <DialogTitle className='text-2xl font-bold text-center py-4'>
-              Certificate of Live Birth
-            </DialogTitle>
-          </DialogHeader>
+      <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0 '>
+        <FormProvider {...formMethods}>
+          <form
+            onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
+            className='space-y-6'
+          >
+            <div className='h-full flex flex-col'>
+              <DialogHeader>
+                <DialogTitle className='text-2xl font-bold text-center py-4'>
+                  Certificate of Live Birth
+                </DialogTitle>
+              </DialogHeader>
 
-          <div className='flex flex-1 overflow-hidden'>
-            <div className='w-1/2 border-r'>
-              <ScrollArea className='h-[calc(95vh-120px)]'>
-                <div className='p-6'>
-                  <FormProvider {...formMethods}>
-                    <form
-                      onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
-                      className='space-y-6'
-                    >
+              <div className='flex flex-1 overflow-hidden'>
+                <div className='w-1/2 border-r'>
+                  <ScrollArea className='h-[calc(95vh-120px)]'>
+                  <div className='p-6 space-y-4'>
+
                       <RegistryInformationCard formType={FormType.BIRTH} />
                       <ChildInformationCard />
                       <MotherInformationCard />
@@ -87,37 +88,38 @@ export default function BirthCertificateForm({
                       <AffidavitOfPaternityForm />
                       <DelayedRegistrationForm />
 
-                      <DialogFooter>
-                        <Button
-                          type='button'
-                          variant='outline'
-                          className='h-10'
-                          onClick={onCancel}
-                        >
-                          Cancel
-                        </Button>
-                        <Button type='submit' className='h-10 ml-2'>
-                          <Save className='mr-2 h-4 w-4' />
-                          Save Registration
-                        </Button>
-                      </DialogFooter>
-                    </form>
-                  </FormProvider>
-                </div>
-              </ScrollArea>
-            </div>
 
-            <div className='w-1/2'>
-              <div className='h-[calc(95vh-120px)] p-6'>
-                {/* You can add your PDF viewer or preview component here */}
-                <PDFViewer width='100%' height='100%'>
-                  <BirthCertificatePDF data={formMethods.watch()} />
-                </PDFViewer>
-                ;
+
+                    </div>
+                  </ScrollArea>
+                </div>
+
+                <div className='w-1/2'>
+                  <div className='h-[calc(95vh-120px)]'>
+                    {/* You can add your PDF viewer or preview component here */}
+                    <PDFViewer width='100%' height='100%'>
+                      <BirthCertificatePDF data={formMethods.watch()} />
+                    </PDFViewer>
+                    ;
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+            <DialogFooter className='absolute bottom-2 right-2 gap-2 flex items-center'>
+              <Button
+                type='button'
+                variant='outline'
+                className='py-2 w-32 bg-muted-foreground/80 hover:bg-muted-foreground hover:text-accent text-accent'
+                onClick={onCancel}
+              >
+                Cancel
+              </Button>
+              <Button type='submit' className='py-2 w-32 bg-primary/80 hover:bg-primary'>
+                Save
+              </Button>
+            </DialogFooter>
+          </form>
+        </FormProvider>
       </DialogContent>
     </Dialog>
   );
