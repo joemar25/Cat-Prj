@@ -1042,7 +1042,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                   <View style={styles.fieldContainer}>
                     <Text style={styles.label}>Name:</Text>
                     <Text style={styles.value}>
-                      {data.wifeWitnesses?.signature || ''}
+                      {data.wifeWitnesses?.name || ''}
                     </Text>
                   </View>
                   <View style={styles.fieldContainer}>
@@ -1056,7 +1056,7 @@ const MarriageCertificatePDF: React.FC<MarriageCertificatePDFProps> = ({
                   <View style={styles.fieldContainer}>
                     <Text style={styles.label}>Name:</Text>
                     <Text style={styles.value}>
-                      {data.wifeWitnesses?.signature2 || ''}
+                      {data.wifeWitnesses?.name2 || ''}
                     </Text>
                   </View>
                   <View style={styles.fieldContainer}>

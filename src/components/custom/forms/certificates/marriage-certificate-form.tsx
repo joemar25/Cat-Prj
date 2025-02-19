@@ -17,6 +17,10 @@ import WifeParentsInfoCard from './form-cards/marriage-cards/wife-parent-info-ca
 import { useMemo } from 'react';
 import MarriageDetailsCard from './form-cards/marriage-cards/marriage-details-card';
 import ContractingPartiesCertificationCard from './form-cards/marriage-cards/contracting-parties-certification-card';
+import SolemnizingOfficerCertification from './form-cards/marriage-cards/solemnizing-officer-certification-card';
+import { WitnessesCard } from './form-cards/marriage-cards/witnesses-section-card';
+import { ReceivedByCard, RegisteredAtOfficeCard } from './form-cards/shared-components/processing-details-cards';
+import RemarksCard from './form-cards/shared-components/remarks-card';
 
 export default function MarriageCertificateForm({
   open,
@@ -26,8 +30,6 @@ export default function MarriageCertificateForm({
   const { formMethods, onSubmit, handleError } = useMarriageCertificateForm({
     onOpenChange,
   });
-  // ✅ Memoize form data to prevent unnecessary re-renders
-  const watchedData = useMemo(() => formMethods.watch(), [formMethods.watch]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -60,11 +62,15 @@ export default function MarriageCertificateForm({
                       <WifeParentsInfoCard />
                       <MarriageDetailsCard />
                       <ContractingPartiesCertificationCard />
-                      {/* <SolemnizingOfficerCertification />
+                      <SolemnizingOfficerCertification />
                       <WitnessesCard />
                       <ReceivedByCard />
-                      <RegisteredAtOfficeCard />
-                      <RemarksCard /> */}
+                      <RegisteredAtOfficeCard
+
+                        fieldPrefix='registeredAtCivilRegistrar'
+                        cardTitle='Registered At Office'
+                      />
+                      <RemarksCard />
 
                       {/* <ConfirmationDialog
                     open={showAlert}
@@ -84,11 +90,11 @@ export default function MarriageCertificateForm({
                 {/* Right Side - Preview */}
                 <div className='w-1/2'>
                   <div className='h-[calc(95vh-120px)]'>
-                    <PDFViewer width='100%' height='100%'>
+                    {/* <PDFViewer width='100%' height='100%'>
                       <MarriageCertificatePDF
                         data={formMethods.watch()} // Pass the current form data directly to the PDF preview
                       />
-                    </PDFViewer>
+                    </PDFViewer> */}
                   </div>
                 </div>
               </div>

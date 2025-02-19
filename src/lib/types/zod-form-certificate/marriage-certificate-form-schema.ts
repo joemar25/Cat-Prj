@@ -52,9 +52,7 @@ const witnessSchema = z.object({
 
 //if true or false agree or disagree
 const agreementSchema = z.object({
-  agreement: z.boolean().refine((val) => val === false, {
-    message: 'Disagree by default.',
-  })
+  agreement: z.boolean().default(false),
 });
 
 //signature
@@ -76,10 +74,11 @@ const personalInformation = z.object({
   civilStatus: z.enum(['single', 'widowed', 'divorced']),
 });
 
+
 const contractingPartiesSchema = z.object({
   signature: z.string().optional(),
   agreement: agreementSchema,
-  contractDay: z.date(),
+
 })
 
 const marriageLicenseSchema = z.object({
@@ -91,8 +90,15 @@ const marriageLicenseSchema = z.object({
 
 const marriageArticleSchema = z.object({
   articleAgree: agreementSchema,
-  articleExecutiveOrder: z.string().min(1, 'This Article is required')
-})
+  articleExecutiveOrder: z
+    .string()
+    .min(1, 'Article must be between I and 99999')
+    .max(6, 'Article must be at most 6 characters')
+    .regex(
+      /^(M{0,6}(CM|CD|D?C{0,4})(XC|XL|L?X{0,4})(IX|IV|V?I{0,4}))$/,
+      'Must be a valid Roman numeral (I - 99999)'
+    ),
+});
 
 const recievedBySchema = z.object({
   signature: z.string().optional(),
@@ -115,13 +121,14 @@ const solemnizingOfficerSchema = z.object({
   registryNoExpiryDate: z.string().min(1, 'Registry expiry date is required'),
 })
 
-export const residenceSchemas = z.object({
+const residenceSchemas = z.object({
   st: z.string().nonempty('Street is required'),
   barangay: z.string().nonempty('Barangay is required'),
   cityMunicipality: cityMunicipalitySchema, // Reuse shared city/municipality schema
   province: provinceSchema, // Reuse shared province schema
   country: z.string().nonempty('Country is required'),
 });
+
 
 //*****BACK PAGE ***************************************** //
 //*****BACK PAGE ***************************************** //
@@ -238,7 +245,7 @@ export const marriageCertificateSchema = z.object({
   registryNumber: registryNumberSchema,
   province: provinceSchema,
   cityMunicipality: cityMunicipalitySchema,
-
+  contractDay: z.date(),
   // Consent Information
   wifeConsentPerson: consentPersonSchema,
 
@@ -271,7 +278,7 @@ export const marriageCertificateSchema = z.object({
   }),
 
   // Marriage License Details a.
-  marriageLicenseDetails: residenceSchema,
+  marriageLicenseDetails: marriageLicenseSchema,
 
   //marriage article schema b.
   marriageArticle: marriageArticleSchema,

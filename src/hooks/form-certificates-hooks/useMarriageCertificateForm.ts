@@ -127,19 +127,23 @@ export function useMarriageCertificateForm({
 
             husbandContractParty: {
                 contractingParties: {
-                    agreement: undefined,
-                    contractDay: undefined,
+                    agreement: {
+                        agreement: false
+                    },
                     signature: '',
                 }
             },
 
             wifeContractParty: {
                 contractingParties: {
-                    agreement: undefined,
-                    contractDay: undefined,
+                    agreement: {
+                        agreement: false
+                    },
                     signature: '',
                 }
             },
+
+            contractDay: undefined,
 
             // Witnesses
             husbandWitnesses:
@@ -167,14 +171,19 @@ export function useMarriageCertificateForm({
 
             // Marriage License Details
             marriageLicenseDetails: {
-                barangay: '',
-                cityMunicipality: '',
-                province: '',
-                country: '',
+                number: '',
+                placeIssued: '',
+                dateIssued: undefined,
+                marriageAgree: {
+                    agreement: false
+                },
+
             },
             // Marriage article
             marriageArticle: {
-                articleAgree: undefined,
+                articleAgree: {
+                    agreement: false
+                },
                 articleExecutiveOrder: '',
 
             },

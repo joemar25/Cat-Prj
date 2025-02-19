@@ -174,7 +174,7 @@ const WifeParentsInfoCard: React.FC = () => {
           />
         </div>
 
-        {/* Nature of Property */}
+        {/* Adviser */}
         <div className='col-span-full py-12'>
           <h3 className='font-bold '>Name of person Wali who gave consent or advise</h3>
         </div>
@@ -185,11 +185,11 @@ const WifeParentsInfoCard: React.FC = () => {
             name='wifeInfo.wifeConsentPerson.first'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nature of Property (First)</FormLabel>
+                <FormLabel>Adviser (First Name)</FormLabel>
                 <FormControl>
                   <Input
                     className='h-10'
-                    placeholder='Enter nature of property (first)'
+                    placeholder='Enter Adviser (first)'
                     {...field}
                   />
                 </FormControl>
@@ -202,11 +202,11 @@ const WifeParentsInfoCard: React.FC = () => {
             name='wifeInfo.wifeConsentPerson.middle'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nature of Property (Middle)</FormLabel>
+                <FormLabel>Adviser (Middle Name)</FormLabel>
                 <FormControl>
                   <Input
                     className='h-10'
-                    placeholder='Enter nature of property (middle)'
+                    placeholder='Enter Adviser (middle)'
                     {...field}
                   />
                 </FormControl>
@@ -219,11 +219,11 @@ const WifeParentsInfoCard: React.FC = () => {
             name='wifeInfo.wifeConsentPerson.last'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nature of Property (Last)</FormLabel>
+                <FormLabel>Adviser (Last Name)</FormLabel>
                 <FormControl>
                   <Input
                     className='h-10'
-                    placeholder='Enter nature of property (last)'
+                    placeholder='Enter Adviser (last)'
                     {...field}
                   />
                 </FormControl>
