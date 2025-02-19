@@ -1,12 +1,12 @@
 'use client'
 
-import { useCallback, useState } from 'react'
 import { User } from '@prisma/client'
 import { useRouter } from 'next/navigation'
 import { Permission } from '@prisma/client'
 import { hasPermission } from '@/types/auth'
 import { Icons } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
+import { useCallback, useState } from 'react'
 import { Table } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'

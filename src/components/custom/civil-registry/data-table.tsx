@@ -121,9 +121,8 @@ export function DataTable({
                         <Lottie animationData={certificateAnimation} loop autoplay className="w-full h-full" />
                       </div>
                       <p
-                        className={`text-lg font-semibold transition-transform ${
-                          shake ? 'animate-[wiggle_0.4s_ease-in-out]' : ''
-                        }`}
+                        className={`text-lg font-semibold transition-transform ${shake ? 'animate-[wiggle_0.4s_ease-in-out]' : ''
+                          }`}
                       >
                         {t('No results found')}
                       </p>

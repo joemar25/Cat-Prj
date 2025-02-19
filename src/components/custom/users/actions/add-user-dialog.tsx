@@ -334,7 +334,8 @@ export function AddUserDialog({ onSuccess, role }: AddUserDialogProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none" disabled>Select role</SelectItem>
+                        <SelectItem value="none"
+                          disabled>Select role</SelectItem>
                         {!rolesLoading && !rolesError && roles.map((role) => (
                           <SelectItem
                             key={role.id}
