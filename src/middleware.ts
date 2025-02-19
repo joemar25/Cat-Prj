@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Handle authentication for the /auth page
-    if (pathname === '/auth') {
+    if (pathname === '/') {
         if (session) {
             return NextResponse.redirect(new URL('/dashboard', request.url))
         }
@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
     if (matchingRoute?.type !== 'public' && !session) {
         return pathname.startsWith('/api/')
             ? NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-            : NextResponse.redirect(new URL('/auth', request.url))
+            : NextResponse.redirect(new URL('/', request.url))
     }
 
     // Enforce permission checks for routes with specific permissions
@@ -46,7 +46,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/auth',
+        '/',
         '/dashboard/:path*',
         '/civil-registry/:path*',
         '/certified-true-copies/:path*',

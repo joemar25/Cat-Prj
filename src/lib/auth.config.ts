@@ -71,12 +71,12 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   pages: {
-    signIn: '/auth',
+    signIn: '/',
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
-      const isAuthPage = nextUrl.pathname.startsWith('/auth')
+      const isAuthPage = nextUrl.pathname.startsWith('/')
       if (isAuthPage) {
         return isLoggedIn ? Response.redirect(new URL('/', nextUrl)) : true
       }
