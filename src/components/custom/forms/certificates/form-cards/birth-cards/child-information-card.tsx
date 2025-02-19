@@ -1,31 +1,31 @@
-'use client';
+'use client'
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import { useState } from 'react';
-import { useFormContext } from 'react-hook-form';
-import LocationSelector from '../shared-components/location-selector';
-import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+} from '@/components/ui/select'
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
+import { useState } from 'react'
+import { useFormContext } from 'react-hook-form'
+import LocationSelector from '../shared-components/location-selector'
+import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 
 const ChildInformationCard: React.FC = () => {
-  const { control } = useFormContext<BirthCertificateFormValues>();
-  const [ncrMode, setNcrMode] = useState(false);
+  const { control } = useFormContext<BirthCertificateFormValues>()
+  const [ncrMode, setNcrMode] = useState(false)
 
   return (
     <Card>
@@ -144,9 +144,9 @@ const ChildInformationCard: React.FC = () => {
                         placeholder='Enter weight (e.g., 3.5)'
                         {...field}
                         onChange={(e) => {
-                          const value = e.target.value;
+                          const value = e.target.value
                           if (/^\d*\.?\d*$/.test(value) || value === '') {
-                            field.onChange(value);
+                            field.onChange(value)
                           }
                         }}
                       />
@@ -295,9 +295,9 @@ const ChildInformationCard: React.FC = () => {
                         placeholder='Enter birth order'
                         {...field}
                         onChange={(e) => {
-                          const value = e.target.value;
+                          const value = e.target.value
                           if (/^\d*$/.test(value) || value === '') {
-                            field.onChange(value);
+                            field.onChange(value)
                           }
                         }}
                       />
@@ -311,7 +311,7 @@ const ChildInformationCard: React.FC = () => {
         </Card>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default ChildInformationCard;
+export default ChildInformationCard

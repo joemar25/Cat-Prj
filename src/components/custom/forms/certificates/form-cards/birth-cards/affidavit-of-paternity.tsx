@@ -1,31 +1,31 @@
-'use client';
+'use client'
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
-import LocationSelector from '../shared-components/location-selector';
-import NCRModeSwitch from '../shared-components/ncr-mode-switch';
-import { RegisteredAtOfficeCard } from '../shared-components/processing-details-cards';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
+import { useFormContext } from 'react-hook-form'
+import LocationSelector from '../shared-components/location-selector'
+import NCRModeSwitch from '../shared-components/ncr-mode-switch'
+import { RegisteredAtOfficeCard } from '../shared-components/processing-details-cards'
 
 const AffidavitOfPaternityForm: React.FC = () => {
-  const { control, watch, setValue } = useFormContext();
+  const { control, watch, setValue } = useFormContext()
 
   // Local state for NCR mode for the admin officer address.
-  const [ncrMode, setncrMode] = useState(false);
+  const [ncrMode, setncrMode] = useState(false)
 
   // Watch for the checkbox and nested affidavit details.
-  const hasAffidavitOfPaternity = watch('hasAffidavitOfPaternity');
-  const affidavitDetails = watch('affidavitOfPaternityDetails');
+  const hasAffidavitOfPaternity = watch('hasAffidavitOfPaternity')
+  const affidavitDetails = watch('affidavitOfPaternityDetails')
 
   // When checkbox is checked and nested details are not initialized, initialize them.
   useLayoutEffect(() => {
@@ -52,16 +52,16 @@ const AffidavitOfPaternityForm: React.FC = () => {
           dateIssued: undefined,
           placeIssued: '',
         },
-      });
+      })
     }
-  }, [hasAffidavitOfPaternity, affidavitDetails, setValue]);
+  }, [hasAffidavitOfPaternity, affidavitDetails, setValue])
 
   // Reset the nested affidavit details when the checkbox is unchecked.
   useEffect(() => {
     if (!hasAffidavitOfPaternity) {
-      setValue('affidavitOfPaternityDetails', null);
+      setValue('affidavitOfPaternityDetails', null)
     }
-  }, [hasAffidavitOfPaternity, setValue]);
+  }, [hasAffidavitOfPaternity, setValue])
 
   return (
     <Card>
@@ -108,7 +108,7 @@ const AffidavitOfPaternityForm: React.FC = () => {
                         name='affidavitOfPaternityDetails.father.name'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Father&apos;s Name</FormLabel>
+                            <FormLabel>Father&aposs Name</FormLabel>
                             <FormControl>
                               <Input {...field} value={field.value || ''} />
                             </FormControl>
@@ -121,7 +121,7 @@ const AffidavitOfPaternityForm: React.FC = () => {
                         name='affidavitOfPaternityDetails.father.signature'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Father&apos;s Signature</FormLabel>
+                            <FormLabel>Father&aposs Signature</FormLabel>
                             <FormControl>
                               <Input {...field} value={field.value || ''} />
                             </FormControl>
@@ -138,7 +138,7 @@ const AffidavitOfPaternityForm: React.FC = () => {
                         name='affidavitOfPaternityDetails.mother.name'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Mother&apos;s Name</FormLabel>
+                            <FormLabel>Mother&aposs Name</FormLabel>
                             <FormControl>
                               <Input {...field} value={field.value || ''} />
                             </FormControl>
@@ -151,7 +151,7 @@ const AffidavitOfPaternityForm: React.FC = () => {
                         name='affidavitOfPaternityDetails.mother.signature'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Mother&apos;s Signature</FormLabel>
+                            <FormLabel>Mother&aposs Signature</FormLabel>
                             <FormControl>
                               <Input {...field} value={field.value || ''} />
                             </FormControl>
@@ -282,7 +282,7 @@ const AffidavitOfPaternityForm: React.FC = () => {
         </div>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default AffidavitOfPaternityForm;
+export default AffidavitOfPaternityForm

@@ -1,39 +1,39 @@
-'use client';
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useEffect, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { useEffect, useState } from 'react'
+import { useFormContext } from 'react-hook-form'
 
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import LocationSelector from '../shared-components/location-selector';
-import NCRModeSwitch from '../shared-components/ncr-mode-switch';
-import ReligionSelector from '../shared-components/religion-selector';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
+import LocationSelector from '../shared-components/location-selector'
+import NCRModeSwitch from '../shared-components/ncr-mode-switch'
+import ReligionSelector from '../shared-components/religion-selector'
 
 const MotherInformationCard: React.FC = () => {
   const { control, watch, setError, clearErrors } =
-    useFormContext<BirthCertificateFormValues>();
-  const [ncrMode, setNcrMode] = useState(false);
+    useFormContext<BirthCertificateFormValues>()
+  const [ncrMode, setNcrMode] = useState(false)
 
   // Watch the three fields in real time
-  const total = watch('motherInfo.totalChildrenBornAlive');
-  const living = watch('motherInfo.childrenStillLiving');
-  const dead = watch('motherInfo.childrenNowDead');
+  const total = watch('motherInfo.totalChildrenBornAlive')
+  const living = watch('motherInfo.childrenStillLiving')
+  const dead = watch('motherInfo.childrenNowDead')
 
   // Run a side effect whenever these three fields change
   useEffect(() => {
     // If all three fields have some value (non-empty)
     if (total.trim() !== '' && living.trim() !== '' && dead.trim() !== '') {
-      const totalNum = Number(total);
-      const livingNum = Number(living);
-      const deadNum = Number(dead);
+      const totalNum = Number(total)
+      const livingNum = Number(living)
+      const deadNum = Number(dead)
 
       // If they are valid numbers, check the sum
       if (!isNaN(totalNum) && !isNaN(livingNum) && !isNaN(deadNum)) {
@@ -43,17 +43,17 @@ const MotherInformationCard: React.FC = () => {
             type: 'manual',
             message:
               'Total children born alive must equal sum of living and deceased children',
-          });
+          })
         } else {
           // Clear the error if they now match
-          clearErrors('motherInfo.totalChildrenBornAlive');
+          clearErrors('motherInfo.totalChildrenBornAlive')
         }
       }
     } else {
       // If the user hasn't filled all three fields yet, clear the sum error
-      clearErrors('motherInfo.totalChildrenBornAlive');
+      clearErrors('motherInfo.totalChildrenBornAlive')
     }
-  }, [total, living, dead, setError, clearErrors]);
+  }, [total, living, dead, setError, clearErrors])
 
   return (
     <Card>
@@ -354,7 +354,7 @@ const MotherInformationCard: React.FC = () => {
         </Card>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default MotherInformationCard;
+export default MotherInformationCard
