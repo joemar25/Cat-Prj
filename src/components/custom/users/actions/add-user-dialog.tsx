@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
 import { toast } from 'sonner'
+import { useState, useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
 import { Icons } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { handleCreateUser } from '@/hooks/users-action'
@@ -44,6 +44,26 @@ interface AddUserDialogProps {
   role?: string
 }
 
+const defaultValues: UserCreateFormValues = {
+  username: '',
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  roleId: '',
+  dateOfBirth: '',
+  phoneNumber: '',
+  address: '',
+  city: '',
+  state: '',
+  country: '',
+  postalCode: '',
+  bio: '',
+  occupation: '',
+  gender: undefined,
+  nationality: '',
+}
+
 function generateSecurePassword() {
   const length = 12
   const uppercase = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'
@@ -75,52 +95,91 @@ export function AddUserDialog({ onSuccess, role }: AddUserDialogProps) {
 
   const form = useForm<UserCreateFormValues>({
     resolver: zodResolver(userCreateFormSchema),
+    mode: 'onChange',
+    criteriaMode: 'all',
     defaultValues: {
-      username: '',
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      roleId: role || undefined,
-      dateOfBirth: '',
-      phoneNumber: '',
-      address: '',
-      city: '',
-      state: '',
-      country: '',
-      postalCode: '',
-      bio: '',
-      occupation: '',
-      gender: undefined,
-      nationality: '',
+      ...defaultValues,
+      roleId: role || '',
     },
   })
 
   const isValid = form.formState.isValid
   const isDirty = form.formState.isDirty
 
-  const handleGeneratePassword = () => {
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!open) {
+      form.reset(defaultValues)
+    }
+  }, [open, form])
+
+  const handleGeneratePassword = useCallback(() => {
     const newPassword = generateSecurePassword()
-    form.setValue('password', newPassword)
-    form.setValue('confirmPassword', newPassword)
+    form.setValue('password', newPassword, { shouldValidate: true })
+    form.setValue('confirmPassword', newPassword, { shouldValidate: true })
+  }, [form])
+
+  const canAssignSuperAdmin = hasAllPermissions(permissions, [
+    Permission.USER_CREATE,
+    Permission.USER_UPDATE,
+    Permission.USER_DELETE,
+  ])
+
+  const createFormData = (data: UserCreateFormValues): FormData => {
+    const formData = new FormData()
+
+    // Required fields validation
+    if (!data.email?.trim() || !data.name?.trim() || !data.password || !data.roleId) {
+      throw new Error('Required fields are missing')
+    }
+
+    // Append required fields
+    formData.append('email', data.email.trim())
+    formData.append('name', data.name.trim())
+    formData.append('password', data.password)
+    formData.append('roleId', data.roleId)
+    formData.append('emailVerified', 'false')
+
+    // Optional fields
+    const optionalFields: (keyof UserCreateFormValues)[] = [
+      'username',
+      'dateOfBirth',
+      'phoneNumber',
+      'address',
+      'city',
+      'state',
+      'country',
+      'postalCode',
+      'bio',
+      'occupation',
+      'gender',
+      'nationality',
+    ]
+
+    optionalFields.forEach((field) => {
+      const value = data[field]
+      if (value && typeof value === 'string' && value.trim()) {
+        formData.append(field, value.trim())
+      }
+    })
+
+    return formData
   }
 
-  const canAssignSuperAdmin = hasAllPermissions(permissions, [Permission.USER_CREATE, Permission.USER_UPDATE, Permission.USER_DELETE])
+  const handleSubmit = async (data: UserCreateFormValues) => {
+    if (!isValid) {
+      toast.error('Please fix all validation errors before submitting')
+      return
+    }
 
-  async function onSubmit(data: UserCreateFormValues) {
     setIsLoading(true)
     try {
-      const formData = new FormData()
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          formData.append(key, value)
-        }
-      })
-
+      const formData = createFormData(data)
       const result = await handleCreateUser(formData)
+
       if (result.success) {
         toast.success(result.message)
-        form.reset()
+        form.reset(defaultValues)
         setOpen(false)
         onSuccess?.()
       } else {
@@ -128,10 +187,20 @@ export function AddUserDialog({ onSuccess, role }: AddUserDialogProps) {
       }
     } catch (error) {
       console.error('Error creating user:', error)
-      toast.error('An unexpected error occurred')
+      toast.error(error instanceof Error ? error.message : 'An unexpected error occurred')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleCancel = () => {
+    form.reset(defaultValues)
+    setOpen(false)
+  }
+
+  const onError = (errors: any) => {
+    console.error('Form validation errors:', errors)
+    toast.error('Please fix all validation errors before submitting')
   }
 
   return (
@@ -150,7 +219,7 @@ export function AddUserDialog({ onSuccess, role }: AddUserDialogProps) {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
@@ -456,12 +525,18 @@ export function AddUserDialog({ onSuccess, role }: AddUserDialogProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  form.reset()
+                  setOpen(false)
+                }}
                 disabled={isLoading}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading || !isValid || !isDirty}>
+              <Button
+                type="submit"
+                disabled={isLoading || !isValid || !isDirty}
+              >
                 {isLoading ? (
                   <>
                     <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />

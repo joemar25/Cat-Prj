@@ -134,9 +134,14 @@ export async function handleCreateUser(data: FormData) {
   try {
     const roleId = data.get('roleId')
     const email = data.get('email') as string
+    const password = data.get('password') as string
 
     if (!roleId) {
       return { success: false, message: 'Role is required' }
+    }
+
+    if (!password) {
+      return { success: false, message: 'Password is required' }
     }
 
     // Check if email exists
@@ -157,7 +162,7 @@ export async function handleCreateUser(data: FormData) {
       return { success: false, message: 'Invalid role selected' }
     }
 
-    const hashedPassword = await hash(data.get('password') as string, 10)
+    const hashedPassword = await hash(password, 10)
     const now = new Date()
 
     const result = await prisma.$transaction(async (tx) => {

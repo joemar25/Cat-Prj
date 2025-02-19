@@ -34,10 +34,9 @@ import {
     COUNTRY,
     getAllProvinces,
     getCachedCitySuggestions,
-    getBarangaysByLocation,
-    getCachedBarangaySuggestions,
-    getAllCitiesMunicipalities,
     formatLocationForDisplay,
+    getAllCitiesMunicipalities,
+    getCachedBarangaySuggestions,
 } from '@/lib/utils/location-helpers'
 import type { Province, LocationSuggestion, Barangay } from '@/lib/utils/location-helpers'
 

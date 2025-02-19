@@ -1,7 +1,8 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { User } from '@prisma/client'
+import { useRouter } from 'next/navigation'
 import { Permission } from '@prisma/client'
 import { hasPermission } from '@/types/auth'
 import { Icons } from '@/components/ui/icons'
@@ -30,6 +31,10 @@ export function DataTableToolbar<TData extends User>({
 }: DataTableToolbarProps<TData>) {
   const { t } = useTranslation()
   const { permissions } = useUser()
+  const router = useRouter()
+
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
   const isFiltered = table.getState().columnFilters.length > 0
 
   const nameColumn = table.getColumn('name')
@@ -49,6 +54,14 @@ export function DataTableToolbar<TData extends User>({
     if (canExport) {
       console.log('Export functionality to be implemented')
     }
+  }
+
+  const handleRefresh = () => {
+    setIsRefreshing(true)
+    router.refresh()
+    setTimeout(() => {
+      setIsRefreshing(false)
+    }, 1000)
   }
 
   return (
@@ -103,6 +116,12 @@ export function DataTableToolbar<TData extends User>({
           )}
 
           <DataTableViewOptions table={table} />
+
+          <Button variant="outline" onClick={handleRefresh}>
+            <Icons.refresh
+              className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+            />
+          </Button>
         </div>
       </div>
     </div>
