@@ -1,5 +1,5 @@
 import { toast } from 'sonner'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { Loader2, Save } from 'lucide-react'
 import { formatDateTime } from '@/utils/date'
@@ -11,8 +11,18 @@ import { Card, CardContent } from '@/components/ui/card'
 import { createDeathAnnotation } from '@/hooks/form-annotations-actions'
 import { DeathAnnotationFormFields } from '@/lib/constants/form-annotations-dynamic-fields'
 import { PlaceStructure } from '@/lib/types/zod-form-annotations/form-annotation-shared-interfaces'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DeathAnnotationFormValues, DeathAnnotationFormSchema, ExtendedDeathAnnotationFormProps } from '@/lib/types/zod-form-annotations/death-annotation-form-schema'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  DeathAnnotationFormValues,
+  DeathAnnotationFormSchema,
+  ExtendedDeathAnnotationFormProps,
+} from '@/lib/types/zod-form-annotations/death-annotation-form-schema'
 
 const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
   open,
@@ -20,6 +30,8 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
   onCancel,
   formData,
 }) => {
+  const isCanceling = useRef(false)
+
   const defaultValues: DeathAnnotationFormValues = {
     amountPaid: 0,
     civilRegistrar: 'PRISCILLA L. GALICIA',
@@ -44,7 +56,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
     verifiedByPosition: '',
     remarks: '',
     orNumber: '',
-    datePaid: undefined
+    datePaid: undefined,
   }
 
   const {
@@ -55,23 +67,27 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
     formState: { errors, isSubmitting },
   } = useForm<DeathAnnotationFormValues>({
     resolver: zodResolver(DeathAnnotationFormSchema),
-    defaultValues
+    defaultValues,
   })
 
   useEffect(() => {
     if (formData) {
+      // Basic registration info
       setValue('pageNumber', formData.pageNumber)
       setValue('bookNumber', formData.bookNumber)
       setValue('registryNumber', formData.registryNumber)
       setValue('dateOfRegistration', formData.dateOfRegistration || '')
 
+      // Death certificate specific data
       const deathForm = formData.deathCertificateForm
       if (deathForm) {
         if (deathForm.deceasedName && typeof deathForm.deceasedName === 'object') {
-          const nameObj = deathForm.deceasedName as { first?: string; middle?: string; last?: string }
-          const fullName = [nameObj.first || '', nameObj.middle || '', nameObj.last || '']
-            .filter(Boolean)
-            .join(' ')
+          const { first, middle, last } = deathForm.deceasedName as {
+            first?: string
+            middle?: string
+            last?: string
+          }
+          const fullName = [first, middle, last].filter(Boolean).join(' ')
           setValue('nameOfDeceased', fullName)
         }
         setValue('sex', deathForm.sex || '')
@@ -106,6 +122,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
         }
       }
 
+      // Processed by and verified by info
       if (formData.preparedBy) {
         setValue('preparedByName', formData.preparedBy.name || '')
       }
@@ -118,6 +135,11 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
   }, [formData, setValue])
 
   const onSubmit = async (data: DeathAnnotationFormValues) => {
+    if (isCanceling.current) {
+      isCanceling.current = false
+      return
+    }
+
     try {
       const response = await createDeathAnnotation(data)
       if (response.success) {
@@ -135,72 +157,104 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
 
   const handleCancel = (e: React.MouseEvent) => {
     e.preventDefault()
+    isCanceling.current = true
     onCancel()
     reset()
   }
 
+  // Split the dynamic fields array into two halves
+  const midPoint = Math.ceil(DeathAnnotationFormFields.length / 2)
+  const firstHalf = DeathAnnotationFormFields.slice(0, midPoint)
+  const secondHalf = DeathAnnotationFormFields.slice(midPoint)
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[900px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">
+          <DialogTitle className="text-3xl font-bold text-center mb-6">
             Civil Registry Form 2A
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="container mx-auto p-4">
-            <Card className="w-full max-w-3xl mx-auto bg-background text-foreground border dark:border-border">
-              <CardContent className="p-6 space-y-6">
-                <div className="relative">
-                  <h2 className="text-lg font-medium">TO WHOM IT MAY CONCERN:</h2>
-                  <p className="absolute top-0 right-0">{formatDateTime(new Date())}</p>
-                  <p className="mt-2">
+            <div className="bg-background text-foreground">
+              <CardContent className="p-8 space-y-8">
+                {/* Header Section */}
+                <div className="relative border-b pb-4">
+                  <div className="flex gap-2 items-center">
+                    <h2 className="text-xl font-medium">TO WHOM IT MAY CONCERN:</h2>
+                    {/* You may add an icon here if desired */}
+                  </div>
+                  <p className="absolute top-0 right-0 text-sm text-muted-foreground">
+                    {formatDateTime(new Date())}
+                  </p>
+                  <p className="mt-4 text-muted-foreground">
                     We certify that, among others, the following facts of death appear in our Register of Death on
                   </p>
-                  <div className="grid grid-cols-2 gap-4 mt-2">
-                    <div className="space-y-1">
+                  <div className="grid grid-cols-2 gap-6 mt-4">
+                    <div className="space-y-2">
                       <Label>Page number</Label>
-                      <Input {...register('pageNumber')} />
+                      <Input {...register('pageNumber')} className="w-full" />
                       {errors.pageNumber && (
-                        <span className="text-red-500">{errors.pageNumber.message}</span>
+                        <span className="text-destructive text-sm">{errors.pageNumber.message}</span>
                       )}
                     </div>
-                    <div className="space-y-1">
-                      <Label>of Book number</Label>
-                      <Input {...register('bookNumber')} />
+                    <div className="space-y-2">
+                      <Label>Book number</Label>
+                      <Input {...register('bookNumber')} className="w-full" />
                       {errors.bookNumber && (
-                        <span className="text-red-500">{errors.bookNumber.message}</span>
+                        <span className="text-destructive text-sm">{errors.bookNumber.message}</span>
                       )}
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  {DeathAnnotationFormFields.map((field, index) => (
-                    <div key={index} className="grid grid-cols-[150px_1fr] gap-4 items-center">
-                      <Label className="font-medium">{field.label}</Label>
-                      <div>
+                {/* Dynamic Fields Section */}
+                <div className="grid grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                    {firstHalf.map((field, index) => (
+                      <div key={index} className="space-y-2">
+                        <Label className="font-medium">{field.label}</Label>
                         <Input
-                          {...register(field.name as keyof DeathAnnotationFormValues)}
                           type={field.type}
+                          {...register(field.name as keyof DeathAnnotationFormValues)}
+                          className="w-full"
                         />
                         {errors[field.name as keyof typeof errors] && (
-                          <span className="text-red-500">
+                          <span className="text-destructive text-sm">
                             {errors[field.name as keyof typeof errors]?.message}
                           </span>
                         )}
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                  <div className="space-y-6">
+                    {secondHalf.map((field, index) => (
+                      <div key={index} className="space-y-2">
+                        <Label className="font-medium">{field.label}</Label>
+                        <Input
+                          type={field.type}
+                          {...register(field.name as keyof DeathAnnotationFormValues)}
+                          className="w-full"
+                        />
+                        {errors[field.name as keyof typeof errors] && (
+                          <span className="text-destructive text-sm">
+                            {errors[field.name as keyof typeof errors]?.message}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="space-y-4 pt-4">
+                {/* Issued To / Purpose Section */}
+                <div className="space-y-4 pt-6">
                   <div className="grid grid-cols-[auto_1fr] gap-2 items-center">
                     <p>This certification is issued to</p>
                     <div>
                       <Input {...register('issuedTo')} />
                       {errors.issuedTo && (
-                        <span className="text-red-500">{errors.issuedTo.message}</span>
+                        <span className="text-destructive text-sm">{errors.issuedTo.message}</span>
                       )}
                     </div>
                   </div>
@@ -209,63 +263,69 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
                     <div>
                       <Input {...register('purpose')} />
                       {errors.purpose && (
-                        <span className="text-red-500">{errors.purpose.message}</span>
+                        <span className="text-destructive text-sm">{errors.purpose.message}</span>
                       )}
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-8 pt-8">
-                  <div className="space-y-8">
-                    <div className="space-y-4">
-                      <p className="font-medium">Prepared By</p>
-                      <div className="space-y-1">
-                        <Input
-                          className="text-center"
-                          placeholder="Name and Signature"
-                          {...register('preparedByName')}
-                        />
-                        {errors.preparedByName && (
-                          <span className="text-red-500">{errors.preparedByName.message}</span>
-                        )}
-                        <Input
-                          className="text-center"
-                          placeholder="Position"
-                          {...register('preparedByPosition')}
-                        />
-                        {errors.preparedByPosition && (
-                          <span className="text-red-500">{errors.preparedByPosition.message}</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="space-y-4">
-                      <p className="font-medium">Verified By</p>
-                      <div className="space-y-1">
-                        <Input
-                          className="text-center"
-                          placeholder="Name and Signature"
-                          {...register('verifiedByName')}
-                        />
-                        {errors.verifiedByName && (
-                          <span className="text-red-500">{errors.verifiedByName.message}</span>
-                        )}
-                        <Input
-                          className="text-center"
-                          placeholder="Position"
-                          {...register('verifiedByPosition')}
-                        />
-                        {errors.verifiedByPosition && (
-                          <span className="text-red-500">{errors.verifiedByPosition.message}</span>
-                        )}
-                      </div>
-                    </div>
+                {/* Prepared/Verified Section */}
+                <div className="grid grid-cols-3 gap-8 pt-8 border-t">
+                  <div className="space-y-4">
+                    <p className="font-medium">Prepared By</p>
+                    <Input
+                      className="text-center"
+                      placeholder="Name and Signature"
+                      {...register('preparedByName')}
+                    />
+                    {errors.preparedByName && (
+                      <span className="text-destructive text-sm">
+                        {errors.preparedByName.message}
+                      </span>
+                    )}
+                    <Input
+                      className="text-center"
+                      placeholder="Position"
+                      {...register('preparedByPosition')}
+                    />
+                    {errors.preparedByPosition && (
+                      <span className="text-destructive text-sm">
+                        {errors.preparedByPosition.message}
+                      </span>
+                    )}
+                  </div>
+                  <div className="space-y-4">
+                    <p className="font-medium">Verified By</p>
+                    <Input
+                      className="text-center"
+                      placeholder="Name and Signature"
+                      {...register('verifiedByName')}
+                    />
+                    {errors.verifiedByName && (
+                      <span className="text-destructive text-sm">
+                        {errors.verifiedByName.message}
+                      </span>
+                    )}
+                    <Input
+                      className="text-center"
+                      placeholder="Position"
+                      {...register('verifiedByPosition')}
+                    />
+                    {errors.verifiedByPosition && (
+                      <span className="text-destructive text-sm">
+                        {errors.verifiedByPosition.message}
+                      </span>
+                    )}
                   </div>
                   <div className="flex flex-col items-center justify-end">
                     <p className="font-medium text-center">PRISCILLA L. GALICIA</p>
-                    <p className="text-sm text-center">OIC - City Civil Registrar</p>
+                    <p className="text-sm text-center text-muted-foreground">
+                      OIC - City Civil Registrar
+                    </p>
                   </div>
                 </div>
 
+                {/* Additional Payment Fields */}
                 <div className="space-y-2 pt-4">
                   <div className="grid grid-cols-[120px_1fr] gap-4 items-center">
                     <Label className="font-medium">Amount Paid</Label>
@@ -276,7 +336,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
                         pattern="^\d*\.?\d*$"
                       />
                       {errors.amountPaid && (
-                        <span className="text-red-500">{errors.amountPaid.message}</span>
+                        <span className="text-destructive text-sm">{errors.amountPaid.message}</span>
                       )}
                     </div>
                   </div>
@@ -285,28 +345,25 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
                     <div>
                       <Input {...register('orNumber')} />
                       {errors.orNumber && (
-                        <span className="text-red-500">{errors.orNumber.message}</span>
+                        <span className="text-destructive text-sm">{errors.orNumber.message}</span>
                       )}
                     </div>
                   </div>
                   <div className="grid grid-cols-[120px_1fr] gap-4 items-center">
                     <Label className="font-medium">Date Paid</Label>
                     <div>
-                      <Input
-                        type="date"
-                        {...register('datePaid')}
-                      />
+                      <Input type="date" {...register('datePaid')} />
                       {errors.datePaid && (
-                        <span className="text-red-500">{errors.datePaid.message}</span>
+                        <span className="text-destructive text-sm">{errors.datePaid.message}</span>
                       )}
                     </div>
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
+          <DialogFooter className="mt-8">
+            <Button variant="outline" onClick={handleCancel} disabled={isSubmitting}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
