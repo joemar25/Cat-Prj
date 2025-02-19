@@ -27,7 +27,7 @@ async function getCivilRegistryForms() {
           include: {
             attachments: {
               include: { certifiedCopies: true },
-              orderBy: { updatedAt: 'desc' }, // Ensures latest attachment is first
+              orderBy: { updatedAt: 'desc' },
             },
           },
         },
