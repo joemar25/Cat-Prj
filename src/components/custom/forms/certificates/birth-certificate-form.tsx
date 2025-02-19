@@ -109,11 +109,9 @@ export default function BirthCertificateForm({
 
             <div className='w-1/2'>
               <div className='h-[calc(95vh-120px)] p-6'>
-                {/* You can add your PDF viewer or preview component here */}
                 <PDFViewer width='100%' height='100%'>
                   <BirthCertificatePDF data={formMethods.watch()} />
                 </PDFViewer>
-                ;
               </div>
             </div>
           </div>

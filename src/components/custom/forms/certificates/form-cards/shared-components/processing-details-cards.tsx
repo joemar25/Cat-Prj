@@ -1,33 +1,21 @@
-'use client';
+'use client'
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { useEffect } from 'react';
-import { FieldValues, Path, useFormContext } from 'react-hook-form';
+import { useEffect } from 'react'
+import { Input } from '@/components/ui/input'
+import { useCivilRegistrarStaff } from '@/hooks/use-civil-registrar-staff'
+import { FieldValues, Path, PathValue, useFormContext } from 'react-hook-form'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export interface ProcessingCardProps<T extends FieldValues = FieldValues> {
-  fieldPrefix: string;
-  cardTitle: string;
-  hideDate?: boolean;
-  showSignature?: boolean;
-  showNameInPrint?: boolean;
-  showTitleOrPosition?: boolean;
+  fieldPrefix: string
+  cardTitle: string
+  hideDate?: boolean
+  showSignature?: boolean
+  showNameInPrint?: boolean
+  showTitleOrPosition?: boolean
 }
 
 function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
@@ -43,26 +31,26 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
     watch,
     setValue,
     formState: { isSubmitted },
-  } = useFormContext<T>();
+  } = useFormContext<T>()
 
-  const selectedName = watch(`${fieldPrefix}.nameInPrint` as Path<T>);
-  const titleFieldName = `${fieldPrefix}.titleOrPosition` as Path<T>;
+  const { staff, loading } = useCivilRegistrarStaff()
+  const selectedName = watch(`${fieldPrefix}.nameInPrint` as Path<T>)
+  const titleFieldName = `${fieldPrefix}.titleOrPosition` as Path<T>
+  const signatureFieldName = `${fieldPrefix}.signature` as Path<T>
 
   useEffect(() => {
-    const staff = CIVIL_REGISTRAR_STAFF.find(
-      (staff) => staff.name === selectedName
-    );
-    if (staff) {
-      setValue(titleFieldName, staff.title as any, {
+    const selectedStaff = staff.find((s) => s.name === selectedName)
+    if (selectedStaff) {
+      setValue(titleFieldName, selectedStaff.title as PathValue<T, Path<T>>, {
         shouldValidate: isSubmitted,
         shouldDirty: true,
-      });
-      setValue(`${fieldPrefix}.signature` as Path<T>, staff.name as any, {
+      })
+      setValue(signatureFieldName, selectedStaff.name as PathValue<T, Path<T>>, {
         shouldValidate: isSubmitted,
         shouldDirty: true,
-      });
+      })
     }
-  }, [selectedName, setValue, isSubmitted, titleFieldName, fieldPrefix]);
+  }, [selectedName, staff, setValue, isSubmitted, titleFieldName, signatureFieldName])
 
   return (
     <Card>
@@ -73,7 +61,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
         {showSignature && (
           <FormField
             control={control}
-            name={`${fieldPrefix}.signature` as Path<T>}
+            name={signatureFieldName}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Signature</FormLabel>
@@ -103,16 +91,17 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
                   <Select
                     onValueChange={field.onChange}
                     value={field.value || ''}
+                    disabled={loading}
                   >
                     <FormControl>
                       <SelectTrigger className='h-10'>
-                        <SelectValue placeholder='Select staff name' />
+                        <SelectValue placeholder={loading ? 'Loading...' : 'Select staff name'} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {CIVIL_REGISTRAR_STAFF.map((staff) => (
-                        <SelectItem key={staff.id} value={staff.name}>
-                          {staff.name}
+                      {staff.map((s) => (
+                        <SelectItem key={s.id} value={s.name}>
+                          {s.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -164,10 +153,8 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
         )}
       </CardContent>
     </Card>
-  );
+  )
 }
-
-// Export specialized versions
 
 export function PreparedByCard<T extends FieldValues = FieldValues>(
   props: Omit<ProcessingCardProps<T>, 'fieldPrefix' | 'cardTitle'>
@@ -178,7 +165,7 @@ export function PreparedByCard<T extends FieldValues = FieldValues>(
       cardTitle='Prepared By'
       {...props}
     />
-  );
+  )
 }
 
 export function ReceivedByCard<T extends FieldValues = FieldValues>(
@@ -190,7 +177,7 @@ export function ReceivedByCard<T extends FieldValues = FieldValues>(
       cardTitle='Received By'
       {...props}
     />
-  );
+  )
 }
 
 export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(
@@ -205,5 +192,5 @@ export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(
       showNameInPrint={props.showNameInPrint}
       showTitleOrPosition={props.showTitleOrPosition}
     />
-  );
+  )
 }
