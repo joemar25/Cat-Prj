@@ -29,6 +29,8 @@ import RegistryInformationCard from './form-cards/shared-components/registry-inf
 import RemarksCard from './form-cards/shared-components/remarks-card';
 import { AffidavitOfSolemnizingOfficer } from './form-cards/marriage-cards/affidavit-of-marriage';
 import { AffidavitForDelayedMarriageRegistration } from './form-cards/marriage-cards/affidavit-of-delayed-marriage-registration';
+import { PDFViewer } from '@react-pdf/renderer';
+import MarriageCertificatePDF from './preview/marriage-certificate/marriage-certificate-pdf';
 
 export default function MarriageCertificateForm({
   open,
