@@ -1,14 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Icons } from '@/components/ui/icons'
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { BirthReport } from "./birth-report"
 import { DeathReport } from "./death-report"
-import * as Tooltip from '@radix-ui/react-tooltip'
 import { DocumentReport } from "./document-report"
 import { MarriageReport } from "./marriage-report"
 import { UserActivityReport } from "./user-activity-report"
@@ -47,20 +44,6 @@ export const ReportsDashboard = () => {
 
     return (
         <div className="w-full ml-0 mr-auto relative">
-            <Tooltip.Provider>
-                <Tooltip.Root>
-                    <Tooltip.Trigger asChild>
-                        <Icons.infoCircledIcon className="h-4 w-4 cursor-pointer absolute left-5 -top-1" />
-                    </Tooltip.Trigger>
-                    <Tooltip.Content className="bg-white p-4 rounded shadow-lg max-w-md mt-20 dark:bg-muted" side="right">
-                        <AlertTitle>{t('reports')}</AlertTitle>
-                        <AlertDescription>
-                            {t('tooltip_description')}
-                        </AlertDescription>
-                    </Tooltip.Content>
-                </Tooltip.Root>
-            </Tooltip.Provider>
-
             <div className="w-full">
                 <CardHeader>
                     <CardTitle>{t('reports_dashboard')}</CardTitle>
@@ -74,13 +57,13 @@ export const ReportsDashboard = () => {
                         <TabsList className="grid w-full max-w-[700px] p-1 grid-cols-2 lg:grid-cols-5 mb-6 max-h-10">
                             {reports.map((report) => (
                                 <TabsTrigger key={report.key} value={report.key} className="p-1 px-4">
-                                    {t(report.labelKey)} {/* Use the translated label key here */}
+                                    {t(report.labelKey)}
                                 </TabsTrigger>
                             ))}
                         </TabsList>
                         {reports.map((report) => (
                             <TabsContent key={report.key} value={report.key} className="w-full max-w-[1000px]">
-                                <div className="w-full">{renderReport()}</div> {/* Ensures content inside takes full width */}
+                                <div className="w-full">{renderReport()}</div>
                             </TabsContent>
                         ))}
                     </Tabs>
