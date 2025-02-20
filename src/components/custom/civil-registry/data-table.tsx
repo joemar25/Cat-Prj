@@ -27,15 +27,15 @@ import {
 import { DataTablePagination } from '@/components/custom/table/data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
 import { CardContent } from '@/components/ui/card'
-import { ExtendedBaseRegistryForm } from './columns'
 import { useTranslation } from 'react-i18next'
 
 // Import your Lottie animation JSON
 import certificateAnimation from '@lottie/blue.json'
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 
 interface DataTableProps {
-  columns: ColumnDef<ExtendedBaseRegistryForm>[]
-  data: ExtendedBaseRegistryForm[]
+  columns: ColumnDef<BaseRegistryFormWithRelations>[]
+  data: BaseRegistryFormWithRelations[]
   searchKey?: string
   selection?: boolean
 }

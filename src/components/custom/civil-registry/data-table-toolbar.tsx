@@ -4,28 +4,29 @@ import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { ComponentType } from "react"
 import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { DateRange } from "react-day-picker"
 import { hasPermission } from "@/types/auth"
 import { Icons } from "@/components/ui/icons"
 import { Table } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label" // <-- Make sure you have this component available
+import { Label } from "@/components/ui/label"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@/context/user-context"
 import { Cross2Icon } from "@radix-ui/react-icons"
-import { Card, CardContent } from "@/components/ui/card"
 import { Calendar } from "@/components/ui/calendar"
-import { ExtendedBaseRegistryForm } from "./columns"
-import { FormType, Permission } from "@prisma/client"
+import { FormType, Permission, DocumentStatus } from "@prisma/client"
+import { Card, CardContent } from "@/components/ui/card"
+import { BaseRegistryFormWithRelations } from "@/hooks/civil-registry-action"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { DataTableViewOptions } from "@/components/custom/table/data-table-view-options"
 import { DataTableFacetedFilter } from "@/components/custom/table/data-table-faceted-filter"
 import { AddCivilRegistryFormDialog } from "@/components/custom/civil-registry/actions/add-form-dialog"
+import { AlertCircle, Info } from 'lucide-react'
 
 interface DataTableToolbarProps {
-  table: Table<ExtendedBaseRegistryForm>
+  table: Table<BaseRegistryFormWithRelations>
 }
 
 const formTypes = [
@@ -37,24 +38,125 @@ const formTypes = [
 export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const { t } = useTranslation()
   const { permissions } = useUser()
-
   const router = useRouter()
   const isFiltered = table.getState().columnFilters.length > 0
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
-  const [availableYears, setAvailableYears] = useState<
-    Array<{
-      label: string
-      value: string
-      icon: ComponentType<{ className?: string }>
-    }>
-  >([])
+  const [availableYears, setAvailableYears] = useState<Array<{
+    label: string
+    value: string
+    icon: ComponentType<{ className?: string }>
+  }>>([])
+  const [statusOptions, setStatusOptions] = useState<Array<{
+    label: string
+    value: DocumentStatus
+    icon: ComponentType<{ className?: string }>
+  }>>([])
   const [pageSearch, setPageSearch] = useState<string>("")
   const [bookSearch, setBookSearch] = useState<string>("")
   const [firstNameSearch, setFirstNameSearch] = useState<string>("")
   const [middleNameSearch, setMiddleNameSearch] = useState<string>("")
   const [lastNameSearch, setLastNameSearch] = useState<string>("")
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
+
+  // Get status icon based on status
+  const getStatusIcon = (status: DocumentStatus) => {
+    switch (status) {
+      case 'PENDING':
+        return Icons.clock
+      case 'VERIFIED':
+        return Icons.check
+      case 'LATE_REGISTRATION':
+        return AlertCircle
+      default:
+        return Info
+    }
+  }
+
+  // Collect unique statuses from data
+  useEffect(() => {
+    const rows = table.getPreFilteredRowModel().rows
+    const uniqueStatuses = new Set<DocumentStatus>()
+
+    rows.forEach((row) => {
+      const status = row.original.status
+      if (status) {
+        uniqueStatuses.add(status)
+      }
+    })
+
+    const statuses = Array.from(uniqueStatuses)
+      .sort()
+      .map((status) => ({
+        label: t(status.toLowerCase()),
+        value: status,
+        icon: getStatusIcon(status)
+      }))
+
+    setStatusOptions(statuses)
+  }, [table.getPreFilteredRowModel().rows, t])
+
+  // Get unique years
+  useEffect(() => {
+    const rows = table.getPreFilteredRowModel().rows
+    const uniqueYears = new Set<string>()
+
+    rows.forEach((row) => {
+      const date = row.original.dateOfRegistration || row.original.createdAt
+      if (date) {
+        const year = new Date(date).getFullYear().toString()
+        uniqueYears.add(year)
+      }
+    })
+
+    const years = Array.from(uniqueYears)
+      .sort((a, b) => b.localeCompare(a))
+      .map((year) => ({
+        label: year,
+        value: year,
+        icon: Icons.calendar,
+      }))
+
+    setAvailableYears(years)
+  }, [table.getPreFilteredRowModel().rows])
+
+  // Get preparers for filter
+  const preparerOptions = useMemo(() => {
+    const uniquePreparers = new Set<string>()
+
+    table.getPreFilteredRowModel().rows.forEach((row) => {
+      if (row.original.preparedBy?.name) {
+        uniquePreparers.add(row.original.preparedBy.name)
+      }
+    })
+
+    return Array.from(uniquePreparers)
+      .map(name => ({
+        label: name,
+        value: name,
+        icon: Icons.user
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+  }, [table.getPreFilteredRowModel().rows])
+
+  // Get verifiers for filter
+  const verifierOptions = useMemo(() => {
+    const uniqueVerifiers = new Set<string>()
+
+    table.getPreFilteredRowModel().rows.forEach((row) => {
+      if (row.original.verifiedBy?.name) {
+        uniqueVerifiers.add(row.original.verifiedBy.name)
+      }
+    })
+
+    return Array.from(uniqueVerifiers)
+      .map(name => ({
+        label: name,
+        value: name,
+        icon: Icons.user
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+  }, [table.getPreFilteredRowModel().rows])
 
   const formTypeColumn = table.getColumn("formType")
   const preparedByColumn = table.getColumn("preparedBy")
@@ -66,7 +168,6 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const detailsColumn = table.getColumn("details")
   const canAdd = hasPermission(permissions, Permission.DOCUMENT_CREATE)
 
-  // Control which columns are visible by default
   useEffect(() => {
     const defaultVisibleColumns = [
       "formType",
@@ -78,6 +179,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
       "status",
       "createdAt",
       "hasCTC",
+      "Year"
     ]
 
     table.getAllColumns().forEach((column) => {
@@ -89,61 +191,40 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     })
   }, [table])
 
-  // Collect unique years from the table data
+
+  // Collect years from data
   useEffect(() => {
-    const rows = table.getFilteredRowModel().rows
-    const uniqueYears = new Set<number>()
+    const rows = table.getPreFilteredRowModel().rows
+    const uniqueYears = new Set<string>()
 
     rows.forEach((row) => {
-      if (row.original.createdAt) {
-        const date = new Date(row.original.createdAt)
-        uniqueYears.add(date.getFullYear())
+      const rowData = row.original
+      const date = rowData.dateOfRegistration || rowData.createdAt
+      if (date) {
+        const year = new Date(date).getFullYear().toString()
+        uniqueYears.add(year)
       }
     })
 
     const years = Array.from(uniqueYears)
-      .sort((a, b) => b - a)
+      .sort((a, b) => b.localeCompare(a))
       .map((year) => ({
-        label: year.toString(),
-        value: year.toString(),
+        label: year,
+        value: year,
         icon: Icons.calendar,
       }))
 
     setAvailableYears(years)
-  }, [table])
+  }, [table.getPreFilteredRowModel().rows])
 
-  const statusOptions = [
-    { label: t("Pending"), value: "PENDING", icon: Icons.clock },
-    { label: t("Verified"), value: "VERIFIED", icon: Icons.check },
+  // Column definitions
+  const formTypes = [
+    { label: "Marriage", value: FormType.MARRIAGE },
+    { label: "Birth", value: FormType.BIRTH },
+    { label: "Death", value: FormType.DEATH },
   ]
 
-  const preparerOptions = Array.from(
-    new Set(
-      table
-        .getRowModel()
-        .rows.map((row) => row.original.preparedBy?.name)
-        .filter((name): name is string => typeof name === "string")
-    )
-  ).map((name) => ({
-    label: name,
-    value: name,
-    icon: Icons.user,
-  }))
-
-  const verifierOptions = Array.from(
-    new Set(
-      table
-        .getRowModel()
-        .rows.map((row) => row.original.verifiedBy?.name)
-        .filter((name): name is string => typeof name === "string")
-    )
-  ).map((name) => ({
-    label: name,
-    value: name,
-    icon: Icons.user,
-  }))
-
-  // Handlers for search fields
+  // Handle search fields
   const handlePageSearch = (value: string) => {
     setPageSearch(value)
     if (registryDetailsColumn) {
@@ -164,7 +245,6 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     }
   }
 
-  // For date range filtering
   const handleDateRangeSelect = (range: DateRange | undefined) => {
     setDateRange(range)
     if (createdAtColumn) {
@@ -176,7 +256,6 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     }
   }
 
-  // Reset all filters
   const handleReset = () => {
     table.resetColumnFilters()
     setDateRange(undefined)
@@ -187,7 +266,6 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     setLastNameSearch("")
   }
 
-  // Refresh the page (or re-fetch data)
   const handleRefresh = () => {
     setIsRefreshing(true)
     router.refresh()
@@ -200,8 +278,8 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     <div className="space-y-4 relative">
       <Card>
         <CardContent className="space-y-6">
-          {/* SEARCH FIELDS */}
           <div className="w-full max-w-5xl py-4 mx-auto">
+            {/* Row 1: Global Search, Page Number, Book Number */}
             <div className="grid grid-cols-3 gap-4">
               {/* Global Search */}
               <div className="flex flex-col">
@@ -254,6 +332,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               </div>
             </div>
 
+            {/* Row 2: Name Search Fields */}
             <div className="grid grid-cols-3 gap-4 mt-4">
               {/* First Name */}
               <div className="flex flex-col">
@@ -337,9 +416,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
         </CardContent>
       </Card>
 
-      {/* FACETED FILTERS AND CONTROLS */}
       <div className="flex flex-wrap gap-2 justify-between items-center">
-        {/* LEFT SIDE: Faceted filters */}
         <div className="flex flex-wrap gap-2">
           {formTypeColumn && (
             <DataTableFacetedFilter
@@ -357,13 +434,15 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               }))}
             />
           )}
-          {statusColumn && (
+
+          {statusColumn && statusOptions.length > 0 && (
             <DataTableFacetedFilter
               column={statusColumn}
               title={t("Status")}
               options={statusOptions}
             />
           )}
+
           {yearColumn && availableYears.length > 0 && (
             <DataTableFacetedFilter
               column={yearColumn}
@@ -371,6 +450,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               options={availableYears}
             />
           )}
+
           {preparedByColumn && preparerOptions.length > 0 && (
             <DataTableFacetedFilter
               column={preparedByColumn}
@@ -378,6 +458,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
               options={preparerOptions}
             />
           )}
+
           {verifiedByColumn && verifierOptions.length > 0 && (
             <DataTableFacetedFilter
               column={verifiedByColumn}
@@ -386,55 +467,57 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
             />
           )}
 
-          {/* DATE RANGE PICKER */}
-          <div className="flex gap-2 items-start">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "justify-start text-left font-normal h-8",
-                    !dateRange && "text-muted-foreground"
-                  )}
-                >
-                  <Icons.calendar className="mr-2 h-4 w-4" />
-                  {dateRange?.from ? (
-                    dateRange.to ? (
-                      <>
-                        {format(dateRange.from, "LLL dd, y")} -{" "}
-                        {format(dateRange.to, "LLL dd, y")}
-                      </>
-                    ) : (
-                      format(dateRange.from, "LLL dd, y")
-                    )
+          {/* Date Range Picker */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "justify-start text-left font-normal h-8",
+                  !dateRange && "text-muted-foreground"
+                )}
+              >
+                <Icons.calendar className="mr-2 h-4 w-4" />
+                {dateRange?.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, "LLL dd, y")} -{" "}
+                      {format(dateRange.to, "LLL dd, y")}
+                    </>
                   ) : (
-                    <span>{t("Pick a date range")}</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  defaultMonth={dateRange?.from}
-                  selected={dateRange}
-                  onSelect={handleDateRangeSelect}
-                  numberOfMonths={2}
-                />
-              </PopoverContent>
-            </Popover>
-
-            {/* RESET BUTTON (only visible if filters are applied) */}
-            {isFiltered && (
-              <Button variant="ghost" onClick={handleReset} size="sm">
-                {t("Reset")}
-                <Cross2Icon className="ml-2 h-4 w-4" />
+                    format(dateRange.from, "LLL dd, y")
+                  )
+                ) : (
+                  <span>{t("Pick a date range")}</span>
+                )}
               </Button>
-            )}
-          </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                initialFocus
+                mode="range"
+                defaultMonth={dateRange?.from}
+                selected={dateRange}
+                onSelect={handleDateRangeSelect}
+                numberOfMonths={2}
+              />
+            </PopoverContent>
+          </Popover>
+
+          {/* Reset button */}
+          {isFiltered && (
+            <Button
+              variant="ghost"
+              onClick={handleReset}
+              className="h-8 px-2 lg:px-3"
+            >
+              {t("Reset")}
+              <Cross2Icon className="ml-2 h-4 w-4" />
+            </Button>
+          )}
         </div>
 
-        {/* RIGHT SIDE: Add, View options, and Refresh */}
+        {/* Right side controls */}
         <div className="flex items-center gap-4">
           {canAdd && (
             <div className="flex items-center gap-2">
@@ -444,7 +527,11 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
 
           <DataTableViewOptions table={table} />
 
-          <Button variant="outline" onClick={handleRefresh}>
+          <Button
+            variant="outline"
+            onClick={handleRefresh}
+            className="h-8 w-8 p-0"
+          >
             <Icons.refresh
               className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
             />
