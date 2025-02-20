@@ -1,50 +1,40 @@
-// src\app\api\documents\route.ts
-import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, DocumentStatus } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
 
 const prisma = new PrismaClient()
 
-export const POST = async (req: Request) => {
+export async function POST(request: NextRequest) {
+    const requestData = await request.json()
+    console.log('Received request:', requestData)
+
+    const { userId, formId, formType, registryNumber, fileUrl, fileName, fileSize, mimeType, type, title, status } = requestData
+
     try {
-        let body
-        try {
-            body = await req.json()
-        } catch (parseError) {
-            console.log(parseError)
-            return NextResponse.json({
-                error: 'Invalid request body',
-                details: 'Request body must be valid JSON'
-            }, { status: 400 })
-        }
-
-        const { type, title, status } = body
-
-        if (!type || !title) {
-            return NextResponse.json({
-                error: 'Missing required fields',
-                details: {
-                    type: type ? 'valid' : 'missing',
-                    title: title ? 'valid' : 'missing'
-                }
-            }, { status: 400 })
-        }
-
         const document = await prisma.document.create({
             data: {
                 type,
                 title,
-                status: status || 'PENDING',
+                status: status || DocumentStatus.PENDING,
                 metadata: {},
+                BaseRegistryForm: {
+                    connect: { id: formId },
+                },
+                attachments: {
+                    create: {
+                        userId,
+                        type,
+                        fileUrl,
+                        fileName,
+                        fileSize,
+                        mimeType,
+                    },
+                },
             },
         })
 
-        return NextResponse.json({ success: true, data: document }, { status: 201 })
-
+        return NextResponse.json(document)
     } catch (error) {
         console.error('Error creating document:', error)
-        return NextResponse.json({
-            error: 'Failed to create document',
-            details: error instanceof Error ? error.message : 'Unknown error'
-        }, { status: 500 })
+        return NextResponse.json({ error: 'An error occurred while creating the document.' }, { status: 500 })
     }
 }

@@ -1,25 +1,25 @@
-'use client';
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { FieldValues, Path, useFormContext } from 'react-hook-form';
+} from '@/components/ui/form'
+import { Textarea } from '@/components/ui/textarea'
+import { FieldValues, Path, useFormContext } from 'react-hook-form'
 
 export interface RemarksCardProps<T extends FieldValues = FieldValues> {
   /** The name of the field in your form schema. Defaults to "remarks". */
-  fieldName?: Path<T>;
+  fieldName?: Path<T>
   /** The title to display on the card header. Default is "Remarks/Annotations". */
-  cardTitle?: string;
+  cardTitle?: string
   /** The label to display above the textarea. Default is "Additional Remarks". */
-  label?: string;
+  label?: string
   /** The placeholder text for the textarea. */
-  placeholder?: string;
+  placeholder?: string
 }
 
 const RemarksCard = <T extends FieldValues = FieldValues>({
@@ -28,7 +28,7 @@ const RemarksCard = <T extends FieldValues = FieldValues>({
   label = 'Additional Remarks',
   placeholder = 'Enter any additional remarks or annotations',
 }: RemarksCardProps<T>) => {
-  const { control } = useFormContext<T>();
+  const { control } = useFormContext<T>()
 
   return (
     <Card>
@@ -55,7 +55,7 @@ const RemarksCard = <T extends FieldValues = FieldValues>({
         />
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default RemarksCard;
+export default RemarksCard

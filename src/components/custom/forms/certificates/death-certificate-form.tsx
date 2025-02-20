@@ -49,22 +49,23 @@ export default function DeathCertificateForm({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0'>
-        <div className='h-full flex flex-col'>
-          <DialogHeader>
-            <DialogTitle className='text-2xl font-bold text-center py-4'>
-              Certificate of Death
-            </DialogTitle>
-          </DialogHeader>
-          <div className='flex flex-1 overflow-hidden'>
-            {/* Left Side - Form */}
-            <div className='w-1/2 border-r'>
-              <ScrollArea className='h-[calc(95vh-120px)]'>
-                <div className='p-6'>
-                  <FormProvider {...formMethods}>
-                    <form
-                      onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
-                      className='space-y-6'
-                    >
+        <FormProvider {...formMethods}>
+          <form
+            onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
+            className='space-y-6'
+          >
+            <div className='h-full flex flex-col'>
+              <DialogHeader>
+                <DialogTitle className='text-2xl font-bold text-center py-4'>
+                  Certificate of Death
+                </DialogTitle>
+              </DialogHeader>
+              <div className='flex flex-1 overflow-hidden'>
+                {/* Left Side - Form */}
+                <div className='w-1/2 border-r'>
+                  <ScrollArea className='h-[calc(95vh-120px)]'>
+                    <div className='p-6 space-y-4'>
+
                       <RegistryInformationCard formType={FormType.DEATH} />
                       <DeceasedInformationCard />
                       <CausesOfDeath19aCard />
@@ -91,23 +92,16 @@ export default function DeathCertificateForm({
                         label='Additional Remarks'
                         placeholder='Enter any additional remarks or annotations'
                       />
-
-                      <DialogFooter>
-                        <Button
-                          type='button'
-                          variant='outline'
-                          className='h-10'
-                          onClick={onCancel}
-                        >
-                          Cancel
-                        </Button>
-                        <Button type='submit' className='h-10 ml-2'>
-                          Save
-                        </Button>
-                      </DialogFooter>
-                    </form>
-                  </FormProvider>
+                    </div>
+                  </ScrollArea>
                 </div>
+                {/* Right Side - Preview */}
+                <div className='w-1/2'>
+                  <div className='h-[calc(95vh-120px)] p-6'>
+                    {/* PDF Viewer or preview component can be added here */}
+                  </div>
+                </div>
+<<<<<<< HEAD
               </ScrollArea>
             </div>
             {/* Right Side - Preview */}
@@ -117,10 +111,25 @@ export default function DeathCertificateForm({
                 <PDFViewer width='100%' height='100%'>
                   <DeathCertificatePDF data={formMethods.watch()} />
                 </PDFViewer>
+=======
+>>>>>>> fbee001aa56098c8f71788379131a1b2ff619a67
               </div>
             </div>
-          </div>
-        </div>
+            <DialogFooter className='absolute bottom-2 right-2 gap-2 flex items-center'>
+              <Button
+                type='button'
+                variant='outline'
+                className='py-2 w-32 bg-muted-foreground/80 hover:bg-muted-foreground hover:text-accent text-accent'
+                onClick={onCancel}
+              >
+                Cancel
+              </Button>
+              <Button type='submit' className='py-2 w-32 bg-primary/80 hover:bg-primary'>
+                Save
+              </Button>
+            </DialogFooter>
+          </form>
+        </FormProvider>
       </DialogContent>
     </Dialog>
   );

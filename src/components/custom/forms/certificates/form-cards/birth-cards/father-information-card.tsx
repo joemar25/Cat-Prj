@@ -1,25 +1,25 @@
-'use client';
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useState } from 'react';
-import { useFormContext } from 'react-hook-form';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { useState } from 'react'
+import { useFormContext } from 'react-hook-form'
 
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import LocationSelector from '../shared-components/location-selector';
-import NCRModeSwitch from '../shared-components/ncr-mode-switch';
-import ReligionSelector from '../shared-components/religion-selector';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
+import LocationSelector from '../shared-components/location-selector'
+import NCRModeSwitch from '../shared-components/ncr-mode-switch'
+import ReligionSelector from '../shared-components/religion-selector'
 
 const FatherInformationCard: React.FC = () => {
-  const { control } = useFormContext<BirthCertificateFormValues>();
-  const [ncrMode, setNcrMode] = useState(false);
+  const { control } = useFormContext<BirthCertificateFormValues>()
+  const [ncrMode, setNcrMode] = useState(false)
 
   return (
     <Card>
@@ -162,9 +162,9 @@ const FatherInformationCard: React.FC = () => {
                         placeholder='Enter age'
                         {...field}
                         onChange={(e) => {
-                          const value = e.target.value;
+                          const value = e.target.value
                           if (/^\d*$/.test(value) || value === '') {
-                            field.onChange(value);
+                            field.onChange(value)
                           }
                         }}
                       />
@@ -265,7 +265,7 @@ const FatherInformationCard: React.FC = () => {
         </Card>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default FatherInformationCard;
+export default FatherInformationCard

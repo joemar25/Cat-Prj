@@ -87,6 +87,7 @@ import {
     LogOutIcon,
     Pencil,
     Archive,
+    Book,
     // mar-note: this commented is not to be used, but please do not remove
     // type Icon as LucideIcon,
 } from 'lucide-react'
@@ -210,6 +211,7 @@ export const Icons = {
     pencil: Pencil,
     archive: Archive,
     gear: Settings,
+    book: Book,
 } as const
 
 export type IconsType = typeof Icons

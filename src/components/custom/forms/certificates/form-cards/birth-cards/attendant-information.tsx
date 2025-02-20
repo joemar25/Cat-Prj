@@ -1,28 +1,28 @@
-'use client';
+'use client'
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import TimePicker from '@/components/custom/time/time-picker';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
+import TimePicker from '@/components/custom/time/time-picker'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import React, { useState } from 'react';
-import { useFormContext } from 'react-hook-form';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
+import React, { useState } from 'react'
+import { useFormContext } from 'react-hook-form'
 
-import LocationSelector from '../shared-components/location-selector';
-import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+import LocationSelector from '../shared-components/location-selector'
+import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 
 const AttendantInformationCard: React.FC = () => {
-  const { control } = useFormContext<BirthCertificateFormValues>();
-  const [attendantAddressNcrMode, setAttendantAddressNcrMode] = useState(false);
-  const [showOtherInput, setShowOtherInput] = useState(false);
+  const { control } = useFormContext<BirthCertificateFormValues>()
+  const [attendantAddressNcrMode, setAttendantAddressNcrMode] = useState(false)
+  const [showOtherInput, setShowOtherInput] = useState(false)
 
   return (
     <Card>
@@ -44,8 +44,8 @@ const AttendantInformationCard: React.FC = () => {
                   <FormControl>
                     <RadioGroup
                       onValueChange={(value) => {
-                        setShowOtherInput(value === 'Others');
-                        field.onChange(value);
+                        setShowOtherInput(value === 'Others')
+                        field.onChange(value)
                       }}
                       value={field.value}
                       className='grid grid-cols-2 md:grid-cols-5 gap-4'
@@ -259,7 +259,7 @@ const AttendantInformationCard: React.FC = () => {
         </Card>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default AttendantInformationCard;
+export default AttendantInformationCard

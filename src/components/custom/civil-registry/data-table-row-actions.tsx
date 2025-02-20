@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+
 import { toast } from 'sonner'
 import { useState } from 'react'
 import { Row } from '@tanstack/react-table'
@@ -17,7 +18,6 @@ import { FileUploadDialog } from '@/components/custom/civil-registry/components/
 import { DeleteConfirmationDialog } from '@/components/custom/civil-registry/components/delete-confirmation-dialog'
 import { EditCivilRegistryFormDialog } from '@/components/custom/civil-registry/components/edit-civil-registry-form-dialog'
 
-// Import annotation forms
 import DeathAnnotationForm from '@/components/custom/forms/annotations/death-annotation'
 import BirthAnnotationForm from '@/components/custom/forms/annotations/birth-cert-annotation'
 import MarriageAnnotationForm from '@/components/custom/forms/annotations/marriage-annotation-form'
@@ -32,19 +32,20 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 
-interface AttachmentWithCTC extends Attachment {
-  certifiedCopies: CertifiedCopy[]
-}
-
 interface DataTableRowActionsProps {
   row: Row<BaseRegistryFormWithRelations>
-  onUpdateAction?: (updatedForm: BaseRegistryFormWithRelations) => void
+  onUpdateForm?: (updatedForm: BaseRegistryFormWithRelations) => void
+  onDeleteForm?: (id: string) => void
 }
 
-export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActionsProps) {
+export function DataTableRowActions({
+  row,
+  onUpdateForm,
+  onDeleteForm,
+}: DataTableRowActionsProps) {
   const { t } = useTranslation()
   const { permissions } = useUser()
-  const form = row.original as BaseRegistryFormWithRelations
+  const form = row.original
 
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
@@ -53,18 +54,20 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
 
   const { handleDelete, isLoading } = useDeleteFormAction({ form })
 
-  // Permission checks
   const canView = hasPermission(permissions, Permission.DOCUMENT_READ)
   const canEdit = hasPermission(permissions, Permission.DOCUMENT_UPDATE)
   const canDelete = hasPermission(permissions, Permission.DOCUMENT_DELETE)
   const canUpload = hasPermission(permissions, Permission.DOCUMENT_CREATE)
-  const canExport = hasPermission(permissions, Permission.DOCUMENT_EXPORT) ||
+  const canExport =
+    hasPermission(permissions, Permission.DOCUMENT_EXPORT) ||
     process.env.NEXT_PUBLIC_NODE_ENV === 'development'
 
   // Check for attachments and certified copies
   const attachments = form.document?.attachments || []
   const hasAttachments = attachments.length > 0
-  const latestAttachment = attachments[0] as AttachmentWithCTC | undefined
+  // Note: If your Attachment type does not include certifiedCopies,
+  // you might need to adjust this logic accordingly.
+  const latestAttachment = attachments[0] as any | undefined
   const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0
 
   // Handle Export
@@ -80,12 +83,16 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
     }
 
     if (!hasCTC) {
-      toast.error(t('Latest attachment needs a certified true copy (CTC) before you can export'))
+      toast.error(
+        t('Latest attachment needs a certified true copy (CTC) before you can export')
+      )
       return
     }
 
     try {
-      const response = await fetch(`/api/attachments/${latestAttachment.id}/export?zip=true`)
+      const response = await fetch(
+        `/api/attachments/${latestAttachment.id}/export?zip=true`
+      )
       if (!response.ok) {
         const error = await response.json()
         throw new Error(error.error || 'Export failed')
@@ -115,7 +122,11 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
   // Handle Annotation (Issue Certificate)
   const handleAnnotationClick = () => {
     if (hasCTC) {
-      toast.info(t('A certified true copy (CTC) already exists. You can add another issue certificate if needed.'))
+      toast.info(
+        t(
+          'A certified true copy (CTC) already exists. You can add another issue certificate if needed.'
+        )
+      )
     }
     setAnnotationFormOpen(true)
   }
@@ -147,7 +158,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           {canUpload && (
             <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
               <Icons.printer className="mr-2 h-4 w-4" />
-              {t('scanDocumentUpload')}
+              {t('uploadDocument')}
             </DropdownMenuItem>
           )}
 
@@ -202,7 +213,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           onOpenChangeAction={setEditDialogOpen}
           onSave={(updatedForm) => {
             toast.success(`${t('formUpdated')} ${updatedForm.id}!`)
-            onUpdateAction?.(updatedForm)
+            onUpdateForm?.(updatedForm)
             setEditDialogOpen(false)
           }}
         />
@@ -215,6 +226,7 @@ export function DataTableRowActions({ row, onUpdateAction }: DataTableRowActions
           onConfirmAction={() => {
             handleDelete()
             setDeletionAlertOpen(false)
+            onDeleteForm?.(form.id)
           }}
           isLoading={isLoading}
         />

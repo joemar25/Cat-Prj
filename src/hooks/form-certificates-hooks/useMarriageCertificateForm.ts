@@ -2,6 +2,8 @@
 import { MarriageCertificateFormValues, marriageCertificateSchema } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { submitMarriageCertificateForm } from '../form-certificate-actions';
 
 interface UseMarriageCertificateFormProps {
     onOpenChange?: (open: boolean) => void;
@@ -27,14 +29,16 @@ export function useMarriageCertificateForm({
                     last: ''
                 },
                 placeOfBirth: {
+                    houseNo: '',
+                    st: '',
+                    barangay: '',
                     cityMunicipality: '',
                     province: '',
                     country: '',
-
                 },
                 sex: 'male',
                 religion: '',
-                age: undefined,
+                age: '',
                 birth: undefined,
                 citizenship: '',
                 civilStatus: undefined,
@@ -71,13 +75,15 @@ export function useMarriageCertificateForm({
                     last: ''
                 },
                 placeOfBirth: {
+                    houseNo: '',
+                    st: '',
+                    barangay: '',
                     cityMunicipality: '',
                     province: '',
                     country: '',
-
                 },
                 sex: 'female',
-                age: undefined,
+                age: '',
                 birth: undefined,
                 citizenship: '',
                 civilStatus: undefined,
@@ -108,37 +114,36 @@ export function useMarriageCertificateForm({
             // Marriage Details
             marriageDetails: {
                 placeOfMarriage: {
-                    office: '',
+                    barangay: '',
                     cityMunicipality: '',
                     province: '',
+                    country: '',
                 },
                 dateOfMarriage: undefined,
-                timeOfMarriage: undefined,
+                timeOfMarriage: '',
             },
 
             //Contracting parties
 
             husbandContractParty: {
-                signature: {
+                contractingParties: {
+                    agreement: {
+                        agreement: false
+                    },
                     signature: '',
-                    name: {
-                        first: '',
-                        middle: '',
-                        last: ''
-                    }
                 }
             },
 
             wifeContractParty: {
-                signature: {
+                contractingParties: {
+                    agreement: {
+                        agreement: false
+                    },
                     signature: '',
-                    name: {
-                        first: '',
-                        middle: '',
-                        last: ''
-                    }
                 }
             },
+
+            contractDay: undefined,
 
             // Witnesses
             husbandWitnesses:
@@ -166,14 +171,19 @@ export function useMarriageCertificateForm({
 
             // Marriage License Details
             marriageLicenseDetails: {
-                marriageAgree: undefined,
                 number: '',
-                dateIssued: undefined,
                 placeIssued: '',
+                dateIssued: undefined,
+                marriageAgree: {
+                    agreement: false
+                },
+
             },
             // Marriage article
             marriageArticle: {
-                articleAgree: undefined,
+                articleAgree: {
+                    agreement: false
+                },
                 articleExecutiveOrder: '',
 
             },
@@ -306,7 +316,24 @@ export function useMarriageCertificateForm({
             },
 
         },
-    });
+    })
 
-    return formMethods;
+    const onSubmit = async (data: MarriageCertificateFormValues) => {
+        try {
+            await submitMarriageCertificateForm(data);
+            toast.success('Form submitted successfully');
+            onOpenChange?.(false);
+        } catch {
+            toast.error('Submission failed, please try again');
+        }
+    };
+
+    const handleError = (errors: any) => {
+        toast.error('Please check form for errors');
+    };
+
+    return { formMethods, onSubmit, handleError };
 }
+
+
+

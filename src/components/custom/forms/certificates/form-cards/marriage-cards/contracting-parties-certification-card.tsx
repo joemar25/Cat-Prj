@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
+import { format } from 'date-fns';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -13,8 +14,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-
-import type { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 
 interface ContractingPartiesCertificationProps {
   className?: string;
@@ -24,6 +25,15 @@ export const ContractingPartiesCertification: React.FC<
   ContractingPartiesCertificationProps
 > = ({ className }) => {
   const { control } = useFormContext<MarriageCertificateFormValues>();
+
+  // Watch contractDay field
+  const contractDay = useWatch({ control, name: 'contractDay' });
+
+  // Format contractDay into "day" and "month + year"
+  const formattedDay = contractDay ? format(new Date(contractDay), 'd') : '';
+  const formattedMonthYear = contractDay
+    ? format(new Date(contractDay), 'MMMM yyyy')
+    : '';
 
   return (
     <Card className={cn('border dark:border-border', className)}>
@@ -40,16 +50,17 @@ export const ContractingPartiesCertification: React.FC<
               solemnizing this marriage and of the witnesses named below, take
               each other as husband and wife and certify further that we have
               signed (marked with our fingerprints) this certificate in
-              quadruplicate this _________ day of _________, _________.
+              quadruplicate this <span className=' px-5 border-b border-muted-foreground text-muted-foreground'>{formattedDay}</span> day of{' '}
+              <span className=' px-5 border-b border-muted-foreground text-muted-foreground'>{formattedMonthYear}</span>.
             </p>
           </div>
 
           {/* Signatures Section */}
           <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             {/* Husband's Signature */}
-            <FormField
+            {/* <FormField
               control={control}
-              name='contractingPartiesSignature.husband'
+              name='husbandContractParty.contractingParties.signature'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='text-foreground'>
@@ -65,12 +76,12 @@ export const ContractingPartiesCertification: React.FC<
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             {/* Wife's Signature */}
-            <FormField
+            {/* <FormField
               control={control}
-              name='contractingPartiesSignature.wife'
+              name='wifeContractParty.contractingParties.signature'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='text-foreground'>
@@ -85,6 +96,15 @@ export const ContractingPartiesCertification: React.FC<
                   </FormControl>
                   <FormMessage />
                 </FormItem>
+              )}
+            /> */}
+
+            {/* Date of Marriage */}
+            <FormField
+              control={control}
+              name='contractDay'
+              render={({ field }) => (
+                <DatePickerField field={field} label='Date of Marriage' />
               )}
             />
           </div>

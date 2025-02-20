@@ -1,8 +1,6 @@
 'use client';
-
 import * as React from 'react';
 import { useFormContext } from 'react-hook-form';
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -13,8 +11,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
 import { cn } from '@/lib/utils';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
 
 interface SolemnizingOfficerCertificationProps {
   className?: string;
@@ -23,7 +22,13 @@ interface SolemnizingOfficerCertificationProps {
 export const SolemnizingOfficerCertification: React.FC<
   SolemnizingOfficerCertificationProps
 > = ({ className }) => {
-  const { control } = useFormContext<MarriageCertificateFormValues>();
+  const { control, watch } = useFormContext<MarriageCertificateFormValues>();
+
+  // Watch specific form fields for dynamic updates
+  const marriageLicenseNumber = watch('marriageLicenseDetails.number');
+  const marriageLicenseDateIssued = watch('marriageLicenseDetails.dateIssued');
+  const marriageLicensePlaceIssued = watch('marriageLicenseDetails.placeIssued');
+  const marriageArticleNumber = watch('marriageArticle.articleExecutiveOrder');
 
   return (
     <Card className={cn('border dark:border-border', className)}>
@@ -35,7 +40,7 @@ export const SolemnizingOfficerCertification: React.FC<
           {/* Certification Text */}
           <div className='text-sm text-muted-foreground space-y-4'>
             <p className='leading-relaxed'>
-              THIS IS TO CERTIFY, That for the date and place above-written,
+              THIS IS TO CERTIFY; THAT BEFORE ME, on the date and place above-written,
               personally appeared the above-mentioned parties, with their mutual
               consent, lawfully joined together in marriage which was solemnized
               by me in the presence of the witnesses named below, all of legal
@@ -48,7 +53,7 @@ export const SolemnizingOfficerCertification: React.FC<
           <div className='space-y-4'>
             <FormField
               control={control}
-              name='marriageSettlement'
+              name='marriageLicenseDetails.marriageAgree.agreement'
               render={({ field }) => (
                 <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
                   <FormControl>
@@ -58,15 +63,20 @@ export const SolemnizingOfficerCertification: React.FC<
                     />
                   </FormControl>
                   <FormLabel className='text-sm font-normal'>
-                    a. Marriage License No. __________, issued on __________.
+                    a. Marriage License No.{' '}
+                    <span className='font-bold px-5 border-b border-muted-foreground'>{marriageLicenseNumber || ''}</span>,
+                    issued on{' '}
+                    <span className='font-bold px-5 border-b border-muted-foreground'>
+                      {marriageLicenseDateIssued ? new Date(marriageLicenseDateIssued).toLocaleDateString() : ''}
+                    </span>, at{' '}
+                    <span className='font-bold px-5 border-b border-muted-foreground'>{marriageLicensePlaceIssued || ''}</span>.
                   </FormLabel>
                 </FormItem>
               )}
             />
-
             <FormField
               control={control}
-              name='executiveOrderApplied'
+              name='marriageArticle.articleAgree.agreement'
               render={({ field }) => (
                 <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
                   <FormControl>
@@ -76,75 +86,126 @@ export const SolemnizingOfficerCertification: React.FC<
                     />
                   </FormControl>
                   <FormLabel className='text-sm font-normal'>
-                    b. The marriage was solemnized in accordance with the
+                    <p>
+                      b. No marriage license was necessary, the marriage being
+                      solemnized under Art{' '}
+                      <span className='font-bold px-5 border-b border-muted-foreground '>{marriageArticleNumber || ''}</span> of Executive Order No. 209.
+                    </p>
+                  </FormLabel>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name='marriageSolemnized.agreement'
+              render={({ field }) => (
+                <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel className='text-sm font-normal'>
+                    c. The marriage was solemnized in accordance with the
                     provisions of Executive Order No. 209.
-                  </FormLabel>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={control}
-              name='noMarriageLicense'
-              render={({ field }) => (
-                <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel className='text-sm font-normal'>
-                    c. No marriage license was necessary, the marriage being
-                    solemnized under Art ___ of Executive Order No. 209.
-                  </FormLabel>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={control}
-              name='presidentialDecreeApplied'
-              render={({ field }) => (
-                <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel className='text-sm font-normal'>
-                    d. The marriage was solemnized in accordance with the
-                    provisions of Presidential Decree No. 1083.
                   </FormLabel>
                 </FormItem>
               )}
             />
           </div>
 
-          {/* Signature Section */}
+          {/* Signature Section *********************************************/}
           <div className='grid grid-cols-1 md:grid-cols-3 gap-6 pt-4'>
-            {/* Signature */}
+            {/* License No */}
             <FormField
               control={control}
-              name='solemnizingOfficerSignature'
+              name='marriageLicenseDetails.number'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='text-foreground'>
-                    Signature Over Printed Name
+                    Marriage License No.
                   </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       className='h-10'
-                      placeholder='Signature'
+                      placeholder='Enter license number'
+                      maxLength={15}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
+            {/* Issued on */}
+            <FormField
+              control={control}
+              name='marriageLicenseDetails.dateIssued'
+              render={({ field }) => (
+                <DatePickerField field={field} label='Issued on' />
+              )}
+            />
+            {/* Place Issued */}
+            <FormField
+              control={control}
+              name='marriageLicenseDetails.placeIssued'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='text-foreground'>
+                    Civil Registry Office
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      className='h-10'
+                      placeholder='Enter place issued'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Article No. */}
+            <FormField
+              control={control}
+              name='marriageArticle.articleExecutiveOrder'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='text-foreground'>
+                    Article
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      className='h-10'
+                      placeholder='Enter article number'
+                      maxLength={6}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name='solemnizingOfficer.name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='text-foreground'>
+                    Officer Name
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      className='h-10'
+                      placeholder='Enter officer name'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             {/* Position */}
             <FormField
               control={control}
@@ -152,7 +213,7 @@ export const SolemnizingOfficerCertification: React.FC<
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='text-foreground'>
-                    Position/Designation
+                    Officer Position/Designation
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -165,27 +226,28 @@ export const SolemnizingOfficerCertification: React.FC<
                 </FormItem>
               )}
             />
-
             {/* Registry Details */}
-            <FormField
-              control={control}
-              name='solemnizingOfficer.registryNoExpiryDate'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='text-foreground'>
-                    Religion/Religious Sect, Registry No. and Expiration Date
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      className='h-10'
-                      placeholder='Enter registry details'
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className='col-span-3'>
+              <FormField
+                control={control}
+                name='solemnizingOfficer.registryNoExpiryDate'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='text-foreground'>
+                      Religion/Religious Sect, Registry No. and Expiration Date, (if applicable)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className='h-10'
+                        placeholder='Enter registry details'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
         </div>
       </CardContent>

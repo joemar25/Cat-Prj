@@ -107,7 +107,7 @@ const DatePickerField = forwardRef<HTMLButtonElement, DatePickerFieldProps>(
                   role='combobox'
                   className={cn(
                     // Replicating the select trigger focus styling
-                    'w-full h-10 flex items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background',
+                    'w-full h-10 flex items-center justify-between rounded-md border border-muted-foreground/90 bg-background px-3 py-2 text-sm ring-offset-background',
                     'hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
                     !field.value && 'text-muted-foreground'
                   )}

@@ -23,7 +23,7 @@ import {
   marriageAnnotationSchema,
 } from '@/lib/types/zod-form-annotations/marriage-annotation-form-schema'
 
-// Define an inline type (or import it) for the name structure.
+// Inline type for name structure.
 type NameType = { firstName?: string; first?: string; lastName?: string; last?: string }
 
 const defaultValues: MarriageAnnotationFormValues = {
@@ -55,7 +55,7 @@ const defaultValues: MarriageAnnotationFormValues = {
   civilRegistrarPosition: 'OIC - City Civil Registrar',
   amountPaid: 0,
   orNumber: '',
-  datePaid: new Date()
+  datePaid: new Date(),
 }
 
 const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
@@ -80,7 +80,7 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
       const form = formData
       const marriageForm = form.marriageCertificateForm
       if (marriageForm) {
-        // Basic form info
+        // Basic registration info
         setValue('pageNumber', form.pageNumber)
         setValue('bookNumber', form.bookNumber)
         setValue('registryNumber', form.registryNumber)
@@ -151,13 +151,8 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
           setValue('dateOfMarriage', new Date(marriageForm.dateOfMarriage))
         }
         if (marriageForm.placeOfMarriage && typeof marriageForm.placeOfMarriage === 'object') {
-          // Cast the placeOfMarriage to an object with expected properties
           const placeObj = marriageForm.placeOfMarriage as { church?: string; cityMunicipality?: string; province?: string }
-          const placeOfMarriage = [
-            placeObj.church,
-            placeObj.cityMunicipality,
-            placeObj.province,
-          ]
+          const placeOfMarriage = [placeObj.church, placeObj.cityMunicipality, placeObj.province]
             .filter(Boolean)
             .join(', ')
           setValue('placeOfMarriage', placeOfMarriage)
@@ -172,7 +167,6 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
           setValue('verifiedByName', form.verifiedBy.name)
           setValue('verifiedByPosition', form.registeredByPosition || '')
         }
-        // Certification details
         setValue('civilRegistrar', 'PRISCILLA L. GALICIA')
         setValue('civilRegistrarPosition', 'OIC - City Civil Registrar')
         setValue('purpose', 'Legal Purposes')
@@ -207,36 +201,35 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[900px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">
+          <DialogTitle className="text-3xl font-bold text-center mb-6">
             Civil Registry Form 3A
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="container mx-auto p-4">
-            <Card className="w-full max-w-3xl mx-auto bg-background text-foreground border dark:border-border">
-              <CardContent className="p-6 space-y-6">
-                {/* Header */}
+            <div className="bg-background text-foreground">
+              <CardContent className="p-8 space-y-8">
+                {/* Header Section */}
                 <div className="space-y-2">
-                  <h2 className="text-lg font-medium">
-                    TO WHOM IT MAY CONCERN:
-                  </h2>
-                  <p>
+                  <h2 className="text-xl font-medium">TO WHOM IT MAY CONCERN:</h2>
+                  <p className="text-muted-foreground">
                     We certify that, among others, the following marriage appears in our Register of Marriages:
                   </p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
                       <Label>On page</Label>
-                      <Input {...register('pageNumber')} />
+                      <Input {...register('pageNumber')} className="w-full" />
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       <Label>Book number</Label>
-                      <Input {...register('bookNumber')} />
+                      <Input {...register('bookNumber')} className="w-full" />
                     </div>
                   </div>
                 </div>
-                {/* Main Form */}
+
+                {/* Main Form Section */}
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <h3 className="font-medium text-center">HUSBAND</h3>
@@ -291,6 +284,7 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
                     </div>
                   </div>
                 </div>
+
                 {/* Certification Section */}
                 <div className="space-y-4 pt-4">
                   <div className="grid grid-cols-[auto_1fr] gap-2 items-center">
@@ -302,58 +296,48 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
                     <Input {...register('purpose')} />
                   </div>
                 </div>
+
                 {/* Signature Section */}
-                <div className="grid grid-cols-2 gap-8 pt-8">
-                  <div className="space-y-8">
-                    <div className="space-y-4">
-                      <p className="font-medium">Prepared by:</p>
-                      <div className="space-y-1">
-                        <Input
-                          className="text-center"
-                          placeholder="Name and Signature"
-                          {...register('preparedByName')}
-                        />
-                        <Input
-                          className="text-center"
-                          placeholder="Position"
-                          {...register('preparedByPosition')}
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-4">
-                      <p className="font-medium">Verified by:</p>
-                      <div className="space-y-1">
-                        <Input
-                          className="text-center"
-                          placeholder="Name and Signature"
-                          {...register('verifiedByName')}
-                        />
-                        <Input
-                          className="text-center"
-                          placeholder="Position"
-                          {...register('verifiedByPosition')}
-                        />
-                      </div>
-                    </div>
+                <div className="grid grid-cols-3 gap-8 pt-8 border-t">
+                  <div className="space-y-4">
+                    <p className="font-medium">Prepared by:</p>
+                    <Input
+                      className="text-center"
+                      placeholder="Name and Signature"
+                      {...register('preparedByName')}
+                    />
+                    <Input
+                      className="text-center"
+                      placeholder="Position"
+                      {...register('preparedByPosition')}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <p className="font-medium">Verified by:</p>
+                    <Input
+                      className="text-center"
+                      placeholder="Name and Signature"
+                      {...register('verifiedByName')}
+                    />
+                    <Input
+                      className="text-center"
+                      placeholder="Position"
+                      {...register('verifiedByPosition')}
+                    />
                   </div>
                   <div className="flex flex-col items-center justify-end">
-                    <p className="font-medium text-center">
-                      PRISCILLA L. GALICIA
-                    </p>
-                    <p className="text-sm text-center">
+                    <p className="font-medium text-center">PRISCILLA L. GALICIA</p>
+                    <p className="text-sm text-center text-muted-foreground">
                       OIC - City Civil Registrar
                     </p>
                   </div>
                 </div>
+
                 {/* Payment Section */}
                 <div className="space-y-2 pt-4">
                   <div className="grid grid-cols-[120px_1fr] gap-4 items-center">
                     <Label className="font-medium">Amount paid</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      {...register('amountPaid', { valueAsNumber: true })}
-                    />
+                    <Input type="number" step="0.01" {...register('amountPaid', { valueAsNumber: true })} />
                   </div>
                   <div className="grid grid-cols-[120px_1fr] gap-4 items-center">
                     <Label className="font-medium">O.R. Number</Label>
@@ -365,13 +349,13 @@ const MarriageAnnotationForm: React.FC<ExtendedMarriageAnnotationFormProps> = ({
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-8">
             <Button type="button" variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="h-10 ml-2">
+            <Button type="submit" disabled={isSubmitting} className="ml-2">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

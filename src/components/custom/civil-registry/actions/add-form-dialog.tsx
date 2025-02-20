@@ -13,22 +13,21 @@ import { Icons } from '@/components/ui/icons'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import BirthCertificateForm from '@/components/custom/forms/certificates/birth-certificate-form'
-import DeathCertificateForm from '../../forms/certificates/death-certificate-form'
+import BirthCertificateForm from '@/components/custom/forms/certificates/birth-certificate-form';
+import DeathCertificateForm from '@/components/custom/forms/certificates/death-certificate-form';
+import MarriageCertificateForm from '@/components/custom/forms/certificates/marriage-certificate-form';
 
 export function AddCivilRegistryFormDialog() {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [marriageCertificateOpen, setMarriageCertificateOpen] = useState(false)
-  const [birthCertificateFormOpen, setBirthCertificateFormOpen] =
-    useState(false)
+  const [birthCertificateFormOpen, setBirthCertificateFormOpen] = useState(false)
   const [deathCertificateOpen, setDeathCertificateOpen] = useState(false)
 
   const handleFormSelect = (formType: string) => {
     setOpen(false)
     switch (formType) {
       case 'death-certificate':
-        // Handle death certificate form
         setDeathCertificateOpen(true)
         break
       case 'marriage-certificate':
@@ -42,10 +41,20 @@ export function AddCivilRegistryFormDialog() {
     }
   }
 
+  // Server Actions for Birth Certificate
+  async function handleBirthCertificateOpenChangeAction() {
+    setBirthCertificateFormOpen(false)
+  }
+
+  async function handleBirthCertificateCancelAction() {
+    setBirthCertificateFormOpen(false)
+    setTimeout(() => setOpen(true), 0)
+  }
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild className=' h-fit'>
+        <DialogTrigger asChild className='h-fit'>
           <Button>
             <Icons.plus className='mr-2 h-4 w-4' />
             {t('Create New Form')}
@@ -109,22 +118,19 @@ export function AddCivilRegistryFormDialog() {
         </DialogContent>
       </Dialog>
 
-      {/* <MarriageCertificateForm
+      <MarriageCertificateForm
         open={marriageCertificateOpen}
         onOpenChange={setMarriageCertificateOpen}
         onCancel={() => {
           setMarriageCertificateOpen(false)
           setTimeout(() => setOpen(true), 0)
         }}
-      /> */}
+      />
 
       <BirthCertificateForm
         open={birthCertificateFormOpen}
-        onOpenChange={setBirthCertificateFormOpen}
-        onCancel={() => {
-          setBirthCertificateFormOpen(false)
-          setTimeout(() => setOpen(true), 0)
-        }}
+        onOpenChangeAction={handleBirthCertificateOpenChangeAction}
+        onCancelAction={handleBirthCertificateCancelAction}
       />
 
       <DeathCertificateForm

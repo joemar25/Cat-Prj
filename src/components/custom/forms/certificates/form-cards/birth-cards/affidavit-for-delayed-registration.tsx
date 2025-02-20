@@ -1,39 +1,39 @@
-'use client';
+'use client'
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { useEffect, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
-import LocationSelector from '../shared-components/location-selector';
-import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { useEffect, useState } from 'react'
+import { useFormContext } from 'react-hook-form'
+import LocationSelector from '../shared-components/location-selector'
+import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 
 const DelayedRegistrationForm: React.FC = () => {
-  const { control, watch, setValue, getValues } = useFormContext();
-  const isDelayedRegistration = watch('isDelayedRegistration');
+  const { control, watch, setValue, getValues } = useFormContext()
+  const isDelayedRegistration = watch('isDelayedRegistration')
 
   // Local state for Affiant Address NCR mode.
-  const [affiantAddressNcrMode, setAffiantAddressNcrMode] = useState(false);
+  const [affiantAddressNcrMode, setAffiantAddressNcrMode] = useState(false)
 
   // When delayed registration is toggled on, ensure the nested object is initialized.
   useEffect(() => {
-    const currentDelayedReg = getValues('affidavitOfDelayedRegistration');
+    const currentDelayedReg = getValues('affidavitOfDelayedRegistration')
     if (isDelayedRegistration && currentDelayedReg === null) {
       setValue('affidavitOfDelayedRegistration', {
         affiant: {
@@ -62,12 +62,12 @@ const DelayedRegistrationForm: React.FC = () => {
           dateIssued: '',
           placeIssued: '',
         },
-      });
+      })
     }
-  }, [isDelayedRegistration, setValue, getValues]);
+  }, [isDelayedRegistration, setValue, getValues])
 
   return (
-    <Card>
+    <Card >
       <CardHeader>
         <CardTitle>Affidavit for Delayed Registration</CardTitle>
       </CardHeader>
@@ -396,7 +396,7 @@ const DelayedRegistrationForm: React.FC = () => {
         </div>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default DelayedRegistrationForm;
+export default DelayedRegistrationForm

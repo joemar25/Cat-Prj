@@ -1,134 +1,114 @@
-'use client';
+// 'use client';
 
-import * as React from 'react';
-import { useFormContext } from 'react-hook-form';
+// import * as React from 'react';
+// import { useFormContext } from 'react-hook-form';
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { CIVIL_REGISTRAR_STAFF } from '@/lib/constants/civil-registrar-staff';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
-import { cn } from '@/lib/utils';
+// import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
+// import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// import {
+//   FormControl,
+//   FormField,
+//   FormItem,
+//   FormLabel,
+//   FormMessage,
+// } from '@/components/ui/form';
+// import { Input } from '@/components/ui/input';
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from '@/components/ui/select';
 
-interface ReceivedByCardProps {
-  className?: string;
-}
+// import { cn } from '@/lib/utils';
+// import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 
-export const ReceivedByCard: React.FC<ReceivedByCardProps> = ({
-  className,
-}) => {
-  const { control, watch, setValue } =
-    useFormContext<MarriageCertificateFormValues>();
-  const selectedName = watch('receivedBy.name');
+// interface ReceivedByCardProps {
+//   className?: string;
+// }
 
-  // Auto-fill title when name is selected
-  React.useEffect(() => {
-    const staff = CIVIL_REGISTRAR_STAFF.find(
-      (staff) => staff.name === selectedName
-    );
-    if (staff) {
-      setValue('receivedBy.title', staff.title);
-    }
-  }, [selectedName, setValue]);
+// export const ReceivedByCard: React.FC<ReceivedByCardProps> = ({
+//   className,
+// }) => {
+//   const { control } = useFormContext<MarriageCertificateFormValues>();
+//   return (
+//     <Card className={cn('border dark:border-border', className)}>
+//       <CardHeader>
+//         <CardTitle>Received By</CardTitle>
+//       </CardHeader>
+//       <CardContent className='space-y-4'>
+//         <FormField
+//           control={control}
+//           name='receivedBy.signature'
+//           render={({ field }) => (
+//             <FormItem>
+//               <FormLabel>Signature</FormLabel>
+//               <FormControl>
+//                 <Input {...field} className='h-10' placeholder='Signature' />
+//               </FormControl>
+//               <FormMessage />
+//             </FormItem>
+//           )}
+//         />
 
-  // Set default date to today when component mounts
-  React.useEffect(() => {
-    if (!watch('receivedBy.date')) {
-      setValue('receivedBy.date', new Date());
-    }
-  }, [setValue, watch]);
+//         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+//           <FormField
+//             control={control}
+//             name='receivedBy.name'
+//             render={({ field }) => (
+//               <FormItem>
+//                 <FormLabel>Name in Print</FormLabel>
+//                 <Select onValueChange={field.onChange} value={field.value}>
+//                   <FormControl>
+//                     <SelectTrigger className='h-10'>
+//                       <SelectValue placeholder='Select staff name' />
+//                     </SelectTrigger>
+//                   </FormControl>
+//                   {/* <SelectContent>
+//                     {CIVIL_REGISTRAR_STAFF.map((staff) => (
+//                       <SelectItem key={staff.id} value={staff.name}>
+//                         {staff.name}
+//                       </SelectItem>
+//                     ))}
+//                   </SelectContent> */}
+//                 </Select>
+//                 <FormMessage />
+//               </FormItem>
+//             )}
+//           />
 
-  return (
-    <Card className={cn('border dark:border-border', className)}>
-      <CardHeader>
-        <CardTitle>Received By</CardTitle>
-      </CardHeader>
-      <CardContent className='space-y-4'>
-        <FormField
-          control={control}
-          name='receivedBy.signature'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Signature</FormLabel>
-              <FormControl>
-                <Input {...field} className='h-10' placeholder='Signature' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+//           <FormField
+//             control={control}
+//             name='receivedBy.title'
+//             render={({ field }) => (
+//               <FormItem>
+//                 <FormLabel>Title</FormLabel>
+//                 <FormControl>
+//                   <Input
+//                     {...field}
+//                     className='h-10'
+//                     placeholder='Title'
+//                     disabled
+//                   />
+//                 </FormControl>
+//                 <FormMessage />
+//               </FormItem>
+//             )}
+//           />
+//         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          <FormField
-            control={control}
-            name='receivedBy.name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name in Print</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger className='h-10'>
-                      <SelectValue placeholder='Select staff name' />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {CIVIL_REGISTRAR_STAFF.map((staff) => (
-                      <SelectItem key={staff.id} value={staff.name}>
-                        {staff.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+//         <DatePickerField
+//           field={{
+//             value: watch('receivedBy.date') || new Date(),
+//             onChange: (date) => setValue('receivedBy.date', date || new Date()),
+//           }}
+//           label='Date'
+//           placeholder='Select date'
+//         />
+//       </CardContent>
+//     </Card>
+//   );
+// };
 
-          <FormField
-            control={control}
-            name='receivedBy.title'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    className='h-10'
-                    placeholder='Title'
-                    disabled
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <DatePickerField
-          field={{
-            value: watch('receivedBy.date') || new Date(),
-            onChange: (date) => setValue('receivedBy.date', date || new Date()),
-          }}
-          label='Date'
-          placeholder='Select date'
-        />
-      </CardContent>
-    </Card>
-  );
-};
-
-export default ReceivedByCard;
+// export default ReceivedByCard;

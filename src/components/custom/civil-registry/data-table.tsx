@@ -24,17 +24,16 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ExtendedBaseRegistryForm } from './columns';
 import { DataTableToolbar } from './data-table-toolbar';
 
 // Import your Lottie animation JSON
-// import certificateAnimation from '@lottie/blue.json'
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action';
+import { useEffect, useState } from 'react';
 
 interface DataTableProps {
-  columns: ColumnDef<ExtendedBaseRegistryForm>[];
-  data: ExtendedBaseRegistryForm[];
+  columns: ColumnDef<BaseRegistryFormWithRelations>[];
+  data: BaseRegistryFormWithRelations[];
   searchKey?: string;
   selection?: boolean;
 }

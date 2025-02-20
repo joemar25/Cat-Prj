@@ -1,24 +1,24 @@
-'use client';
+'use client'
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
-import React, { useState } from 'react';
-import { useFormContext } from 'react-hook-form';
-import LocationSelector from '../shared-components/location-selector';
-import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
+import React, { useState } from 'react'
+import { useFormContext } from 'react-hook-form'
+import LocationSelector from '../shared-components/location-selector'
+import NCRModeSwitch from '../shared-components/ncr-mode-switch'
 
 const CertificationOfInformantCard: React.FC = () => {
-  const { control } = useFormContext<BirthCertificateFormValues>();
-  const [ncrMode, setncrMode] = useState(false);
+  const { control } = useFormContext<BirthCertificateFormValues>()
+  const [ncrMode, setncrMode] = useState(false)
 
   return (
     <Card>
@@ -186,7 +186,7 @@ const CertificationOfInformantCard: React.FC = () => {
         </div>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default CertificationOfInformantCard;
+export default CertificationOfInformantCard

@@ -61,4 +61,4 @@ next-env.d.ts
 
 
 /docker-data
-/public
+/backups

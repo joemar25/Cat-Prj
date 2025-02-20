@@ -11,6 +11,9 @@ export type Place = {
   province: string;
   country?: string;
   office?: string;
+  houseNo?: string;
+  st?:string;
+  barangay?:string;
 };
 
 export type ConsentPerson = {
