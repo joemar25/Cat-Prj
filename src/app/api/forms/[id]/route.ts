@@ -1,16 +1,19 @@
-// src/app/api/forms/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+type Context = {
+    params: Promise<{ id: string }>
+}
+
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: Context
 ) {
     try {
-        // Extract id from params
-        const formId = params.id
+        // Await the params to get the id
+        const { id: formId } = await context.params
 
         // Destructure documentId from the request body
         const { documentId } = await request.json()
@@ -62,10 +65,11 @@ export async function PATCH(
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: Context
 ) {
     try {
-        const formId = params.id
+        // Await the params to get the id
+        const { id: formId } = await context.params
 
         const form = await prisma.baseRegistryForm.findUnique({
             where: { id: formId },
