@@ -1,21 +1,34 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { Input } from '@/components/ui/input'
-import { useCivilRegistrarStaff } from '@/hooks/use-civil-registrar-staff'
-import { FieldValues, Path, PathValue, useFormContext } from 'react-hook-form'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useCivilRegistrarStaff } from '@/hooks/use-civil-registrar-staff';
+import { useEffect } from 'react';
+import { FieldValues, Path, PathValue, useFormContext } from 'react-hook-form';
+import SignatureUploader from './signature-uploader';
 
 export interface ProcessingCardProps<T extends FieldValues = FieldValues> {
-  fieldPrefix: string
-  cardTitle: string
-  hideDate?: boolean
-  showSignature?: boolean
-  showNameInPrint?: boolean
-  showTitleOrPosition?: boolean
+  fieldPrefix: string;
+  cardTitle: string;
+  hideDate?: boolean;
+  showSignature?: boolean;
+  showNameInPrint?: boolean;
+  showTitleOrPosition?: boolean;
 }
 
 function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
@@ -31,26 +44,22 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
     watch,
     setValue,
     formState: { isSubmitted },
-  } = useFormContext<T>()
+  } = useFormContext<T>();
 
-  const { staff, loading } = useCivilRegistrarStaff()
-  const selectedName = watch(`${fieldPrefix}.nameInPrint` as Path<T>)
-  const titleFieldName = `${fieldPrefix}.titleOrPosition` as Path<T>
-  const signatureFieldName = `${fieldPrefix}.signature` as Path<T>
+  const { staff, loading } = useCivilRegistrarStaff();
+  const selectedName = watch(`${fieldPrefix}.nameInPrint` as Path<T>);
+  const titleFieldName = `${fieldPrefix}.titleOrPosition` as Path<T>;
+  const signatureFieldName = `${fieldPrefix}.signature` as Path<T>;
 
   useEffect(() => {
-    const selectedStaff = staff.find((s) => s.name === selectedName)
+    const selectedStaff = staff.find((s) => s.name === selectedName);
     if (selectedStaff) {
       setValue(titleFieldName, selectedStaff.title as PathValue<T, Path<T>>, {
         shouldValidate: isSubmitted,
         shouldDirty: true,
-      })
-      setValue(signatureFieldName, selectedStaff.name as PathValue<T, Path<T>>, {
-        shouldValidate: isSubmitted,
-        shouldDirty: true,
-      })
+      });
     }
-  }, [selectedName, staff, setValue, isSubmitted, titleFieldName, signatureFieldName])
+  }, [selectedName, staff, setValue, isSubmitted, titleFieldName]);
 
   return (
     <Card>
@@ -62,19 +71,29 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
           <FormField
             control={control}
             name={signatureFieldName}
-            render={({ field }) => (
+            render={({ field, formState: { errors } }) => (
               <FormItem>
                 <FormLabel>Signature</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder='Signature will auto-fill'
-                    {...field}
-                    value={field.value || ''}
-                    className='h-10'
-                    disabled
+                  <SignatureUploader
+                    name={signatureFieldName}
+                    label='Signature'
+                    onChange={(file: File) => {
+                      // Type assertion to tell TS that file is a valid File for this field
+                      setValue(
+                        signatureFieldName,
+                        file as PathValue<T, Path<T>>,
+                        {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        }
+                      );
+                    }}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage>
+                  {errors?.[field.name]?.message as string}
+                </FormMessage>
               </FormItem>
             )}
           />
@@ -95,7 +114,11 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
                   >
                     <FormControl>
                       <SelectTrigger className='h-10'>
-                        <SelectValue placeholder={loading ? 'Loading...' : 'Select staff name'} />
+                        <SelectValue
+                          placeholder={
+                            loading ? 'Loading...' : 'Select staff name'
+                          }
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -153,7 +176,7 @@ function ProcessingDetailsCard<T extends FieldValues = FieldValues>({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export function PreparedByCard<T extends FieldValues = FieldValues>(
@@ -165,7 +188,7 @@ export function PreparedByCard<T extends FieldValues = FieldValues>(
       cardTitle='Prepared By'
       {...props}
     />
-  )
+  );
 }
 
 export function ReceivedByCard<T extends FieldValues = FieldValues>(
@@ -177,7 +200,7 @@ export function ReceivedByCard<T extends FieldValues = FieldValues>(
       cardTitle='Received By'
       {...props}
     />
-  )
+  );
 }
 
 export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(
@@ -192,5 +215,5 @@ export function RegisteredAtOfficeCard<T extends FieldValues = FieldValues>(
       showNameInPrint={props.showNameInPrint}
       showTitleOrPosition={props.showTitleOrPosition}
     />
-  )
+  );
 }

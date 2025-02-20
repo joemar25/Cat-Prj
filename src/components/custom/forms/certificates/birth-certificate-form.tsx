@@ -1,29 +1,40 @@
-'use client'
+'use client';
 
-import { toast } from 'sonner'
-import { FormType } from '@prisma/client'
-import { FormProvider } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useBirthCertificateForm } from '@/hooks/form-certificates-hooks/useBirthCertificateForm'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { PreparedByCard, ReceivedByCard, RegisteredAtOfficeCard } from './form-cards/shared-components/processing-details-cards'
+import { toast } from 'sonner';
 
-import RemarksCard from './form-cards/shared-components/remarks-card'
-import ChildInformationCard from './form-cards/birth-cards/child-information-card'
-import FatherInformationCard from './form-cards/birth-cards/father-information-card'
-import MarriageInformationCard from './form-cards/birth-cards/marriage-parents-card'
-import MotherInformationCard from './form-cards/birth-cards/mother-information-card'
-import AttendantInformationCard from './form-cards/birth-cards/attendant-information'
-import AffidavitOfPaternityForm from './form-cards/birth-cards/affidavit-of-paternity'
-import RegistryInformationCard from './form-cards/shared-components/registry-information-card'
-import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant'
-import DelayedRegistrationForm from './form-cards/birth-cards/affidavit-for-delayed-registration'
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useBirthCertificateForm } from '@/hooks/form-certificates-hooks/useBirthCertificateForm';
+import { FormProvider } from 'react-hook-form';
+import {
+  PreparedByCard,
+  ReceivedByCard,
+  RegisteredAtOfficeCard,
+} from './form-cards/shared-components/processing-details-cards';
+
+import { FormType } from '@prisma/client';
+import DelayedRegistrationForm from './form-cards/birth-cards/affidavit-for-delayed-registration';
+import AffidavitOfPaternityForm from './form-cards/birth-cards/affidavit-of-paternity';
+import AttendantInformationCard from './form-cards/birth-cards/attendant-information';
+import CertificationOfInformantCard from './form-cards/birth-cards/certification-of-informant';
+import ChildInformationCard from './form-cards/birth-cards/child-information-card';
+import FatherInformationCard from './form-cards/birth-cards/father-information-card';
+import MarriageInformationCard from './form-cards/birth-cards/marriage-parents-card';
+import MotherInformationCard from './form-cards/birth-cards/mother-information-card';
+import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
+import RemarksCard from './form-cards/shared-components/remarks-card';
 
 interface BirthCertificateFormProps {
-  open: boolean
-  onOpenChangeAction: () => Promise<void>
-  onCancelAction: () => Promise<void>
+  open: boolean;
+  onOpenChangeAction: () => Promise<void>;
+  onCancelAction: () => Promise<void>;
 }
 
 export default function BirthCertificateForm({
@@ -33,24 +44,24 @@ export default function BirthCertificateForm({
 }: BirthCertificateFormProps) {
   const { formMethods, onSubmit, handleError } = useBirthCertificateForm({
     onOpenChange: onOpenChangeAction,
-  })
+  });
 
   const handleFormSubmit = async (data: any) => {
-    const result = await formMethods.trigger()
+    const result = await formMethods.trigger();
 
     if (result) {
       try {
-        await onSubmit(data)
-        formMethods.reset()
-        toast.success('Form submitted successfully')
+        await onSubmit(data);
+        formMethods.reset();
+        toast.success('Form submitted successfully');
       } catch (error) {
-        toast.error('Error submitting form')
-        handleError(error)
+        toast.error('Error submitting form');
+        handleError(error);
       }
     } else {
-      toast.warning('Please complete all required fields')
+      toast.warning('Please complete all required fields');
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
@@ -107,11 +118,7 @@ export default function BirthCertificateForm({
               >
                 Cancel
               </Button>
-              <Button
-                type='submit'
-                variant='default'
-                className='py-2 w-32'
-              >
+              <Button type='submit' variant='default' className='py-2 w-32'>
                 Submit
               </Button>
             </DialogFooter>
@@ -119,5 +126,5 @@ export default function BirthCertificateForm({
         </FormProvider>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

@@ -1,5 +1,10 @@
-// components/SignatureUploader.tsx
-import { Button } from '@/components/ui/button';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
+import { Input } from '@/components/ui/input';
+import { CheckCircle2 } from 'lucide-react';
 import React, { useState } from 'react';
 
 interface SignatureUploaderProps {
@@ -8,7 +13,7 @@ interface SignatureUploaderProps {
    */
   name: string;
   /**
-   * The label for the upload button.
+   * The label for the field.
    */
   label?: string;
   /**
@@ -19,7 +24,7 @@ interface SignatureUploaderProps {
 
 const SignatureUploader: React.FC<SignatureUploaderProps> = ({
   name,
-  label = 'Upload Signature',
+  label = 'Signature',
   onChange,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -32,38 +37,54 @@ const SignatureUploader: React.FC<SignatureUploaderProps> = ({
     }
   };
 
+  const triggerFileInput = () => {
+    document.getElementById(name)?.click();
+  };
+
   return (
     <div className='signature-uploader'>
-      <label htmlFor={name} className='block text-sm font-medium text-gray-700'>
-        {label}
-      </label>
-      <div className='mt-2 flex items-center space-x-4'>
-        <Button
-          variant='outline'
-          onClick={() => document.getElementById(name)?.click()}
-        >
-          {selectedFile ? 'Change Signature' : label}
-        </Button>
-        <input
-          id={name}
-          name={name}
-          type='file'
-          accept='image/*'
-          onChange={handleFileChange}
-          className='hidden'
-        />
-        {selectedFile && (
-          <div>
-            <a
-              href={URL.createObjectURL(selectedFile)}
-              download={selectedFile.name}
-              className='text-blue-500 underline'
-            >
-              Download Signature
-            </a>
+      {/* Hidden file input */}
+      <input
+        id={name}
+        name={name}
+        type='file'
+        accept='image/*'
+        onChange={handleFileChange}
+        className='hidden'
+      />
+
+      <HoverCard>
+        <HoverCardTrigger asChild>
+          <div className='relative'>
+            <Input
+              placeholder={
+                selectedFile ? 'Change Signature' : 'Upload Signature'
+              }
+              readOnly
+              onClick={triggerFileInput}
+              className='h-10 cursor-pointer pr-10'
+            />
+            {selectedFile && (
+              <span className='absolute inset-y-0 right-2 flex items-center text-green-500'>
+                <CheckCircle2 className='w-5 h-5' />
+              </span>
+            )}
           </div>
+        </HoverCardTrigger>
+        {selectedFile && (
+          <HoverCardContent
+            side='top'
+            align='center'
+            className='p-2 flex items-center justify-center'
+          >
+            <img
+              src={URL.createObjectURL(selectedFile)}
+              alt='Signature Preview'
+              className='w-full h-full object-contain'
+            />
+          </HoverCardContent>
         )}
-      </div>
+      </HoverCard>
     </div>
   );
 };

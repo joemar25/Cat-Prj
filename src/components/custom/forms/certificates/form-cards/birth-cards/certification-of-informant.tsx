@@ -1,24 +1,25 @@
-'use client'
+'use client';
 
-import DatePickerField from '@/components/custom/datepickerfield/date-picker-field'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import DatePickerField from '@/components/custom/datepickerfield/date-picker-field';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema'
-import React, { useState } from 'react'
-import { useFormContext } from 'react-hook-form'
-import LocationSelector from '../shared-components/location-selector'
-import NCRModeSwitch from '../shared-components/ncr-mode-switch'
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { BirthCertificateFormValues } from '@/lib/types/zod-form-certificate/birth-certificate-form-schema';
+import React, { useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+import LocationSelector from '../shared-components/location-selector';
+import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+import SignatureUploader from '../shared-components/signature-uploader';
 
 const CertificationOfInformantCard: React.FC = () => {
-  const { control } = useFormContext<BirthCertificateFormValues>()
-  const [ncrMode, setncrMode] = useState(false)
+  const { control, setValue } = useFormContext<BirthCertificateFormValues>();
+  const [ncrMode, setncrMode] = useState(false);
 
   return (
     <Card>
@@ -29,22 +30,26 @@ const CertificationOfInformantCard: React.FC = () => {
         <NCRModeSwitch isNCRMode={ncrMode} setIsNCRMode={setncrMode} />
         <div className='space-y-4'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            {/* Signature */}
             <FormField
               control={control}
               name='informant.signature'
-              render={({ field }) => (
+              render={({ field, formState: { errors } }) => (
                 <FormItem>
                   <FormLabel>Signature</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder='Signature'
-                      {...field}
-                      ref={field.ref}
-                      className='h-10'
+                    <SignatureUploader
+                      name='informant.signature'
+                      label='Signature'
+                      onChange={(file) =>
+                        setValue('informant.signature', file, {
+                          shouldValidate: true,
+                        })
+                      }
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage>
+                    {errors.informant?.signature?.message}
+                  </FormMessage>
                 </FormItem>
               )}
             />
@@ -186,7 +191,7 @@ const CertificationOfInformantCard: React.FC = () => {
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default CertificationOfInformantCard
+export default CertificationOfInformantCard;
