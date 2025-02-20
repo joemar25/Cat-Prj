@@ -143,7 +143,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                             {canUpload && (
                                 <Button onClick={() => setUploadDialogOpen(true)} variant="outline">
                                     <Icons.add className="mr-2 h-4 w-4" />
-                                    {t('scanDocumentUpload')}
+                                    {t('uploadDocument')}
                                 </Button>
                             )}
                             {canEdit && (
