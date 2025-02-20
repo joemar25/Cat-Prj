@@ -15,32 +15,32 @@ export async function GET(req: NextRequest) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const backupFile = path.join(backupDirectory, `CRIS_BACKUP_DATA-${timestamp}.sql`);
 
-    const { DB_DATABASE, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT } = process.env;
+    const { PG_DATABASE, PG_USER, PG_PASSWORD, PG_HOST, PG_PORT } = process.env;
 
-    if (!DB_DATABASE || !DB_USER || !DB_PASSWORD || !DB_HOST || !DB_PORT) {
+    if (!PG_DATABASE || !PG_USER || !PG_PASSWORD || !PG_HOST || !PG_PORT) {
       console.error('❌ Missing required environment variables!');
       return NextResponse.json({ error: 'Missing required database environment variables' }, { status: 500 });
     }
 
-    console.log('🔹 Database:', DB_DATABASE);
-    console.log('🔹 User:', DB_USER);
-    console.log('🔹 Host:', DB_HOST);
-    console.log('🔹 Port:', DB_PORT);
+    console.log('🔹 Database:', PG_DATABASE);
+    console.log('🔹 User:', PG_USER);
+    console.log('🔹 Host:', PG_HOST);
+    console.log('🔹 Port:', PG_PORT);
     console.log('🔹 Backup file path:', backupFile);
 
     const pgDumpCommand = 'pg_dump';
     const args = [
-      '-U', DB_USER,
-      '-h', DB_HOST,
-      '-p', DB_PORT,
-      '-d', DB_DATABASE,
+      '-U', PG_USER,
+      '-h', PG_HOST,
+      '-p', PG_PORT,
+      '-d', PG_DATABASE,
       '-F', 'p',
     ];
 
     console.log('📢 Running command:', pgDumpCommand, args.join(' '));
 
     const backupProcess = spawn(pgDumpCommand, args, {
-      env: { ...process.env, PGPASSWORD: DB_PASSWORD },
+      env: { ...process.env, PGPASSWORD: PG_PASSWORD },
       shell: true,
     });
 
