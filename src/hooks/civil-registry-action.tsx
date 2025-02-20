@@ -6,6 +6,7 @@ import {
   Attachment,
   BaseRegistryForm,
   BirthCertificateForm,
+  CertifiedCopy,
   DeathCertificateForm,
   Document,
   FormType,
@@ -20,12 +21,16 @@ export type BaseRegistryFormWithRelations = BaseRegistryForm & {
   marriageCertificateForm?: MarriageCertificateForm | null
   birthCertificateForm?: BirthCertificateForm | null
   deathCertificateForm?: DeathCertificateForm | null
-  document?: (Document & { attachments: Attachment[] }) | null
+  documents: {
+    document: Document & {
+      attachments: (Attachment & {
+        certifiedCopies: CertifiedCopy[]
+      })[]
+    }
+  }[]
 }
 
-export async function getBaseRegistryForms(): Promise<
-  BaseRegistryFormWithRelations[]
-> {
+export async function getBaseRegistryForms(): Promise<BaseRegistryFormWithRelations[]> {
   return await prisma.baseRegistryForm.findMany({
     include: {
       preparedBy: {
@@ -37,6 +42,17 @@ export async function getBaseRegistryForms(): Promise<
       marriageCertificateForm: true,
       birthCertificateForm: true,
       deathCertificateForm: true,
+      documents: {
+        include: {
+          document: {
+            include: {
+              attachments: {
+                include: { certifiedCopies: true }
+              }
+            }
+          }
+        }
+      },
     },
   })
 }
@@ -56,6 +72,17 @@ export async function getBaseRegistryForm(
       marriageCertificateForm: true,
       birthCertificateForm: true,
       deathCertificateForm: true,
+      documents: {
+        include: {
+          document: {
+            include: {
+              attachments: {
+                include: { certifiedCopies: true }
+              }
+            }
+          }
+        }
+      },
     },
   })
 }

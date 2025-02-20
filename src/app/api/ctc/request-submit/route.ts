@@ -1,19 +1,18 @@
-import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { NextResponse } from "next/server"
+import { PrismaClient } from "@prisma/client"
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 export const POST = async (req: Request) => {
   try {
-    const body = await req.json();
-
+    const body = await req.json()
 
     const {
       address,
-      feesPaid,    
-      orNo,          
+      feesPaid,
+      orNo,
       purpose,
-      relationship,   
+      relationship,
       requesterName,
       signature,
       lcrNo,
@@ -21,10 +20,11 @@ export const POST = async (req: Request) => {
       pageNo,
       searchedBy,
       contactNo,
-      datePaid,         
-      isRegisteredLate, 
-      whenRegistered,   
-    } = body;
+      datePaid,
+      isRegisteredLate,
+      whenRegistered,
+      attachmentId,
+    } = body
 
     // Check for required fields
     if (!address || !purpose || !relationship || !requesterName) {
@@ -34,9 +34,8 @@ export const POST = async (req: Request) => {
             "Missing required fields. Please ensure address, purpose, relationship, and requesterName are provided.",
         },
         { status: 400 }
-      );
+      )
     }
-
 
     const certifiedCopy = await prisma.certifiedCopy.create({
       data: {
@@ -55,8 +54,9 @@ export const POST = async (req: Request) => {
         datePaid: datePaid ? new Date(datePaid) : undefined,
         isRegistered: Boolean(isRegisteredLate),
         registeredDate: whenRegistered ? new Date(whenRegistered) : undefined,
+        attachmentId: attachmentId,
       },
-    });
+    })
 
     return NextResponse.json(
       {
@@ -64,9 +64,9 @@ export const POST = async (req: Request) => {
         data: certifiedCopy,
       },
       { status: 201 }
-    );
+    )
   } catch (error) {
-    console.error("Error submitting certified copy request:", error);
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    console.error("Error submitting certified copy request:", error)
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
   }
-};
+}

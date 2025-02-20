@@ -1,7 +1,5 @@
-// src\hooks\use-create-document.ts
-import { AttachmentType, PrismaClient, DocumentStatus } from '@prisma/client'
-
-const prisma = new PrismaClient()
+// src/hooks/use-create-document.ts
+import { AttachmentType, DocumentStatus } from '@prisma/client'
 
 interface CreateDocumentInput {
     userId: string
@@ -32,8 +30,8 @@ const useCreateDocument = () => {
                 throw new Error('Failed to create document')
             }
 
-            const document = await response.json()
-            return document
+            const result = await response.json()
+            return result
         } catch (error) {
             console.error('Error creating document:', error)
             throw error

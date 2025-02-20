@@ -17,7 +17,7 @@ import useCreateDocument from "@/hooks/use-create-document"
 interface FileUploadDialogProps {
     open: boolean
     onOpenChangeAction: (open: boolean) => void
-    onUploadSuccess?: (fileData: { url: string; id: string }) => void
+    onUploadSuccess?: (fileData: { url: string; id: string; attachmentId: string }) => void
     formId: string
     formType: FormType
     registryNumber: string
@@ -125,7 +125,7 @@ export function FileUploadDialog({
                 title: `${formType} Document - ${registryNumber}`,
             })
 
-            const document = await createDocument({
+            const { document, attachment } = await createDocument({
                 userId,
                 formId,
                 formType,
@@ -144,7 +144,7 @@ export function FileUploadDialog({
             })
 
             toast.success('File uploaded successfully!')
-            onUploadSuccess?.({ url: fileUrl, id: document.id })
+            onUploadSuccess?.({ url: fileUrl, id: document.id, attachmentId: attachment.id })
             onOpenChangeAction(false)
         } catch (error) {
             console.error("Upload process error:", error)

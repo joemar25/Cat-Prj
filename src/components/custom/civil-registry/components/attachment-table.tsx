@@ -57,9 +57,8 @@ import BirthCertificateFormCTC from '../../forms/requests/birth-request-form'
 import MarriageCertificateFormCTC from '../../forms/requests/marriage-request-form'
 import DeathCertificateFormCTC from '../../forms/requests/death-request-form'
 
-// Extend Attachment to include certifiedCopies.
-export interface AttachmentWithCertifiedCopies extends Attachment {
-    certifiedCopies?: CertifiedCopy[]
+export type AttachmentWithCertifiedCopies = Attachment & {
+    certifiedCopies: CertifiedCopy[]
 }
 
 interface AttachmentsTableProps {
@@ -84,6 +83,8 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
     const { t } = useTranslation()
     const { permissions } = useUser()
 
+    const [currentAttachment, setCurrentAttachment] = useState<AttachmentWithCertifiedCopies | null>(null);
+
     // Global export permission: allow if in development or if user has DOCUMENT_EXPORT permission.
     const exportAllowed =
         process.env.NEXT_PUBLIC_NODE_ENV === 'development' ||
@@ -99,12 +100,17 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
     const [ctcFormOpen, setCtcFormOpen] = useState(false)
 
     // Handler to open the annotation dialog.
-    const handleIssueCertificate = () => {
-        setAnnotationFormOpen(true)
+    const handleIssueCertificate = (attachment: AttachmentWithCertifiedCopies) => {
+        setCurrentAttachment(attachment);
+        setAnnotationFormOpen(true);
     }
 
-    const handleCtc = () => {
-        setCtcFormOpen(true)
+    const handleCtc = async (attachment: AttachmentWithCertifiedCopies) => {
+        console.log('Selected Attachment for CTC:', attachment);
+        setCurrentAttachment(attachment);
+        setCtcFormOpen(true);
+        // You might want to set the current attachment in some state here
+        // setCurrentAttachment(attachment);
     }
 
     const handleDelete = async (attachmentId: string) => {
@@ -296,7 +302,7 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                 )}
 
                                                 <Button
-                                                    onClick={() => handleCtc()}
+                                                    onClick={() => handleCtc(attachment)}
                                                     variant="secondary"
                                                     size="sm"
                                                 >
@@ -304,14 +310,34 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
                                                     {t('issueCtc')}
                                                 </Button>
 
-                                                <Button
-                                                    onClick={() => handleIssueCertificate()}
-                                                    variant="secondary"
-                                                    size="sm"
-                                                >
-                                                    <Icons.files className="mr-2 h-4 w-4" />
-                                                    {t('issueCertificateAno')}
-                                                </Button>
+                                                {hasCTC ? (
+                                                    <Button
+                                                        onClick={() => handleIssueCertificate(attachment)}
+                                                        variant="secondary"
+                                                        size="sm"
+                                                    >
+                                                        <Icons.files className="mr-2 h-4 w-4" />
+                                                        {t('issueCertificateAno')}
+                                                    </Button>
+                                                ) : (
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <Button
+                                                                variant="secondary"
+                                                                size="sm"
+                                                                disabled
+                                                            >
+                                                                <Icons.files className="mr-2 h-4 w-4" />
+                                                                {t('issueCertificateAno')}
+                                                            </Button>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-64">
+                                                            <p>
+                                                                {t('You need to issue a Certified True Copy (CTC) before creating an annotation.')}
+                                                            </p>
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                )}
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -322,43 +348,52 @@ export const AttachmentsTable: React.FC<AttachmentsTableProps> = ({
 
                     {formType === 'BIRTH' && (
                         <>
-                            <BirthAnnotationForm
-                                open={annotationFormOpen}
-                                onOpenChange={setAnnotationFormOpen}
-                                onCancel={() => setAnnotationFormOpen(false)}
-                                formData={formData!}
-                            />
-
+                            {/* for creating ctc */}
                             <BirthCertificateFormCTC
                                 formData={formData!}
                                 open={ctcFormOpen}
                                 onOpenChange={setCtcFormOpen}
                                 onClose={() => setCtcFormOpen(false)}
+                                attachment={currentAttachment}
                             />
+
+                            {/* for creating annotation */}
+                            {currentAttachment && currentAttachment.certifiedCopies.length > 0 && (
+                                <BirthAnnotationForm
+                                    open={annotationFormOpen}
+                                    onOpenChange={setAnnotationFormOpen}
+                                    onCancel={() => {
+                                        setAnnotationFormOpen(false);
+                                        setCurrentAttachment(null);
+                                    }}
+                                    formData={formData!}
+                                    certifiedCopyId={currentAttachment.certifiedCopies[0].id}
+                                />
+                            )}
                         </>
                     )}
                     {formType === 'DEATH' && (
                         <>
+                            <DeathCertificateFormCTC />
+
                             <DeathAnnotationForm
                                 open={annotationFormOpen}
                                 onOpenChange={setAnnotationFormOpen}
                                 onCancel={() => setAnnotationFormOpen(false)}
                                 formData={formData!}
                             />
-
-                            <DeathCertificateFormCTC />
                         </>
                     )}
                     {formType === 'MARRIAGE' && (
                         <>
+                            <MarriageCertificateFormCTC />
+
                             <MarriageAnnotationForm
                                 open={annotationFormOpen}
                                 onOpenChange={setAnnotationFormOpen}
                                 onCancel={() => setAnnotationFormOpen(false)}
                                 formData={formData!}
                             />
-
-                            <MarriageCertificateFormCTC />
                         </>
                     )}
                 </>

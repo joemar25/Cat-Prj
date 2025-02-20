@@ -4,50 +4,51 @@ import { CertifiedCopy } from "@prisma/client"
 type CertifiedCopyData = CertifiedCopy & {
     form?: {
         formType: 'FORM_1A' | 'FORM_2A' | 'FORM_3A'
-        birthForm?: {
-            nameOfChild: string
-            sex: string
-            dateOfBirth: Date
-            placeOfBirth: string
-            nameOfMother: string
-            citizenshipMother: string
-            nameOfFather: string
-            citizenshipFather: string
-            dateMarriageParents?: Date | null
-            placeMarriageParents?: string | null
-        }
-        deathForm?: {
-            nameOfDeceased: string
-            sex: string
-            age: number
-            civilStatus: string
-            citizenship: string
-            dateOfDeath: Date
-            placeOfDeath: string
-            causeOfDeath: string
-        }
-        marriageForm?: {
-            husbandName: string
-            husbandDateOfBirthAge: string
-            husbandCitizenship: string
-            husbandCivilStatus: string
-            husbandMother: string
-            husbandFather: string
-            wifeName: string
-            wifeDateOfBirthAge: string
-            wifeCitizenship: string
-            wifeCivilStatus: string
-            wifeMother: string
-            wifeFather: string
-            dateOfMarriage: Date
-            placeOfMarriage: string
-        }
         preparedByName: string
         preparedByPosition: string
         verifiedByName: string
         verifiedByPosition: string
         civilRegistrar: string
         civilRegistrarPosition: string
+        specificForm?:
+        | {
+            nameOfChild: string
+            sex: string | null
+            dateOfBirth: Date
+            placeOfBirth: string
+            nameOfMother: string
+            citizenshipMother?: string | null
+            nameOfFather: string
+            citizenshipFather?: string | null
+            dateMarriageParents?: Date | null
+            placeMarriageParents?: string | null
+        }
+        | {
+            nameOfDeceased: string
+            sex: string | null
+            age?: number | null
+            civilStatus?: string | null
+            citizenship?: string | null
+            dateOfDeath: Date
+            placeOfDeath: string
+            causeOfDeath?: string | null
+        }
+        | {
+            husbandName: string
+            husbandDateOfBirthAge?: string | null
+            husbandCitizenship?: string | null
+            husbandCivilStatus?: string | null
+            husbandMother?: string | null
+            husbandFather?: string | null
+            wifeName: string
+            wifeDateOfBirthAge?: string | null
+            wifeCitizenship?: string | null
+            wifeCivilStatus?: string | null
+            wifeMother?: string | null
+            wifeFather?: string | null
+            dateOfMarriage: Date
+            placeOfMarriage: string
+        }
     }
 }
 
@@ -82,7 +83,6 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
         const labelWidth = 60
         const valueWidth = 120
         const underlineOffset = 1
-        
 
         const underlineText = (label: string, value: string | number | null | undefined) => {
             doc.text(label, leftMargin, y)
@@ -99,35 +99,35 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
 
         const concat = (label: string, value: string, label2: string, value2: string) => {
             let currentX = leftMargin
-        
+
             // Render the first label
             doc.text(label, currentX, y)
             currentX += doc.getTextWidth(label) + 2 // Move X after label
-        
+
             // Render the first underlined value
             if (value) {
-                doc.text(value, currentX, y) 
+                doc.text(value, currentX, y)
                 const valueWidth = doc.getTextWidth(value)
                 doc.line(currentX, y + 2, currentX + valueWidth, y + 2) // Underline
                 currentX += valueWidth + 10 // Move X after value (extra spacing)
             }
-        
+
             // Render the second label
             doc.text(label2, currentX, y)
             currentX += doc.getTextWidth(label2) + 2 // Move X after second label
-        
+
             // Render the second underlined value
             if (value2) {
-                doc.text(value2, currentX, y) 
+                doc.text(value2, currentX, y)
                 const value2Width = doc.getTextWidth(value2)
                 doc.line(currentX, y + 2, currentX + value2Width, y + 2) // Underline
             }
-        
+
             y += lineHeight + 1 // Move to the next line
         }
-        
-       
-        
+
+
+
 
         const partialUnderlineText = (prefix: string, value: string | number | null | undefined, suffix: string) => {
             doc.text(prefix, leftMargin, y)
@@ -182,45 +182,44 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
         }
 
         if (data.form) {
-            if (data.form.formType === 'FORM_1A' && data.form.birthForm) {
+            // Update type checks to use specificForm
+            if (data.form.formType === 'FORM_1A' && data.form.specificForm && 'nameOfChild' in data.form.specificForm) {
                 underlinePageBookText('We certify that the following birth appears in our Register of Births on page ', data.pageNo, data.bookNo, ':')
 
                 renderField("Registry Number:", data.lcrNo)
-                renderField("Date of Registration:", data.form.birthForm.dateOfBirth.toLocaleDateString())
-                renderField("Name of Child:", data.form.birthForm.nameOfChild)
-                renderField("Sex:", data.form.birthForm.sex)
-                renderField("Date of Birth:", data.form.birthForm.dateOfBirth.toLocaleDateString())
-                renderField("Place of Birth:", data.form.birthForm.placeOfBirth)
-                renderField("Name of Mother:", data.form.birthForm.nameOfMother)
-                renderField("Citizenship of Mother:", data.form.birthForm.citizenshipMother)
-                renderField("Name of Father:", data.form.birthForm.nameOfFather)
-                renderField("Citizenship of Father:", data.form.birthForm.citizenshipFather)
+                renderField("Date of Registration:", data.form.specificForm.dateOfBirth.toLocaleDateString())
+                renderField("Name of Child:", data.form.specificForm.nameOfChild)
+                renderField("Sex:", data.form.specificForm.sex || '')
+                renderField("Date of Birth:", data.form.specificForm.dateOfBirth.toLocaleDateString())
+                renderField("Place of Birth:", data.form.specificForm.placeOfBirth)
+                renderField("Name of Mother:", data.form.specificForm.nameOfMother)
+                renderField("Citizenship of Mother:", data.form.specificForm.citizenshipMother || '')
+                renderField("Name of Father:", data.form.specificForm.nameOfFather)
+                renderField("Citizenship of Father:", data.form.specificForm.citizenshipFather || '')
 
-                if (data.form.birthForm.dateMarriageParents) {
-                    renderField("Date of Marriage of Parents:", data.form.birthForm.dateMarriageParents.toLocaleDateString())
-                    renderField("Place of Marriage of Parents:", data.form.birthForm.placeMarriageParents)
+                if (data.form.specificForm.dateMarriageParents) {
+                    renderField("Date of Marriage of Parents:", data.form.specificForm.dateMarriageParents.toLocaleDateString())
+                    renderField("Place of Marriage of Parents:", data.form.specificForm.placeMarriageParents || '')
                 } else {
                     renderField("Date of Marriage of Parents:", undefined)
                     renderField("Place of Marriage of Parents:", undefined)
                 }
             }
-
-            else if (data.form.formType === 'FORM_2A' && data.form.deathForm) {
+            else if (data.form.formType === 'FORM_2A' && data.form.specificForm && 'nameOfDeceased' in data.form.specificForm) {
                 underlinePageBookText('We certify that the following death appears in our Register of Deaths on page', data.pageNo, data.bookNo, ':')
 
                 renderField("Registry Number:", data.lcrNo)
                 renderField("Date of Registration:", data.date?.toLocaleDateString())
-                renderField("Name of Deceased:", data.form.deathForm.nameOfDeceased)
-                renderField("Sex:", data.form.deathForm.sex)
-                renderField("Age:", data.form.deathForm.age)
-                renderField("Civil Status:", data.form.deathForm.civilStatus)
-                renderField("Citizenship:", data.form.deathForm.citizenship)
-                renderField("Date of Death:", data.form.deathForm.dateOfDeath.toLocaleDateString())
-                renderField("Place of Death:", data.form.deathForm.placeOfDeath)
-                renderField("Cause of Death:", data.form.deathForm.causeOfDeath)
+                renderField("Name of Deceased:", data.form.specificForm.nameOfDeceased)
+                renderField("Sex:", data.form.specificForm.sex || '')
+                renderField("Age:", data.form.specificForm.age?.toString() || '')
+                renderField("Civil Status:", data.form.specificForm.civilStatus || '')
+                renderField("Citizenship:", data.form.specificForm.citizenship || '')
+                renderField("Date of Death:", data.form.specificForm.dateOfDeath.toLocaleDateString())
+                renderField("Place of Death:", data.form.specificForm.placeOfDeath)
+                renderField("Cause of Death:", data.form.specificForm.causeOfDeath || '')
             }
-
-            else if (data.form.formType === 'FORM_3A' && data.form.marriageForm) {
+            else if (data.form.formType === 'FORM_3A' && data.form.specificForm && 'husbandName' in data.form.specificForm) {
                 underlinePageBookText('We certify that the following marriage appears in our Register of Marriages on page', data.pageNo, data.bookNo, ':')
 
                 doc.setFont("helvetica", "bold")
@@ -230,14 +229,15 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
 
                 doc.setFont("helvetica", "normal")
                 const marriageFields = [
-                    ["Name:", data.form.marriageForm.husbandName, data.form.marriageForm.wifeName],
-                    ["Date of Birth/Age:", data.form.marriageForm.husbandDateOfBirthAge, data.form.marriageForm.wifeDateOfBirthAge],
-                    ["Citizenship:", data.form.marriageForm.husbandCitizenship, data.form.marriageForm.wifeCitizenship],
-                    ["Civil Status:", data.form.marriageForm.husbandCivilStatus, data.form.marriageForm.wifeCivilStatus],
-                    ["Father:", data.form.marriageForm.husbandFather, data.form.marriageForm.wifeFather],
-                    ["Mother:", data.form.marriageForm.husbandMother, data.form.marriageForm.wifeMother]
+                    ["Name:", data.form.specificForm.husbandName, data.form.specificForm.wifeName],
+                    ["Date of Birth/Age:", data.form.specificForm.husbandDateOfBirthAge || '', data.form.specificForm.wifeDateOfBirthAge || ''],
+                    ["Citizenship:", data.form.specificForm.husbandCitizenship || '', data.form.specificForm.wifeCitizenship || ''],
+                    ["Civil Status:", data.form.specificForm.husbandCivilStatus || '', data.form.specificForm.wifeCivilStatus || ''],
+                    ["Father:", data.form.specificForm.husbandFather || '', data.form.specificForm.wifeFather || ''],
+                    ["Mother:", data.form.specificForm.husbandMother || '', data.form.specificForm.wifeMother || '']
                 ]
 
+                // [Rest of the marriage section remains the same]
                 marriageFields.forEach(([label, husbandValue, wifeValue]) => {
                     doc.text(label, leftMargin, y)
                     const husbandWidth = doc.getTextWidth(husbandValue)
@@ -260,16 +260,12 @@ export async function generateCertifiedCopy(data: CertifiedCopyData): Promise<Bu
                 })
 
                 y += lineHeight
-                renderField("Date of Marriage:", data.form.marriageForm.dateOfMarriage.toLocaleDateString())
-                renderField("Place of Marriage:", data.form.marriageForm.placeOfMarriage)
+                renderField("Date of Marriage:", data.form.specificForm.dateOfMarriage.toLocaleDateString())
+                renderField("Place of Marriage:", data.form.specificForm.placeOfMarriage)
             }
 
-            y += lineHeight + 1
-             // Move down before rendering
-        y += lineHeight + 1 
-        
-        // Example usage
-        concat("This certification is issued to ", data.requesterName, " upon his/her request for ", data.purpose)
+            // Example usage
+            concat("This certification is issued to ", data.requesterName, " upon his/her request for ", data.purpose)
 
             y += lineHeight + 1
             doc.text("Prepared by:", leftMargin, y)

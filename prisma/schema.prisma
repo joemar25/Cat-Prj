@@ -104,16 +104,16 @@ model User {
 // BaseRegistryForm
 // ------------------------------
 model BaseRegistryForm {
-  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  formNumber              String                   @db.VarChar(3)
+  id                      String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  formNumber              String                     @db.VarChar(3)
   formType                FormType
-  registryNumber          String                   @unique
+  registryNumber          String                     @unique
   province                String
   cityMunicipality        String
   pageNumber              String
   bookNumber              String
-  preparedById            String?                  @db.Uuid
-  verifiedById            String?                  @db.Uuid
+  preparedById            String?                    @db.Uuid
+  verifiedById            String?                    @db.Uuid
   receivedBy              String?
   receivedByPosition      String?
   receivedDate            DateTime?
@@ -124,23 +124,32 @@ model BaseRegistryForm {
   isLateRegistered        Boolean?
   remarks                 String?
   lcroNotations           String?
-  status                  DocumentStatus           @default(PENDING)
-  createdAt               DateTime                 @default(now())
-  updatedAt               DateTime                 @updatedAt
-  documentId              String?                  @db.Uuid
+  status                  DocumentStatus             @default(PENDING)
+  createdAt               DateTime                   @default(now())
+  updatedAt               DateTime                   @updatedAt
   preparedByName          String?
   verifiedByName          String?
-  document                Document?                @relation(fields: [documentId], references: [id], onDelete: SetNull)
-  preparedBy              User?                    @relation("PreparedBy", fields: [preparedById], references: [id], onDelete: SetNull)
-  verifiedBy              User?                    @relation("VerifiedBy", fields: [verifiedById], references: [id], onDelete: SetNull)
+  preparedBy              User?                      @relation("PreparedBy", fields: [preparedById], references: [id], onDelete: SetNull)
+  verifiedBy              User?                      @relation("VerifiedBy", fields: [verifiedById], references: [id], onDelete: SetNull)
   birthCertificateForm    BirthCertificateForm?
   deathCertificateForm    DeathCertificateForm?
   marriageCertificateForm MarriageCertificateForm?
+  documents               BaseRegistryFormDocument[]
 
   @@index([registryNumber])
   @@index([formNumber])
   @@index([dateOfRegistration])
   @@map("base_registry_form")
+}
+
+model BaseRegistryFormDocument {
+  id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  baseRegistryFormId String           @db.Uuid
+  documentId         String           @db.Uuid
+  baseRegistryForm   BaseRegistryForm @relation(fields: [baseRegistryFormId], references: [id])
+  document           Document         @relation(fields: [documentId], references: [id])
+
+  @@map("base_registry_form_document")
 }
 
 // ------------------------------
@@ -269,7 +278,7 @@ model DeathCertificateForm {
   deathInterval       Json
   pregnancy           Boolean?
   attendedByPhysician Boolean
-  attendanceDuration    Json?  
+  attendanceDuration  Json?
   mannerOfDeath       String?
   autopsyPerformed    Boolean?
   externalCause       String?
@@ -280,15 +289,15 @@ model DeathCertificateForm {
   informant           Json
   preparer            Json
   burialPermit        Json?
-  transferPermit        Json?   
-  cemeteryDetails       Json? 
-  postmortemDetails     Json?  
-  embalmerDetails       Json?
-  infantDeathDetails    Json?
-  maternalCondition     Json?
-  delayedRegistration   Json?        
-  ageAtDeath         Json?
-  reviewedBy         Json?  
+  transferPermit      Json?
+  cemeteryDetails     Json?
+  postmortemDetails   Json?
+  embalmerDetails     Json?
+  infantDeathDetails  Json?
+  maternalCondition   Json?
+  delayedRegistration Json?
+  ageAtDeath          Json?
+  reviewedBy          Json?
   baseForm            BaseRegistryForm? @relation(fields: [baseFormId], references: [id], onDelete: SetNull)
 
   @@index([dateOfDeath])
@@ -300,7 +309,6 @@ model DeathCertificateForm {
 // ------------------------------
 model CertifiedCopy {
   id                  String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  // If the associated civil registry form is later deleted, keep this record.
   formId              String?                @db.Uuid
   status              CertifiedCopyStatus    @default(PENDING)
   lcrNo               String?
@@ -309,7 +317,6 @@ model CertifiedCopy {
   searchedBy          String?
   contactNo           String?
   date                DateTime?
-  // Make attachmentId optional so that onDelete: SetNull can be applied.
   attachmentId        String?                @db.Uuid
   address             String
   amountPaid          Float?
@@ -432,25 +439,22 @@ model Profile {
   @@map("profile")
 }
 
-// ------------------------------
-// Document
-// ------------------------------
 model Document {
-  id                 String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                 String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   type               AttachmentType
   title              String
   description        String?
   metadata           Json?
-  status             DocumentStatus          @default(PENDING)
-  version            Int                     @default(1)
-  isLatest           Boolean                 @default(true)
-  createdAt          DateTime                @default(now())
-  updatedAt          DateTime                @updatedAt
+  status             DocumentStatus             @default(PENDING)
+  version            Int                        @default(1)
+  isLatest           Boolean                    @default(true)
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
   attachments        Attachment[]
   auditLogs          AuditLog[]
   workflowSteps      WorkflowStep[]
   civilRegistryForms CivilRegistryFormBase[]
-  BaseRegistryForm   BaseRegistryForm[]
+  baseRegistryForms  BaseRegistryFormDocument[]
 
   @@map("document")
 }
@@ -460,7 +464,6 @@ model Document {
 // ------------------------------
 model Attachment {
   id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  // Make userId and documentId optional so that the file record remains even if the related User or Document is deleted.
   userId          String?         @db.Uuid
   documentId      String?         @db.Uuid
   type            AttachmentType
@@ -810,6 +813,7 @@ enum AttachmentType {
   BIRTH_CERTIFICATE
   DEATH_CERTIFICATE
   MARRIAGE_CERTIFICATE
+  CERTIFIED_TRUE_COPY_REQUEST
 }
 
 enum CivilRegistryFormType {
@@ -829,6 +833,6 @@ enum Sex {
 }
 
 // pnpm prisma db push --force-reset
-// pnpm prisma generate   # for generate the Prisma Client with new models
-// pnpm prisma migrate dev --name add_rbac_system   # for ceate and run the migration
-// pnpm prisma db seed # for seeding our seed and seed-data
+// pnpm prisma generate                       # for generate the Prisma Client with new models
+// pnpm prisma migrate dev --name NAME_HERE   # for ceate and run the migration
+// pnpm prisma db seed                        # for seeding our seed and seed-data
