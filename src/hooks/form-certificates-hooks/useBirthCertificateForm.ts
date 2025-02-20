@@ -90,7 +90,7 @@ export function useBirthCertificateForm({
         type: undefined,
         certification: {
           time: undefined,
-          signature: '',
+          signature: undefined,
           name: '',
           title: '',
           address: {
@@ -105,7 +105,7 @@ export function useBirthCertificateForm({
         },
       },
       informant: {
-        signature: '',
+        signature: undefined,
         name: '',
         relationship: '',
         address: {
@@ -119,19 +119,19 @@ export function useBirthCertificateForm({
         date: undefined,
       },
       preparedBy: {
-        signature: '',
+        signature: undefined,
         nameInPrint: '',
         titleOrPosition: '',
         date: undefined,
       },
       receivedBy: {
-        signature: '',
+        signature: undefined,
         nameInPrint: '',
         titleOrPosition: '',
         date: undefined,
       },
       registeredByOffice: {
-        signature: '',
+        signature: undefined,
         nameInPrint: '',
         titleOrPosition: '',
         date: undefined,

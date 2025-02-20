@@ -11,7 +11,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useDeathCertificateForm } from '@/hooks/form-certificates-hooks/useDeathCertificateForm';
 import type { DeathCertificateFormProps } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
-import { FormType } from '@prisma/client';
+
 import { FormProvider } from 'react-hook-form';
 import AttendantInformationCard from './form-cards/death-cards/attendant-information-card';
 
@@ -34,6 +34,7 @@ import {
 } from './form-cards/shared-components/processing-details-cards';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import RemarksCard from './form-cards/shared-components/remarks-card';
+import { FormType } from '@prisma/client';
 
 export default function DeathCertificateForm({
   open,
@@ -63,7 +64,6 @@ export default function DeathCertificateForm({
                 <div className='w-1/2 border-r'>
                   <ScrollArea className='h-[calc(95vh-120px)]'>
                     <div className='p-6 space-y-4'>
-
                       <RegistryInformationCard formType={FormType.DEATH} />
                       <DeceasedInformationCard />
                       <CausesOfDeath19aCard />
@@ -110,7 +110,10 @@ export default function DeathCertificateForm({
               >
                 Cancel
               </Button>
-              <Button type='submit' className='py-2 w-32 bg-primary/80 hover:bg-primary'>
+              <Button
+                type='submit'
+                className='py-2 w-32 bg-primary/80 hover:bg-primary'
+              >
                 Save
               </Button>
             </DialogFooter>

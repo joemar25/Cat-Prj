@@ -1,25 +1,31 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { PDFViewer } from '@react-pdf/renderer';
-import MarriageCertificatePDF from '@/components/custom/forms/certificates/preview/marriage-certificate/marriage-certificate-pdf';
-import { FormType } from '@prisma/client';
-import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import { useMarriageCertificateForm } from '@/hooks/form-certificates-hooks/useMarriageCertificateForm';
 import type { MarriageCertificateFormProps } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
-import HusbandInfoCard from './form-cards/marriage-cards/husband-info-card';
-import WifeInfoCard from './form-cards/marriage-cards/wife-info-card';
-import HusbandParentsInfoCard from './form-cards/marriage-cards/husband-parent-info-card';
-import WifeParentsInfoCard from './form-cards/marriage-cards/wife-parent-info-card';
-import { useMemo } from 'react';
-import MarriageDetailsCard from './form-cards/marriage-cards/marriage-details-card';
+import { FormType } from '@prisma/client';
 import ContractingPartiesCertificationCard from './form-cards/marriage-cards/contracting-parties-certification-card';
+import HusbandInfoCard from './form-cards/marriage-cards/husband-info-card';
+import HusbandParentsInfoCard from './form-cards/marriage-cards/husband-parent-info-card';
+import MarriageDetailsCard from './form-cards/marriage-cards/marriage-details-card';
 import SolemnizingOfficerCertification from './form-cards/marriage-cards/solemnizing-officer-certification-card';
+import WifeInfoCard from './form-cards/marriage-cards/wife-info-card';
+import WifeParentsInfoCard from './form-cards/marriage-cards/wife-parent-info-card';
 import { WitnessesCard } from './form-cards/marriage-cards/witnesses-section-card';
-import { ReceivedByCard, RegisteredAtOfficeCard } from './form-cards/shared-components/processing-details-cards';
+import {
+  ReceivedByCard,
+  RegisteredAtOfficeCard,
+} from './form-cards/shared-components/processing-details-cards';
+import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import RemarksCard from './form-cards/shared-components/remarks-card';
 import { AffidavitOfSolemnizingOfficer } from './form-cards/marriage-cards/affidavit-of-marriage';
 import { AffidavitForDelayedMarriageRegistration } from './form-cards/marriage-cards/affidavit-of-delayed-marriage-registration';
@@ -53,7 +59,6 @@ export default function MarriageCertificateForm({
                 <div className='w-1/2 border-r'>
                   <ScrollArea className='h-[calc(95vh-120px)]'>
                     <div className='p-6 space-y-4'>
-
                       <RegistryInformationCard
                         formType={FormType.MARRIAGE}
                         title='Marriage Registry Information'
@@ -112,7 +117,10 @@ export default function MarriageCertificateForm({
               >
                 Cancel
               </Button>
-              <Button type='submit' className='py-2 w-32 bg-primary/80 hover:bg-primary'>
+              <Button
+                type='submit'
+                className='py-2 w-32 bg-primary/80 hover:bg-primary'
+              >
                 Save
               </Button>
               <Button type="button" onClick={() => console.log('Form State:', formMethods.getValues())}>
@@ -126,4 +134,3 @@ export default function MarriageCertificateForm({
     </Dialog>
   );
 }
-

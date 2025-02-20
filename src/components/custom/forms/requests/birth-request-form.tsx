@@ -17,6 +17,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { NameObject, PlaceOfBirthObject } from "@/lib/types/json"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { AttachmentWithCertifiedCopies } from "../../civil-registry/components/attachment-table"
 
 // Update the Zod schema to match
 const schema = z.object({
@@ -43,7 +44,6 @@ const schema = z.object({
   isCertified: z.boolean().refine((val) => val === true, "You must certify the information"),
 })
 
-
 interface BirthCertificateFormProps {
   formData?: BaseRegistryFormWithRelations & {
     birthCertificateForm?: BirthCertificateFormCTC | null
@@ -53,9 +53,10 @@ interface BirthCertificateFormProps {
   open: boolean
   onClose?: () => void
   onOpenChange: (open: boolean) => void
+  attachment: AttachmentWithCertifiedCopies | null
 }
 
-const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, open, onOpenChange, onClose }) => {
+const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, open, onOpenChange, onClose, attachment }) => {
   const [isRegisteredLate, setIsRegisteredLate] = useState(false)
   const [isCertified, setIsCertified] = useState(false)
   const [isFormValid, setIsFormValid] = useState(false)
@@ -135,7 +136,7 @@ const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, o
         ...prev,
         required: {
           ...prev.required,
-          [name]: value.trim() // Trim whitespace from required fields
+          [name]: value.trim()
         }
       }));
     } else {
@@ -226,8 +227,8 @@ const BirthCertificateForm: React.FC<BirthCertificateFormProps> = ({ formData, o
       contactNo: formObj.contactNo?.toString(),
       date: formObj.datePaid ? formObj.datePaid.toString() : undefined,
       whenRegistered: isRegisteredLate ? formObj.whenRegistered?.toString() : undefined,
+      attachmentId: attachment?.id ?? '',
     };
-
     try {
       await submitRequest(requestData);
       toast.success("Request submitted successfully");

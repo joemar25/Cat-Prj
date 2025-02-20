@@ -158,7 +158,7 @@ export function DataTableRowActions({
           {canUpload && (
             <DropdownMenuItem onClick={() => setUploadDialogOpen(true)}>
               <Icons.printer className="mr-2 h-4 w-4" />
-              {t('scanDocumentUpload')}
+              {t('uploadDocument')}
             </DropdownMenuItem>
           )}
 

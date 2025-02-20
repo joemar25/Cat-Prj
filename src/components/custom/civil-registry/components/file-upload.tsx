@@ -12,11 +12,12 @@ import { useState, useEffect, useCallback } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 import Image from "next/image"
+import useCreateDocument from "@/hooks/use-create-document"
 
 interface FileUploadDialogProps {
     open: boolean
     onOpenChangeAction: (open: boolean) => void
-    onUploadSuccess?: (fileData: { url: string; id: string }) => void
+    onUploadSuccess?: (fileData: { url: string; id: string; attachmentId: string }) => void
     formId: string
     formType: FormType
     registryNumber: string
@@ -31,6 +32,7 @@ export function FileUploadDialog({
     registryNumber,
 }: FileUploadDialogProps) {
     const { data: session } = useSession()
+    const { createDocument } = useCreateDocument()
 
     if (!session) {
         redirect("/")
@@ -78,56 +80,6 @@ export function FileUploadDialog({
         setIsLoading(true)
 
         try {
-            let documentId: string | undefined
-
-            const formResponse = await fetch(`/api/forms/${formId}`, {
-                method: "GET",
-            })
-            const formJson = await formResponse.json()
-            if (!formResponse.ok) {
-                throw new Error(formJson.error || "Failed to fetch form data")
-            }
-
-            documentId = formJson.data?.documentId
-
-            if (!documentId) {
-                const documentResponse = await fetch("/api/documents", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        type:
-                            formType === "BIRTH"
-                                ? "BIRTH_CERTIFICATE"
-                                : formType === "DEATH"
-                                    ? "DEATH_CERTIFICATE"
-                                    : "MARRIAGE_CERTIFICATE",
-                        title: `${formType} Document - ${registryNumber}`,
-                        status: "PENDING",
-                    }),
-                })
-
-                const documentJson = await documentResponse.json()
-                if (!documentResponse.ok) {
-                    throw new Error(`Document creation failed: ${documentJson.error || "Unknown error"}`)
-                }
-
-                documentId = documentJson.data?.id
-                if (!documentId) {
-                    throw new Error("Document creation failed: Missing document ID in response")
-                }
-
-                const updateFormResponse = await fetch(`/api/forms/${formId}`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ documentId }),
-                })
-
-                const updateFormJson = await updateFormResponse.json()
-                if (!updateFormResponse.ok) {
-                    throw new Error(`Form update failed: ${JSON.stringify(updateFormJson)}`)
-                }
-            }
-
             const formData = new FormData()
             formData.append("file", file)
             formData.append("referenceNumber", registryNumber)
@@ -155,29 +107,44 @@ export function FileUploadDialog({
                 throw new Error("File upload failed: Missing file URL in response")
             }
 
-            const attachmentPayload = {
+            console.log('Creating document with data:', {
                 userId,
-                documentId,
-                type: `${formType}_CERTIFICATE`,
+                formId,
+                formType,
+                registryNumber,
                 fileUrl,
                 fileName: file.name,
                 fileSize: file.size,
                 mimeType: file.type,
-            }
-
-            const attachmentResponse = await fetch("/api/attachments", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(attachmentPayload),
+                type:
+                    formType === 'BIRTH'
+                        ? 'BIRTH_CERTIFICATE'
+                        : formType === 'DEATH'
+                            ? 'DEATH_CERTIFICATE'
+                            : 'MARRIAGE_CERTIFICATE',
+                title: `${formType} Document - ${registryNumber}`,
             })
 
-            const attachmentJson = await attachmentResponse.json()
-            if (!attachmentResponse.ok || !attachmentJson.success) {
-                throw new Error(`Attachment creation failed: ${JSON.stringify(attachmentJson)}`)
-            }
+            const { document, attachment } = await createDocument({
+                userId,
+                formId,
+                formType,
+                registryNumber,
+                fileUrl,
+                fileName: file.name,
+                fileSize: file.size,
+                mimeType: file.type,
+                type:
+                    formType === 'BIRTH'
+                        ? 'BIRTH_CERTIFICATE'
+                        : formType === 'DEATH'
+                            ? 'DEATH_CERTIFICATE'
+                            : 'MARRIAGE_CERTIFICATE',
+                title: `${formType} Document - ${registryNumber}`,
+            })
 
-            toast.success("File uploaded successfully!")
-            onUploadSuccess?.({ url: fileUrl, id: documentId })
+            toast.success('File uploaded successfully!')
+            onUploadSuccess?.({ url: fileUrl, id: document.id, attachmentId: attachment.id })
             onOpenChangeAction(false)
         } catch (error) {
             console.error("Upload process error:", error)

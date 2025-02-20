@@ -14,11 +14,15 @@ export async function GET() {
                 birthCertificateForm: true,
                 deathCertificateForm: true,
                 marriageCertificateForm: true,
-                document: {
+                documents: {
                     include: {
-                        attachments: {
-                            include: { certifiedCopies: true },
-                            orderBy: { updatedAt: 'desc' },
+                        document: {
+                            include: {
+                                attachments: {
+                                    include: { certifiedCopies: true },
+                                    orderBy: { updatedAt: 'desc' },
+                                },
+                            },
                         },
                     },
                 },
@@ -26,7 +30,8 @@ export async function GET() {
         })
 
         const processedForms = forms.map((form) => {
-            const latestAttachment = form.document?.attachments?.[0]
+            const latestDocument = form.documents[0]?.document
+            const latestAttachment = latestDocument?.attachments?.[0]
             const hasCTC = (latestAttachment?.certifiedCopies?.length ?? 0) > 0
             return { ...form, hasCTC }
         })

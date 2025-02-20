@@ -13,9 +13,10 @@ import { Input } from '@/components/ui/input';
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
+import SignatureUploader from '../shared-components/signature-uploader';
 
 const CertificationInformantCard: React.FC = () => {
-  const { control } = useFormContext<DeathCertificateFormValues>();
+  const { control, setValue } = useFormContext<DeathCertificateFormValues>();
 
   return (
     <Card>
@@ -27,17 +28,22 @@ const CertificationInformantCard: React.FC = () => {
         <FormField
           control={control}
           name='informant.signature'
-          render={({ field }) => (
+          render={({ field, formState: { errors } }) => (
             <FormItem>
               <FormLabel>Signature</FormLabel>
               <FormControl>
-                <Input
-                  className='h-10'
-                  placeholder='Enter signature'
-                  {...field}
+                <SignatureUploader
+                  name='informant.signature'
+                  label='Upload Signature'
+                  onChange={(file: File) => {
+                    setValue('informant.signature', file, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+                  }}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage>{errors?.informant?.signature?.message}</FormMessage>
             </FormItem>
           )}
         />

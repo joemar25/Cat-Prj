@@ -1,3 +1,5 @@
+// lib/types/zod-form-certificate/form-certificates-shared-schema.ts
+
 import { mainReligions } from '@/lib/constants/religions';
 import { z } from 'zod';
 
@@ -50,8 +52,15 @@ export const createDateFieldSchema = (options?: {
 // PROCESSING DETAILS: "Prepared By", "Received By", "Registered By"
 // Each has Signature, Name in Print, Title/Position, and Date
 // ─────────────────────────────────────────────────────────────────────────────
+
+export const signatureSchema = z
+  .instanceof(File, { message: 'A signature file is required' })
+  .refine((file) => file.size <= 5 * 1024 * 1024, {
+    message: 'File size must be less than 5MB',
+  });
+
 export const signatoryDetailsSchema = z.object({
-  signature: z.string().nonempty('Signature is required'),
+  signature: signatureSchema,
   nameInPrint: z.string().nonempty('Name in print is required'),
   titleOrPosition: z.string().nonempty('Title or position is required'),
   date: createDateFieldSchema({
@@ -66,6 +75,7 @@ export const processingDetailsSchema = z.object({
   receivedBy: signatoryDetailsSchema,
   registeredBy: signatoryDetailsSchema,
 });
+
 // ─────────────────────────────────────────────────────────────────────────────
 // COMMON PERSONAL DATA FIELDS
 // ─────────────────────────────────────────────────────────────────────────────

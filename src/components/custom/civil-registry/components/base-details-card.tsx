@@ -31,13 +31,13 @@ const formTypeLabels: Record<FormType, string> = {
  * Helper function to create a minimal Attachment object from file data.
  * (This is used only for UI purposes when uploading an attachment.)
  */
-const createAttachment = (fileUrl: string): Attachment => {
+const createAttachment = (fileUrl: string): Attachment & { certifiedCopies: never[] } => {
     const fileName = fileUrl.split('/').pop() || fileUrl
     return {
-        id: '', // This will be replaced by the actual ID from the server
+        id: '',
         userId: null,
         documentId: null,
-        type: 'BIRTH_CERTIFICATE' as const, // Default type, will be updated with actual type
+        type: 'BIRTH_CERTIFICATE' as const,
         fileUrl,
         fileName,
         fileSize: 0,
@@ -49,7 +49,8 @@ const createAttachment = (fileUrl: string): Attachment => {
         notes: null,
         metadata: null,
         hash: null,
-    } as Attachment
+        certifiedCopies: [],
+    }
 }
 
 export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdateAction }) => {
@@ -66,8 +67,12 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
     const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
 
     // Explicitly cast attachments to include certifiedCopies.
-    const attachments: AttachmentWithCertifiedCopies[] =
-        (form.document?.attachments as AttachmentWithCertifiedCopies[]) ?? []
+    const attachments: AttachmentWithCertifiedCopies[] = form.documents
+        .flatMap(doc => doc.document.attachments)
+        .map(att => ({
+            ...att,
+            certifiedCopies: att.certifiedCopies ?? []
+        }));
 
     // Ensure every attachment has a certifiedCopies array (default to empty if missing).
     const attachmentsWithCTC = attachments.map((att) => ({
@@ -86,19 +91,19 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
     /**
      * Callback for when an attachment has been deleted.
      */
-    const handleAttachmentDeleted = () => {
-        if (form.document) {
-            const updatedAttachments = form.document.attachments.filter(
-                (att) => att.id !== latestAttachment?.id
-            )
-            onUpdateAction?.({
-                ...form,
-                document: {
-                    ...form.document,
-                    attachments: updatedAttachments,
-                },
-            })
-        }
+    const handleAttachmentDeleted = (deletedId: string) => {
+        const updatedDocuments = form.documents.map(doc => ({
+            ...doc,
+            document: {
+                ...doc.document,
+                attachments: doc.document.attachments.filter(att => att.id !== deletedId)
+            }
+        }));
+
+        onUpdateAction?.({
+            ...form,
+            documents: updatedDocuments
+        });
     }
 
     return (
@@ -143,7 +148,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                             {canUpload && (
                                 <Button onClick={() => setUploadDialogOpen(true)} variant="outline">
                                     <Icons.add className="mr-2 h-4 w-4" />
-                                    {t('scanDocumentUpload')}
+                                    {t('uploadDocument')}
                                 </Button>
                             )}
                             {canEdit && (
@@ -160,7 +165,7 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                 <div className="mt-4">
                     <h4 className="font-medium text-lg">{t('Latest Attachment')}</h4>
                     <AttachmentsTable
-                        attachments={latestAttachment ? [latestAttachment] : []}
+                        attachments={attachments}
                         onAttachmentDeleted={handleAttachmentDeleted}
                         formType={form.formType}
                         formData={form}
@@ -175,18 +180,32 @@ export const BaseDetailsCard: React.FC<BaseDetailsCardProps> = ({ form, onUpdate
                     onOpenChangeAction={setUploadDialogOpen}
                     onUploadSuccess={(fileData) => {
                         const newAttachment = createAttachment(fileData.url)
-                        if (form.document) {
-                            onUpdateAction?.({
-                                ...form,
-                                document: {
-                                    ...form.document,
-                                    attachments: [...(form.document.attachments || []), {
-                                        ...newAttachment,
-                                        id: fileData.id // Use the ID from the server response
-                                    }],
+                        onUpdateAction?.({
+                            ...form,
+                            documents: [
+                                ...form.documents,
+                                {
+                                    document: {
+                                        id: fileData.id,
+                                        status: 'PENDING' as const,
+                                        createdAt: new Date(),
+                                        updatedAt: new Date(),
+                                        type: form.formType === 'BIRTH' ? 'BIRTH_CERTIFICATE' :
+                                            form.formType === 'DEATH' ? 'DEATH_CERTIFICATE' : 'MARRIAGE_CERTIFICATE',
+                                        title: `${form.formType} Document - ${form.registryNumber}`,
+                                        description: null,
+                                        metadata: {},
+                                        version: 1,
+                                        isLatest: true,
+                                        attachments: [{
+                                            ...newAttachment,
+                                            id: fileData.id,
+                                            certifiedCopies: [],
+                                        }],
+                                    },
                                 },
-                            })
-                        }
+                            ],
+                        })
                     }}
                     formId={form.id}
                     formType={form.formType}

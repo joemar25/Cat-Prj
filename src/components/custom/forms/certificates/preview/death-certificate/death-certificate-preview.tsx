@@ -3,7 +3,6 @@
 import { DeathCertificateFormValues } from '@/lib/types/zod-form-certificate/death-certificate-form-schema';
 import { formatDateTime } from '@/utils/date';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
-;
 import { style } from './styles';
 
 interface DeathCertificatePDFProps {
@@ -15,7 +14,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
     return (
       <Document>
         <Page size='LEGAL' style={style.page}>
-          <View >
+          <View>
             <Text>No data available for preview.</Text>
           </View>
         </Page>
@@ -28,398 +27,407 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
       {/* Back Page */}
       <Page size='LEGAL' style={[style.page, style.flexColumn, { gap: 10 }]}>
         <View style={style.gridColumn}>
-          <View style={[style.gridColumn,]}>
-            <Text style={[style.headerTitle, style.paddingGlobal, { textAlign: 'center' }]}>For children aged 0 to 7 days</Text>
+          <View style={style.gridColumn}>
+            <Text
+              style={[
+                style.headerTitle,
+                style.paddingGlobal,
+                { textAlign: 'center' },
+              ]}
+            >
+              For children aged 0 to 7 days
+            </Text>
           </View>
           <View style={style.flexRow}>
-            <View style={[style.gridColumn, style.paddingGlobal, style.flex1, { gap: 5 }]}>
+            <View
+              style={[
+                style.gridColumn,
+                style.paddingGlobal,
+                style.flex1,
+                { gap: 5 },
+              ]}
+            >
               <Text style={style.label}>14. AGE OF MOTHER</Text>
-              <Text style={style.value}>{"56 years old"}</Text>
+              <Text style={style.value}>
+                {data.birthInformation?.ageOfMother || ''}
+              </Text>
             </View>
-            <View style={[style.gridColumn, style.paddingGlobal, { flex: 2, gap: 5 }]}>
-              <Text style={style.label}>15. METHOD OF DELIVERY </Text>
-              <Text style={style.label2}>(Normal spontaneous vertex, if others, specify)</Text>
-              <Text style={style.value}>{"NORMAL"}</Text>
+            <View
+              style={[
+                style.gridColumn,
+                style.paddingGlobal,
+                { flex: 2, gap: 5 },
+              ]}
+            >
+              <Text style={style.label}>15. METHOD OF DELIVERY</Text>
+              <Text style={style.label2}>(If others, specify)</Text>
+              <Text style={style.value}>
+                {data.birthInformation?.methodOfDelivery || ''}
+              </Text>
             </View>
-            <View style={[style.gridColumn, style.paddingGlobal, { flex: 2, gap: 5 }]}>
-              <Text style={style.label}>16. LENGTH OF PREGRANCY</Text>
+            <View
+              style={[
+                style.gridColumn,
+                style.paddingGlobal,
+                { flex: 2, gap: 5 },
+              ]}
+            >
+              <Text style={style.label}>16. LENGTH OF PREGNANCY</Text>
               <Text style={style.label2}>(in completed weeks)</Text>
-              <Text style={style.value}>{"1 WEEK"}</Text>
+              <Text style={style.value}>
+                {data.birthInformation?.lengthOfPregnancy !== undefined
+                  ? `${data.birthInformation.lengthOfPregnancy} weeks`
+                  : ''}
+              </Text>
             </View>
           </View>
           <View style={style.flexRow}>
-            <View style={[style.gridColumn, style.paddingGlobal, style.flex1, { gap: 5 }]}>
+            <View
+              style={[
+                style.gridColumn,
+                style.paddingGlobal,
+                style.flex1,
+                { gap: 5 },
+              ]}
+            >
               <Text style={style.label}>17. TYPE OF BIRTH</Text>
-              <Text style={style.value}>{"NORMAL"}</Text>
+              <Text style={style.value}>
+                {data.birthInformation?.typeOfBirth || ''}
+              </Text>
             </View>
-            <View style={[style.gridColumn, style.paddingGlobal, style.flex1, { gap: 5 }]}>
+            <View
+              style={[
+                style.gridColumn,
+                style.paddingGlobal,
+                style.flex1,
+                { gap: 5 },
+              ]}
+            >
               <Text style={style.label}>18. IF MULTIPLE BIRTH, CHILD WAS</Text>
               <Text style={style.label2}>(1st, 2nd, 3rd, etc.)</Text>
-              <Text style={style.value}>{"N/A"}</Text>
+              <Text style={style.value}>
+                {data.birthInformation?.birthOrder || 'N/A'}
+              </Text>
             </View>
           </View>
-          <View style={[style.gridColumn]}>
-            <Text style={[style.headerTitle, style.paddingGlobal, { textAlign: 'center' }]}>MEDICAL CERTIFICATE</Text>
+          <View style={style.gridColumn}>
+            <Text
+              style={[
+                style.headerTitle,
+                style.paddingGlobal,
+                { textAlign: 'center' },
+              ]}
+            >
+              MEDICAL CERTIFICATE
+            </Text>
           </View>
-          <View style={[style.gridColumn, style.paddingGlobal, { gap: 5, }]}>
+          <View style={[style.gridColumn, style.paddingGlobal, { gap: 5 }]}>
             <Text style={style.label}>19a. CAUSES OF DEATH</Text>
-            <View style={[style.flexColumn, style.paddingLeft,]}>
+            <View style={[style.flexColumn, style.paddingLeft]}>
+              {/* For infant deaths, these fields should be set accordingly */}
               <View style={[style.flexRow, { alignItems: 'center' }]}>
-                <Text style={[style.label, { marginRight: 15 }]}>a. Main disease/condition of infant</Text>
+                <Text style={[style.label, { marginRight: 15 }]}>
+                  a. Main disease/condition of infant
+                </Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>N/A</Text>
+                  <Text style={style.valueLine}>
+                    {data.medicalCertificate?.causesOfDeath &&
+                    'mainDiseaseOfInfant' in
+                      data.medicalCertificate.causesOfDeath
+                      ? data.medicalCertificate.causesOfDeath
+                          .mainDiseaseOfInfant
+                      : 'N/A'}
+                  </Text>
                 </View>
               </View>
-
-              <View style={[style.flexRow, { alignItems: 'center', }]}>
-                <Text style={[style.label, { marginRight: 15 }]}>b. Other diseases/conditions of infant</Text>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { marginRight: 15 }]}>
+                  b. Other diseases/conditions of infant
+                </Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>N/A</Text>
+                  <Text style={style.valueLine}>
+                    {data.medicalCertificate?.causesOfDeath &&
+                    'mainDiseaseOfInfant' in
+                      data.medicalCertificate.causesOfDeath
+                      ? data.medicalCertificate.causesOfDeath
+                          .otherDiseasesOfInfant || 'N/A'
+                      : 'N/A'}
+                  </Text>
                 </View>
               </View>
-
-              <View style={[style.flexRow, { alignItems: 'center', }]}>
-                <Text style={[style.label, { marginRight: 15 }]}>c. Main maternal disease/condition affecting infant</Text>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { marginRight: 15 }]}>
+                  c. Main maternal disease/condition affecting infant
+                </Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>N/A</Text>
+                  <Text style={style.valueLine}>
+                    {data.medicalCertificate?.causesOfDeath &&
+                    'mainDiseaseOfInfant' in
+                      data.medicalCertificate.causesOfDeath
+                      ? data.medicalCertificate.causesOfDeath
+                          .mainMaternalDisease || 'N/A'
+                      : 'N/A'}
+                  </Text>
                 </View>
               </View>
-
-              <View style={[style.flexRow, { alignItems: 'center', }]}>
-                <Text style={[style.label, { marginRight: 15 }]}>d. Other maternal diseases/conditions affecting infant</Text>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { marginRight: 15 }]}>
+                  d. Other maternal diseases/conditions affecting infant
+                </Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>N/A</Text>
+                  <Text style={style.valueLine}>
+                    {data.medicalCertificate?.causesOfDeath &&
+                    'mainDiseaseOfInfant' in
+                      data.medicalCertificate.causesOfDeath
+                      ? data.medicalCertificate.causesOfDeath
+                          .otherMaternalDisease || 'N/A'
+                      : 'N/A'}
+                  </Text>
                 </View>
               </View>
-
-              <View style={[style.flexRow, { alignItems: 'center', }]}>
-                <Text style={[style.label, { marginRight: 15 }]}>e. Other relevant circumstances</Text>
+              <View style={[style.flexRow, { alignItems: 'center' }]}>
+                <Text style={[style.label, { marginRight: 15 }]}>
+                  e. Other relevant circumstances
+                </Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>N/A</Text>
+                  <Text style={style.valueLine}>
+                    {data.medicalCertificate?.causesOfDeath &&
+                    'mainDiseaseOfInfant' in
+                      data.medicalCertificate.causesOfDeath
+                      ? data.medicalCertificate.causesOfDeath
+                          .otherRelevantCircumstances || 'N/A'
+                      : 'N/A'}
+                  </Text>
                 </View>
               </View>
             </View>
           </View>
         </View>
-        <View style={[style.gridColumn, style.paddingGlobal, { border: '2px solid #000', }]}>
-          <Text style={[style.headerTitle, { textAlign: 'center' }]}>postmortem certificate of death</Text>
-          <Text style={style.valueCenter}>I HEREBY CERTIFY that I have performed an autopsy upon the body of the deceased and that the cause of death was</Text>
-          <Text style={style.valueLine}>{" "}</Text>
-          <Text style={style.valueLine}>{" "}</Text>
+        <View
+          style={[
+            style.gridColumn,
+            style.paddingGlobal,
+            { border: '2px solid #000' },
+          ]}
+        >
+          <Text style={[style.headerTitle, { textAlign: 'center' }]}>
+            Postmortem Certificate of Death
+          </Text>
+          <Text style={style.valueCenter}>
+            I HEREBY CERTIFY that I have performed an autopsy upon the body of
+            the deceased and that the cause of death was
+          </Text>
+          <Text style={style.valueLine}>
+            {data.postmortemCertificate?.causeOfDeath || ''}
+          </Text>
           <View style={[style.flexRow, { paddingTop: 20, gap: 20 }]}>
             {/* Left Column */}
             <View style={[style.flexColumn, style.flex1]}>
               <View style={[style.flexRow, { alignItems: 'center' }]}>
                 <Text style={[style.label, { width: 80 }]}>Signature</Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
+                  <Text style={style.valueLine}>
+                    {data.postmortemCertificate?.signature || ''}
+                  </Text>
                 </View>
               </View>
               <View style={[style.flexRow, { alignItems: 'center' }]}>
                 <Text style={[style.label, { width: 80 }]}>Name in Print</Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
+                  <Text style={style.valueLine}>
+                    {data.postmortemCertificate?.nameInPrint || ''}
+                  </Text>
                 </View>
               </View>
               <View style={[style.flexRow, { alignItems: 'center' }]}>
                 <Text style={[style.label, { width: 80 }]}>Date</Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
+                  <Text style={style.valueLine}>
+                    {data.postmortemCertificate?.date
+                      ? formatDateTime(data.postmortemCertificate.date, {
+                          monthFormat: 'numeric',
+                          dayFormat: 'numeric',
+                          yearFormat: 'numeric',
+                        })
+                      : ''}
+                  </Text>
                 </View>
               </View>
             </View>
-
             {/* Right Column */}
             <View style={[style.flexColumn, style.flex1]}>
               <View style={[style.flexRow, { alignItems: 'center' }]}>
-                <Text style={[style.label, { width: 100 }]}>Title/Designation</Text>
+                <Text style={[style.label, { width: 100 }]}>
+                  Title/Designation
+                </Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
+                  <Text style={style.valueLine}>
+                    {data.postmortemCertificate?.titleDesignation || ''}
+                  </Text>
                 </View>
               </View>
               <View style={[style.flexRow, { alignItems: 'center' }]}>
                 <Text style={[style.label, { width: 100 }]}>Address</Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
-                </View>
-              </View>
-              <View style={[style.flexRow, { alignItems: 'center' }]}>
-                <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
+                  <Text style={style.valueLine}>
+                    {data.postmortemCertificate?.address || ''}
+                  </Text>
                 </View>
               </View>
             </View>
           </View>
         </View>
-        <View style={[style.gridColumn, style.paddingGlobal, { border: '2px solid #000', }]}>
-          <Text style={[style.headerTitle, { textAlign: 'center' }]}>certification of embalmer</Text>
+        <View
+          style={[
+            style.gridColumn,
+            style.paddingGlobal,
+            { border: '2px solid #000' },
+          ]}
+        >
+          <Text style={[style.headerTitle, { textAlign: 'center' }]}>
+            Certification of Embalmer
+          </Text>
           <View style={style.flexColumn}>
             <View style={[style.flexRow, { paddingLeft: 20, gap: 5 }]}>
-              <Text style={style.valueCenter}>I HEREBY CERTIFY that I have embalmed </Text>
+              <Text style={style.valueCenter}>
+                I HEREBY CERTIFY that I have embalmed{' '}
+              </Text>
               <View style={style.flex1}>
-                <Text style={style.valueLine}>{"Name of deceased"}</Text>
+                <Text style={style.valueLine}>
+                  {data.embalmerCertification?.nameOfDeceased || ''}
+                </Text>
               </View>
-              <Text style={style.valueCenter}> following</Text>
-            </View>
-            <View style={style.flexRow}>
-              <Text style={style.valueCenter}>all the regulation prescribed by the Department Health.</Text>
+              <Text style={style.valueCenter}>
+                {' '}
+                in accordance with regulations.
+              </Text>
             </View>
           </View>
-
           <View style={[style.flexRow, { paddingTop: 10, gap: 20 }]}>
             {/* Left Column */}
-            <View style={[style.flexColumn, style.flex1]}>
+            <View style={[style.flexColumn, { flex: 1 }]}>
               <View style={[style.flexRow, { alignItems: 'center' }]}>
                 <Text style={[style.label, { width: 80 }]}>Signature</Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
+                  <Text style={style.valueLine}>
+                    {data.embalmerCertification?.signature || ''}
+                  </Text>
                 </View>
               </View>
               <View style={[style.flexRow, { alignItems: 'center' }]}>
                 <Text style={[style.label, { width: 80 }]}>Name in Print</Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
-                </View>
-              </View>
-              <View style={[style.flexRow, { alignItems: 'center' }]}>
-                <Text style={[style.label, { width: 80 }]}>Address</Text>
-                <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
-                </View>
-              </View>
-              <View style={[style.flexRow, { alignItems: 'center' }]}>
-                <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
+                  <Text style={style.valueLine}>
+                    {data.embalmerCertification?.nameInPrint || ''}
+                  </Text>
                 </View>
               </View>
             </View>
-
             {/* Right Column */}
-            <View style={[style.flexColumn, style.flex1]}>
-              <View style={[style.flexRow, { alignItems: 'center' }]}>
-                <Text style={[style.label, { width: 100 }]}>Title/Designation</Text>
-                <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
-                </View>
-              </View>
+            <View style={[style.flexColumn, { flex: 1 }]}>
               <View style={[style.flexRow, { alignItems: 'center' }]}>
                 <Text style={[style.label, { width: 100 }]}>License No.</Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
+                  <Text style={style.valueLine}>
+                    {data.embalmerCertification?.licenseNo || ''}
+                  </Text>
                 </View>
               </View>
               <View style={[style.flexRow, { alignItems: 'center' }]}>
                 <Text style={[style.label, { width: 100 }]}>Issued on</Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
+                  <Text style={style.valueLine}>
+                    {data.embalmerCertification?.issuedOn || ''}
+                  </Text>
                 </View>
               </View>
               <View style={[style.flexRow, { alignItems: 'center' }]}>
                 <Text style={[style.label, { width: 100 }]}>Expiry Date</Text>
                 <View style={style.flex1}>
-                  <Text style={style.valueLine}>{" "}</Text>
+                  <Text style={style.valueLine}>
+                    {data.embalmerCertification?.expiryDate || ''}
+                  </Text>
                 </View>
               </View>
             </View>
           </View>
-
         </View>
-        <View style={[style.gridColumn, style.paddingGlobal, { border: '2px solid #000', }]}>
+        <View
+          style={[
+            style.gridColumn,
+            style.paddingGlobal,
+            { border: '2px solid #000' },
+          ]}
+        >
           <Text style={[style.headerTitle, { textAlign: 'center' }]}>
-            affidavit for delayed registration of death
+            Affidavit for Delayed Registration of Death
           </Text>
-
+          {/* Affidavit Content */}
           <View style={[style.flexColumn, { gap: 2 }]}>
-            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.valueCenter}>I </Text>
+            <View
+              style={[
+                style.flexRow,
+                { paddingLeft: 20, gap: 5, alignItems: 'flex-end' },
+              ]}
+            >
+              <Text style={style.valueCenter}>I, </Text>
               <View style={style.flex1}>
-                <Text style={style.valueLine}>{""}</Text>
+                <Text style={style.valueLine}>
+                  {data.delayedRegistration?.affiant?.name || ''}
+                </Text>
               </View>
-              <Text style={style.valueCenter}>of Legal age, single/married/divorced/widow/widower,</Text>
+              <Text style={style.valueCenter}>
+                , of legal age,{' '}
+                {data.delayedRegistration?.affiant?.civilStatus || ''}, with
+                residence at{' '}
+              </Text>
             </View>
             <View style={[style.flexRow, { gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.valueCenter}>with residence and postal address</Text>
+              <Text style={style.valueCenter}>address: </Text>
               <View style={style.flex1}>
-                <Text style={style.valueLine}>{""}</Text>
+                <Text style={style.valueLine}>
+                  {data.delayedRegistration?.affiant?.residenceAddress || ''}
+                </Text>
               </View>
             </View>
-            <View style={[style.flexRow]}>
-              <Text style={style.valueCenter}>after being duly sworn in accordance with law, do hereby depose and say:  </Text>
-            </View>
-          </View>
-
-          <View style={[style.flexColumn, { gap: 2, paddingTop: 10 }]}>
-            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.valueCenter}>1. That </Text>
+            <View
+              style={[
+                style.flexRow,
+                { paddingLeft: 20, gap: 5, alignItems: 'flex-end' },
+              ]}
+            >
+              <Text style={style.valueCenter}>
+                I hereby declare that the delay in registering the death was due
+                to:{' '}
+              </Text>
               <View style={style.flex1}>
-                <Text style={style.valueLine}>{""}</Text>
-              </View>
-              <Text style={style.valueCenter}>died on,</Text>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{""}</Text>
-              </View>
-            </View>
-            <View style={[style.flexRow, { paddingLeft: 40, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.valueCenter}>in</Text>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{""}</Text>
-              </View>
-              <Text style={style.valueCenter}>and was buried/cremated im</Text>
-            </View>
-            <View style={[style.flexRow, { paddingLeft: 40, gap: 5, alignItems: 'flex-end' }]}>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{""}</Text>
-              </View>
-              <Text style={style.valueCenter}>on</Text>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{""}</Text>
-              </View>
-              <Text style={style.valueCenter}>{"."}</Text>
-            </View>
-          </View>
-
-          <View style={[style.flexColumn, { gap: 2, paddingTop: 10 }]}>
-            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.valueCenter}>2. That the deceased at the time of his/her death: </Text>
-            </View>
-            <View style={[style.flexRow, { paddingLeft: 40, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.radio}>{" "}</Text>
-              <Text style={style.valueCenter}>was attendaned by</Text>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{" "}</Text>
-              </View>
-            </View>
-            <View style={[style.flexRow, { paddingLeft: 40, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.radio}>{" "}</Text>
-              <Text style={style.valueCenter}>was not attended</Text>
-            </View>
-          </View>
-
-          <View style={[style.flexColumn, { gap: 2, paddingTop: 10 }]}>
-            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.valueCenter}>3. That the cause of death of the deceased was </Text>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{" "}</Text>
+                <Text style={style.valueLine}>
+                  {data.delayedRegistration?.reasonForDelay || ''}
+                </Text>
               </View>
             </View>
           </View>
-
-          <View style={[style.flexColumn, { gap: 2, paddingTop: 10 }]}>
-            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.valueCenter}>4. That the reason for the delay registering this death was due to </Text>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{"main reason"}</Text>
-              </View>
-            </View>
-            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.valueLine}>{"other reason if there is"}</Text>
-            </View>
-          </View>
-
-          <View style={[style.flexColumn, { gap: 2, paddingTop: 10 }]}>
-            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.valueCenter}>5. That I amexecuting this affidavit to attest to the truthfulness of the foregoing statements for all legal intents and purposes </Text>
-            </View>
-            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.valueCenter}>In truth whereof, I have affixed my signature below this </Text>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{"main reason"}</Text>
-              </View>
-              <Text style={style.valueCenter}>day of</Text>
-            </View>
-            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={style.valueCenter}>at</Text>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{"main reason"}</Text>
-              </View>
-              <Text style={style.valueCenter}>{', '}</Text>
-              <Text style={style.valueCenter}>Philippines.</Text>
-            </View>
-          </View>
-
-          <View style={[style.flexColumn, { gap: 2, paddingTop: 15, alignItems: 'flex-end' }]}>
+          <View
+            style={[
+              style.flexColumn,
+              { gap: 2, paddingTop: 15, alignItems: 'flex-end' },
+            ]}
+          >
             <View style={[style.flexColumn, { gap: 5, alignItems: 'center' }]}>
               <View style={{ width: 250 }}>
-                <Text style={{ fontSize: 10, textAlign: 'center' }}>{" "}</Text>
-                <View style={{ borderBottom: '1px solid black', marginTop: 2 }} />
+                <Text style={{ fontSize: 10, textAlign: 'center' }}> </Text>
+                <View
+                  style={{ borderBottom: '1px solid black', marginTop: 2 }}
+                />
               </View>
-              <Text style={style.label2}>(Signature Over Printed Name of Affiant)</Text>
+              <Text style={style.label2}>
+                (Signature Over Printed Name of Affiant)
+              </Text>
             </View>
           </View>
-
-          <View style={[style.flexColumn, { gap: 2, paddingTop: 15 }]}>
-            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
-              <Text style={[style.valueCenter, style.headerTitle, { fontSize: 10 }]}>Subscribe and sworn</Text>
-              <Text style={style.valueCenter}>to me before this</Text>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{" "}</Text>
-              </View>
-              <Text style={style.valueCenter}>day of</Text>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{" "}</Text>
-              </View>
-              <Text style={style.valueCenter}>at</Text>
-            </View>
-            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{" "}</Text>
-              </View>
-              <Text style={style.valueCenter}>, </Text>
-              <Text style={style.valueCenter}>Philippines, affiant who exhibited to me his CTC/valid ID</Text>
-            </View>
-            <View style={[style.flexRow, { paddingLeft: 20, gap: 5, alignItems: 'flex-end' }]}>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{" "}</Text>
-              </View>
-              <Text style={style.valueCenter}>issued on </Text>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{" "}</Text>
-              </View>
-              <Text style={style.valueCenter}>at</Text>
-              <View style={style.flex1}>
-                <Text style={style.valueLine}>{" "}</Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={[style.flexColumn, { gap: 5, paddingTop: 15, alignItems: 'center', justifyContent: 'space-between' }]}>
-            <View style={[style.flexRow, { gap: 10 }]}>
-              <View style={[style.flexColumn, { gap: 5, alignItems: 'center' }]}>
-                <View style={{ width: 250 }}>
-                  <Text style={{ fontSize: 10, textAlign: 'center' }}>{" "}</Text>
-                  <View style={{ borderBottom: '1px solid black', marginTop: 2 }} />
-                </View>
-                <Text style={style.label2}>(Signature Over Printed Name of Affiant)</Text>
-              </View>
-              <View style={[style.flexColumn, { gap: 5, alignItems: 'center' }]}>
-                <View style={{ width: 250 }}>
-                  <Text style={{ fontSize: 10, textAlign: 'center' }}>{" "}</Text>
-                  <View style={{ borderBottom: '1px solid black', marginTop: 2 }} />
-                </View>
-                <Text style={style.label2}>(Signature Over Printed Name of Affiant)</Text>
-              </View>
-            </View>
-            <View style={[style.flexRow, { gap: 10 }]}>
-              <View style={[style.flexColumn, { gap: 5, alignItems: 'center' }]}>
-                <View style={{ width: 250 }}>
-                  <Text style={{ fontSize: 10, textAlign: 'center' }}>{" "}</Text>
-                  <View style={{ borderBottom: '1px solid black', marginTop: 2 }} />
-                </View>
-                <Text style={style.label2}>(Signature Over Printed Name of Affiant)</Text>
-              </View>
-              <View style={[style.flexColumn, { gap: 5, alignItems: 'center' }]}>
-                <View style={{ width: 250 }}>
-                  <Text style={{ fontSize: 10, textAlign: 'center' }}>{" "}</Text>
-                  <View style={{ borderBottom: '1px solid black', marginTop: 2 }} />
-                </View>
-                <Text style={style.label2}>(Signature Over Printed Name of Affiant)</Text>
-              </View>
-            </View>
-          </View>
-
         </View>
-
       </Page>
+
       {/* Front Page */}
       <Page size='LEGAL' style={style.page}>
         {/* Header */}
@@ -449,21 +457,35 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           <View style={style.gridContainer}>
             {/* Left Grid: Province and City/Municipality */}
             <View style={[style.flexColumn, { flex: 2 }]}>
-              <View style={[style.flexRow, style.paddingGlobal, { borderBottom: '1px solid #000', }]}>
+              <View
+                style={[
+                  style.flexRow,
+                  style.paddingGlobal,
+                  { borderBottom: '1px solid #000' },
+                ]}
+              >
                 <Text style={style.label}>Province:</Text>
                 <Text style={style.valueCenter}>{data.province || ''}</Text>
               </View>
               <View style={[style.flexRow, style.paddingGlobal]}>
                 <Text style={style.label}>City/Municipality:</Text>
-                <Text style={[style.valueCenter, { width: '100%' }]}>{data.cityMunicipality || ''}</Text>
+                <Text style={[style.valueCenter, { width: '100%' }]}>
+                  {data.cityMunicipality || ''}
+                </Text>
               </View>
             </View>
-
             {/* Right Grid: Registry No. */}
-            <View style={[style.flexColumn, style.flex1, style.paddingGlobal, { borderLeft: '1px solid #000' }]}>
+            <View
+              style={[
+                style.flexColumn,
+                { flex: 1, padding: 10, borderLeft: '1px solid #000' },
+              ]}
+            >
               <View style={style.flexColumn}>
                 <Text style={style.label}>Registry No.:</Text>
-                <Text style={style.valueCenter}>{data.registryNumber || ''}</Text>
+                <Text style={style.valueCenter}>
+                  {data.registryNumber || ''}
+                </Text>
               </View>
             </View>
           </View>
@@ -476,66 +498,61 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           </View>
           <View style={style.fieldContainer}>
             <Text style={style.label}>(First):</Text>
-            <Text style={style.value}>
-              {data.personalInfo?.firstName || ''}
-            </Text>
+            <Text style={style.value}>{data.name?.first || ''}</Text>
           </View>
           <View style={style.fieldContainer}>
             <Text style={style.label}>(Middle):</Text>
-            <Text style={style.value}>
-              {data.personalInfo?.middleName || ''}
-            </Text>
+            <Text style={style.value}>{data.name?.middle || ''}</Text>
           </View>
           <View
             style={[style.fieldContainer, { borderRight: '1px solid #000' }]}
           >
             <Text style={style.label}>(Last):</Text>
-            <Text style={style.value}>
-              {data.personalInfo?.lastName || ''}
-            </Text>
+            <Text style={style.value}>{data.name?.last || ''}</Text>
           </View>
-
           <View style={style.fieldContainer}>
             <Text style={style.label}>2. SEX:</Text>
-            <Text style={style.value}>{data.personalInfo?.sex || ''}</Text>
+            <Text style={style.value}>{data.sex || ''}</Text>
           </View>
         </View>
 
-        {/* Date of Death, Birth, and Age */}
+        {/* Dates and Age */}
         <View style={style.gridContainer}>
           <View style={style.fieldContainer2}>
             <Text style={style.label}>3. DATE OF DEATH:</Text>
             <Text style={style.value}>
-              {data.personalInfo?.dateOfDeath
-                ? formatDateTime(data.personalInfo.dateOfDeath, {
-                  monthFormat: 'numeric',
-                  dayFormat: 'numeric',
-                  yearFormat: 'numeric',
-                  showTime: false, // No time needed for dates
-                })
+              {data.dateOfDeath
+                ? formatDateTime(data.dateOfDeath, {
+                    monthFormat: 'numeric',
+                    dayFormat: 'numeric',
+                    yearFormat: 'numeric',
+                    showTime: false,
+                  })
                 : ''}
             </Text>
           </View>
           <View style={style.fieldContainer2}>
             <Text style={style.label}>4. DATE OF BIRTH:</Text>
             <Text style={style.value}>
-              {data.personalInfo?.dateOfBirth
-                ? formatDateTime(data.personalInfo.dateOfBirth, {
-                  monthFormat: 'numeric',
-                  dayFormat: 'numeric',
-                  yearFormat: 'numeric',
-                  showTime: false, // No time needed for dates
-                })
+              {data.dateOfBirth
+                ? formatDateTime(data.dateOfBirth, {
+                    monthFormat: 'numeric',
+                    dayFormat: 'numeric',
+                    yearFormat: 'numeric',
+                    showTime: false,
+                  })
                 : ''}
             </Text>
           </View>
           <View style={style.fieldContainer2}>
             <Text style={style.label}>5. AGE AT THE TIME OF DEATH:</Text>
             <Text style={style.value}>
-              {data.personalInfo?.ageAtDeath
-                ? `${data.personalInfo.ageAtDeath.years || 0} yrs, ${data.personalInfo.ageAtDeath.months || 0
-                } mos, ${data.personalInfo.ageAtDeath.days || 0} d, ${data.personalInfo.ageAtDeath.hours || 0
-                } hrs`
+              {data.ageAtDeath
+                ? `${data.ageAtDeath.years || 0} yrs, ${
+                    data.ageAtDeath.months || 0
+                  } mos, ${data.ageAtDeath.days || 0} d, ${
+                    data.ageAtDeath.hours || 0
+                  } hrs`
                 : ''}
             </Text>
           </View>
@@ -543,290 +560,309 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
 
         {/* Place of Death and Civil Status */}
         <View style={style.gridContainer}>
-          <View style={[style.fieldContainer2, { flex: .2 }]}>
+          <View style={[style.fieldContainer2, { flex: 0.2 }]}>
             <Text style={style.label}>6. PLACE OF DEATH:</Text>
           </View>
           <View style={[style.fieldContainer2, style.flex1]}>
-            <Text style={style.label}>
-              (Name of Hospital/Clinic/Institution/House No., St., Brgy, City/Municipality, Province)
-            </Text>
+            <Text style={style.label}>(Complete address)</Text>
             <Text style={style.value}>
-              {data.personalInfo?.placeOfDeath
-                ? `${data.personalInfo.placeOfDeath.specificAddress || ''}, ${data.personalInfo.placeOfDeath.cityMunicipality || ''
-                }, ${data.personalInfo.placeOfDeath.province || ''}`
+              {data.placeOfDeath
+                ? `${data.placeOfDeath.houseNo}, ${data.placeOfDeath.st}, ${data.placeOfDeath.barangay}, ${data.placeOfDeath.cityMunicipality}, ${data.placeOfDeath.province}`
                 : ''}
             </Text>
           </View>
-          <View style={[style.fieldContainer2, { flex: .2 }]}>
+          <View style={[style.fieldContainer2, { flex: 0.2 }]}>
             <Text style={style.label}>7. CIVIL STATUS:</Text>
-            <Text style={style.value}>
-              {data.personalInfo?.civilStatus || ''}
-            </Text>
+            <Text style={style.value}>{data.civilStatus || ''}</Text>
           </View>
         </View>
 
-        {/* Religion, Citizenship, and Residence */}
+        {/* Religion, Citizenship, Residence */}
         <View style={style.gridContainer}>
           <View style={style.fieldContainer2}>
             <Text style={style.label}>8. RELIGION:</Text>
-            <Text style={style.value}>
-              {data.personalInfo?.religion || ''}
-            </Text>
+            <Text style={style.value}>{data.religion || ''}</Text>
           </View>
           <View style={style.fieldContainer2}>
             <Text style={style.label}>9. CITIZENSHIP:</Text>
-            <Text style={style.value}>
-              {data.personalInfo?.citizenship || ''}
-            </Text>
+            <Text style={style.value}>{data.citizenship || ''}</Text>
           </View>
           <View style={style.fieldContainer2}>
             <Text style={style.label}>10. RESIDENCE:</Text>
             <Text style={style.value}>
-              {data.personalInfo?.residence?.country || ''}
+              {data.residence ? data.residence.country : ''}
             </Text>
           </View>
         </View>
 
-        {/* Family Information */}
+        {/* Occupation and Parent Information */}
         <View style={style.gridContainer}>
-          <View style={[style.fieldContainer2, { flex: .7 }]}>
+          <View style={[style.fieldContainer2, { flex: 0.7 }]}>
             <Text style={style.label}>11. OCCUPATION:</Text>
-            <Text style={style.value}>
-              {data.personalInfo?.occupation || ''}
-            </Text>
+            <Text style={style.value}>{data.occupation || ''}</Text>
           </View>
           <View style={[style.fieldContainer2, { flex: 1.5 }]}>
             <View style={style.flexRow}>
-              <Text style={style.label}>12. NAME OF FATHER </Text>
-              <Text style={style.label}>(First, Middle, Last)</Text>
+              <Text style={style.label}>
+                12. NAME OF FATHER (First, Middle, Last):
+              </Text>
             </View>
             <Text style={style.value}>
-              {data.familyInfo?.father
-                ? `${data.familyInfo.father.firstName} ${data.familyInfo.father.middleName || ''
-                } ${data.familyInfo.father.lastName}`
+              {data.parents?.fatherName
+                ? `${data.parents.fatherName.first} ${
+                    data.parents.fatherName.middle || ''
+                  } ${data.parents.fatherName.last}`
                 : ''}
             </Text>
           </View>
           <View style={[style.fieldContainer2, { flex: 1.5 }]}>
             <View style={style.flexRow}>
-              <Text style={style.label}>13. MOTHER MAIDEN NAME </Text>
-              <Text style={style.label}>(First, Middle, Last)</Text>
+              <Text style={style.label}>
+                13. MOTHER MAIDEN NAME (First, Middle, Last):
+              </Text>
             </View>
             <Text style={style.value}>
-              {data.familyInfo?.mother
-                ? `${data.familyInfo.mother.firstName} ${data.familyInfo.mother.middleName || ''
-                } ${data.familyInfo.mother.lastName}`
+              {data.parents?.motherName
+                ? `${data.parents.motherName.first} ${
+                    data.parents.motherName.middle || ''
+                  } ${data.parents.motherName.last}`
                 : ''}
             </Text>
           </View>
         </View>
 
-        {/* Medical Certificate */}
-        <View style={[{ width: '100%', }]}>
-          <View style={[style.gridColumn, style.paddingGlobal, { textAlign: 'center' }]}>
+        {/* Medical Certificate Section */}
+        <View style={{ width: '100%' }}>
+          <View
+            style={[
+              style.gridColumn,
+              style.paddingGlobal,
+              { textAlign: 'center' },
+            ]}
+          >
             <Text style={style.value}>MEDICAL CERTIFICATE</Text>
-            <Text style={style.label}>
-              (For ages 0 to 7 days, accomplish items 14-19a at the back)
-            </Text>
+            <Text style={style.label}>(For deaths aged 8 days and over)</Text>
           </View>
-          <View style={[style.gridColumn]}>
-            {/* Grid Container */}
+          <View style={style.gridColumn}>
             <View style={[style.flexRow]}>
               <View style={[style.fieldContainer, { flex: 2 }]}>
-                <Text style={style.label}>
-                  19b. CAUSES OF DEATH (If the deceased is aged 8 days over)
-                </Text>
+                <Text style={style.label}>19b. CAUSES OF DEATH:</Text>
               </View>
               <View style={[style.fieldContainer, { flex: 1 }]}>
-                <Text style={style.label}>
-                  Interval between onset and death
-                </Text>
+                <Text style={style.label}>Interval:</Text>
               </View>
             </View>
-
-            <View style={[style.flexRow, { width: '100%', gap: 10, padding: 5 }]}>
-              {/* Second Row: Immediate, Antecedent, and Underlying Causes */}
-
-              {/* Labels Column */}
+            <View
+              style={[style.flexRow, { width: '100%', gap: 10, padding: 5 }]}
+            >
               <View style={[style.flex1]}>
                 <Text style={style.label}>I. Immediate Cause:</Text>
                 <Text style={style.label}>Antecedent Cause:</Text>
                 <Text style={style.label}>Underlying Cause:</Text>
               </View>
-
-              {/* Values Column */}
               <View style={[style.flex1]}>
                 <Text style={style.valueLine}>
-                  {data.medicalCertificate?.causesOfDeath?.immediate || ''}
+                  {data.medicalCertificate?.causesOfDeath &&
+                  'immediate' in data.medicalCertificate.causesOfDeath
+                    ? data.medicalCertificate.causesOfDeath.immediate.cause
+                    : ''}
                 </Text>
                 <Text style={style.valueLine}>
-                  {data.medicalCertificate?.causesOfDeath?.antecedent || ''}
+                  {data.medicalCertificate?.causesOfDeath &&
+                  'antecedent' in data.medicalCertificate.causesOfDeath
+                    ? data.medicalCertificate.causesOfDeath.antecedent.cause
+                    : ''}
                 </Text>
                 <Text style={style.valueLine}>
-                  {data.medicalCertificate?.causesOfDeath?.underlying || ''}
+                  {data.medicalCertificate?.causesOfDeath &&
+                  'underlying' in data.medicalCertificate.causesOfDeath
+                    ? data.medicalCertificate.causesOfDeath.underlying.cause
+                    : ''}
                 </Text>
               </View>
-
-              {/* Interval Column */}
               <View style={[style.flex1]}>
                 <Text style={style.valueLine}>
-                  {data.medicalCertificate?.externalCauses?.placeOfOccurrence || ''}
+                  {data.medicalCertificate?.causesOfDeath &&
+                  'immediate' in data.medicalCertificate.causesOfDeath
+                    ? data.medicalCertificate.causesOfDeath.immediate.interval
+                    : ''}
                 </Text>
                 <Text style={style.valueLine}>
-                  {data.medicalCertificate?.causesOfDeath?.antecedent || ''}
+                  {data.medicalCertificate?.causesOfDeath &&
+                  'antecedent' in data.medicalCertificate.causesOfDeath
+                    ? data.medicalCertificate.causesOfDeath.antecedent.interval
+                    : ''}
                 </Text>
                 <Text style={style.valueLine}>
-                  {data.medicalCertificate?.causesOfDeath?.underlying || ''}
+                  {data.medicalCertificate?.causesOfDeath &&
+                  'underlying' in data.medicalCertificate.causesOfDeath
+                    ? data.medicalCertificate.causesOfDeath.underlying.interval
+                    : ''}
                 </Text>
               </View>
             </View>
-
             <View style={[style.flexRow, { padding: 5, gap: 10 }]}>
               <Text style={style.label}>
                 II. Other significant conditions contributing to death:
               </Text>
               <Text style={style.valueCenter}>
-                {data.medicalCertificate?.causesOfDeath?.contributingConditions || ''}
+                {data.medicalCertificate?.causesOfDeath &&
+                'otherSignificantConditions' in
+                  data.medicalCertificate.causesOfDeath
+                  ? data.medicalCertificate.causesOfDeath
+                      .otherSignificantConditions
+                  : ''}
               </Text>
             </View>
           </View>
         </View>
 
-
         {/* Maternal Condition */}
-        <View style={[style.gridContainer, style.fieldContainer, { width: '100%' }]}>
-          <Text style={style.label}>
-            19c. Maternal Condition:
-          </Text>
+        <View
+          style={[style.gridContainer, style.fieldContainer, { width: '100%' }]}
+        >
+          <Text style={style.label}>19c. Maternal Condition:</Text>
           <Text style={style.value}>
-            {data.medicalCertificate?.maternalCondition || ''}
+            {data.medicalCertificate?.maternalCondition
+              ? JSON.stringify(data.medicalCertificate.maternalCondition)
+              : ''}
           </Text>
         </View>
 
-        {/* Death by External Causes and Autopsy */}
+        {/* External Causes and Autopsy */}
         <View style={style.gridContainer}>
-          {/* Section 19: Death by External Causes */}
-          <View style={[style.gridColumn, { width: '100%', flex: 3, borderBottom: 'none' }]}>
+          <View
+            style={[
+              style.gridColumn,
+              { width: '100%', flex: 3, borderBottom: 'none' },
+            ]}
+          >
             <View style={[style.flexRow, style.paddingGlobal]}>
-              <Text style={style.label}>
-                19d. DEATH BY EXTERNAL CAUSES
-              </Text>
+              <Text style={style.label}>19d. DEATH BY EXTERNAL CAUSES</Text>
             </View>
-
-            {/* Manner of Death */}
-            <View style={[style.flexRow, style.paddingGlobal, { borderBottom: '1px solid black', borderTop: '1px solid black' }]}>
-              <Text style={style.label}>
-                Manner of Death:
-              </Text>
+            <View
+              style={[
+                style.flexRow,
+                style.paddingGlobal,
+                {
+                  borderBottom: '1px solid black',
+                  borderTop: '1px solid black',
+                },
+              ]}
+            >
+              <Text style={style.label}>Manner of Death:</Text>
               <Text style={[style.valueCenter, { width: '100%' }]}>
                 {data.medicalCertificate?.externalCauses?.mannerOfDeath || ''}
               </Text>
             </View>
-
-            {/* Place of Occurrence */}
             <View style={[style.flexRow, style.paddingGlobal]}>
-              <Text style={style.label}>
-                Place of Occurrence:
-              </Text>
+              <Text style={style.label}>Place of Occurrence:</Text>
               <Text style={[style.valueCenter, { width: '100%' }]}>
                 {data.medicalCertificate?.externalCauses?.placeOfOccurrence ||
                   ''}
               </Text>
             </View>
           </View>
-
-          {/* Section 20: Autopsy */}
           <View style={[style.paddingGlobal, { flex: 1 }]}>
             <Text style={style.label}>20. Autopsy (yes/no)</Text>
-            <Text style={style.valueCenter}>{'yes'}</Text>
+            <Text style={style.valueCenter}>
+              {data.medicalCertificate?.autopsy ? 'Yes' : 'No'}
+            </Text>
           </View>
         </View>
 
         {/* Attendant Information */}
         <View style={style.flexRow}>
-          {/* 21a. Attendant Information */}
           <View style={[style.gridColumn, { flex: 1.2 }]}>
             <Text style={[style.label, style.fieldContainer]}>
               21a. ATTENDANT INFORMATION
             </Text>
             <View style={[style.flexRow, style.paddingGlobal]}>
-              <View style={[]}>
-                <Text style={style.label}>TYPE:  </Text>
-                <Text style={style.label}>FROM:  </Text>
-                <Text style={style.label}>DURATION:  </Text>
+              <View>
+                <Text style={style.label}>TYPE:</Text>
+                <Text style={style.label}>FROM:</Text>
+                <Text style={style.label}>TO:</Text>
               </View>
-              <View style={[]}>
+              <View>
                 <Text style={style.valueCenter}>
-                  {data.attendant?.type || ''}
+                  {data.medicalCertificate?.attendant?.type || ''}
                 </Text>
                 <Text style={style.valueCenter}>
-                  {data.attendant?.attendance?.from ? formatDateTime(data.attendant.attendance.from) : ''}
+                  {data.medicalCertificate?.attendant?.duration?.from
+                    ? formatDateTime(
+                        data.medicalCertificate.attendant.duration.from
+                      )
+                    : ''}
                 </Text>
                 <Text style={style.valueCenter}>
-                  {data.attendant?.attendance?.to ? formatDateTime(data.attendant.attendance.to) : ''}
+                  {data.medicalCertificate?.attendant?.duration?.to
+                    ? formatDateTime(
+                        data.medicalCertificate.attendant.duration.to
+                      )
+                    : ''}
                 </Text>
               </View>
             </View>
           </View>
-
-          {/* 21b. If attended, state duration */}
           <View style={[style.gridColumn, { flex: 1 }]}>
             <Text style={[style.label, style.paddingGlobal]}>
               21b. If attended, state duration
             </Text>
             <View style={[style.flexRow, style.paddingGlobal]}>
-              <View style={[]}>
-                <Text style={style.label}>FROM:  </Text>
-                <Text style={style.label}>DURATION:  </Text>
+              <View>
+                <Text style={style.label}>FROM:</Text>
+                <Text style={style.label}>TO:</Text>
               </View>
-              <View style={[]}>
+              <View>
                 <Text style={style.valueCenter}>
-                  {data.attendant?.attendance?.from
-                    ? formatDateTime(data.attendant.attendance.from)
+                  {data.medicalCertificate?.attendant?.duration?.from
+                    ? formatDateTime(
+                        data.medicalCertificate.attendant.duration.from
+                      )
                     : ''}
                 </Text>
                 <Text style={style.valueCenter}>
-                  {data.attendant?.attendance?.to
-                    ? formatDateTime(data.attendant.attendance.to)
+                  {data.medicalCertificate?.attendant?.duration?.to
+                    ? formatDateTime(
+                        data.medicalCertificate.attendant.duration.to
+                      )
                     : ''}
                 </Text>
               </View>
             </View>
           </View>
-
-          {/* 22a. Certification of Death */}
           <View style={[style.gridColumn, { flex: 2 }]}>
             <Text style={[style.label, style.paddingGlobal]}>
               22a. CERTIFICATION OF DEATH
             </Text>
             <View style={[style.flexRow, style.paddingGlobal]}>
-              <View style={[]}>
-                <Text style={style.label}>ATTENDED DECEASED:  </Text>
-                <Text style={style.label}>CERTIFICATION DEATH:  </Text>
-                <Text style={style.label}>FULL NAME:  </Text>
-                <Text style={style.label}>TITLE/POSITION:  </Text>
+              <View>
+                <Text style={style.label}>ATTENDED DECEASED:</Text>
+                <Text style={style.label}>CERTIFICATION DATE:</Text>
+                <Text style={style.label}>FULL NAME:</Text>
+                <Text style={style.label}>TITLE/POSITION:</Text>
               </View>
-              <View style={[]}>
+              <View>
                 <Text style={style.valueCenter}>
-                  {data.certification?.hasAttended ? 'Yes' : 'No'}
+                  {data.certificationOfDeath?.hasAttended ? 'Yes' : 'No'}
                 </Text>
                 <Text style={style.valueCenter}>
-                  {data.certification?.date
-                    ? formatDateTime(data.certification.date, {
-                      monthFormat: 'numeric',
-                      dayFormat: 'numeric',
-                      yearFormat: 'numeric',
-                      showTime: true,
-                      hourFormat: 'numeric',
-                      minuteFormat: '2-digit',
-                    })
+                  {data.certificationOfDeath?.date
+                    ? formatDateTime(data.certificationOfDeath.date, {
+                        monthFormat: 'numeric',
+                        dayFormat: 'numeric',
+                        yearFormat: 'numeric',
+                        showTime: true,
+                        hourFormat: 'numeric',
+                        minuteFormat: '2-digit',
+                      })
                     : ''}
                 </Text>
                 <Text style={style.valueCenter}>
-                  {data.certification?.name || ''}
+                  {data.certificationOfDeath?.nameInPrint || ''}
                 </Text>
                 <Text style={style.valueCenter}>
-                  {data.certification?.title || ''}
+                  {data.certificationOfDeath?.titleOfPosition || ''}
                 </Text>
               </View>
             </View>
@@ -835,72 +871,60 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
 
         {/* Disposal Information */}
         <View style={style.flexRow}>
-          {/* 21a. Attendant Information */}
           <View style={[style.gridColumn, { flex: 1.2 }]}>
             <Text style={[style.label, style.fieldContainer]}>
               23. CORPSE DISPOSAL
             </Text>
             <View style={[style.flexRow, style.paddingGlobal]}>
-              <View style={[]}>
-                <Text style={style.label}>TYPE:  </Text>
-
-              </View>
-              <View style={[]}>
-                <Text style={style.valueCenter}>
-                  {data.disposal?.method || ''}
-                </Text>
-              </View>
+              <Text style={style.label}>TYPE:</Text>
+              <Text style={style.valueCenter}>{data.corpseDisposal || ''}</Text>
             </View>
           </View>
-
-          {/* 21b. If attended, state duration */}
           <View style={[style.gridColumn, { flex: 1 }]}>
             <Text style={[style.label, style.paddingGlobal]}>
               24a. BURIAL/CREMATION PERMIT
             </Text>
             <View style={[style.flexRow, style.paddingGlobal]}>
-              <View style={[]}>
-                <Text style={style.label}>NUMBER:  </Text>
-                <Text style={style.label}>DATE ISSUED:  </Text>
+              <View>
+                <Text style={style.label}>NUMBER:</Text>
+                <Text style={style.label}>DATE ISSUED:</Text>
               </View>
-              <View style={[]}>
+              <View>
                 <Text style={style.valueCenter}>
-                  {data.disposal?.burialPermit?.number || ''}
+                  {data.burialPermit?.number || ''}
                 </Text>
                 <Text style={style.valueCenter}>
-                  {data.disposal?.burialPermit?.dateIssued
-                    ? formatDateTime(data.disposal.burialPermit.dateIssued, {
-                      monthFormat: 'numeric',
-                      dayFormat: 'numeric',
-                      yearFormat: 'numeric',
-                    })
+                  {data.burialPermit?.dateIssued
+                    ? formatDateTime(data.burialPermit.dateIssued, {
+                        monthFormat: 'numeric',
+                        dayFormat: 'numeric',
+                        yearFormat: 'numeric',
+                      })
                     : ''}
                 </Text>
               </View>
             </View>
           </View>
-
-          {/* 22a. Certification of Death */}
           <View style={[style.gridColumn, { flex: 2 }]}>
             <Text style={[style.label, style.paddingGlobal]}>
               24b. TRANSFER PERMIT
             </Text>
             <View style={[style.flexRow, style.paddingGlobal]}>
-              <View style={[]}>
-                <Text style={style.label}>NUMBER:  </Text>
-                <Text style={style.label}>DATE ISSUED:  </Text>
+              <View>
+                <Text style={style.label}>NUMBER:</Text>
+                <Text style={style.label}>DATE ISSUED:</Text>
               </View>
-              <View style={[]}>
+              <View>
                 <Text style={style.valueCenter}>
-                  {data.disposal?.transferPermit?.number || ''}
+                  {data.transferPermit?.number || ''}
                 </Text>
                 <Text style={style.valueCenter}>
-                  {data.disposal?.transferPermit?.dateIssued
-                    ? formatDateTime(data.disposal.transferPermit.dateIssued, {
-                      monthFormat: 'numeric',
-                      dayFormat: 'numeric',
-                      yearFormat: 'numeric',
-                    })
+                  {data.transferPermit?.dateIssued
+                    ? formatDateTime(data.transferPermit.dateIssued, {
+                        monthFormat: 'numeric',
+                        dayFormat: 'numeric',
+                        yearFormat: 'numeric',
+                      })
                     : ''}
                 </Text>
               </View>
@@ -908,66 +932,84 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           </View>
         </View>
 
-        {/* Cemetery name and address */}
+        {/* Cemetery Address */}
         <View style={style.gridContainer}>
           <View style={[style.paddingGlobal, style.flexRow, { gap: 15 }]}>
-            <Text style={style.label}>
-              25. NAME AND ADDRESS OF CEMETERY:
-            </Text>
+            <Text style={style.label}>25. NAME AND ADDRESS OF CEMETERY:</Text>
             <Text style={style.valueCenter}>
-              {data.disposal?.cemeteryAddress || ''}
+              {data.cemeteryOrCrematory
+                ? `${data.cemeteryOrCrematory.name}, ${data.cemeteryOrCrematory.address?.houseNo} ${data.cemeteryOrCrematory.address?.st}, ${data.cemeteryOrCrematory.address?.barangay}, ${data.cemeteryOrCrematory.address?.cityMunicipality}, ${data.cemeteryOrCrematory.address?.province}, ${data.cemeteryOrCrematory.address?.country}`
+                : ''}
             </Text>
           </View>
         </View>
 
+        {/* Processing Information */}
         <View>
-          {/* First Row: Sections 26 (Informant) and 27 (Prepared By) */}
-          <View
-            style={[style.gridContainer, {}]}
-          >
+          <View style={style.gridContainer}>
             {/* Section 26: Certification of Informant */}
-            <View style={[style.flexColumn, style.flex1, { borderRight: '1px solid #000', }]}>
+            <View
+              style={[
+                style.flexColumn,
+                style.flex1,
+                { borderRight: '1px solid #000' },
+              ]}
+            >
               <Text style={[style.label, style.paddingGlobal]}>
                 26. CERTIFICATION OF INFORMANT
               </Text>
               <View style={[style.flexColumn, style.paddingGlobal, { gap: 2 }]}>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>SIGNATURE:</Text>
-                  <Text style={style.valueCenter}>{data.informant?.signature || ''}</Text>
+                  <Text style={style.valueCenter}>
+                    {data.informant?.signature || ''}
+                  </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>NAME:</Text>
-                  <Text style={style.valueCenter}>{data.informant?.name || ''}</Text>
+                  <Text style={style.valueCenter}>
+                    {data.informant?.nameInPrint || ''}
+                  </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>RELATIONSHIP:</Text>
-                  <Text style={style.valueCenter}>{data.informant?.relationship || ''}</Text>
+                  <Text style={style.valueCenter}>
+                    {data.informant?.relationshipToDeceased || ''}
+                  </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>ADDRESS:</Text>
-                  <Text style={style.valueCenter}>{data.informant?.address?.country || ''}</Text>
+                  <Text style={style.valueCenter}>
+                    {data.informant?.address?.country || ''}
+                  </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>CITY:</Text>
-                  <Text style={style.valueCenter}>{data.informant?.address?.cityMunicipality || ''}</Text>
+                  <Text style={style.valueCenter}>
+                    {data.informant?.address?.cityMunicipality || ''}
+                  </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>PROVINCE:</Text>
-                  <Text style={style.valueCenter}>{data.informant?.address?.province || ''}</Text>
+                  <Text style={style.valueCenter}>
+                    {data.informant?.address?.province || ''}
+                  </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>COUNTRY:</Text>
-                  <Text style={style.valueCenter}>{data.informant?.address?.country || ''}</Text>
+                  <Text style={style.valueCenter}>
+                    {data.informant?.address?.country || ''}
+                  </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>DATE:</Text>
                   <Text style={style.valueCenter}>
                     {data.informant?.date
                       ? formatDateTime(data.informant.date, {
-                        monthFormat: 'numeric',
-                        dayFormat: 'numeric',
-                        yearFormat: 'numeric',
-                      })
+                          monthFormat: 'numeric',
+                          dayFormat: 'numeric',
+                          yearFormat: 'numeric',
+                        })
                       : ''}
                   </Text>
                 </View>
@@ -975,8 +1017,16 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             </View>
 
             {/* Section 27: Prepared By */}
-            <View style={[style.flexColumn, style.flex1, { borderRight: '1px solid #000', }]}>
-              <Text style={[style.label, style.paddingGlobal]}>27. PREPARED BY</Text>
+            <View
+              style={[
+                style.flexColumn,
+                style.flex1,
+                { borderRight: '1px solid #000' },
+              ]}
+            >
+              <Text style={[style.label, style.paddingGlobal]}>
+                27. PREPARED BY
+              </Text>
               <View style={[style.flexColumn, style.paddingGlobal, { gap: 2 }]}>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>SIGNATURE:</Text>
@@ -987,13 +1037,13 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>NAME:</Text>
                   <Text style={style.valueCenter}>
-                    {data.preparedBy?.name || ''}
+                    {data.preparedBy?.nameInPrint || ''}
                   </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>TITLE/POSITION:</Text>
                   <Text style={style.valueCenter}>
-                    {data.preparedBy?.title || ''}
+                    {data.preparedBy?.titleOrPosition || ''}
                   </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
@@ -1001,22 +1051,27 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
                   <Text style={style.valueCenter}>
                     {data.preparedBy?.date
                       ? formatDateTime(data.preparedBy.date, {
-                        monthFormat: 'numeric',
-                        dayFormat: 'numeric',
-                        yearFormat: 'numeric',
-                      })
+                          monthFormat: 'numeric',
+                          dayFormat: 'numeric',
+                          yearFormat: 'numeric',
+                        })
                       : ''}
                   </Text>
                 </View>
               </View>
             </View>
-          </View>
 
-          {/* Second Row: Sections 28 (Received By) and 29 (Registered at Civil Registrar) */}
-          <View style={[style.gridContainer]}>
             {/* Section 28: Received By */}
-            <View style={[style.flexColumn, style.flex1, { borderRight: '1px solid #000', }]}>
-              <Text style={[style.label, style.paddingGlobal]}>28. RECEIVED BY</Text>
+            <View
+              style={[
+                style.flexColumn,
+                style.flex1,
+                { borderRight: '1px solid #000' },
+              ]}
+            >
+              <Text style={[style.label, style.paddingGlobal]}>
+                28. RECEIVED BY
+              </Text>
               <View style={[style.flexColumn, style.paddingGlobal, { gap: 2 }]}>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>SIGNATURE:</Text>
@@ -1027,24 +1082,24 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>NAME:</Text>
                   <Text style={style.valueCenter}>
-                    {data.receivedBy?.name || ''}
+                    {data.receivedBy?.nameInPrint || ''}
                   </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>TITLE/POSITION:</Text>
                   <Text style={style.valueCenter}>
-                    {data.receivedBy?.title || ''}
+                    {data.receivedBy?.titleOrPosition || ''}
                   </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
-                  <Text style={style.label}>Date:</Text>
+                  <Text style={style.label}>DATE:</Text>
                   <Text style={style.valueCenter}>
                     {data.receivedBy?.date
                       ? formatDateTime(data.receivedBy.date, {
-                        monthFormat: 'numeric',
-                        dayFormat: 'numeric',
-                        yearFormat: 'numeric',
-                      })
+                          monthFormat: 'numeric',
+                          dayFormat: 'numeric',
+                          yearFormat: 'numeric',
+                        })
                       : ''}
                   </Text>
                 </View>
@@ -1052,7 +1107,7 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
             </View>
 
             {/* Section 29: Registered at Civil Registrar */}
-            <View style={[style.flexColumn, style.flex1, { borderRight: '1px solid #000', }]}>
+            <View style={[style.flexColumn, style.flex1]}>
               <Text style={[style.label, style.paddingGlobal]}>
                 29. REGISTERED AT CIVIL REGISTRAR
               </Text>
@@ -1060,24 +1115,24 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>NAME:</Text>
                   <Text style={style.valueCenter}>
-                    {data.registeredAtCivilRegistrar?.name || ''}
+                    {data.registeredByOffice?.nameInPrint || ''}
                   </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>TITLE/POSITION:</Text>
                   <Text style={style.valueCenter}>
-                    {data.registeredAtCivilRegistrar?.title || ''}
+                    {data.registeredByOffice?.titleOrPosition || ''}
                   </Text>
                 </View>
                 <View style={[style.flexRow, { gap: 5 }]}>
                   <Text style={style.label}>DATE:</Text>
                   <Text style={style.valueCenter}>
-                    {data.registeredAtCivilRegistrar?.date
-                      ? formatDateTime(data.registeredAtCivilRegistrar.date, {
-                        monthFormat: 'numeric',
-                        dayFormat: 'numeric',
-                        yearFormat: 'numeric',
-                      })
+                    {data.registeredByOffice?.date
+                      ? formatDateTime(data.registeredByOffice.date, {
+                          monthFormat: 'numeric',
+                          dayFormat: 'numeric',
+                          yearFormat: 'numeric',
+                        })
                       : ''}
                   </Text>
                 </View>
@@ -1090,11 +1145,9 @@ const DeathCertificatePDF: React.FC<DeathCertificatePDFProps> = ({ data }) => {
           <Text style={style.label}>
             REMARKS / ANNOTATIONS (FOR LCRO/OCRG USE ONLY)
           </Text>
-          {/* Remarks Section */}
           <Text style={style.value}>{data.remarks || ''}</Text>
         </View>
       </Page>
-
     </Document>
   );
 };

@@ -17,12 +17,15 @@ async function getFormDetails(formId: string) {
         include: {
             preparedBy: true,
             verifiedBy: true,
-            // Include the document along with its attachments and each attachment's certifiedCopies.
-            document: {
+            documents: {
                 include: {
-                    attachments: {
-                        include: { certifiedCopies: true },
-                        orderBy: { updatedAt: 'desc' },
+                    document: {
+                        include: {
+                            attachments: {
+                                include: { certifiedCopies: true },
+                                orderBy: { uploadedAt: 'desc' },
+                            },
+                        },
                     },
                 },
             },
