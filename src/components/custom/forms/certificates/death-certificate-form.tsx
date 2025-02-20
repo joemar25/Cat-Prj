@@ -23,6 +23,7 @@ import DeceasedInformationCard from './form-cards/death-cards/deceased-informati
 import DisposalInformationCard from './form-cards/death-cards/disposal-information-card';
 import MaternalConditionCard from './form-cards/death-cards/maternal-condition-card';
 
+import { PDFViewer } from '@react-pdf/renderer';
 import CausesOfDeath19aCard from './form-cards/death-cards/causes-of-death19a';
 import AffidavitDelayedRegistrationCard from './form-cards/death-cards/death-affidavit-elayed-registration-card';
 import EmbalmerCertificationCard from './form-cards/death-cards/embalmer-certification-card';
@@ -34,6 +35,7 @@ import {
 } from './form-cards/shared-components/processing-details-cards';
 import RegistryInformationCard from './form-cards/shared-components/registry-information-card';
 import RemarksCard from './form-cards/shared-components/remarks-card';
+import DeathCertificatePDF from './preview/death-certificate/death-certificate-preview';
 
 export default function DeathCertificateForm({
   open,
@@ -112,6 +114,9 @@ export default function DeathCertificateForm({
             <div className='w-1/2'>
               <div className='h-[calc(95vh-120px)] p-6'>
                 {/* PDF Viewer or preview component can be added here */}
+                <PDFViewer width='100%' height='100%'>
+                  <DeathCertificatePDF data={formMethods.watch()} />
+                </PDFViewer>
               </div>
             </div>
           </div>

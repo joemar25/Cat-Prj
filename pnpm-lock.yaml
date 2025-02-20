@@ -104,6 +104,9 @@ importers:
       date-fns:
         specifier: 2.28.0
         version: 2.28.0
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.4.7
       framer-motion:
         specifier: ^11.18.2
         version: 11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -213,6 +216,9 @@ importers:
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
+      '@types/dotenv':
+        specifier: ^6.1.1
+        version: 6.1.1
       '@types/i18next':
         specifier: ^12.1.0
         version: 12.1.0
@@ -1432,6 +1438,9 @@ packages:
   '@types/d3-timer@3.0.2':
     resolution: {integrity: sha512-Ps3T8E8dZDam6fUyNiMkekK3XUsaUEik+idO9/YjPtfj2qruF8tFBXS7XhtE4iIXBLxhmLjP3SXpLhVf21I9Lw==}
 
+  '@types/dotenv@6.1.1':
+    resolution: {integrity: sha512-ftQl3DtBvqHl9L16tpqqzA4YzCSXZfi7g8cQceTz5rOlYtk/IZbFjAv3mLOQlNIgOaylCQWQoBdDQHPgEBJPHg==}
+
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
@@ -1996,6 +2005,10 @@ packages:
 
   dompurify@2.5.8:
     resolution: {integrity: sha512-o1vSNgrmYMQObbSSvF/1brBYEQPHhV1+gsmrusO7/GXtp1T9rCS8cXFqVxK/9crT1jA6Ccv+5MTSjBNqr7Sovw==}
+
+  dotenv@16.4.7:
+    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
+    engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -4984,6 +4997,10 @@ snapshots:
 
   '@types/d3-timer@3.0.2': {}
 
+  '@types/dotenv@6.1.1':
+    dependencies:
+      '@types/node': 20.17.17
+
   '@types/estree@1.0.6': {}
 
   '@types/i18next@12.1.0': {}
@@ -5567,6 +5584,8 @@ snapshots:
 
   dompurify@2.5.8:
     optional: true
+
+  dotenv@16.4.7: {}
 
   dunder-proto@1.0.1:
     dependencies:
