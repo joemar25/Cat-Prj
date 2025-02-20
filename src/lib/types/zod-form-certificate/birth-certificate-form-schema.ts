@@ -10,6 +10,7 @@ import {
   religionSchema,
   remarksAnnotationsSchema,
   residenceSchema,
+  signatureSchema,
 } from './form-certificates-shared-schema';
 
 // Child Information Schema
@@ -183,7 +184,7 @@ const attendantInformationSchema = z.object({
       }
       return val;
     }, z.date({ required_error: 'Time is required' })),
-    signature: z.string().min(1, 'Signature is required'),
+    signature: signatureSchema,
     name: z.string().min(1, 'Name is required'),
     title: z.string().min(1, 'Title is required'),
     address: residenceSchema,
@@ -196,7 +197,7 @@ const attendantInformationSchema = z.object({
 
 // Informant Schema
 const informantSchema = z.object({
-  signature: z.string().min(1, 'Signature is required'),
+  signature: signatureSchema,
   name: z.string().min(1, 'Name is required'),
   relationship: z.string().min(1, 'Relationship is required'),
   address: residenceSchema,
@@ -209,16 +210,16 @@ const informantSchema = z.object({
 // Affidavit of Paternity Schema
 const affidavitOfPaternitySchema = z.object({
   father: z.object({
-    signature: z.string().min(1, 'Signature is required'),
+    signature: signatureSchema,
     name: z.string().min(1, 'Name is required'),
   }),
   mother: z.object({
-    signature: z.string().min(1, 'Signature is required'),
+    signature: signatureSchema,
     name: z.string().min(1, 'Name is required'),
   }),
   dateSworn: z.string().min(1, 'Date sworn is required'),
   adminOfficer: z.object({
-    signature: z.string().min(1, 'Officer signature is required'),
+    signature: signatureSchema,
     name: z.string().min(1, 'Officer name is required'),
     position: z.string().min(1, 'Position is required'),
     address: residenceSchema,
@@ -242,7 +243,7 @@ const delayedRegistrationAffidavitSchema = z.object({
   reasonForDelay: z.string().min(1, 'Reason for delay is required'),
   dateSworn: z.string().min(1, 'Date sworn is required'),
   adminOfficer: z.object({
-    signature: z.string().min(1, 'Officer signature is required'),
+    signature: signatureSchema,
     name: z.string().min(1, 'Officer name is required'),
     position: z.string().min(1, 'Position is required'),
   }),
@@ -307,6 +308,3 @@ export interface BirthCertificateFormProps {
   onOpenChange: (open: boolean) => void;
   onCancel: () => void;
 }
-
-
-

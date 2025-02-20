@@ -11,6 +11,7 @@ import {
   religionSchema,
   remarksAnnotationsSchema,
   residenceSchema,
+  signatureSchema, // <-- added import
 } from './form-certificates-shared-schema';
 
 // --- Deceased Information Schema ---
@@ -131,11 +132,11 @@ const medicalCertificateSchema = z.object({
           (val) => (val === '' ? undefined : val),
           z
             .enum([
-              'PRIVATE_PHYSICIAN',
-              'PUBLIC_HEALTH_OFFICER',
-              'HOSPITAL_AUTHORITY',
-              'NONE',
-              'OTHERS',
+              'Private physician',
+              'Public health officer',
+              'Hospital authority',
+              'None',
+              'Others',
             ])
             .optional()
         )
@@ -157,14 +158,14 @@ const medicalCertificateSchema = z.object({
         .optional(),
     })
     .superRefine((data, ctx) => {
-      if (data.type === 'OTHERS' && !data.othersSpecify) {
+      if (data.type === 'Others' && !data.othersSpecify) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Please specify the other attendant type',
           path: ['othersSpecify'],
         });
       }
-      if (data.type !== 'NONE') {
+      if (data.type !== 'None') {
         if (!data.duration || !data.duration.from || !data.duration.to) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -192,7 +193,7 @@ const medicalCertificateSchema = z.object({
 // --- Certification of Death Schema ---
 const certificationOfDeathSchema = z.object({
   hasAttended: z.boolean(),
-  signature: z.string().nonempty('Signature is required'),
+  signature: signatureSchema,
   nameInPrint: z.string().nonempty('Name is required'),
   titleOfPosition: z.string().nonempty('Title/Position is required'),
   address: residenceSchema,
@@ -200,9 +201,7 @@ const certificationOfDeathSchema = z.object({
     requiredError: 'Certification date is required',
     futureError: 'Certification date cannot be in the future',
   }),
-  healthOfficerSignature: z
-    .string()
-    .nonempty('Health officer signature is required'),
+  healthOfficerSignature: signatureSchema,
   healthOfficerNameInPrint: z
     .string()
     .nonempty('Health officer name is required'),
@@ -210,7 +209,7 @@ const certificationOfDeathSchema = z.object({
 
 // --- Review Schema ---
 const reviewSchema = z.object({
-  signature: z.string().nonempty('Signature is required'),
+  signature: signatureSchema,
   date: createDateFieldSchema({
     requiredError: 'Review date is required',
     futureError: 'Review date cannot be in the future',
@@ -221,7 +220,7 @@ const reviewSchema = z.object({
 const postmortemCertificateSchema = z
   .object({
     causeOfDeath: z.string().nonempty('Cause of death is required'),
-    signature: z.string().nonempty('Signature is required'),
+    signature: signatureSchema,
     nameInPrint: z.string().nonempty('Name is required'),
     date: createDateFieldSchema({
       requiredError: 'Postmortem date is required',
@@ -235,7 +234,7 @@ const postmortemCertificateSchema = z
 const embalmerCertificationSchema = z
   .object({
     nameOfDeceased: z.string().nonempty('Name of deceased is required'),
-    signature: z.string().nonempty('Signature is required'),
+    signature: signatureSchema,
     nameInPrint: z.string().nonempty('Name is required'),
     address: z.string().nonempty('Address is required'),
     titleDesignation: z.string().nonempty('Title/Designation is required'),
@@ -261,7 +260,7 @@ const delayedRegistrationSchema = z
       ]),
       residenceAddress: z.string().nonempty('Address is required'),
       age: z.string().optional(),
-      signature: z.string().nonempty('Affiant signature is required'),
+      signature: signatureSchema,
     }),
     deceased: z.object({
       name: z.string().nonempty('Name is required'),
@@ -288,7 +287,7 @@ const delayedRegistrationSchema = z
       .nonempty('Affidavit place is required')
       .optional(),
     adminOfficer: z.object({
-      signature: z.string().nonempty('Signature is required'),
+      signature: signatureSchema,
       position: z.string().nonempty('Position is required'),
     }),
     ctcInfo: z.object({
@@ -323,7 +322,7 @@ const disposalInformationSchema = z.object({
 
 // --- Informant Schema ---
 const informantSchema = z.object({
-  signature: z.string().nonempty('Signature is required'),
+  signature: signatureSchema,
   nameInPrint: z.string().nonempty('Name is required'),
   relationshipToDeceased: z.string().nonempty('Relationship is required'),
   address: residenceSchema,
