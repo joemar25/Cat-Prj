@@ -18,9 +18,11 @@ import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import LocationSelector from '../shared-components/location-selector';
 import NCRModeSwitch from '../shared-components/ncr-mode-switch';
+import SignatureUploader from '../shared-components/signature-uploader';
 
 const CertificationOfDeathCard: React.FC = () => {
-  const { control, watch } = useFormContext<DeathCertificateFormValues>();
+  const { control, watch, setValue } =
+    useFormContext<DeathCertificateFormValues>();
   const [isNCRMode, setIsNCRMode] = useState(false);
 
   return (
@@ -74,17 +76,24 @@ const CertificationOfDeathCard: React.FC = () => {
           <FormField
             control={control}
             name='certificationOfDeath.signature'
-            render={({ field }) => (
+            render={({ field, formState: { errors } }) => (
               <FormItem>
                 <FormLabel>Signature</FormLabel>
                 <FormControl>
-                  <Input
-                    className='h-10'
-                    placeholder='Enter signature'
-                    {...field}
+                  <SignatureUploader
+                    name='certificationOfDeath.signature'
+                    label='Upload Signature'
+                    onChange={(file: File) => {
+                      setValue('certificationOfDeath.signature', file, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                    }}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage>
+                  {errors?.certificationOfDeath?.signature?.message}
+                </FormMessage>
               </FormItem>
             )}
           />
@@ -131,17 +140,31 @@ const CertificationOfDeathCard: React.FC = () => {
           <FormField
             control={control}
             name='certificationOfDeath.healthOfficerSignature'
-            render={({ field }) => (
+            render={({ field, formState: { errors } }) => (
               <FormItem>
                 <FormLabel>Health Officer Signature</FormLabel>
                 <FormControl>
-                  <Input
-                    className='h-10'
-                    placeholder='Enter health officer signature'
-                    {...field}
+                  <SignatureUploader
+                    name='certificationOfDeath.healthOfficerSignature'
+                    label='Upload Health Officer Signature'
+                    onChange={(file: File) => {
+                      setValue(
+                        'certificationOfDeath.healthOfficerSignature',
+                        file,
+                        {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        }
+                      );
+                    }}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage>
+                  {
+                    errors?.certificationOfDeath?.healthOfficerSignature
+                      ?.message
+                  }
+                </FormMessage>
               </FormItem>
             )}
           />

@@ -130,7 +130,7 @@ export function useDeathCertificateForm({
       // Certification of Death
       certificationOfDeath: {
         hasAttended: false,
-        signature: '',
+        signature: undefined,
         nameInPrint: '',
         titleOfPosition: '',
         address: {
@@ -142,12 +142,12 @@ export function useDeathCertificateForm({
           country: '',
         },
         date: undefined,
-        healthOfficerSignature: '',
+        healthOfficerSignature: undefined,
         healthOfficerNameInPrint: '',
       },
       // Review
       reviewedBy: {
-        signature: '',
+        signature: undefined,
         date: undefined,
       },
       // Certificates (optional)
@@ -160,7 +160,7 @@ export function useDeathCertificateForm({
           civilStatus: 'Single',
           residenceAddress: '',
           age: '',
-          signature: '',
+          signature: undefined,
         },
         deceased: {
           name: '',
@@ -181,7 +181,7 @@ export function useDeathCertificateForm({
         affidavitDate: undefined,
         affidavitDatePlace: '',
         adminOfficer: {
-          signature: '',
+          signature: undefined,
           position: '',
         },
         ctcInfo: {
@@ -210,7 +210,7 @@ export function useDeathCertificateForm({
       },
       // Informant
       informant: {
-        signature: '',
+        signature: undefined,
         nameInPrint: '',
         relationshipToDeceased: '',
         address: {
@@ -225,19 +225,19 @@ export function useDeathCertificateForm({
       },
       // Processing Information
       preparedBy: {
-        signature: '',
+        signature: undefined,
         nameInPrint: '',
         titleOrPosition: '',
         date: undefined,
       },
       receivedBy: {
-        signature: '',
+        signature: undefined,
         nameInPrint: '',
         titleOrPosition: '',
         date: undefined,
       },
       registeredByOffice: {
-        signature: '',
+        signature: undefined,
         nameInPrint: '',
         titleOrPosition: '',
         date: undefined,
