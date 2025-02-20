@@ -129,6 +129,7 @@ export const SolemnizingOfficerCertification: React.FC<
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ''}
                       className='h-10'
                       placeholder='Enter license number'
                       maxLength={15}
@@ -143,7 +144,14 @@ export const SolemnizingOfficerCertification: React.FC<
               control={control}
               name='marriageLicenseDetails.dateIssued'
               render={({ field }) => (
-                <DatePickerField field={field} label='Issued on' />
+                <DatePickerField field={{
+                  value: field.value || '',
+                  onChange: field.onChange,
+                }} 
+                placeholder='Select date issued'
+                label='Issued on'
+                ref={field.ref}
+                 />
               )}
             />
             {/* Place Issued */}
@@ -158,6 +166,7 @@ export const SolemnizingOfficerCertification: React.FC<
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ''}
                       className='h-10'
                       placeholder='Enter place issued'
                     />
@@ -178,6 +187,7 @@ export const SolemnizingOfficerCertification: React.FC<
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ''}
                       className='h-10'
                       placeholder='Enter article number'
                       maxLength={6}
@@ -198,6 +208,7 @@ export const SolemnizingOfficerCertification: React.FC<
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ''}
                       className='h-10'
                       placeholder='Enter officer name'
                     />
@@ -218,6 +229,7 @@ export const SolemnizingOfficerCertification: React.FC<
                   <FormControl>
                     <Input
                       {...field}
+                      value={field.value ?? ''}
                       className='h-10'
                       placeholder='Enter position'
                     />
@@ -239,6 +251,7 @@ export const SolemnizingOfficerCertification: React.FC<
                     <FormControl>
                       <Input
                         {...field}
+                        value={field.value ?? ''}
                         className='h-10'
                         placeholder='Enter registry details'
                       />

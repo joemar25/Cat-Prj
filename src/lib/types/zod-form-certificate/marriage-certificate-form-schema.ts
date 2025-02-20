@@ -58,7 +58,9 @@ const agreementSchema = z.object({
 //signature
 const signatureSchema = z.object({
   signature: z.string(),
-  name: nameSchema
+  name: nameSchema.optional(),
+  name2: z.string().optional(),
+  position: z.string().optional()
 });
 
 // Personal Information Schema
@@ -103,30 +105,32 @@ const marriageArticleSchema = z.object({
 const recievedBySchema = z.object({
   signature: z.string().optional(),
   nameInPrint: z.string().min(1, 'Name is required'),
-  title: z.string().min(1, 'Title is required'),
+  title: z.string().optional(),
   date: z.date(),
 })
 
 const registeredAtCivilRegistrarSchema = z.object({
   signature: z.string().optional(),
   nameInPrint: z.string().min(1, 'Name is required'),
-  title: z.string().min(1, 'Title is required'),
+  title: z.string().optional(),
   date: z.date(),
 })
+
 
 const solemnizingOfficerSchema = z.object({
   name: z.string().min(1, 'Solemnizing officer name is required'),
   position: z.string().min(1, 'Position is required'),
-  religion: z.string().min(1, 'Religion is required'),
+  religion: z.string().optional(), // ✅ This makes it optional
   registryNoExpiryDate: z.string().min(1, 'Registry expiry date is required'),
 })
 
+
 const residenceSchemas = z.object({
-  st: z.string().nonempty('Street is required'),
-  barangay: z.string().nonempty('Barangay is required'),
+  st: z.string().optional(),
+  barangay: z.string().optional(),
   cityMunicipality: cityMunicipalitySchema, // Reuse shared city/municipality schema
   province: provinceSchema, // Reuse shared province schema
-  country: z.string().nonempty('Country is required'),
+  country: z.string().nonempty('Country is required').optional(),
 });
 
 
@@ -137,100 +141,112 @@ const affidavitOfSolemnizingOfficerSchema = z.object({
     nameOfOfficer: z.string().min(1, 'Name of officer is required'),
     signatureOfOfficer: z.string().optional(),
     position: z.string().min(1, 'Position/Title/Designation is required'),
-    addressOfOfficer: residenceSchemas
+    addressOfOffice: residenceSchemas
   }),
   nameOfPlace: z.string().min(1, 'Name of place is required'),
   addressAt: z.string().min(1, 'Address at is required'),
-  1: z.object({
+  a: z.object({
     nameOfHusband: nameSchema,
     nameOfWife: nameSchema
   }),
-  2: z.object({
+  b: z.object({
     a: agreementSchema,
     b: agreementSchema,
-    c: agreementSchema.extend({
-      nameOfHusband: nameSchema,
-      nameOfWife: nameSchema
-    }),
+    c: agreementSchema,
     d: agreementSchema,
     e: agreementSchema
   }),
-  3: z.string().optional(),
-  4: agreementSchema.extend({
+  c: z.string().optional(),
+  d: z.object({
     dayOf: z.date(),
     atPlaceOfMarriage: residenceSchemas,
   }),
-  dateSworn: agreementSchema.extend({
+  dateSworn: z.object({
     dayOf: z.date(),
     atPlaceOfSworn: residenceSchemas,
     ctcInfo: z.object({
       number: z.string().min(1, 'CTC number is required'),
-      dateIssued: z.string().min(1, 'Date issued is required'),
+      dateIssued: z.date(),
       placeIssued: z.string().min(1, 'Place issued is required'),
     }),
   }),
-
-
+  nameOfAdmin: z.object({
+    signature: signatureSchema,
+    address: z.string().min(1, 'Address is required')
+  })
 })
 
 const affidavitForDelayedSchema = z.object({
   administeringInformation: z.object({
     nameOfOfficer: z.string().min(1, 'Name of officer is required'),
-    signatureOfOfficer: z.string().optional(),
+    signatureOfAdmin: z.string().optional(),
     position: z.string().min(1, 'Position/Title/Designation is required'),
     addressOfOfficer: residenceSchemas
   }),
   applicantInformation: z.object({
+    signatureOfApplicant: z.string().optional(),
     nameOfApplicant: z.string().min(1, 'Name of Applicant is required'),
-    addressOfOfficer: residenceSchemas
+    applicantAddress: residenceSchemas,
+    postalCode: z
+      .string()
+      .min(4, 'Postal code must be at least 4 digits')
+      .max(6, 'Postal code must be at most 6 digits')
+      .regex(/^\d+$/, 'Postal code must contain only numbers')
   }),
-  1: z.object({
-    a: agreementSchema.extend({
-      nameOfPartner: z.string().min(1, "Applicant's partner name is required"),
-      placeOfMarriage: residenceSchemas,
-      dateOfMarriage: z.date(),
+
+  a: z.object({
+    a: z.object({
+      agreement: z.boolean().default(false),
+      nameOfPartner: nameSchema.optional(),
+      placeOfMarriage: z.string().min(1, 'Place of marriage is required').optional(),
+      dateOfMarriage: z.date().optional(),
     }),
-    b: agreementSchema.extend({
-      nameOfHusband: z.string().min(1, "Applicant's partner name is required"),
-      nameOfWife: z.string().min(1, "Applicant's partner name is required"),
-      placeOfMarriage: residenceSchemas,
-      dateOfMarriage: z.date(),
-    })
-  }),
-  2: z.object({
+    b: z.object({
+      agreement: z.boolean().default(false),
+      nameOfHusband: nameSchema.optional(),
+      nameOfWife: nameSchema.optional(),
+      placeOfMarriage: z.string().min(1, 'Place of marriage is required').optional(),
+      dateOfMarriage: z.date().optional(),
+    }),
+  }).refine((data) => {
+    // Ensure only one agreement is true at a time
+    return data.a.agreement !== data.b.agreement;
+  }, 'You can only select one option (either a or b)'),
+
+  b: z.object({
     solemnizedBy: z.string().min(1, 'Name of officer is required'),
     sector: z.enum([
-      'religious ceremony',
-      'civil ceremony',
-      'Muslim rites',
-      'tribal rites',
+      'religious-ceremony',
+      'civil-ceremony',
+      'Muslim-rites',
+      'tribal-rites',
     ]),
   }),
-  3: z.object({
-    a: agreementSchema.extend({
-      licenseNo: z.number().min(1, 'License No. is required'),
+  c: z.object({
+    a: z.object({
+      licenseNo: z.string().min(1, 'License number is required'),
       dateIssued: z.date(),
-      placeOfSolemnizedMarriage: residenceSchemas,
+      placeOfSolemnizedMarriage: z.string().min(1, 'Place of Solemnized marriage'),
     }),
-    b: agreementSchema.extend({
+    b: z.object({
       underArticle: z.string().optional()
     })
   }),
-  4: z.object({
+  d: z.object({
     husbandCitizenship: citizenshipSchema,
     wifeCitizenship: citizenshipSchema
   }),
-  5: z.string().min(1, ''),
-  6: agreementSchema.extend({
+  e: z.string().nonempty('Add valid reason'),
+  f: z.object({
     date: z.date().optional(),
     place: residenceSchemas
   }),
-  dateSworn: agreementSchema.extend({
+  dateSworn: z.object({
     dayOf: z.date(),
     atPlaceOfSworn: residenceSchemas,
     ctcInfo: z.object({
       number: z.string().min(1, 'CTC number is required'),
-      dateIssued: z.string().min(1, 'Date issued is required'),
+      dateIssued: z.date(),
       placeIssued: z.string().min(1, 'Place issued is required'),
     }),
   }),
@@ -247,7 +263,7 @@ export const marriageCertificateSchema = z.object({
   cityMunicipality: cityMunicipalitySchema,
   contractDay: z.date(),
   // Consent Information
-  wifeConsentPerson: consentPersonSchema,
+  // wifeConsentPerson: consentPersonSchema,
 
   // Husband's Information
   husbandInfo: personalInformation.extend({

@@ -104,7 +104,14 @@ export const ContractingPartiesCertification: React.FC<
               control={control}
               name='contractDay'
               render={({ field }) => (
-                <DatePickerField field={field} label='Date of Marriage' />
+                <DatePickerField field={{
+                  value: field.value || '',
+                  onChange: field.onChange,
+                }}
+                  label='Date of Marriage'
+                  ref={field.ref} // Forward ref for auto-focus
+                  placeholder='Select date of marriage'
+                />
               )}
             />
           </div>

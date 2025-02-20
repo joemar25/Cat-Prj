@@ -97,9 +97,9 @@ export const religionSchema = z
 
 // Residence (House No., Street, Barangay, City/Municipality, Province, Country)
 export const residenceSchema = z.object({
-  houseNo: z.string().nonempty('House number is required'),
-  st: z.string().nonempty('Street is required'),
-  barangay: z.string().nonempty('Barangay is required'),
+  houseNo: z.string().optional(),
+  st: z.string().optional(),
+  barangay: z.string().optional(),
   cityMunicipality: cityMunicipalitySchema, // Reuse shared city/municipality schema
   province: provinceSchema, // Reuse shared province schema
   country: z.string().nonempty('Country is required'),

@@ -6,7 +6,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/form-schema-certificate';
+import { MarriageCertificateFormValues } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
+
 ;
 import { useFormContext } from 'react-hook-form';
 
@@ -30,6 +31,7 @@ const RemarksCard: React.FC = () => {
                   placeholder='Enter remarks or annotations'
                   className='min-h-[100px]'
                   {...field}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />

@@ -45,7 +45,9 @@ const MarriageDetailsCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Input className='h-10' placeholder='Enter country ' {...field} />
+                  <Input className='h-10' placeholder='Enter country '
+                    {...field}
+                    value={field.value ?? ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -57,7 +59,14 @@ const MarriageDetailsCard: React.FC = () => {
             control={control}
             name='marriageDetails.dateOfMarriage'
             render={({ field }) => (
-              <DatePickerField field={field} label='Date of Marriage' />
+              <DatePickerField field={{
+                value: field.value || '',
+                onChange: field.onChange
+              }}
+                label='Date of Marriage'
+                ref={field.ref}
+                placeholder='Select date of marriage'
+              />
             )}
           />
 
@@ -73,7 +82,9 @@ const MarriageDetailsCard: React.FC = () => {
                     className='h-10'
                     type='time'
                     placeholder='Enter time of marriage'
+
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />

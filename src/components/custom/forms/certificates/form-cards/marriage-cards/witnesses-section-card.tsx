@@ -42,6 +42,7 @@ export const WitnessesCard: React.FC<WitnessesCardProps> = ({ className }) => {
                     <FormControl>
                       <Input
                         {...field}
+                        value={field.value ?? ''}
                         className='h-10'
                         placeholder='Enter witness name'
                       />
@@ -59,6 +60,7 @@ export const WitnessesCard: React.FC<WitnessesCardProps> = ({ className }) => {
                     <FormControl>
                       <Input
                         {...field}
+                        
                         className='h-10'
                         placeholder='Signature'
                       />
@@ -76,6 +78,7 @@ export const WitnessesCard: React.FC<WitnessesCardProps> = ({ className }) => {
                     <FormControl>
                       <Input
                         {...field}
+                        
                         className='h-10'
                         placeholder='Enter witness name'
                       />
@@ -93,6 +96,7 @@ export const WitnessesCard: React.FC<WitnessesCardProps> = ({ className }) => {
                     <FormControl>
                       <Input
                         {...field}
+                        
                         className='h-10'
                         placeholder='Signature'
                       />
@@ -120,6 +124,7 @@ export const WitnessesCard: React.FC<WitnessesCardProps> = ({ className }) => {
                       <FormControl>
                         <Input
                           {...field}
+                          
                           className='h-10'
                           placeholder='Enter witness name'
                         />
@@ -137,6 +142,7 @@ export const WitnessesCard: React.FC<WitnessesCardProps> = ({ className }) => {
                       <FormControl>
                         <Input
                           {...field}
+                          
                           className='h-10'
                           placeholder='Signature'
                         />
@@ -154,6 +160,7 @@ export const WitnessesCard: React.FC<WitnessesCardProps> = ({ className }) => {
                       <FormControl>
                         <Input
                           {...field}
+                          
                           className='h-10'
                           placeholder='Enter witness name'
                         />
@@ -171,6 +178,7 @@ export const WitnessesCard: React.FC<WitnessesCardProps> = ({ className }) => {
                       <FormControl>
                         <Input
                           {...field}
+                          
                           className='h-10'
                           placeholder='Signature'
                         />

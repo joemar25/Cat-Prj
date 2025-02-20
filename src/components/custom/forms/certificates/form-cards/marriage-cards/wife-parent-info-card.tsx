@@ -32,9 +32,11 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Father&apos;s First Name</FormLabel>
                 <FormControl>
                   <Input
+                  type='text'
                     className='h-10'
                     placeholder='Enter first name'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -50,9 +52,11 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Father&apos;s Middle Name</FormLabel>
                 <FormControl>
                   <Input
+                  type='text'
                     className='h-10'
                     placeholder='Enter middle name'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -68,9 +72,11 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Father&apos;s Last Name</FormLabel>
                 <FormControl>
                   <Input
+                  type='text'
                     className='h-10'
                     placeholder='Enter last name'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -89,9 +95,11 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Mother&apos;s First Name</FormLabel>
                 <FormControl>
                   <Input
+                  type='text'
                     className='h-10'
                     placeholder='Enter first name'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -107,9 +115,11 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Mother&apos;s Middle Name</FormLabel>
                 <FormControl>
                   <Input
+                  type='text'
                     className='h-10'
                     placeholder='Enter middle name'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -125,9 +135,11 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Mother&apos;s (Maiden) Name</FormLabel>
                 <FormControl>
                   <Input
+                  type='text'
                     className='h-10'
                     placeholder='Enter last name'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -145,9 +157,11 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Father&apos;s Citizenship</FormLabel>
                 <FormControl>
                   <Input
+                  type='text'
                     className='h-10'
                     placeholder='Enter citizenship'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -163,9 +177,11 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Mother&apos;s Citizenship</FormLabel>
                 <FormControl>
                   <Input
+                  type='text'
                     className='h-10'
                     placeholder='Enter citizenship'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -188,9 +204,11 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Adviser (First Name)</FormLabel>
                 <FormControl>
                   <Input
+                  type='text'
                     className='h-10'
                     placeholder='Enter Adviser (first)'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -205,9 +223,11 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Adviser (Middle Name)</FormLabel>
                 <FormControl>
                   <Input
+                  type='text'
                     className='h-10'
                     placeholder='Enter Adviser (middle)'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -222,9 +242,11 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Adviser (Last Name)</FormLabel>
                 <FormControl>
                   <Input
+                  type='text'
                     className='h-10'
                     placeholder='Enter Adviser (last)'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -246,9 +268,11 @@ const WifeParentsInfoCard: React.FC = () => {
                 <FormLabel>Relationship</FormLabel>
                 <FormControl>
                   <Input
+                  type='text'
                     className='h-10'
                     placeholder='Enter relationship'
                     {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -264,9 +288,12 @@ const WifeParentsInfoCard: React.FC = () => {
                   <FormLabel>Residence</FormLabel>
                   <FormControl>
                     <Input
+                    type='text'
                       className='h-10'
                       placeholder='House No., St., Barangay, City/Municipality, Province, Country'
                       {...field}
+                      value={field.value ?? ''}
+
                     />
                   </FormControl>
                   <FormMessage />

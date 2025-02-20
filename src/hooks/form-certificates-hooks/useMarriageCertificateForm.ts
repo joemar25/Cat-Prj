@@ -1,9 +1,10 @@
 
 import { MarriageCertificateFormValues, marriageCertificateSchema } from '@/lib/types/zod-form-certificate/marriage-certificate-form-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import React from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
-import { submitMarriageCertificateForm } from '../form-certificate-actions';
+// import { submitMarriageCertificateForm } from '../form-certificate-actions';
 
 interface UseMarriageCertificateFormProps {
     onOpenChange?: (open: boolean) => void;
@@ -17,320 +18,442 @@ export function useMarriageCertificateForm({
         mode: 'onChange',
         reValidateMode: 'onChange',
         defaultValues: {
-            registryNumber: '',
-            province: '',
-            cityMunicipality: '',
+            registryNumber: '2025-000001', // Example registry number
+            province: 'Albay',
+            cityMunicipality: 'City of Tabaco',
 
             // Husband's Information
             husbandInfo: {
                 name: {
-                    first: '',
-                    middle: '',
-                    last: ''
+                    first: 'Juan',
+                    middle: 'Dela',
+                    last: 'Cruz'
                 },
                 placeOfBirth: {
-                    houseNo: '',
-                    st: '',
-                    barangay: '',
-                    cityMunicipality: '',
-                    province: '',
-                    country: '',
+                    cityMunicipality: 'City of Tabaco',
+                    province: 'Albay',
+                    country: 'Philippines',
                 },
                 sex: 'male',
-                religion: '',
-                age: '',
-                birth: undefined,
-                citizenship: '',
-                civilStatus: undefined,
-                residence: '',
+                religion: 'Catholic',
+                age: '30',
+                birth: new Date('1995-05-15'), // Example Date
+                citizenship: 'Filipino',
+                civilStatus: 'single',
+                residence: 'Brgy. San Roque, Tabaco City',
                 husbandParents: {
                     father: {
-                        first: '',
-                        middle: '',
-                        last: '',
+                        first: 'Pedro',
+                        middle: 'Reyes',
+                        last: 'Cruz',
                     },
                     mother: {
-                        first: '',
-                        middle: '',
-                        last: '',
+                        first: 'Maria',
+                        middle: 'Santos',
+                        last: 'Cruz',
                     },
-                    motherCitizenship: '',
-                    fatherCitizenship: '',
+                    motherCitizenship: 'Filipino',
+                    fatherCitizenship: 'Filipino',
                 },
                 husbandConsentPerson: {
-                    first: '',
-                    middle: '',
-                    last: '',
-                    relationship: '',
-                    residence: '',
-
+                    first: 'Jose',
+                    middle: 'Martinez',
+                    last: 'Lopez',
+                    relationship: 'Guardian',
+                    residence: 'Legazpi City',
                 },
             },
 
             // Wife's Information
             wifeInfo: {
                 name: {
-                    first: '',
-                    middle: '',
-                    last: ''
+                    first: 'Maria',
+                    middle: 'Santos',
+                    last: 'Reyes'
                 },
                 placeOfBirth: {
-                    houseNo: '',
-                    st: '',
-                    barangay: '',
-                    cityMunicipality: '',
-                    province: '',
-                    country: '',
+                    cityMunicipality: 'Legazpi City',
+                    province: 'Albay',
+                    country: 'Philippines',
                 },
                 sex: 'female',
-                age: '',
-                birth: undefined,
-                citizenship: '',
-                civilStatus: undefined,
-                residence: '',
+                age: '28',
+                birth: new Date('1997-10-20'), // Example Date
+                citizenship: 'Filipino',
+                civilStatus: 'single',
+                religion: 'Catholic',
+                residence: 'Brgy. Binanuahan, Legazpi City',
                 wifeParents: {
                     father: {
-                        first: '',
-                        middle: '',
-                        last: '',
+                        first: 'Antonio',
+                        middle: 'Gomez',
+                        last: 'Reyes',
                     },
                     mother: {
-                        first: '',
-                        middle: '',
-                        last: '',
+                        first: 'Isabel',
+                        middle: 'Dela Cruz',
+                        last: 'Reyes',
                     },
-                    fatherCitizenship: '',
-                    motherCitizenship: '',
+                    fatherCitizenship: 'Filipino',
+                    motherCitizenship: 'Filipino',
                 },
                 wifeConsentPerson: {
-                    first: '',
-                    middle: '',
-                    last: '',
-                    relationship: '',
-                    residence: '',
+                    first: 'Ana',
+                    middle: 'Gonzales',
+                    last: 'Santos',
+                    relationship: 'Aunt',
+                    residence: 'Naga City',
                 },
             },
 
             // Marriage Details
             marriageDetails: {
                 placeOfMarriage: {
-                    barangay: '',
-                    cityMunicipality: '',
-                    province: '',
-                    country: '',
+                    barangay: 'San Roque',
+                    cityMunicipality: 'City of Tabaco',
+                    province: 'Albay',
+                    country: 'Philippines',
                 },
-                dateOfMarriage: undefined,
-                timeOfMarriage: '',
+                dateOfMarriage: new Date('2025-02-14'), // Example Date
+                timeOfMarriage: '07:30',
             },
 
-            //Contracting parties
-
+            // Contracting parties
             husbandContractParty: {
                 contractingParties: {
                     agreement: {
-                        agreement: false
+                        agreement: true
                     },
-                    signature: '',
+                    signature: 'Juan D. Cruz',
                 }
             },
 
             wifeContractParty: {
                 contractingParties: {
                     agreement: {
-                        agreement: false
+                        agreement: true
                     },
-                    signature: '',
+                    signature: 'Maria S. Reyes',
                 }
             },
 
-            contractDay: undefined,
+            contractDay: new Date('2025-02-14'), // Example Date
 
             // Witnesses
-            husbandWitnesses:
-            {
-                name: '',
-                signature: '',
-                name2: '',
-                signature2: ''
-            },
-            wifeWitnesses:
-            {
-                name: '',
-                signature: '',
-                name2: '',
-                signature2: ''
+            husbandWitnesses: {
+                name: 'Carlos Mendoza',
+                signature: 'Carlos Mendoza',
+                name2: 'Fernando Ramos',
+                signature2: 'Fernando Ramos'
             },
 
-            // Solemnizing Officer (Missing in previous version)
+            wifeWitnesses: {
+                name: 'Luisa Santos',
+                signature: 'Luisa Santos',
+                name2: 'Angela Dela Cruz',
+                signature2: 'Angela Dela Cruz'
+            },
+
+            // Solemnizing Officer
             solemnizingOfficer: {
-                name: '',
-                position: '',
-                religion: '',
-                registryNoExpiryDate: undefined,
+                name: 'Fr. Miguel Santos',
+                position: 'Parish Priest',
+                religion: 'Catholic',
+                registryNoExpiryDate: '2027-12-31',
             },
 
             // Marriage License Details
             marriageLicenseDetails: {
-                number: '',
-                placeIssued: '',
-                dateIssued: undefined,
+                number: 'ML-2025-0001',
+                placeIssued: 'Civil Registry of Tabaco',
+                dateIssued: new Date('2025-01-10'),
                 marriageAgree: {
-                    agreement: false
+                    agreement: true
                 },
-
             },
-            // Marriage article
+
+            // Marriage Article
             marriageArticle: {
                 articleAgree: {
-                    agreement: false
+                    agreement: true
                 },
-                articleExecutiveOrder: '',
-
+                articleExecutiveOrder: 'XVII',
             },
 
             // Marriage solemnized
-            marriageSolemnized: undefined,
+            marriageSolemnized: {
+                agreement: true
+            },
 
             // Other details
             receivedBy: {
-                date: undefined,
-                nameInPrint: '',
-                signature: '',
-                title: ''
+                date: new Date('2025-02-20'),
+                nameInPrint: 'Verification Officer 3',
+                signature: 'Verification Officer 3',
+                title: 'Officer',
             },
+
             registeredAtCivilRegistrar: {
-                date: undefined,
-                nameInPrint: '',
-                signature: '',
-                title: ''
+                date: new Date('2025-02-15'),
+                nameInPrint: 'Registrar Officer 3',
+                signature: 'Registrar Officer 3',
+                title: 'Registrar',
             },
-            remarks: '',
+
+            remarks: 'No remarks',
 
             // **************************
             // BACK PAGE: AFFIDAVIT OF SOLEMNIZING OFFICER
             // **************************
             affidavitOfSolemnizingOfficer: {
                 administeringInformation: {
-                    nameOfOfficer: '',
-                    signatureOfOfficer: '',
-                    position: '',
-                    addressOfOfficer: { cityMunicipality: '', province: '', country: '' },
+                    nameOfOfficer: 'John Doe',
+                    signatureOfOfficer: 'JohnDoeSignature',
+                    position: 'Civil Registrar',
+                    addressOfOffice: {
+                        cityMunicipality: 'City of Manila',
+                        province: 'Metro Manila',
+                        country: 'Philippines'
+                    },
                 },
-                nameOfPlace: '',
-                addressAt: '',
-                1: {
-                    nameOfHusband: { first: '', middle: '', last: '' },
-                    nameOfWife: { first: '', middle: '', last: '' },
+                nameOfPlace: 'Manila City Hall',
+                addressAt: 'A. Villegas Street, Ermita, Manila, Philippines',
+                a: {
+                    nameOfHusband: {
+                        first: '',
+                        middle: '',
+                        last: ''
+                    },
+                    nameOfWife: {
+                        first: '',
+                        middle: '',
+                        last: ''
+                    },
                 },
-                2: {
-                    a: { agreement: false },
+                b: {
+                    a: { agreement: true },
                     b: { agreement: false },
                     c: {
-                        agreement: false,
-                        nameOfHusband: { first: '', middle: '', last: '' },
-                        nameOfWife: { first: '', middle: '', last: '' },
+                        agreement: true,
                     },
-                    d: { agreement: false },
+                    d: { agreement: true },
                     e: { agreement: false },
                 },
-                3: '',
-                4: {
-                    agreement: false,
-                    dayOf: undefined,
-                    atPlaceOfMarriage: { cityMunicipality: '', province: '', country: '' },
-                },
-                dateSworn: {
-                    agreement: false,
-                    dayOf: undefined,
-                    atPlaceOfSworn: { cityMunicipality: '', province: '', country: '' },
-                    ctcInfo: {
-                        number: '',
-                        dateIssued: '',
-                        placeIssued: '',
+                c: 'Marriage was conducted under civil ceremony.',
+                d: {
+
+                    dayOf: new Date('2024-02-15'),
+                    atPlaceOfMarriage: {
+                        cityMunicipality: 'Quezon City',
+                        province: 'Metro Manila',
+                        country: 'Philippines',
+                        barangay: 'Bagumbayan',
+                        st: 'Katipunan Avenue'
                     },
                 },
+                dateSworn: {
+
+                    dayOf: new Date('2024-02-16'),
+                    atPlaceOfSworn: {
+                        cityMunicipality: 'Makati',
+                        province: 'Metro Manila',
+                        country: 'Philippines',
+                        barangay: 'Poblacion',
+                        st: 'J.P. Rizal Street'
+                    },
+                    ctcInfo: {
+                        number: 'CTC-987654321',
+                        dateIssued: new Date('2024-02-16'),
+                        placeIssued: 'Makati City Hall',
+                    },
+                },
+                nameOfAdmin: {
+                    address: 'National Statistics Office, Manila',
+                    signature: {
+                        signature: 'AdminSignature',
+                        position: 'Senior Registrar',
+                        name2: 'Robert Lim',
+                    }
+                }
             },
+
 
             // **************************
             // BACK PAGE: AFFIDAVIT FOR DELAYED REGISTRATION
             // **************************
             affidavitForDelayed: {
                 administeringInformation: {
-                    nameOfOfficer: '',
-                    signatureOfOfficer: '',
-                    position: '',
-                    addressOfOfficer: { cityMunicipality: '', province: '', country: '' },
+                    signatureOfAdmin: 'John Doe',
+                    nameOfOfficer: 'Officer Name',
+                    position: 'Admin Officer',
+                    addressOfOfficer: {
+                        cityMunicipality: 'Makati',
+                        province: 'Metro Manila',
+                        country: 'Philippines',
+                        st: 'J.P. Rizal Street',
+                        barangay: 'Poblacion'
+                    }
                 },
                 applicantInformation: {
-                    nameOfApplicant: '',
-                    addressOfOfficer: { cityMunicipality: '', province: '', country: '' },
+                    signatureOfApplicant: 'Jane Doe',
+                    nameOfApplicant: 'Jane Marie Doe',
+                    postalCode: '1210',
+                    applicantAddress: {
+                        cityMunicipality: 'Taguig',
+                        province: 'Metro Manila',
+                        country: 'Philippines',
+                        st: 'C-5 Road',
+                        barangay: 'Ususan'
+                    }
                 },
-                1: {
+                a: {
                     a: {
-                        agreement: false,
-                        nameOfPartner: '',
-                        placeOfMarriage: { cityMunicipality: '', province: '', country: '' },
-                        dateOfMarriage: undefined,
+                        agreement: true,
+                        nameOfPartner: {
+                            first: 'James',
+                            middle: 'M',
+                            last: 'Smith'
+                        },
+                        placeOfMarriage: 'Makati City Hall',
+                        dateOfMarriage: new Date('2024-02-16'),
                     },
                     b: {
                         agreement: false,
-                        nameOfHusband: '',
-                        nameOfWife: '',
-                        placeOfMarriage: { cityMunicipality: '', province: '', country: '' },
+                        nameOfHusband: {
+                            first: 'Jome',
+                            middle: '',
+                            last: 'Pal'
+                        },
+                        nameOfWife: {
+                            first: 'Queen',
+                            middle: '',
+                            last: 'Doe'
+                        },
+                        placeOfMarriage: 'Makati City Hall',
                         dateOfMarriage: undefined,
-                    },
+                    }
                 },
-                2: {
-                    solemnizedBy: '',
-                    sector: 'religious ceremony',
+                b: {
+                    solemnizedBy: 'Rev. Father John',
+                    sector: 'religious-ceremony',
                 },
-                3: {
+                c: {
                     a: {
-                        agreement: false,
-                        licenseNo: 0,
-                        dateIssued: undefined,
-                        placeOfSolemnizedMarriage: { cityMunicipality: '', province: '', country: '' },
+                        licenseNo: '123456789',
+                        dateIssued: new Date('2024-02-16'),
+                        placeOfSolemnizedMarriage: 'Makati City Hall',
                     },
-                    b: { agreement: false, underArticle: '' },
+                    b: { underArticle: 'Article 34 of Executive Order No. 209' },
                 },
-                4: {
-                    husbandCitizenship: '',
-                    wifeCitizenship: '',
+                d: {
+                    husbandCitizenship: 'Filipino',
+                    wifeCitizenship: 'Filipino',
                 },
-                5: '',
-                6: {
-                    agreement: false,
-                    date: undefined,
-                    place: { cityMunicipality: '', province: '', country: '' },
+                e: 'Additional remarks or information goes here.',
+                f: {
+                    date: new Date('2024-02-16'),
+                    place: {
+                        cityMunicipality: 'Makati',
+                        province: 'Metro Manila',
+                        country: 'Philippines',
+                        barangay: 'Poblacion',
+                        st: 'J.P. Rizal Street'
+                    }
                 },
                 dateSworn: {
-                    agreement: false,
-                    dayOf: undefined,
-                    atPlaceOfSworn: { cityMunicipality: '', province: '', country: '' },
-                    ctcInfo: {
-                        number: '',
-                        dateIssued: '',
-                        placeIssued: '',
+                    dayOf: new Date('2024-02-16'),
+                    atPlaceOfSworn: {
+                        cityMunicipality: 'Makati',
+                        province: 'Metro Manila',
+                        country: 'Philippines',
+                        barangay: 'Poblacion',
+                        st: 'J.P. Rizal Street'
                     },
-                },
-            },
+                    ctcInfo: {
+                        number: 'CTC-987654321',
+                        dateIssued: new Date('2024-02-16'),
+                        placeIssued: 'Makati City Hall',
+                    }
+                }
+            }
 
-        },
+        }
+
     })
 
     const onSubmit = async (data: MarriageCertificateFormValues) => {
         try {
-            await submitMarriageCertificateForm(data);
+            console.log('✅ Form Data Submitted:', JSON.stringify(data, null, 2)); // Pretty-print JSON data
+            console.log('✅ Form Current State:', JSON.stringify(formMethods.getValues(), null, 2)); // Debug current state
+
             toast.success('Form submitted successfully');
             onOpenChange?.(false);
-        } catch {
+        } catch (error) {
+            console.error('❌ Error submitting form:', error);
             toast.error('Submission failed, please try again');
         }
     };
 
     const handleError = (errors: any) => {
-        toast.error('Please check form for errors');
+        console.error("❌ Form Errors:", errors); // Log errors for debugging
+
+        const errorMessages: string[] = [];
+
+        Object.entries(errors).forEach(([fieldName, error]: any) => {
+            if (error?.message) {
+                errorMessages.push(`${formatFieldName(fieldName)}: ${error.message}`);
+            } else if (typeof error === "object") {
+                Object.entries(error).forEach(([subField, subError]: any) => {
+                    if (subError?.message) {
+                        errorMessages.push(`${formatFieldName(fieldName)} → ${formatFieldName(subField)}: ${subError.message}`);
+                    }
+                });
+            }
+        });
+
+        if (errorMessages.length > 0) {
+            toast.error(errorMessages.join("\n")); // Show all errors in a single toast
+        } else {
+            toast.error("Please check the form for errors");
+        }
     };
+
+    // Helper function to make field names user-friendly
+    const formatFieldName = (fieldName: string) => {
+        return fieldName
+            .replace(/([A-Z])/g, " $1") // Add space before capital letters
+            .replace(/\./g, " → ") // Replace dots with arrows
+            .trim()
+            .toLowerCase()
+            .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter
+    };
+
+    // ✅ Watch changes in husband's and wife's names
+    const husbandName = useWatch({ control: formMethods.control, name: 'husbandInfo.name' });
+    const wifeName = useWatch({ control: formMethods.control, name: 'wifeInfo.name' });
+
+    // ✅ Sync husband's name to affidavit
+    React.useEffect(() => {
+        if (husbandName) {
+            formMethods.setValue('affidavitOfSolemnizingOfficer.a.nameOfHusband', {
+                first: husbandName.first || '',
+                middle: husbandName.middle || '',
+                last: husbandName.last || '',
+            });
+        }
+    }, [husbandName, formMethods]);
+
+    // ✅ Sync wife's name to affidavit
+    React.useEffect(() => {
+        if (wifeName) {
+            formMethods.setValue('affidavitOfSolemnizingOfficer.a.nameOfWife', {
+                first: wifeName.first || '',
+                middle: wifeName.middle || '',
+                last: wifeName.last || '',
+            });
+        }
+    }, [wifeName, formMethods]);
+
 
     return { formMethods, onSubmit, handleError };
 }

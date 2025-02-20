@@ -21,6 +21,8 @@ import SolemnizingOfficerCertification from './form-cards/marriage-cards/solemni
 import { WitnessesCard } from './form-cards/marriage-cards/witnesses-section-card';
 import { ReceivedByCard, RegisteredAtOfficeCard } from './form-cards/shared-components/processing-details-cards';
 import RemarksCard from './form-cards/shared-components/remarks-card';
+import { AffidavitOfSolemnizingOfficer } from './form-cards/marriage-cards/affidavit-of-marriage';
+import { AffidavitForDelayedMarriageRegistration } from './form-cards/marriage-cards/affidavit-of-delayed-marriage-registration';
 
 export default function MarriageCertificateForm({
   open,
@@ -33,7 +35,7 @@ export default function MarriageCertificateForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0'>
+      <DialogContent className='max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0' >
         <Form {...formMethods}>
           <form
             onSubmit={formMethods.handleSubmit(onSubmit, handleError)}
@@ -57,8 +59,8 @@ export default function MarriageCertificateForm({
                         title='Marriage Registry Information'
                       />
                       <HusbandInfoCard />
-                      <WifeInfoCard />
                       <HusbandParentsInfoCard />
+                      <WifeInfoCard />
                       <WifeParentsInfoCard />
                       <MarriageDetailsCard />
                       <ContractingPartiesCertificationCard />
@@ -66,11 +68,13 @@ export default function MarriageCertificateForm({
                       <WitnessesCard />
                       <ReceivedByCard />
                       <RegisteredAtOfficeCard
-
                         fieldPrefix='registeredAtCivilRegistrar'
                         cardTitle='Registered At Office'
                       />
                       <RemarksCard />
+                      <AffidavitOfSolemnizingOfficer />
+                      <AffidavitForDelayedMarriageRegistration />
+
 
                       {/* <ConfirmationDialog
                     open={showAlert}
@@ -90,11 +94,11 @@ export default function MarriageCertificateForm({
                 {/* Right Side - Preview */}
                 <div className='w-1/2'>
                   <div className='h-[calc(95vh-120px)]'>
-                    {/* <PDFViewer width='100%' height='100%'>
+                    <PDFViewer width='100%' height='100%'>
                       <MarriageCertificatePDF
                         data={formMethods.watch()} // Pass the current form data directly to the PDF preview
                       />
-                    </PDFViewer> */}
+                    </PDFViewer>
                   </div>
                 </div>
               </div>
@@ -111,6 +115,10 @@ export default function MarriageCertificateForm({
               <Button type='submit' className='py-2 w-32 bg-primary/80 hover:bg-primary'>
                 Save
               </Button>
+              <Button type="button" onClick={() => console.log('Form State:', formMethods.getValues())}>
+                Log Form Data
+              </Button>
+
             </DialogFooter>
           </form>
         </Form>

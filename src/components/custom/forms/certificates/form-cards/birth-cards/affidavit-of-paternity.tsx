@@ -108,7 +108,7 @@ const AffidavitOfPaternityForm: React.FC = () => {
                         name='affidavitOfPaternityDetails.father.name'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Father&aposs Name</FormLabel>
+                            <FormLabel>Father&apos; Name</FormLabel>
                             <FormControl>
                               <Input {...field} value={field.value || ''} />
                             </FormControl>
@@ -121,7 +121,7 @@ const AffidavitOfPaternityForm: React.FC = () => {
                         name='affidavitOfPaternityDetails.father.signature'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Father&aposs Signature</FormLabel>
+                            <FormLabel>Father&apos; Signature</FormLabel>
                             <FormControl>
                               <Input {...field} value={field.value || ''} />
                             </FormControl>
@@ -138,7 +138,7 @@ const AffidavitOfPaternityForm: React.FC = () => {
                         name='affidavitOfPaternityDetails.mother.name'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Mother&aposs Name</FormLabel>
+                            <FormLabel>Mother&apos; Name</FormLabel>
                             <FormControl>
                               <Input {...field} value={field.value || ''} />
                             </FormControl>
@@ -151,7 +151,7 @@ const AffidavitOfPaternityForm: React.FC = () => {
                         name='affidavitOfPaternityDetails.mother.signature'
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Mother&aposs Signature</FormLabel>
+                            <FormLabel>Mother&apos; Signature</FormLabel>
                             <FormControl>
                               <Input {...field} value={field.value || ''} />
                             </FormControl>

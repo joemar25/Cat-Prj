@@ -939,21 +939,21 @@ export async function submitDeathCertificateForm(
 }
 
 
-export async function submitMarriageCertificateForm(
-  formData: MarriageCertificateFormValues
-) {
-  try {
-    if (!formData) {
-      throw new Error('No form data provided');
-    }
-    console.log(formData);
+// export async function submitMarriageCertificateForm(
+//   formData: MarriageCertificateFormValues
+// ) {
+//   try {
+//     if (!formData) {
+//       throw new Error('No form data provided');
+//     }
+//     console.log(formData);
 
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : 'Failed to submit marriage certificate form',
-    };
-  }
-}
+//   } catch (error) {
+//     return {
+//       error:
+//         error instanceof Error
+//           ? error.message
+//           : 'Failed to submit marriage certificate form',
+//     };
+//   }
+// }

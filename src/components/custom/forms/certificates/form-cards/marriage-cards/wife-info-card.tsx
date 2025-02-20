@@ -66,9 +66,11 @@ const WifeInfoCard: React.FC = () => {
                 <FormLabel>First Name</FormLabel>
                 <FormControl>
                   <Input
+                    type='text'
                     className='h-10'
                     placeholder='Enter first name'
                     {...field}
+                    value={field.value || ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -84,9 +86,11 @@ const WifeInfoCard: React.FC = () => {
                 <FormLabel>Middle Name</FormLabel>
                 <FormControl>
                   <Input
+                    type='text'
                     className='h-10'
                     placeholder='Enter middle name'
                     {...field}
+                    value={field.value || ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -102,9 +106,11 @@ const WifeInfoCard: React.FC = () => {
                 <FormLabel>Last Name</FormLabel>
                 <FormControl>
                   <Input
+                    type='text'
                     className='h-10'
                     placeholder='Enter last name'
                     {...field}
+                    value={field.value || ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -144,7 +150,12 @@ const WifeInfoCard: React.FC = () => {
             control={control}
             name='wifeInfo.birth'
             render={({ field }) => (
-              <DatePickerField field={field} label='Date of Birth' />
+              <DatePickerField field={{
+                onChange: field.onChange,
+                value: field.value || ''
+              }}
+                label='Date of Birth'
+              />
             )}
           />
           {/* Age - Auto-filled */}
@@ -155,7 +166,12 @@ const WifeInfoCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Age</FormLabel>
                 <FormControl>
-                  <Input className='h-10' type='number' placeholder='Enter age' {...field} disabled />
+                  <Input
+                    className='h-10' type='number' placeholder='Enter age'
+                    {...field}
+                    value={field.value || ''}
+                    disabled
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -172,9 +188,11 @@ const WifeInfoCard: React.FC = () => {
                 <FormLabel>Citizenship</FormLabel>
                 <FormControl>
                   <Input
+                    type='text'
                     className='h-10'
                     placeholder='Enter citizenship'
                     {...field}
+                    value={field.value || ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -191,9 +209,11 @@ const WifeInfoCard: React.FC = () => {
                 <FormLabel>Religion/Religious Sect</FormLabel>
                 <FormControl>
                   <Input
+                    type='text'
                     className='h-10'
                     placeholder='Enter religion'
                     {...field}
+                    value={field.value || ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -209,7 +229,7 @@ const WifeInfoCard: React.FC = () => {
                 <FormLabel>Civil Status</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value ?? ''}
                 >
                   <FormControl>
                     <SelectTrigger className='h-10'>
@@ -235,7 +255,6 @@ const WifeInfoCard: React.FC = () => {
 
           {/* Place of Birth */}
           <LocationSelector
-
             provinceFieldName='husbandInfo.placeOfBirth.province'
             municipalityFieldName='husbandInfo.placeOfBirth.cityMunicipality'
             barangayFieldName='husbandInfo.placeOfBirth.barangay'
@@ -255,7 +274,10 @@ const WifeInfoCard: React.FC = () => {
               <FormItem>
                 <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Input className='h-10' placeholder='Enter complete address' {...field} />
+                  <Input
+                    type='text' className='h-10' placeholder='Enter complete address'
+                    {...field}
+                    value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -270,9 +292,11 @@ const WifeInfoCard: React.FC = () => {
                 <FormLabel>Residence</FormLabel>
                 <FormControl>
                   <Input
+                    type='text'
                     className='h-10'
                     placeholder='Enter complete address'
                     {...field}
+                    value={field.value || ''}
                   />
                 </FormControl>
                 <FormMessage />
