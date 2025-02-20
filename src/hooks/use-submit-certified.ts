@@ -3,10 +3,10 @@ import { useState } from "react"
 
 export interface SubmitCertifiedCopyRequestParams {
   address: string
-  feesPaid?: string | number // maps to amountPaid
-  orNo?: string // maps to orNumber
+  feesPaid?: string | number
+  orNo?: string
   purpose: string
-  relationship: string // maps to relationshipToOwner
+  relationship: string
   requesterName: string
   signature?: string
   lcrNo?: string
@@ -14,9 +14,10 @@ export interface SubmitCertifiedCopyRequestParams {
   pageNo?: string
   searchedBy?: string
   contactNo?: string
-  date?: string // expected in YYYY-MM-DD format
+  date?: string
   isRegisteredLate: boolean
-  whenRegistered?: string // expected in YYYY-MM-DD format if applicable
+  whenRegistered?: string
+  attachmentId: string
 }
 
 export const useSubmitCertifiedCopyRequest = () => {

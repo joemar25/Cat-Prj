@@ -7,7 +7,6 @@ import {
   ParentMarriageStructure,
   PlaceStructure,
 } from './form-annotation-shared-interfaces'
-
 export interface BirthAnnotationFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -39,7 +38,7 @@ export const BirthAnnotationFormSchema = z.object({
   childFirstName: z.string().min(1, 'Child first name is required'),
   childMiddleName: z.string().optional(),
   childLastName: z.string().min(1, 'Child last name is required'),
-  sex: z.string().min(1, 'Sex is required'),
+  sex: z.enum(['Male', 'Female', 'Other'], { required_error: 'Sex is required' }).optional(),
   dateOfBirth: z.string().min(1, 'Date of birth is required'),
   placeOfBirth: z.string().min(1, 'Place of birth is required'),
   motherName: z.string().min(1, "Mother's name is required"),

@@ -101,18 +101,6 @@ export default function DeathCertificateForm({
                     {/* PDF Viewer or preview component can be added here */}
                   </div>
                 </div>
-<<<<<<< HEAD
-              </ScrollArea>
-            </div>
-            {/* Right Side - Preview */}
-            <div className='w-1/2'>
-              <div className='h-[calc(95vh-120px)] p-6'>
-                {/* PDF Viewer or preview component can be added here */}
-                <PDFViewer width='100%' height='100%'>
-                  <DeathCertificatePDF data={formMethods.watch()} />
-                </PDFViewer>
-=======
->>>>>>> fbee001aa56098c8f71788379131a1b2ff619a67
               </div>
             </div>
             <DialogFooter className='absolute bottom-2 right-2 gap-2 flex items-center'>

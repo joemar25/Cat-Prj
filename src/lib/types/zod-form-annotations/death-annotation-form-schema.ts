@@ -20,7 +20,7 @@ export const DeathAnnotationFormSchema = z.object({
     required_error: 'Registration date is required',
   }),
   nameOfDeceased: z.string().min(1, 'Name of deceased is required'),
-  sex: z.string().min(1, 'Sex is required'),
+  sex: z.enum(['Male', 'Female', 'Other'], { required_error: 'Sex is required' }).optional(),
   age: z.coerce.number().min(0, 'Age must be a positive number'),
   civilStatus: z.string().min(1, 'Civil status is required'),
   citizenship: z.string().min(1, 'Citizenship is required'),
@@ -29,7 +29,7 @@ export const DeathAnnotationFormSchema = z.object({
   }),
   placeOfDeath: z.string().min(1, 'Place of death is required'),
   causeOfDeath: z.string().min(1, 'Cause of death is required'),
-  issuedTo: z.string().min(1, 'Issued to is required'), // person to whom the document is issued
+  issuedTo: z.string().min(1, 'Issued to is required'),
   purpose: z.string().min(1, 'Purpose is required'),
   remarks: z.string().optional(),
   preparedByName: z.string().min(1, 'Prepared by name is required'),

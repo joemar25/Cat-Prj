@@ -1,6 +1,6 @@
 //src\lib\types\zod-form-annotations\marriage-annotation-form-schema.ts
-import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 import { z } from 'zod'
+import { BaseRegistryFormWithRelations } from '@/hooks/civil-registry-action'
 
 export interface MarriageAnnotationFormProps {
   open: boolean

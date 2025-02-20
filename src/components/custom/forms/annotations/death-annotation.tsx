@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Card, CardContent } from '@/components/ui/card'
+import { CardContent } from '@/components/ui/card'
 import { createDeathAnnotation } from '@/hooks/form-annotations-actions'
 import { DeathAnnotationFormFields } from '@/lib/constants/form-annotations-dynamic-fields'
 import { PlaceStructure } from '@/lib/types/zod-form-annotations/form-annotation-shared-interfaces'
@@ -43,7 +43,7 @@ const DeathAnnotationForm: React.FC<ExtendedDeathAnnotationFormProps> = ({
     preparedByName: '',
     verifiedByName: '',
     nameOfDeceased: '',
-    sex: '',
+    sex: undefined,
     age: 0,
     civilStatus: '',
     citizenship: '',
