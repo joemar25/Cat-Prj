@@ -1,13 +1,24 @@
-import { Document, BaseRegistryForm, DocumentStatus, FormType } from '@prisma/client'
+import { Document, DocumentStatus, FormType } from '@prisma/client'
 
 export type GroupByOption = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly'
+
+/**
+ * Custom interface for BaseRegistryForm with an added documentId field
+ * This is necessary because in the DB schema, documentId is accessed through the join table
+ */
+export interface BaseRegistryFormWithDocumentId {
+    id: string
+    formType: FormType
+    createdAt: Date
+    documentId: string
+}
 
 /**
  * Represents a Document along with its attached BaseRegistryForm records,
  * using only the selected fields.
  */
 export type DocumentWithBaseRegistryForm = Document & {
-    BaseRegistryForm: Pick<BaseRegistryForm, 'id' | 'formType' | 'documentId' | 'createdAt'>[]
+    BaseRegistryForm: BaseRegistryFormWithDocumentId[]
 }
 
 /**
