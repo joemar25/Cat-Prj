@@ -172,3 +172,20 @@ Remember to check the Next.js upgrade guide for any breaking changes: <https://n
 
 
 
+
+
+NEXT_PUBLIC_APP_NAME=legazpi-city-civil-registry
+NEXT_PUBLIC_NODE_ENV=development
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+# Next Auth
+AUTH_SECRET=
+
+# Prisma + Postgres/Docker
+PG_PORT=5432
+PG_HOST=localhost
+PG_USER=postgres
+PG_PASSWORD=---------
+PG_DATABASE=cris-db
+PG_DATABASE_URL=postgresql://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:${PG_PORT}/${PG_DATABASE}
+
