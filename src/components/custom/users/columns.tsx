@@ -15,10 +15,10 @@ import { DataTableColumnHeader } from '@/components/custom/table/data-table-colu
 
 interface UserCellProps {
     row: Row<UserWithRoleAndProfile>
+    t: (key: string) => string
 }
 
-const UserCell = ({ row }: UserCellProps) => {
-    const { t } = useTranslation()
+const UserCell = ({ row, t }: UserCellProps) => {
     const user = row.original
     const initials = user.name ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'U'
 
@@ -58,7 +58,7 @@ const EmailCell = ({ email }: EmailCellProps) => {
     )
 }
 
-export const createColumns = (
+export const useCreateColumns = (
     session: Session | null,
     onUpdateUser?: (user: UserWithRoleAndProfile) => void,
     onDeleteUser?: (id: string) => void
@@ -71,7 +71,7 @@ export const createColumns = (
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title={t('dataTable.user')} />
             ),
-            cell: ({ row }) => <UserCell row={row} />,
+            cell: ({ row }) => <UserCell row={row} t={t} />,
         },
         {
             accessorKey: 'email',
@@ -163,8 +163,6 @@ export const createColumns = (
                 const isVerified = row.getValue('emailVerified') as boolean
                 return (
                     <div className="flex items-center gap-2">
-                        {/* <div className={`h-2 w-2 rounded-full ${isVerified ? 'bg-emerald-500' : 'bg-gray-300'
-                            }`} /> */}
                         <Badge
                             variant={isVerified ? "default" : "secondary"}
                             className={`font-normal ${isVerified ? 'bg-primary hover:bg-primary/50 text-accent dark:text-accent-foreground' : 'bg-gray-300'
@@ -220,7 +218,6 @@ export const createColumns = (
                 if (session?.user?.email === row.original.email) {
                     return null
                 }
-                // Pass both callbacks to <DataTableRowActions>
                 return (
                     <DataTableRowActions
                         row={row}

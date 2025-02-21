@@ -1,4 +1,3 @@
-// src/components/custom/users/users-table-client.tsx
 'use client'
 
 import type { UserWithRoleAndProfile } from '@/types/user'
@@ -6,23 +5,20 @@ import type { UserWithRoleAndProfile } from '@/types/user'
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { DataTable } from '@/components/custom/users/data-table'
-import { createColumns } from '@/components/custom/users/columns'
+import { useCreateColumns } from '@/components/custom/users/columns'
 
 interface UsersTableClientProps {
     users: UserWithRoleAndProfile[]
+    role?: string
 }
 
-export function UsersTableClient({ users: initialUsers }: UsersTableClientProps) {
+export function UsersTableClient({ users: initialUsers, role }: UsersTableClientProps) {
     const { data: session, status } = useSession()
     const [users, setUsers] = useState<UserWithRoleAndProfile[]>([])
 
     useEffect(() => {
         setUsers(initialUsers)
     }, [initialUsers])
-
-    if (status === 'loading') {
-        return <div>Loading session...</div>
-    }
 
     const handleUserUpdate = (updatedUser: UserWithRoleAndProfile) => {
         setUsers(prev =>
@@ -34,7 +30,11 @@ export function UsersTableClient({ users: initialUsers }: UsersTableClientProps)
         setUsers(prev => prev.filter(u => u.id !== deletedUserId))
     }
 
-    const columns = createColumns(session, handleUserUpdate, handleUserDelete)
+    const columns = useCreateColumns(session, handleUserUpdate, handleUserDelete)
 
-    return <DataTable data={users} columns={columns} selection={false} />
+    if (status === 'loading') {
+        return <div>Loading session...</div>
+    }
+
+    return <DataTable data={users} columns={columns} selection={false} role={role} />
 }
