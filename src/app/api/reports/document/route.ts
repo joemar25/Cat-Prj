@@ -1,14 +1,7 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient, Prisma, FormType } from '@prisma/client'
-import {
-    GroupByOption,
-    ReportDataItem,
-    groupDocumentsByPeriod,
-    zeroFillMultipleYears,
-    zeroFillGroups,
-    countGlobalRegistrations,
-} from '@/lib/report-helpers'
 import { ApiResponse } from '@/types/report'
+import { PrismaClient, Prisma, FormType } from '@prisma/client'
+import { GroupByOption, ReportDataItem, groupDocumentsByPeriod, zeroFillMultipleYears, zeroFillGroups, countGlobalRegistrations, DocumentWithBaseRegistryForm } from '@/lib/report-helpers'
 
 const prisma = new PrismaClient()
 
@@ -38,10 +31,12 @@ export async function GET(request: Request) {
             }
         }
 
-        // Build the document where clause to ensure at least one base form matches.
+        // Build the document where clause using the relation through BaseRegistryFormDocument
         const whereClause: Prisma.DocumentWhereInput = {
-            BaseRegistryForm: {
-                some: baseFormWhere,
+            baseRegistryForms: {
+                some: {
+                    baseRegistryForm: baseFormWhere
+                }
             },
         }
 
@@ -49,29 +44,49 @@ export async function GET(request: Request) {
         const documents = await prisma.document.findMany({
             where: whereClause,
             include: {
-                BaseRegistryForm: {
-                    select: {
-                        id: true,
-                        formType: true,
-                        createdAt: true,
-                        documentId: true,
+                baseRegistryForms: {
+                    include: {
+                        baseRegistryForm: {
+                            select: {
+                                id: true,
+                                formType: true,
+                                createdAt: true,
+                            },
+                        },
                     },
                 },
             },
             orderBy: { createdAt: 'asc' },
         })
 
+        // Transform the documents to include flattened baseRegistryForm data
+        // that's compatible with your report-helpers functions
+        const transformedDocuments: DocumentWithBaseRegistryForm[] = documents.map(doc => {
+            // Create a compatible BaseRegistryForm array with documentId
+            const baseForms = doc.baseRegistryForms.map(relation => ({
+                id: relation.baseRegistryForm.id,
+                formType: relation.baseRegistryForm.formType,
+                documentId: doc.id, // Add documentId which is the current document's id
+                createdAt: relation.baseRegistryForm.createdAt
+            }));
+
+            return {
+                ...doc,
+                BaseRegistryForm: baseForms
+            } as DocumentWithBaseRegistryForm;
+        });
+
         // Group documents by period using the earliest valid base form's createdAt.
-        const groups = groupDocumentsByPeriod(documents, groupBy)
+        const groups = groupDocumentsByPeriod(transformedDocuments, groupBy)
 
         // Use zero-fill helpers.
         let reportData: ReportDataItem[] = []
         if (!startDateParam && !endDateParam) {
-            reportData = zeroFillMultipleYears(groups, groupBy, documents)
+            reportData = zeroFillMultipleYears(groups, groupBy, transformedDocuments)
         } else {
             // Derive the years present in the filtered data.
             const yearsSet = new Set<number>()
-            documents.forEach((doc) => {
+            transformedDocuments.forEach((doc) => {
                 const validForms = doc.BaseRegistryForm.filter(
                     (form) => form.documentId && form.createdAt
                 )
@@ -96,14 +111,11 @@ export async function GET(request: Request) {
         const totalGroups = reportData.length
         const paginatedData = reportData.slice((page - 1) * pageSize, page * pageSize)
 
-        // Use the filtered documents for counts.
-        const classificationCounts = countGlobalRegistrations(documents)
+        // Use the transformed documents for counts.
+        const classificationCounts = countGlobalRegistrations(transformedDocuments)
 
         // ===== NEW: Fetch all available years (ignoring any date filters) =====
         const allBaseForms = await prisma.baseRegistryForm.findMany({
-            where: {
-                documentId: { not: null },
-            },
             select: { createdAt: true },
         })
         const availableYearsSet = new Set<number>()
