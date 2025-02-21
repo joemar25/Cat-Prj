@@ -101,11 +101,11 @@ export default function MarriageCertificateForm({
                 {/* Right Side - Preview */}
                 <div className='w-1/2'>
                   <div className='h-[calc(95vh-120px)]'>
-                    <PDFViewer width='100%' height='100%'>
+                    {/* <PDFViewer width='100%' height='100%'>
                       <MarriageCertificatePDF
                         data={formMethods.watch()} // Pass the current form data directly to the PDF preview
                       />
-                    </PDFViewer>
+                    </PDFViewer> */}
                   </div>
                 </div>
               </div>
@@ -123,11 +123,11 @@ export default function MarriageCertificateForm({
                 type='submit'
                 className='py-2 w-32 bg-primary/80 hover:bg-primary'
               >
-                Save
+                Save  
               </Button>
-              <Button type="button" onClick={() => console.log('Form State:', formMethods.getValues())}>
+              {/* <Button type="button" onClick={() => console.log('Form State:', formMethods.getValues())}>
                 Log Form Data
-              </Button>
+              </Button> */}
 
             </DialogFooter>
           </form>
