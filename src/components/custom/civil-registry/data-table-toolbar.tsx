@@ -23,7 +23,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { DataTableViewOptions } from "@/components/custom/table/data-table-view-options"
 import { DataTableFacetedFilter } from "@/components/custom/table/data-table-faceted-filter"
 import { AddCivilRegistryFormDialog } from "@/components/custom/civil-registry/actions/add-form-dialog"
-import { AlertCircle, Info } from 'lucide-react'
+import { AlertCircle, Info, Search, X } from 'lucide-react'
+import { AnimatePresence, motion } from "framer-motion"
 
 interface DataTableToolbarProps {
   table: Table<BaseRegistryFormWithRelations>
@@ -58,6 +59,7 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
   const [middleNameSearch, setMiddleNameSearch] = useState<string>("")
   const [lastNameSearch, setLastNameSearch] = useState<string>("")
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
+  const [showSearch, setShowSearch] = useState<boolean>(false)
 
   // Get status icon based on status
   const getStatusIcon = (status: DocumentStatus) => {
@@ -274,150 +276,175 @@ export function DataTableToolbar({ table }: DataTableToolbarProps) {
     }, 1000)
   }
 
+
+
   return (
     <div className="space-y-4 relative">
-      <Card>
-        <CardContent className="space-y-6">
-          <div className="w-full max-w-5xl py-4 mx-auto">
-            {/* Row 1: Global Search, Page Number, Book Number */}
-            <div className="grid grid-cols-3 gap-4">
-              {/* Global Search */}
-              <div className="flex flex-col">
-                <Label htmlFor="globalSearch" className="text-sm font-medium">
-                  {t("Global Search")}
-                </Label>
-                <div className="relative mt-1">
-                  <Icons.search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="globalSearch"
-                    placeholder={t("Search forms...")}
-                    className="pl-8"
-                    onChange={(e) => table.setGlobalFilter(e.target.value)}
-                  />
-                </div>
-              </div>
+      <AnimatePresence >
+        {showSearch && (
+          <motion.div
+            initial={{ opacity: 0, y: '-50%' }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: '-50%' }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            <Card>
+              <CardContent className="space-y-6 relative h-fit ">
+                <X onClick={() => setShowSearch(false)} className="absolute right-2 -top-4 cursor-pointer" />
 
-              {/* Page Number */}
-              <div className="flex flex-col">
-                <Label htmlFor="pageNumber" className="text-sm font-medium">
-                  {t("Page number")}
-                </Label>
-                <div className="relative mt-1">
-                  <Icons.hash className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="pageNumber"
-                    placeholder={t("Enter page #")}
-                    className="pl-8"
-                    value={pageSearch}
-                    onChange={(e) => handlePageSearch(e.target.value)}
-                  />
-                </div>
-              </div>
+                <div className="w-full max-w-5xl py-4 mx-auto">
+                  {/* Row 1: Global Search, Page Number, Book Number */}
+                  <div className="grid grid-cols-3 gap-4">
+                    {/* Global Search */}
+                    <div className="flex flex-col">
+                      <Label htmlFor="globalSearch" className="text-sm font-medium">
+                        {t("Global Search")}
+                      </Label>
+                      <div className="relative mt-1">
+                        <Icons.search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          id="globalSearch"
+                          placeholder={t("Search forms...")}
+                          className="pl-8"
+                          onChange={(e) => table.setGlobalFilter(e.target.value)}
+                        />
+                      </div>
+                    </div>
 
-              {/* Book Number */}
-              <div className="flex flex-col">
-                <Label htmlFor="bookNumber" className="text-sm font-medium">
-                  {t("Book number")}
-                </Label>
-                <div className="relative mt-1">
-                  <Icons.book className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="bookNumber"
-                    placeholder={t("Enter book #")}
-                    className="pl-8"
-                    value={bookSearch}
-                    onChange={(e) => handleBookSearch(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
+                    {/* Page Number */}
+                    <div className="flex flex-col">
+                      <Label htmlFor="pageNumber" className="text-sm font-medium">
+                        {t("Page number")}
+                      </Label>
+                      <div className="relative mt-1">
+                        <Icons.hash className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          id="pageNumber"
+                          placeholder={t("Enter page #")}
+                          className="pl-8"
+                          value={pageSearch}
+                          onChange={(e) => handlePageSearch(e.target.value)}
+                        />
+                      </div>
+                    </div>
 
-            {/* Row 2: Name Search Fields */}
-            <div className="grid grid-cols-3 gap-4 mt-4">
-              {/* First Name */}
-              <div className="flex flex-col">
-                <Label htmlFor="firstName" className="text-sm font-medium">
-                  {t("First name")}
-                </Label>
-                <div className="relative mt-1">
-                  <Icons.user className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="firstName"
-                    placeholder={t("Enter first name")}
-                    className="pl-8"
-                    value={firstNameSearch}
-                    onChange={(e) => {
-                      setFirstNameSearch(e.target.value)
-                      if (detailsColumn) {
-                        detailsColumn.setFilterValue([
-                          e.target.value,
-                          middleNameSearch,
-                          lastNameSearch,
-                        ])
-                      }
-                    }}
-                  />
-                </div>
-              </div>
+                    {/* Book Number */}
+                    <div className="flex flex-col">
+                      <Label htmlFor="bookNumber" className="text-sm font-medium">
+                        {t("Book number")}
+                      </Label>
+                      <div className="relative mt-1">
+                        <Icons.book className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          id="bookNumber"
+                          placeholder={t("Enter book #")}
+                          className="pl-8"
+                          value={bookSearch}
+                          onChange={(e) => handleBookSearch(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-              {/* Middle Name */}
-              <div className="flex flex-col">
-                <Label htmlFor="middleName" className="text-sm font-medium">
-                  {t("Middle name")}
-                </Label>
-                <div className="relative mt-1">
-                  <Icons.user className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="middleName"
-                    placeholder={t("Enter middle name")}
-                    className="pl-8"
-                    value={middleNameSearch}
-                    onChange={(e) => {
-                      setMiddleNameSearch(e.target.value)
-                      if (detailsColumn) {
-                        detailsColumn.setFilterValue([
-                          firstNameSearch,
-                          e.target.value,
-                          lastNameSearch,
-                        ])
-                      }
-                    }}
-                  />
-                </div>
-              </div>
+                  {/* Row 2: Name Search Fields */}
+                  <div className="grid grid-cols-3 gap-4 mt-4">
+                    {/* First Name */}
+                    <div className="flex flex-col">
+                      <Label htmlFor="firstName" className="text-sm font-medium">
+                        {t("First name")}
+                      </Label>
+                      <div className="relative mt-1">
+                        <Icons.user className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          id="firstName"
+                          placeholder={t("Enter first name")}
+                          className="pl-8"
+                          value={firstNameSearch}
+                          onChange={(e) => {
+                            setFirstNameSearch(e.target.value)
+                            if (detailsColumn) {
+                              detailsColumn.setFilterValue([
+                                e.target.value,
+                                middleNameSearch,
+                                lastNameSearch,
+                              ])
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
 
-              {/* Last Name */}
-              <div className="flex flex-col">
-                <Label htmlFor="lastName" className="text-sm font-medium">
-                  {t("Last name")}
-                </Label>
-                <div className="relative mt-1">
-                  <Icons.user className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="lastName"
-                    placeholder={t("Enter last name")}
-                    className="pl-8"
-                    value={lastNameSearch}
-                    onChange={(e) => {
-                      setLastNameSearch(e.target.value)
-                      if (detailsColumn) {
-                        detailsColumn.setFilterValue([
-                          firstNameSearch,
-                          middleNameSearch,
-                          e.target.value,
-                        ])
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+                    {/* Middle Name */}
+                    <div className="flex flex-col">
+                      <Label htmlFor="middleName" className="text-sm font-medium">
+                        {t("Middle name")}
+                      </Label>
+                      <div className="relative mt-1">
+                        <Icons.user className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          id="middleName"
+                          placeholder={t("Enter middle name")}
+                          className="pl-8"
+                          value={middleNameSearch}
+                          onChange={(e) => {
+                            setMiddleNameSearch(e.target.value)
+                            if (detailsColumn) {
+                              detailsColumn.setFilterValue([
+                                firstNameSearch,
+                                e.target.value,
+                                lastNameSearch,
+                              ])
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
 
+                    {/* Last Name */}
+                    <div className="flex flex-col">
+                      <Label htmlFor="lastName" className="text-sm font-medium">
+                        {t("Last name")}
+                      </Label>
+                      <div className="relative mt-1">
+                        <Icons.user className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          id="lastName"
+                          placeholder={t("Enter last name")}
+                          className="pl-8"
+                          value={lastNameSearch}
+                          onChange={(e) => {
+                            setLastNameSearch(e.target.value)
+                            if (detailsColumn) {
+                              detailsColumn.setFilterValue([
+                                firstNameSearch,
+                                middleNameSearch,
+                                e.target.value,
+                              ])
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       <div className="flex flex-wrap gap-2 justify-between items-center">
         <div className="flex flex-wrap gap-2">
+
+          <Button
+            className="bg-background border border-muted h-8 w-36 text-accent-foreground hover:bg-muted/60 text-left text-sm flex items-center justify-start gap-3 px-3 shadow-none"
+            onClick={() => setShowSearch(!showSearch)}
+          >
+            <Search size={16} />
+            {showSearch ? "Close Search" : "Search"}
+          </Button>
+
+
           {formTypeColumn && (
             <DataTableFacetedFilter
               column={formTypeColumn}
